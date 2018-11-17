@@ -1,0 +1,66 @@
+<form class="was-validated" [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="form">
+  <div class="d-flex flex-wrap position-relative">
+    <ngx-loading [show]="isSaving"></ngx-loading>
+    <div class="card">
+      <div class="card-header">Jackett</div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Host</label>
+          <input type="text" class="form-control" placeholder="localhost" formControlName="jackett_host" required>
+        </div>
+        <div class="form-group">
+          <label>Port</label>
+          <input type="number" class="form-control" placeholder="9117" formControlName="jackett_port" required>
+        </div>
+        <div class="form-group">
+          <label>API Token</label>
+          <input type="text" class="form-control" placeholder="" formControlName="jackett_token" required>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">Transmission</div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Host</label>
+          <input type="text" class="form-control" placeholder="localhost" formControlName="transmission_host" required>
+        </div>
+        <div class="form-group">
+          <label>Port</label>
+          <input type="number" class="form-control" placeholder="9091" formControlName="transmission_port" required>
+        </div>
+        <div class="form-group">
+          <label>User</label>
+          <input type="text" class="form-control" placeholder="" formControlName="transmission_user" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="text" class="form-control" placeholder="" formControlName="transmission_pass" required>
+        </div>
+        <div class="form-group">
+          <label>TV Download Sub Directory</label>
+          <input type="text" class="form-control" placeholder="TV Shows/" formControlName="transmission_tv_download_dir" required>
+          <small class="form-text text-muted">Relative to download path</small>
+        </div>
+        <div class="form-group">
+          <label>Movie Download Sub Directory</label>
+          <input type="text" class="form-control" placeholder="Movies/" formControlName="transmission_movie_download_dir" required>
+          <small class="form-text text-muted">Relative to download path</small>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">The Movie Database</div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>API Token</label>
+          <input type="text" class="form-control" placeholder="" formControlName="tmdb_token" required>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="d-flex justify-content-between mt-3">
+    <button type="button" class="btn btn-warning" (click)="verifySettings()">Verify</button>
+    <button class="btn btn-success" [disabled]="!form.valid">Save</button>
+  </div>
+</form>

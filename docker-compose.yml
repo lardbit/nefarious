@@ -1,0 +1,49 @@
+version: '2'
+
+services:
+
+  nefarious:
+    image: lardbit/nefarious
+    ports:
+    - "8000:80"
+    environment:
+      # https://github.com/kennethreitz/dj-database-url
+      DATABASE_URL: "sqlite:////nefarious-db/db.sqlite3"
+      REDIS_HOST: "redis"
+    volumes:
+    # persistent named volume for sqlite database
+    - nefarious-db:/nefarious-db
+    depends_on:
+    - redis
+    - jackett
+    - celery
+
+  celery:
+    image: lardbit/nefarious
+    entrypoint: /env/bin/celery -A nefarious worker --beat --loglevel=INFO
+    environment:
+      # https://github.com/kennethreitz/dj-database-url
+      DATABASE_URL: "sqlite:////nefarious-db/db.sqlite3"
+      REDIS_HOST: "redis"
+    volumes:
+    # persistent named volume for sqlite database
+    - nefarious-db:/nefarious-db
+    depends_on:
+      - redis
+
+  redis:
+    image: redis
+    # TODO - don't expose
+    ports:
+    - "6379:6379"
+
+  jackett:
+    image: linuxserver/jackett
+    ports:
+      - "9117:9117"
+    volumes:
+      - jackett-config:/config
+
+volumes:
+  nefarious-db:
+  jackett-config:

@@ -1,0 +1,46 @@
+<app-search-tabs></app-search-tabs>
+<app-search-input (query)="searchTorrents()" [isSearching]="isSearching"></app-search-input>
+
+<div class="position-relative">
+
+  <ngx-loading [show]="isSearching"></ngx-loading>
+
+  <!--<div class="alert alert-info" *ngIf="!isSearching && results.length == 0">No results</div>-->
+
+  <form class="form-inline" *ngIf="results.length">
+    <div class="form-group">
+      <label class="m-2">Sort</label>
+      <select name="orderBy" [(ngModel)]="filters.orderBy" (change)="filterChange()" class="form-control form-control-sm">
+        <option *ngFor="let option of orderByOptions">{{ option }}</option>
+      </select>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-striped" *ngIf="results.length">
+      <thead>
+      <tr>
+        <th scope="col">Title</th>
+        <th scope="col">Tracker</th>
+        <th scope="col">Seeders</th>
+        <th scope="col">Size</th>
+        <th scope="col"></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let result of results">
+        <td>{{ result.Title }}</td>
+        <td>{{ result.Tracker }}</td>
+        <td>{{ result.Seeders }}</td>
+        <td>{{ result.Size | filesize }}</td>
+        <td>
+          <button class="btn btn-sm btn-default position-relative" (click)="downloadTorrent(result)" [disabled]="isDownloading(result)">
+            <ngx-loading [show]="isDownloading(result)"></ngx-loading>
+            <span class="oi oi-cloud-upload"></span>
+          </button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

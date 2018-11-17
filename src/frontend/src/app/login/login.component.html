@@ -1,0 +1,16 @@
+<div class="row justify-content-center position-relative">
+  <ngx-loading [show]="isSaving"></ngx-loading>
+  <form class="col-12 col-md-8 col-lg-4 was-validated" [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="form">
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" class="form-control" placeholder="" formControlName="username" required>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" class="form-control" placeholder="" formControlName="password" required>
+    </div>
+    <div class="form-group">
+      <button class="btn btn-primary" [disabled]="!form.valid">Login</button>
+    </div>
+  </form>
+</div>

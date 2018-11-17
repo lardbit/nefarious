@@ -1,0 +1,29 @@
+<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+  <a class="navbar-brand" href="#">Nefarious</a>
+  <button class="navbar-toggler" type="button" (click)="toggleCollapseNav()" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" [ngbCollapse]="isCollapsed" id="navbarCollapse">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" [routerLink]="['/search']" (click)="collapseNav()" routerLinkActive="active">Search</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [routerLink]="['watching/tv']" (click)="collapseNav()" routerLinkActive="active">TV</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" [routerLink]="['watching/movie']" (click)="collapseNav()" routerLinkActive="active">Movies</a>
+      </li>
+      <li class="nav-item" *ngIf="isStaff()">
+        <a class="nav-link" [routerLink]="['/settings']" (click)="collapseNav()" routerLinkActive="active">Settings</a>
+      </li>
+    </ul>
+    <a class="" [routerLink]="['/login']">
+      <span *ngIf="!isLoggedIn()">Login</span>
+      <span *ngIf="isLoggedIn()"><span class="oi oi-person"></span> {{ getUserName() }}</span>
+    </a>
+  </div>
+</nav>
+<main role="main">
+  <router-outlet></router-outlet>
+</main>

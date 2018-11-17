@@ -1,0 +1,55 @@
+<div class="card position-relative">
+  <ngx-loading [show]="isLoading"></ngx-loading>
+  <div *ngIf="!isLoading">
+    <div class="card-body">
+      <h5 class="card-title">{{ result.name }}</h5>
+      <p class="card-text">{{ result.overview }}</p>
+    </div>
+    <div class="card-body">
+      <ngb-tabset>
+        <ngb-tab title="Details">
+          <ng-template ngbTabContent>
+            <div class="row">
+              <div class="col">
+                <img [src]="mediaPosterURL(result)"  class="img-fluid">
+              </div>
+              <div class="col position-relative">
+                <ngx-loading [show]="isSaving"></ngx-loading>
+                <ul class="list-group" *ngFor="let season of result.seasons">
+                  <ngb-accordion>
+                    <ngb-panel [title]="'Season ' + season.season_number">
+                      <ng-template ngbPanelContent>
+                        <p *ngIf="season.overview">{{ season.overview }}</p>
+                        <form class="form" *ngIf="watchEpisodesOptions" (submit)="submit()">
+                          <div *ngFor="let episode of season.episodes" class="form-check">
+                            <input class="form-check-input" type="checkbox" [(ngModel)]="watchEpisodesOptions[episode.id]" [name]="episode.id" [id]="episode.id">
+                            <label class="form-check-label" [for]="episode.id">#{{ episode.episode_number }} - {{ episode.name }}</label>
+                          </div>
+                          <div class="row justify-content-between m-3">
+                            <button type="button" class="btn btn-info" (click)="watchEntireSeason(season)">
+                              Watch entire season
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                              Save
+                            </button>
+                          </div>
+                        </form>
+                      </ng-template>
+                    </ngb-panel>
+                  </ngb-accordion>
+                </ul>
+              </div>
+            </div>
+          </ng-template>
+        </ngb-tab>
+        <ngb-tab title="Status" *ngIf="isWatchingShow(result.id)">
+          <ng-template ngbTabContent>
+            <div>
+              <app-torrent-details [watchMedia]="getWatchEpisodes()"></app-torrent-details>
+            </div>
+          </ng-template>
+        </ngb-tab>
+      </ngb-tabset>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,11 @@
+<form class="row" (ngSubmit)="submitSearch()">
+  <input [(ngModel)]="searchQuery.query" required minlength="2" name="q" #q="ngModel" class="col-12 col-md-8 form-control form-control-lg" type="text" placeholder="Search..." autocomplete="off">
+  <select [(ngModel)]="searchQuery.type" class="col-8 col-md-2 form-control form-control-lg" name="type" #type="ngModel">
+    <option value="movie">Movies</option>
+    <option value="tv">TV Shows</option>
+  </select>
+  <button type="submit" class="col-4 col-md-2 btn btn-primary position-relative" [ngClass]="{'disabled': q.invalid}">
+    <ngx-loading [show]="isSearching"></ngx-loading>
+    Search
+  </button>
+</form>

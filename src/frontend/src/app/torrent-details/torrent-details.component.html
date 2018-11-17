@@ -1,0 +1,27 @@
+<div class="position-relative">
+  <ngx-loading [show]="isSaving || !getTorrentIds().length || !torrents.length"></ngx-loading>
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Status</th>
+      <th>Progress</th>
+      <th>ETA</th>
+      <th>Date Added</th>
+      <th>Date Done</th>
+      <th>Blacklist and Retry</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let torrent of torrents">
+      <td><abbr [title]="torrent.name">{{ getWatchMediaFromTorrentId(torrent.id)?.name }}</abbr></td>
+      <td>{{ torrent.status }}</td>
+      <td>{{ torrent.progress }}%</td>
+      <td>{{ torrent.format_eta }}</td>
+      <td>{{ torrent.date_added | date }}</td>
+      <td><span *ngIf="torrent.progress === 100">{{ torrent.date_done | date }}</span></td>
+      <td><button class="btn btn-warning btn-sm" (click)="blacklistRetry(torrent)"><span class="oi oi-ban"></span></button></td>
+    </tr>
+    </tbody>
+  </table>
+</div>
