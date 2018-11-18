@@ -14,8 +14,10 @@ Features:
 - [x] Auto download TV (individual or full season)
 - [x] Auto download Movies
 - [x] Manually search Jackett results and download
+- [ ] Support blacklisting torrent results
+- [ ] Support quality profiles
 - [ ] Support multiple user permissions (i.e a user must "request" to watch something)
-- [ ] Monitor transmission data results form within the app
+- [ ] Monitor transmission data results from within the app
 - [ ] Auto download media once it's released (routinely scan)
 
 ### Running via docker-compose
