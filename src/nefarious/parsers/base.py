@@ -3,7 +3,8 @@ from nefarious.profiles import media_extensions
 
 
 class ParserBase:
-    media_matches = list()
+    media_regex_list = list()
+    match: dict = None
 
     word_delimiter_regex = regex.compile(r"(\s|\.|,|_|-|=|\|)+")
     punctuation_regex = regex.compile(r"[^\w\s]")
@@ -15,6 +16,19 @@ class ParserBase:
     clean_torrent_suffix_regex = regex.compile(r"\[(?:ettv|rartv|rarbg|cttv)\]$", regex.I)
     clean_quality_brackets_regex = regex.compile(r"\[[a-z0-9 ._-]+\]$")
 
+    def __init__(self, title):
+        title = self.normalize_title(title)
+
+        matches = self.matches(title)
+
+        if matches:
+            # get the first match
+            self.match = matches[0]
+
+            # single title
+            if 'title' in self.match:
+                self.match['title'] = self.normalize_media_title(self.match['title'][0])
+
     @staticmethod
     def _parse_number_word(number: str):
         numbers = ('zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine')
@@ -24,7 +38,7 @@ class ParserBase:
 
     def matches(self, name):
         results = []
-        for match_name, match_re in self.media_matches:
+        for match_name, match_re in self.media_regex_list:
             match = match_re.search(name)
             if match:
                 result = match.capturesdict()
@@ -57,3 +71,6 @@ class ParserBase:
         title = self.duplicate_spaces_regex.sub(' ', title)
 
         return title.strip().lower()
+
+    def is_match(self, title) -> bool:
+        raise NotImplementedError

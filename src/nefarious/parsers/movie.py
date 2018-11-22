@@ -5,7 +5,7 @@ from nefarious.parsers.base import ParserBase
 
 
 class MovieParser(ParserBase):
-    media_matches = [
+    media_regex_list = [
         # Some german or french tracker formats
         (
             'Some german or french tracker formats',
@@ -43,19 +43,7 @@ class MovieParser(ParserBase):
         ),
     ]
 
-    def parse(self, title):
-        title = self.normalize_title(title)
-
-        matches = self.matches(title)
-
-        if not matches:
-            return None
-
-        # get the first match
-        result = matches[0]
-
-        # single title
-        if 'title' in result:
-            result['title'] = self.normalize_media_title(result['title'][0])
-
-        return result
+    def is_match(self, title) -> bool:
+        if self.match and self.match['title'] == self.normalize_media_title(title):
+            return True
+        return False
