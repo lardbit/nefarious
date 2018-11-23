@@ -353,26 +353,26 @@ class TVParser(ParserBase):
             return None
 
         # get the first match
-        result = matches[0]
+        self.match = matches[0]
 
         # single title
-        if 'title' in result:
-            result['title'] = self.normalize_media_title(result['title'][0])
+        if 'title' in self.match:
+            self.match['title'] = self.normalize_media_title(self.match['title'][0])
 
         # parse multiple seasons
-        if 'season' in result:
-            for i, season in enumerate(result['season']):
-                result['season'][i] = self.normalize_season_episode(season)
+        if 'season' in self.match:
+            for i, season in enumerate(self.match['season']):
+                self.match['season'][i] = self.normalize_season_episode(season)
         # default to the first season
         else:
-            result['season'] = [1]
+            self.match['season'] = [1]
 
         # parse multiple episodes
-        if 'episode' in result:
-            for i, episode in enumerate(result['episode']):
-                result['episode'][i] = self.normalize_season_episode(episode)
+        if 'episode' in self.match:
+            for i, episode in enumerate(self.match['episode']):
+                self.match['episode'][i] = self.normalize_season_episode(episode)
 
-        return result
+        return self.match
 
     def is_season_match(self, title, season_number) -> bool:
         # verify no "episode" in match

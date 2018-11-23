@@ -31,7 +31,6 @@ class MovieMatch(TestCase):
         ]
 
     def test_movie(self):
-        parser = MovieParser()
         for name, title in self.movie_tests:
-            match = parser.parse(name)
-            self.assertEqual(parser.normalize_media_title(title), match.get('title', ''), 'Title {}'.format(match['match_name']))
+            parser = MovieParser(title)
+            self.assertTrue(parser.is_match(title), '{} ({})'.format(name, parser.match))

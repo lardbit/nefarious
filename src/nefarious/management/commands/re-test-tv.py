@@ -9,5 +9,5 @@ class Command(BaseCommand):
         parser.add_argument('title', type=str)
 
     def handle(self, *args, **options):
-        parser = TVParser()
-        print(parser.parse(options['title']))
+        parser = TVParser(options['title'])
+        print(parser.match)

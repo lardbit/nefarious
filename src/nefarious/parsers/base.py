@@ -17,6 +17,9 @@ class ParserBase:
     clean_quality_brackets_regex = regex.compile(r"\[[a-z0-9 ._-]+\]$")
 
     def __init__(self, title):
+        self.parse(title)
+
+    def parse(self, title):
         title = self.normalize_title(title)
 
         matches = self.matches(title)

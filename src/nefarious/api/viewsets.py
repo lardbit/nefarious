@@ -195,9 +195,6 @@ class SearchTorrentsView(views.APIView):
         search = SearchTorrents(media_type, query)
         if not search.ok:
             return Response({'error': search.error_content}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        for result in search.results['Results']:
-            parser = TVParser()
-            result['PARSED'] = parser.parse(result['Title'])
         return Response(search.results)
 
 
