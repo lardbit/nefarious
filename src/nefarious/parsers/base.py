@@ -72,5 +72,5 @@ class ParserBase:
 
         return title.strip().lower()
 
-    def is_match(self, title) -> bool:
+    def is_match(self, *args) -> bool:
         raise NotImplementedError

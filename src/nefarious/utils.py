@@ -38,39 +38,6 @@ def trace_torrent_url(url: str) -> str:
     return url
 
 
-def get_best_torrent_result(results: list, nefarious_settings: NefariousSettings):
-    best_result = None
-    valid_search_results = []
-
-    for result in results:
-
-        # try and obtain the torrent url (it can redirect to a magnet url)
-        try:
-            # add a new key to our result object with the traced torrent url
-            result['torrent_url'] = result['MagnetUri'] or trace_torrent_url(
-                swap_jackett_host(result['Link'], nefarious_settings))
-        except Exception as e:
-            logging.info('Exception tracing torrent url: {}'.format(e))
-            continue
-
-        # add torrent to valid search results
-        logging.info('Valid Match: {} with {} Seeders'.format(result['Title'], result['Seeders']))
-        valid_search_results.append(result)
-
-    if valid_search_results:
-
-        # find the torrent result with the highest weight (i.e seeds)
-        best_result = valid_search_results[0]
-        for result in valid_search_results:
-            if result['Seeders'] > best_result['Seeders']:
-                best_result = result
-
-    else:
-        logging.info('No valid best search result')
-
-    return best_result
-
-
 def verify_settings_tmdb(nefarious_settings: NefariousSettings):
     # verify tmdb configuration settings
     try:
