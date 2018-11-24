@@ -134,5 +134,5 @@ class TVMatch(TestCase):
 
     def test_tv(self):
         for name, title, season, episode in self.tv_single_episode_tests:
-            parser = TVParser(title)
-            self.assertTrue(parser.is_episode_match(title, season, episode), '{} ({})'.format(name, parser.match))
+            parser = TVParser(name)
+            self.assertTrue(parser.is_match(title, season, episode), '{} ({})'.format(name, parser.match))

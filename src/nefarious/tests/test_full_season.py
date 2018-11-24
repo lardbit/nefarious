@@ -30,4 +30,4 @@ class TVMatch(TestCase):
     def test_tv(self):
         for name, title, season in self.tv_season_tests:
             parser = TVParser(name)
-            self.assertTrue(parser.is_season_match(title, season), '{} ({})'.format(name, parser.match))
+            self.assertTrue(parser.is_match(title, season), '{} ({})'.format(name, parser.match))

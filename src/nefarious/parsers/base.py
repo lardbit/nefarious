@@ -21,15 +21,12 @@ class ParserBase:
 
     def parse(self, title):
         title = self.normalize_title(title)
-
         matches = self.matches(title)
-
         if matches:
             # get the first match
             self.match = matches[0]
-
             # single title
-            if 'title' in self.match:
+            if 'title' in self.match and self.match['title']:
                 self.match['title'] = self.normalize_media_title(self.match['title'][0])
 
     @staticmethod

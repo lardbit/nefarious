@@ -374,18 +374,30 @@ class TVParser(ParserBase):
 
         return self.match
 
-    def is_season_match(self, title, season_number) -> bool:
+    def is_match(self, title, season_number, episode_number=None):
+        if episode_number is not None:
+            return self._is_episode_match(title, season_number, episode_number)
+        else:
+            return self._is_season_match(title, season_number)
+
+    def _is_season_match(self, title, season_number) -> bool:
         # verify no "episode" in match
-        return self.match and all([
+        return self.match and 'title' in self.match and all([
             season_number in self.match['season'],
             'episode' not in self.match,
             self.match['title'] == self.normalize_media_title(title),
-        ])
+            ])
 
-    def is_episode_match(self, title, season_number, episode_number) -> bool:
+    def _is_episode_match(self, title, season_number, episode_number) -> bool:
         # must match season and episode
-        return self.match and all([
+        episode_season_match = self.match and all([
             season_number in self.match['season'],
             episode_number in self.match['episode'],
-            self.match['title'] == self.normalize_media_title(title),
-        ])
+            ])
+        if episode_season_match:
+            # don't enforce title if it's absent from the match itself
+            if 'title' not in self.match:
+                return True
+            else:
+                return self.match['title'] == self.normalize_media_title(title)
+        return False

@@ -32,5 +32,5 @@ class MovieMatch(TestCase):
 
     def test_movie(self):
         for name, title in self.movie_tests:
-            parser = MovieParser(title)
+            parser = MovieParser(name)
             self.assertTrue(parser.is_match(title), '{} ({})'.format(name, parser.match))
