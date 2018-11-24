@@ -136,8 +136,7 @@ class WatchProcessorBase:
         raise NotImplementedError
 
     def _get_search_results(self):
-        media = self.tmdb_media
-        return SearchTorrents(MEDIA_TYPE_MOVIE, media[self._get_tmdb_title_key()])
+        raise NotImplementedError
 
 
 class WatchMovieProcessor(WatchProcessorBase):
@@ -168,6 +167,10 @@ class WatchMovieProcessor(WatchProcessorBase):
     def _get_watch_media(self, watch_media_id: int):
         watch_movie = WatchMovie.objects.get(pk=watch_media_id)
         return watch_movie
+
+    def _get_search_results(self):
+        media = self.tmdb_media
+        return SearchTorrents(MEDIA_TYPE_MOVIE, media[self._get_tmdb_title_key()])
 
 
 class WatchTVProcessorBase(WatchProcessorBase):
@@ -213,6 +216,13 @@ class WatchTVEpisodeProcessor(WatchTVProcessorBase):
         episode = episode_result.info()
         return episode
 
+    def _get_search_results(self):
+        # query the show for this episode
+        watch_episode = self.watch_media  # type: WatchTVEpisode
+        show_result = self.tmdb_client.TV(watch_episode.watch_tv_show.tmdb_show_id)
+        show = show_result.info()
+        return SearchTorrents(MEDIA_TYPE_TV, show['name'])
+
 
 class WatchTVShowProcessor(WatchTVProcessorBase):
     """
@@ -240,6 +250,10 @@ class WatchTVShowProcessor(WatchTVProcessorBase):
         show_result = self.tmdb_client.TV(self.watch_media.tmdb_show_id)
         show = show_result.info()
         return show
+
+    def _get_search_results(self):
+        media = self.tmdb_media
+        return SearchTorrents(MEDIA_TYPE_TV, media[self._get_tmdb_title_key()])
 
     def _save_torrent_details(self, torrent):
         # they'll all be the same transmission id since it's a full season torrent
