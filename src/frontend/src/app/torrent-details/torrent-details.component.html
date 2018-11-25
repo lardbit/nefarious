@@ -15,7 +15,7 @@
     <tbody>
     <tr *ngFor="let torrent of torrents">
       <td>
-        <button type="button" class="btn btn-outline-secondary mr-2" placement="top" [ngbPopover]="torrent.name" popoverTitle="Torrent Details">
+        <button type="button" class="btn btn-outline-secondary mr-2" placement="top" [ngbPopover]="torrent.name" popoverTitle="Torrent Name">
           {{ getWatchMediaFromTorrentId(torrent.id)?.name }}
         </button>
       </td>
