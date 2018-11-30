@@ -32,6 +32,7 @@ export class SettingsComponent implements OnInit {
       'transmission_tv_download_dir': [settings['transmission_tv_download_dir'], Validators.required],
       'transmission_movie_download_dir': [settings['transmission_movie_download_dir'], Validators.required],
       'tmdb_token': [settings['tmdb_token'], Validators.required],
+      'quality_profile': [settings['quality_profile'], Validators.required],
     });
   }
 
@@ -74,5 +75,9 @@ export class SettingsComponent implements OnInit {
         this.isSaving = false;
       },
     );
+  }
+
+  public qualityProfiles(): string[] {
+    return this.apiService.settings.quality_profiles;
   }
 }

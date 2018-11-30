@@ -344,8 +344,8 @@ class TVParser(ParserBase):
         else:
             return self._parse_number_word(value)
 
-    def parse(self, title):
-        title = self.normalize_title(title)
+    def parse(self, name):
+        title = self.normalize_title(name)
 
         matches = self.matches(title)
 
@@ -371,6 +371,10 @@ class TVParser(ParserBase):
         if 'episode' in self.match:
             for i, episode in enumerate(self.match['episode']):
                 self.match['episode'][i] = self.normalize_season_episode(episode)
+
+        # TODO
+        resolution = self._parse_resolution(name)
+        self.match['resolution'] = resolution
 
         return self.match
 

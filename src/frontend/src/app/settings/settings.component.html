@@ -58,6 +58,17 @@
         </div>
       </div>
     </div>
+    <div class="card">
+      <div class="card-header">Quality Profile</div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Profile</label>
+          <select type="text" class="form-control" formControlName="quality_profile" required>
+            <option *ngFor="let profile of qualityProfiles()" [value]="profile">{{ profile }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="d-flex justify-content-between mt-3">
     <button type="button" class="btn btn-warning" (click)="verifySettings()">Verify</button>

@@ -7,6 +7,7 @@ from nefarious.models import (
     NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie,
     PERM_CAN_WATCH_IMMEDIATELY_TV, PERM_CAN_WATCH_IMMEDIATELY_MOVIE,
 )
+from nefarious.quality import PROFILES
 from nefarious.tmdb import get_tmdb_client
 from nefarious.utils import verify_settings_jackett, verify_settings_transmission, verify_settings_tmdb
 
@@ -19,6 +20,10 @@ class UserReferenceSerializerMixin(serializers.ModelSerializer):
 
 class NefariousSettingsSerializer(serializers.ModelSerializer):
     tmdb_configuration = serializers.JSONField(required=False)
+    quality_profiles = serializers.SerializerMethodField()
+
+    def get_quality_profiles(self, obj):
+        return [p.name for p in PROFILES]
 
     class Meta:
         model = NefariousSettings

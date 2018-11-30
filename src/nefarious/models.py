@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from jsonfield import JSONField
 from django.db import models
-
+from nefarious import quality
 
 PERM_CAN_WATCH_IMMEDIATELY_TV = 'can_immediately_watch_tv'
 PERM_CAN_WATCH_IMMEDIATELY_MOVIE = 'can_immediately_watch_movie'
@@ -20,6 +20,7 @@ class NefariousSettings(models.Model):
     tmdb_token = models.CharField(max_length=500)
     tmdb_configuration = JSONField(blank=True, null=True)
     tmdb_configuration_date = models.DateTimeField(blank=True, null=True, auto_now=True)
+    quality_profile = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name)
 
 
 class WatchMediaBase(models.Model):
