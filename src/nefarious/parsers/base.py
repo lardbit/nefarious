@@ -1,5 +1,6 @@
 import regex
-from nefarious.quality import media_extensions, Resolution
+from nefarious import quality
+from nefarious.quality import Resolution
 
 # https://github.com/Sonarr/Sonarr/blob/master/src/NzbDrone.Core/Parser/Parser.cs
 # https://github.com/Sonarr/Sonarr/blob/master/src/NzbDrone.Core/Parser/QualityParser.cs
@@ -34,9 +35,9 @@ class ParserBase:
             if 'title' in self.match and self.match['title']:
                 self.match['title'] = self.normalize_media_title(self.match['title'][0])
 
-            # resolution
-            resolution = self._parse_resolution(name)
-            self.match['resolution'] = resolution
+            # quality
+            title_quality = self._parse_quality(name)
+            self.match['quality'] = title_quality.name
 
     @staticmethod
     def _parse_number_word(number: str):
@@ -46,8 +47,80 @@ class ParserBase:
             return numbers.index(number) if number in numbers else None
 
     def _parse_quality(self, name):
-        # TODO
-        pass
+        resolution = self._parse_resolution(name)
+        match = self.source_regex.search(name)
+        if match:
+            result = match.capturesdict()
+            if result['bluray']:
+                if 'xvid' in name:
+                    return quality.DVD
+                if resolution == Resolution.R2160p:
+                    return quality.BLURAY_2160P
+                elif resolution == Resolution.R1080p:
+                    return quality.BLURAY_1080P
+                elif resolution in [Resolution.R480P, Resolution.R576p]:
+                    return quality.DVD
+                return quality.BLURAY_720P
+            elif result['webdl']:
+                if resolution == Resolution.R2160p:
+                    return quality.WEBDL_2160P
+                elif resolution == Resolution.R1080p:
+                    return quality.WEBDL_1080P
+                elif resolution == Resolution.R720p:
+                    return quality.WEBDL_720P
+                return quality.WEBDL_480P
+            elif result['hdtv']:
+                if resolution == Resolution.R2160p:
+                    return quality.HDTV_2160P
+                elif resolution == Resolution.R1080p:
+                    return quality.HDTV_1080P
+                elif resolution == Resolution.R720p:
+                    return quality.HDTV_720P
+                return quality.SDTV
+            elif result['brrip']:
+                if resolution == Resolution.R2160p:
+                    return quality.BLURAY_2160P
+                elif resolution == Resolution.R1080p:
+                    return quality.BLURAY_1080P
+                elif resolution == Resolution.R720p:
+                    return quality.BLURAY_720P
+                return quality.DVD
+            elif result['dvd']:
+                return quality.DVD
+            elif any([result['pdtv'], result['sdtv'], result['dsr'], result['tvrip']]):
+                if resolution == Resolution.R1080p or '1080p' in name:
+                    return quality.HDTV_1080P
+                if resolution == Resolution.R720p or '720p' in name:
+                    return quality.HDTV_720P
+                return quality.SDTV
+
+        elif resolution:
+            if resolution == Resolution.R2160p:
+                return quality.HDTV_2160P
+            elif resolution == Resolution.R1080p:
+                return quality.HDTV_1080P
+            elif resolution == Resolution.R720p:
+                return quality.HDTV_720P
+            elif resolution == Resolution.R480P:
+                return quality.SDTV
+        elif 'x264' in name:
+            return quality.SDTV
+        elif '848x480' in name:
+            if 'dvd' in name:
+                return quality.DVD
+            return quality.SDTV
+        elif '1280x720' in name:
+            if 'bluray' in name:
+                return quality.BLURAY_720P
+            return quality.HDTV_720P
+        elif '1920x1080' in name:
+            if 'bluray' in name:
+                return quality.BLURAY_1080P
+            return quality.HDTV_1080P
+        elif 'bluray720p' in name:
+            return quality.BLURAY_720P
+        elif 'bluray1080p' in name:
+            return quality.BLURAY_1080P
 
     def _parse_resolution(self, name):
         match = self.resolution_regex.search(name)
@@ -95,7 +168,7 @@ class ParserBase:
         match = self.file_extension_regex.search(title)
         if match:
             match_ext = match.group().lower()
-            for ext, _ in media_extensions:
+            for ext, _ in quality.media_extensions:
                 if match_ext == ext:
                     title = title.replace(match_ext, '')
 

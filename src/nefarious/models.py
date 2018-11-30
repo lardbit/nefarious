@@ -20,7 +20,7 @@ class NefariousSettings(models.Model):
     tmdb_token = models.CharField(max_length=500)
     tmdb_configuration = JSONField(blank=True, null=True)
     tmdb_configuration_date = models.DateTimeField(blank=True, null=True, auto_now=True)
-    quality_profile = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name)
+    quality_profile = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
 
 
 class WatchMediaBase(models.Model):
