@@ -22,8 +22,14 @@ class NefariousSettings(models.Model):
     tmdb_configuration_date = models.DateTimeField(blank=True, null=True, auto_now=True)
 
 
-class WatchMovie(models.Model):
+class WatchMediaBase(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        abstract = True
+
+
+class WatchMovie(WatchMediaBase):
     tmdb_movie_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
     poster_image_url = models.CharField(max_length=1000)
@@ -42,8 +48,7 @@ class WatchMovie(models.Model):
         return self.name
 
 
-class WatchTVShow(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+class WatchTVShow(WatchMediaBase):
     tmdb_show_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
     poster_image_url = models.CharField(max_length=1000)
@@ -57,8 +62,7 @@ class WatchTVShow(models.Model):
         return self.name
 
 
-class WatchTVEpisode(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+class WatchTVEpisode(WatchMediaBase):
     watch_tv_show = models.ForeignKey(WatchTVShow, on_delete=models.CASCADE)
     tmdb_episode_id = models.IntegerField(unique=True)
     season_number = models.IntegerField()

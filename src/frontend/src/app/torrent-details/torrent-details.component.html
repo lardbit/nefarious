@@ -1,6 +1,6 @@
 <div class="position-relative">
   <ngx-loading [show]="isSaving || !getTorrentIds().length || !torrents.length"></ngx-loading>
-  <table class="table table-striped">
+  <table class="table table-striped table-responsive">
     <thead>
     <tr>
       <th>Name</th>
@@ -14,7 +14,11 @@
     </thead>
     <tbody>
     <tr *ngFor="let torrent of torrents">
-      <td><abbr [title]="torrent.name">{{ getWatchMediaFromTorrentId(torrent.id)?.name }}</abbr></td>
+      <td>
+        <button type="button" class="btn btn-outline-secondary mr-2" placement="top" [ngbPopover]="torrent.name" popoverTitle="Torrent Name">
+          {{ getWatchMediaFromTorrentId(torrent.id)?.name }}
+        </button>
+      </td>
       <td>{{ torrent.status }}</td>
       <td>{{ torrent.progress }}%</td>
       <td>{{ torrent.format_eta }}</td>
