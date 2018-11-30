@@ -373,7 +373,7 @@ class TVParser(ParserBase):
                 self.match['episode'][i] = self.normalize_season_episode(episode)
 
         # quality
-        title_quality = self._parse_quality(name)
+        title_quality = self.parse_quality(name)
         self.match['quality'] = title_quality.name
 
         return self.match

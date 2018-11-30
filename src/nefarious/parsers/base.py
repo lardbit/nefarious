@@ -36,18 +36,11 @@ class ParserBase:
                 self.match['title'] = self.normalize_media_title(self.match['title'][0])
 
             # quality
-            title_quality = self._parse_quality(name)
+            title_quality = self.parse_quality(name)
             self.match['quality'] = title_quality.name
 
-    @staticmethod
-    def _parse_number_word(number: str):
-        numbers = ('zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine')
-        if number.isalpha():
-            number = number.lower()
-            return numbers.index(number) if number in numbers else None
-
-    def _parse_quality(self, name):
-        resolution = self._parse_resolution(name)
+    def parse_quality(self, name):
+        resolution = self.parse_resolution(name)
         match = self.source_regex.search(name)
         if match:
             result = match.capturesdict()
@@ -94,7 +87,9 @@ class ParserBase:
                     return quality.HDTV_720P
                 return quality.SDTV
 
-        elif resolution:
+            return quality.UNKNOWN
+
+        elif resolution != Resolution.Unknown:
             if resolution == Resolution.R2160p:
                 return quality.HDTV_2160P
             elif resolution == Resolution.R1080p:
@@ -103,6 +98,7 @@ class ParserBase:
                 return quality.HDTV_720P
             elif resolution == Resolution.R480P:
                 return quality.SDTV
+            return quality.UNKNOWN
         elif 'x264' in name:
             return quality.SDTV
         elif '848x480' in name:
@@ -122,7 +118,9 @@ class ParserBase:
         elif 'bluray1080p' in name:
             return quality.BLURAY_1080P
 
-    def _parse_resolution(self, name):
+        return quality.UNKNOWN
+
+    def parse_resolution(self, name):
         match = self.resolution_regex.search(name)
 
         if not match:
@@ -181,3 +179,10 @@ class ParserBase:
 
     def is_match(self, *args) -> bool:
         raise NotImplementedError
+
+    @staticmethod
+    def _parse_number_word(number: str):
+        numbers = ('zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine')
+        if number.isalpha():
+            number = number.lower()
+            return numbers.index(number) if number in numbers else None
