@@ -95,6 +95,11 @@ class QualityMatch(TestCase):
             ("[Kousei]_One_Piece_ - _609_[FHD][648A87C7].mp4", quality.HDTV_1080P),
             ("Presunto culpable 1x02 Culpabilidad [HDTV 1080i AVC MP2 2.0 Sub][GrupoHDS]", quality.HDTV_1080P),
             ("Cuéntame cómo pasó - 19x15 [344] Cuarenta años de baile [HDTV 1080i AVC MP2 2.0 Sub][GrupoHDS]", quality.HDTV_1080P),
+
+            # hdtv2160
+            ("My Title - S01E01 - EpTitle [HEVC 4k DTSHD-MA-6ch]", quality.HDTV_2160P),
+            ("My Title - S01E01 - EpTitle [HEVC-4k DTSHD-MA-6ch]", quality.HDTV_2160P),
+            ("My Title - S01E01 - EpTitle [4k HEVC DTSHD-MA-6ch]", quality.HDTV_2160P),
         ]
 
     def test_movie(self):
