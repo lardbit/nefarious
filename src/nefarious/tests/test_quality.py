@@ -48,6 +48,14 @@ class QualityMatch(TestCase):
             ("Hannibal.S01E05.480p.BluRay.DD5.1.x264-HiSD", quality.DVD),
             ("Heidi Girl of the Alps (BD)(640x480(RAW) (BATCH 1) (1-13)", quality.DVD),
             ("[Doki] Clannad - 02 (848x480 XviD BD MP3) [95360783]", quality.DVD),
+
+            # webdl480
+            ("Elementary.S01E10.The.Leviathan.480p.WEB-DL.x264-mSD", quality.WEBDL_480P),
+            ("Glee.S04E10.Glee.Actually.480p.WEB-DL.x264-mSD", quality.WEBDL_480P),
+            ("The.Big.Bang.Theory.S06E11.The.Santa.Simulation.480p.WEB-DL.x264-mSD", quality.WEBDL_480P),
+            ("Da.Vincis.Demons.S02E04.480p.WEB.DL.nSD.x264-NhaNc3", quality.WEBDL_480P),
+            ("Incorporated.S01E08.Das.geloeschte.Ich.German.Dubbed.DL.AmazonHD.x264-TVS", quality.WEBDL_480P),
+            ("Haters.Back.Off.S01E04.Rod.Trip.mit.meinem.Onkel.German.DL.NetflixUHD.x264", quality.WEBDL_480P),
         ]
 
     def test_movie(self):
