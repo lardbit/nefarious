@@ -77,6 +77,24 @@ class QualityMatch(TestCase):
             ("Survivorman.The.Lost.Pilots.Summer.HR.WS.PDTV.x264-DHD", quality.HDTV_720P),
             ("Victoria S01E07 - Motor zmen (CZ)[TvRip][HEVC][720p]", quality.HDTV_720P),
             ("flashpoint.S05E06.720p.HDTV.x264-FHD", quality.HDTV_720P),
+
+            # hdtv1080
+            ("Under the Dome S01E10 Let the Games Begin 1080p", quality.HDTV_1080P),
+            ("DEXTER.S07E01.ARE.YOU.1080P.HDTV.X264-QCF", quality.HDTV_1080P),
+            ("DEXTER.S07E01.ARE.YOU.1080P.HDTV.x264-QCF", quality.HDTV_1080P),
+            ("DEXTER.S07E01.ARE.YOU.1080P.HDTV.proper.X264-QCF", quality.HDTV_1080P),
+            ("Dexter - S01E01 - Title [HDTV-1080p]", quality.HDTV_1080P),
+            ("[HorribleSubs] Yowamushi Pedal - 32 [1080p]", quality.HDTV_1080P),
+            ("Victoria S01E07 - Motor zmen (CZ)[TvRip][HEVC][1080p]", quality.HDTV_1080P),
+            ("Sword Art Online Alicization 04 vostfr FHD", quality.HDTV_1080P),
+            ("Goblin Slayer 04 vostfr FHD.mkv", quality.HDTV_1080P),
+            ("[Onii-ChanSub] SSSS.Gridman - 02 vostfr (FHD 1080p 10bits).mkv", quality.HDTV_1080P),
+            ("[Miaou] Akanesasu Shoujo 02 VOSTFR FHD 10 bits", quality.HDTV_1080P),
+            # TODO - the "resolution_regex" word boundaries don't work with the surrounding underscores,.ie "_FHD_"
+            #("[mhastream.com]_Episode_05_FHD.mp4", quality.HDTV_1080P),
+            ("[Kousei]_One_Piece_ - _609_[FHD][648A87C7].mp4", quality.HDTV_1080P),
+            ("Presunto culpable 1x02 Culpabilidad [HDTV 1080i AVC MP2 2.0 Sub][GrupoHDS]", quality.HDTV_1080P),
+            ("Cuéntame cómo pasó - 19x15 [344] Cuarenta años de baile [HDTV 1080i AVC MP2 2.0 Sub][GrupoHDS]", quality.HDTV_1080P),
         ]
 
     def test_movie(self):

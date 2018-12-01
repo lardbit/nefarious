@@ -2,8 +2,8 @@ import regex
 from nefarious import quality
 from nefarious.quality import Resolution
 
-# https://github.com/Sonarr/Sonarr/blob/master/src/NzbDrone.Core/Parser/Parser.cs
-# https://github.com/Sonarr/Sonarr/blob/master/src/NzbDrone.Core/Parser/QualityParser.cs
+# https://github.com/Sonarr/Sonarr/blob/baf8f6cca637f76db64957c1871420196630dad3/src/NzbDrone.Core/Parser/Parser.cs
+# https://github.com/Sonarr/Sonarr/blob/537e4d7c39e839e75e7a7ad84e95cd582ec1d20e/src/NzbDrone.Core/Parser/QualityParser.cs
 
 
 class ParserBase:
@@ -20,6 +20,7 @@ class ParserBase:
     clean_torrent_suffix_regex = regex.compile(r"\[(?:ettv|rartv|rarbg|cttv)\]$", regex.I)
     clean_quality_brackets_regex = regex.compile(r"\[[a-z0-9 ._-]+\]$")
     resolution_regex = regex.compile(r"\b(?:(?<R480p>480p|640x480|848x480)|(?<R576p>576p)|(?<R720p>720p|1280x720)|(?<R1080p>1080p|1920x1080|1440p|FHD|1080i)|(?<R2160p>2160p|4k[-_. ](?:UHD|HEVC|BD)|(?:UHD|HEVC|BD)[-_. ]4k))\b", regex.I)
+
     source_regex = regex.compile(r"\b(?:(?<bluray>BluRay|Blu-Ray|HD-?DVD|BD)|(?<webdl>WEB[-_. ]DL|WEBDL|WebRip|AmazonHD|iTunesHD|NetflixU?HD|WebHD|[. ]WEB[. ](?:[xh]26[45]|DD5[. ]1)|\d+0p[. ]WEB[. ]|WEB-DLMux)|(?<hdtv>HDTV)|(?<bdrip>BDRip)|(?<brrip>BRRip)|(?<dvd>DVD|DVDRip|NTSC|PAL|xvidvd)|(?<dsr>WS[-_. ]DSR|DSR)|(?<pdtv>PDTV)|(?<sdtv>SDTV)|(?<tvrip>TVRip))\b", regex.I)
     high_def_pdtv_regex = regex.compile(r"hr[-_. ]ws", regex.I)
 
