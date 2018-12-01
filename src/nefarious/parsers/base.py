@@ -41,7 +41,7 @@ class ParserBase:
             self.match['resolution'] = self.parse_resolution(name)
 
     def parse_quality(self, name: str):
-        name = name.strip()
+        name = name.strip().lower()
         resolution = self.parse_resolution(name)
         match = self.source_regex.search(name)
         if match:
@@ -73,7 +73,7 @@ class ParserBase:
                 elif resolution == Resolution.R720p:
                     return quality.HDTV_720P
                 return quality.SDTV
-            elif result['brrip']:
+            elif result['brrip'] or result['bdrip']:
                 if resolution == Resolution.R2160p:
                     return quality.BLURAY_2160P
                 elif resolution == Resolution.R1080p:

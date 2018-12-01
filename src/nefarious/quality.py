@@ -17,6 +17,12 @@ class Quality:
         self.name = name
         self.resolution = resolution
 
+    def __str__(self):
+        return self.name
+
+    def __eq__(self, other):
+        return self.name == other.name
+
 
 class Profile:
     name: str
@@ -25,6 +31,9 @@ class Profile:
     def __init__(self, name, qualities):
         self.name = name
         self.qualities = qualities
+
+    def __str__(self):
+        return self.name
 
     def __eq__(self, other):
         return self.name == other.name
