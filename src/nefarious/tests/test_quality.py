@@ -56,6 +56,27 @@ class QualityMatch(TestCase):
             ("Da.Vincis.Demons.S02E04.480p.WEB.DL.nSD.x264-NhaNc3", quality.WEBDL_480P),
             ("Incorporated.S01E08.Das.geloeschte.Ich.German.Dubbed.DL.AmazonHD.x264-TVS", quality.WEBDL_480P),
             ("Haters.Back.Off.S01E04.Rod.Trip.mit.meinem.Onkel.German.DL.NetflixUHD.x264", quality.WEBDL_480P),
+
+            # hdtv720
+            ("Dexter - S01E01 - Title [HDTV]", quality.HDTV_720P),
+            ("Dexter - S01E01 - Title [HDTV-720p]", quality.HDTV_720P),
+            ("Pawn Stars S04E87 REPACK 720p HDTV x264 aAF", quality.HDTV_720P),
+            ("Sonny.With.a.Chance.S02E15.720p", quality.HDTV_720P),
+            ("S07E23 - [HDTV-720p].mkv ", quality.HDTV_720P),
+            ("Chuck - S22E03 - MoneyBART - HD TV.mkv", quality.HDTV_720P),
+            ("S07E23.mkv ", quality.HDTV_720P),
+            ("Two.and.a.Half.Men.S08E05.720p.HDTV.X264-DIMENSION", quality.HDTV_720P),
+            ("Sonny.With.a.Chance.S02E15.mkv", quality.HDTV_720P),
+            ("Gem.Hunt.S01E08.Tourmaline.Nepal.720p.HDTV.x264-DHD", quality.HDTV_720P),
+            ("[Underwater-FFF] No Game No Life - 01 (720p) [27AAA0A0]", quality.HDTV_720P),
+            ("[Doki] Mahouka Koukou no Rettousei - 07 (1280x720 Hi10P AAC) [80AF7DDE]", quality.HDTV_720P),
+            ("[Doremi].Yes.Pretty.Cure.5.Go.Go!.31.[1280x720].[C65D4B1F].mkv", quality.HDTV_720P),
+            ("[HorribleSubs]_Fairy_Tail_-_145_[720p]", quality.HDTV_720P),
+            ("[Eveyuu] No Game No Life - 10 [Hi10P 1280x720 H264][10B23BD8]", quality.HDTV_720P),
+            ("Hells.Kitchen.US.S12E17.HR.WS.PDTV.X264-DIMENSION", quality.HDTV_720P),
+            ("Survivorman.The.Lost.Pilots.Summer.HR.WS.PDTV.x264-DHD", quality.HDTV_720P),
+            ("Victoria S01E07 - Motor zmen (CZ)[TvRip][HEVC][720p]", quality.HDTV_720P),
+            ("flashpoint.S05E06.720p.HDTV.x264-FHD", quality.HDTV_720P),
         ]
 
     def test_movie(self):
