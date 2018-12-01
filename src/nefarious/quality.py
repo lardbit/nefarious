@@ -122,60 +122,67 @@ PROFILES = [
 
 PROFILE_NAMES = [p.name for p in PROFILES]
 
-media_extensions = [
+EXTENSIONS = {
     # Unknown
-    {".webm", UNKNOWN},
+    ".webm": UNKNOWN,
 
     # SDTV
-    {".m4v", SDTV},
-    {".3gp", SDTV},
-    {".nsv", SDTV},
-    {".ty", SDTV},
-    {".strm", SDTV},
-    {".rm", SDTV},
-    {".rmvb", SDTV},
-    {".m3u", SDTV},
-    {".ifo", SDTV},
-    {".mov", SDTV},
-    {".qt", SDTV},
-    {".divx", SDTV},
-    {".xvid", SDTV},
-    {".bivx", SDTV},
-    {".nrg", SDTV},
-    {".pva", SDTV},
-    {".wmv", SDTV},
-    {".asf", SDTV},
-    {".asx", SDTV},
-    {".ogm", SDTV},
-    {".ogv", SDTV},
-    {".m2v", SDTV},
-    {".avi", SDTV},
-    {".bin", SDTV},
-    {".dat", SDTV},
-    {".dvr-ms", SDTV},
-    {".mpg", SDTV},
-    {".mpeg", SDTV},
-    {".mp4", SDTV},
-    {".avc", SDTV},
-    {".vp3", SDTV},
-    {".svq3", SDTV},
-    {".nuv", SDTV},
-    {".viv", SDTV},
-    {".dv", SDTV},
-    {".fli", SDTV},
-    {".flv", SDTV},
-    {".wpl", SDTV},
+    ".m4v": SDTV,
+    ".3gp": SDTV,
+    ".nsv": SDTV,
+    ".ty": SDTV,
+    ".strm": SDTV,
+    ".rm": SDTV,
+    ".rmvb": SDTV,
+    ".m3u": SDTV,
+    ".ifo": SDTV,
+    ".mov": SDTV,
+    ".qt": SDTV,
+    ".divx": SDTV,
+    ".xvid": SDTV,
+    ".bivx": SDTV,
+    ".nrg": SDTV,
+    ".pva": SDTV,
+    ".wmv": SDTV,
+    ".asf": SDTV,
+    ".asx": SDTV,
+    ".ogm": SDTV,
+    ".ogv": SDTV,
+    ".m2v": SDTV,
+    ".avi": SDTV,
+    ".bin": SDTV,
+    ".dat": SDTV,
+    ".dvr-ms": SDTV,
+    ".mpg": SDTV,
+    ".mpeg": SDTV,
+    ".mp4": SDTV,
+    ".avc": SDTV,
+    ".vp3": SDTV,
+    ".svq3": SDTV,
+    ".nuv": SDTV,
+    ".viv": SDTV,
+    ".dv": SDTV,
+    ".fli": SDTV,
+    ".flv": SDTV,
+    ".wpl": SDTV,
 
     # DVD
-    {".img", DVD},
-    {".iso", DVD},
-    {".vob", DVD},
+    ".img": DVD,
+    ".iso": DVD,
+    ".vob": DVD,
 
     # HD
-    {".mkv", HDTV_720P},
-    {".ts", HDTV_720P},
-    {".wtv", HDTV_720P},
+    ".mkv": HDTV_720P,
+    ".ts": HDTV_720P,
+    ".wtv": HDTV_720P,
 
     # Bluray
-    {".m2ts", BLURAY_720P}
-]
+    ".m2ts": BLURAY_720P,
+}
+
+
+def quality_from_extension(extension):
+    for ext, quality in EXTENSIONS.items():
+        if ext == extension:
+            return quality
+    return UNKNOWN

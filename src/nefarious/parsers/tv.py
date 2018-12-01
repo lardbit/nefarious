@@ -375,6 +375,7 @@ class TVParser(ParserBase):
         # quality
         title_quality = self.parse_quality(name)
         self.match['quality'] = title_quality.name
+        self.match['resolution'] = self.parse_resolution(name)
 
         return self.match
 

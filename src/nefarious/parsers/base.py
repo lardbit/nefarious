@@ -38,12 +38,15 @@ class ParserBase:
             # quality
             title_quality = self.parse_quality(name)
             self.match['quality'] = title_quality.name
+            self.match['resolution'] = self.parse_resolution(name)
 
-    def parse_quality(self, name):
+    def parse_quality(self, name: str):
+        name = name.strip()
         resolution = self.parse_resolution(name)
         match = self.source_regex.search(name)
         if match:
             result = match.capturesdict()
+
             if result['bluray']:
                 if 'xvid' in name:
                     return quality.DVD
@@ -89,36 +92,40 @@ class ParserBase:
 
             return quality.UNKNOWN
 
-        elif resolution != Resolution.Unknown:
-            if resolution == Resolution.R2160p:
-                return quality.HDTV_2160P
-            elif resolution == Resolution.R1080p:
-                return quality.HDTV_1080P
-            elif resolution == Resolution.R720p:
-                return quality.HDTV_720P
-            elif resolution == Resolution.R480P:
-                return quality.SDTV
-            return quality.UNKNOWN
+        elif resolution == Resolution.R2160p:
+            return quality.HDTV_2160P
+        elif resolution == Resolution.R1080p:
+            return quality.HDTV_1080P
+        elif resolution == Resolution.R720p:
+            return quality.HDTV_720P
+        elif resolution == Resolution.R480P:
+            return quality.SDTV
+
         elif 'x264' in name:
             return quality.SDTV
+
         elif '848x480' in name:
             if 'dvd' in name:
                 return quality.DVD
             return quality.SDTV
+
         elif '1280x720' in name:
             if 'bluray' in name:
                 return quality.BLURAY_720P
             return quality.HDTV_720P
+
         elif '1920x1080' in name:
             if 'bluray' in name:
                 return quality.BLURAY_1080P
             return quality.HDTV_1080P
+
         elif 'bluray720p' in name:
             return quality.BLURAY_720P
+
         elif 'bluray1080p' in name:
             return quality.BLURAY_1080P
 
-        return quality.UNKNOWN
+        return quality.quality_from_extension(self._extension(name))
 
     def parse_resolution(self, name):
         match = self.resolution_regex.search(name)
@@ -162,11 +169,12 @@ class ParserBase:
         title = self.website_prefix_regex.sub('', title)
         title = self.clean_torrent_suffix_regex.sub('', title)
 
+        # TODO - this may be unnecessary (use _extension function regardless)
         # remove known extensions
         match = self.file_extension_regex.search(title)
         if match:
             match_ext = match.group().lower()
-            for ext, _ in quality.media_extensions:
+            for ext, _ in quality.EXTENSIONS.items():
                 if match_ext == ext:
                     title = title.replace(match_ext, '')
 
@@ -179,6 +187,13 @@ class ParserBase:
 
     def is_match(self, *args) -> bool:
         raise NotImplementedError
+
+    def _extension(self, name):
+        result = None
+        match = self.file_extension_regex.search(name)
+        if match:
+            result = match.group().lower()
+        return result
 
     @staticmethod
     def _parse_number_word(number: str):
