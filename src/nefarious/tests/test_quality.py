@@ -100,6 +100,27 @@ class QualityMatch(TestCase):
             ("My Title - S01E01 - EpTitle [HEVC 4k DTSHD-MA-6ch]", quality.HDTV_2160P),
             ("My Title - S01E01 - EpTitle [HEVC-4k DTSHD-MA-6ch]", quality.HDTV_2160P),
             ("My Title - S01E01 - EpTitle [4k HEVC DTSHD-MA-6ch]", quality.HDTV_2160P),
+
+            # webdl720
+            ("Arrested.Development.S04E01.720p.WEBRip.AAC2.0.x264-NFRiP", quality.WEBDL_720P),
+            ("Vanguard S01E04 Mexicos Death Train 720p WEB DL", quality.WEBDL_720P),
+            ("Hawaii Five 0 S02E21 720p WEB DL DD5 1 H 264", quality.WEBDL_720P),
+            ("Castle S04E22 720p WEB DL DD5 1 H 264 NFHD", quality.WEBDL_720P),
+            ("Chuck - S11E06 - D-Yikes! - 720p WEB-DL.mkv", quality.WEBDL_720P),
+            ("Sonny.With.a.Chance.S02E15.720p.WEB-DL.DD5.1.H.264-SURFER", quality.WEBDL_720P),
+            ("S07E23 - [WEBDL].mkv ", quality.WEBDL_720P),
+            ("Fringe S04E22 720p WEB-DL DD5.1 H264-EbP.mkv", quality.WEBDL_720P),
+            ("House.S04.720p.Web-Dl.Dd5.1.h264-P2PACK", quality.WEBDL_720P),
+            ("Da.Vincis.Demons.S02E04.720p.WEB.DL.nSD.x264-NhaNc3", quality.WEBDL_720P),
+            ("CSI.Miami.S04E25.720p.iTunesHD.AVC-TVS", quality.WEBDL_720P),
+            ("Castle.S06E23.720p.WebHD.h264-euHD", quality.WEBDL_720P),
+            ("The.Nightly.Show.2016.03.14.720p.WEB.x264-spamTV", quality.WEBDL_720P),
+            ("The.Nightly.Show.2016.03.14.720p.WEB.h264-spamTV", quality.WEBDL_720P),
+            ("Incorporated.S01E08.Das.geloeschte.Ich.German.DD51.Dubbed.DL.720p.AmazonHD.x264-TVS", quality.WEBDL_720P),
+            ("Marco.Polo.S01E11.One.Hundred.Eyes.2015.German.DD51.DL.720p.NetflixUHD.x264.NewUp.by.Wunschtante", quality.WEBDL_720P),
+            ("Hush 2016 German DD51 DL 720p NetflixHD x264-TVS", quality.WEBDL_720P),
+            ("Community.6x10.Basic.RV.Repair.and.Palmistry.ITA.ENG.720p.WEB-DLMux.H.264-GiuseppeTnT", quality.WEBDL_720P),
+            ("Community.6x11.Modern.Espionage.ITA.ENG.720p.WEB.DLMux.H.264-GiuseppeTnT", quality.WEBDL_720P),
         ]
 
     def test_movie(self):

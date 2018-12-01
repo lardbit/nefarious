@@ -20,7 +20,6 @@ class ParserBase:
     clean_torrent_suffix_regex = regex.compile(r"\[(?:ettv|rartv|rarbg|cttv)\]$", regex.I)
     clean_quality_brackets_regex = regex.compile(r"\[[a-z0-9 ._-]+\]$")
     resolution_regex = regex.compile(r"\b(?:(?<R480p>480p|640x480|848x480)|(?<R576p>576p)|(?<R720p>720p|1280x720)|(?<R1080p>1080p|1920x1080|1440p|FHD|1080i)|(?<R2160p>2160p|4k[-_. ](?:UHD|HEVC|BD)|(?:UHD|HEVC|BD)[-_. ]4k))\b", regex.I)
-
     source_regex = regex.compile(r"\b(?:(?<bluray>BluRay|Blu-Ray|HD-?DVD|BD)|(?<webdl>WEB[-_. ]DL|WEBDL|WebRip|AmazonHD|iTunesHD|NetflixU?HD|WebHD|[. ]WEB[. ](?:[xh]26[45]|DD5[. ]1)|\d+0p[. ]WEB[. ]|WEB-DLMux)|(?<hdtv>HDTV)|(?<bdrip>BDRip)|(?<brrip>BRRip)|(?<dvd>DVD|DVDRip|NTSC|PAL|xvidvd)|(?<dsr>WS[-_. ]DSR|DSR)|(?<pdtv>PDTV)|(?<sdtv>SDTV)|(?<tvrip>TVRip))\b", regex.I)
     high_def_pdtv_regex = regex.compile(r"hr[-_. ]ws", regex.I)
 
@@ -65,6 +64,8 @@ class ParserBase:
                 elif resolution == Resolution.R1080p:
                     return quality.WEBDL_1080P
                 elif resolution == Resolution.R720p:
+                    return quality.WEBDL_720P
+                elif '[webdl]' in name:
                     return quality.WEBDL_720P
                 return quality.WEBDL_480P
             elif result['hdtv']:
