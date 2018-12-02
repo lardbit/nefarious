@@ -203,6 +203,12 @@ class QualityMatch(TestCase):
             ("Show - S03E01 - Episode Title Raw-HD.ts", quality.RAW_HD),
             ("Saturday.Night.Live.Vintage.S10E09.Eddie.Murphy.The.Honeydrippers.1080i.UPSCALE.HDTV.DD5.1.MPEG2-zebra", quality.RAW_HD),
             ("The.Colbert.Report.2011-08-04.1080i.HDTV.MPEG-2-CtrlHD", quality.RAW_HD),
+
+            # unknown
+            ("Sonny.With.a.Chance.S02E15", quality.UNKNOWN),
+            ("Law & Order: Special Victims Unit - 11x11 - Quickie", quality.UNKNOWN),
+            ("Series.Title.S01E01.webm", quality.UNKNOWN),
+            ("Droned.S01E01.The.Web.MT-dd", quality.UNKNOWN),
         ]
 
     def test_movie(self):
