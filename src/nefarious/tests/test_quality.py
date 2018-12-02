@@ -146,6 +146,17 @@ class QualityMatch(TestCase):
             ("Played.S01E08.Pro.Gamer.1440p.BKPL.WEB-DL.H.264-LiGHT", quality.WEBDL_1080P),
             ("Good.Luck.Charlie.S04E11.Teddy's.Choice.FHD.1080p.Web-DL", quality.WEBDL_1080P),
             ("Outlander.S04E03.The.False.Bride.1080p.NF.WEB.DDP5.1.x264-NTb[rartv]", quality.WEBDL_1080P),
+
+            # webdl2160
+            ("CASANOVA S01E01.2160P AMZN WEBRIP DD2.0 HI10P X264-TROLLUHD", quality.WEBDL_2160P),
+            ("JUST ADD MAGIC S01E01.2160P AMZN WEBRIP DD2.0 X264-TROLLUHD", quality.WEBDL_2160P),
+            ("The.Man.In.The.High.Castle.S01E01.2160p.AMZN.WEBRip.DD2.0.Hi10p.X264-TrollUHD", quality.WEBDL_2160P),
+            ("The Man In the High Castle S01E01 2160p AMZN WEBRip DD2.0 Hi10P x264-TrollUHD", quality.WEBDL_2160P),
+            ("The.Nightly.Show.2016.03.14.2160p.WEB.x264-spamTV", quality.WEBDL_2160P),
+            ("The.Nightly.Show.2016.03.14.2160p.WEB.h264-spamTV", quality.WEBDL_2160P),
+            ("The.Nightly.Show.2016.03.14.2160p.WEB.PROPER.h264-spamTV", quality.WEBDL_2160P),
+            ("House.of.Cards.US.s05e13.4K.UHD.WEB.DL", quality.WEBDL_2160P),
+            ("House.of.Cards.US.s05e13.UHD.4K.WEB.DL", quality.WEBDL_2160P),
         ]
 
     def test_movie(self):
