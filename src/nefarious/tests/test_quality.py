@@ -192,6 +192,17 @@ class QualityMatch(TestCase):
             ("House.of.Cards.US.s05e13.4K.UHD.Bluray", quality.BLURAY_2160P),
             ("House.of.Cards.US.s05e13.UHD.4K.Bluray", quality.BLURAY_2160P),
             ("[DameDesuYo] Backlog Bundle - Part 1 (BD 4K 8bit FLAC)", quality.BLURAY_2160P),
+
+            # rawhd
+            ("POI S02E11 1080i HDTV DD5.1 MPEG2-TrollHD", quality.RAW_HD),
+            ("How I Met Your Mother S01E18 Nothing Good Happens After 2 A.M. 720p HDTV DD5.1 MPEG2-TrollHD", quality.RAW_HD),
+            ("The Voice S01E11 The Finals 1080i HDTV DD5.1 MPEG2-TrollHD", quality.RAW_HD),
+            ("Californication.S07E11.1080i.HDTV.DD5.1.MPEG2-NTb.ts", quality.RAW_HD),
+            ("Game of Thrones S04E10 1080i HDTV MPEG2 DD5.1-CtrlHD.ts", quality.RAW_HD),
+            ("VICE.S02E05.1080i.HDTV.DD2.0.MPEG2-NTb.ts", quality.RAW_HD),
+            ("Show - S03E01 - Episode Title Raw-HD.ts", quality.RAW_HD),
+            ("Saturday.Night.Live.Vintage.S10E09.Eddie.Murphy.The.Honeydrippers.1080i.UPSCALE.HDTV.DD5.1.MPEG2-zebra", quality.RAW_HD),
+            ("The.Colbert.Report.2011-08-04.1080i.HDTV.MPEG-2-CtrlHD", quality.RAW_HD),
         ]
 
     def test_movie(self):

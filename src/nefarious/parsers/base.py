@@ -23,6 +23,7 @@ class ParserBase:
     source_regex = regex.compile(r"\b(?:(?<bluray>BluRay|Blu-Ray|HD-?DVD|BD)|(?<webdl>WEB[-_. ]DL|WEBDL|WebRip|AmazonHD|iTunesHD|NetflixU?HD|WebHD|[. ]WEB[. ](?:[xh]26[45]|DDP?5[. ]1)|\d+0p[. ]WEB[. ]|WEB-DLMux)|(?<hdtv>HDTV)|(?<bdrip>BDRip)|(?<brrip>BRRip)|(?<dvd>DVD|DVDRip|NTSC|PAL|xvidvd)|(?<dsr>WS[-_. ]DSR|DSR)|(?<pdtv>PDTV)|(?<sdtv>SDTV)|(?<tvrip>TVRip))\b", regex.I)
     anime_bluray_regex = regex.compile(r"bd(?:720|1080)|(?<=[-_. (\[])bd(?=[-_. )\]])", regex.I)
     high_def_pdtv_regex = regex.compile(r"hr[-_. ]ws", regex.I)
+    raw_hd_regex = regex.compile(r"\b(?<rawhd>RawHD|1080i[-_. ]HDTV|Raw[-_. ]HD|MPEG[-_. ]?2)\b", regex.I)
 
     def __init__(self, title):
         self.parse(title)
@@ -45,6 +46,12 @@ class ParserBase:
     def parse_quality(self, name: str):
         name = name.strip().lower()
         resolution = self.parse_resolution(name)
+
+        # raw hd match
+        if self.raw_hd_regex.search(name):
+            return quality.RAW_HD
+
+        # source match
         match = self.source_regex.search(name)
         if match:
             result = match.capturesdict()
