@@ -31,16 +31,22 @@ export class SearchManualComponent implements OnInit {
 
   public filterChange() {
     let orderByKey: string;
+    let reverse = false;
     if (this.filters.orderBy == 'Name') {
       orderByKey = 'Title';
     } else if (this.filters.orderBy == 'Seeders') {
       orderByKey = 'Seeders';
+      reverse = true;
     } else if (this.filters.orderBy == 'Size') {
       orderByKey = 'Size';
+      reverse = true;
     }
     this.results = _.orderBy(this.results, (result) => {
       return result[orderByKey];
     });
+    if (reverse) {
+      this.results = this.results.reverse();
+    }
   }
 
   public searchTorrents() {
