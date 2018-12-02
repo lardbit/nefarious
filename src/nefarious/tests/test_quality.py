@@ -157,6 +157,22 @@ class QualityMatch(TestCase):
             ("The.Nightly.Show.2016.03.14.2160p.WEB.PROPER.h264-spamTV", quality.WEBDL_2160P),
             ("House.of.Cards.US.s05e13.4K.UHD.WEB.DL", quality.WEBDL_2160P),
             ("House.of.Cards.US.s05e13.UHD.4K.WEB.DL", quality.WEBDL_2160P),
+
+            # bluray720
+            ("WEEDS.S03E01-06.DUAL.Bluray.AC3.-HELLYWOOD.avi", quality.BLURAY_720P),
+            ("Chuck - S01E03 - Come Fly With Me - 720p BluRay.mkv", quality.BLURAY_720P),
+            ("The Big Bang Theory.S03E01.The Electric Can Opener Fluctuation.m2ts", quality.BLURAY_720P),
+            ("Revolution.S01E02.Chained.Heat.[Bluray720p].mkv", quality.BLURAY_720P),
+            ("[FFF] DATE A LIVE - 01 [BD][720p-AAC][0601BED4]", quality.BLURAY_720P),
+            ("[coldhell] Pupa v3 [BD720p][03192D4C]", quality.BLURAY_720P),
+            ("[RandomRemux] Nobunagun - 01 [720p BD][043EA407].mkv", quality.BLURAY_720P),
+            ("[Kaylith] Isshuukan Friends Specials - 01 [BD 720p AAC][B7EEE164].mkv", quality.BLURAY_720P),
+            ("WEEDS.S03E01-06.DUAL.Blu-ray.AC3.-HELLYWOOD.avi", quality.BLURAY_720P),
+            ("WEEDS.S03E01-06.DUAL.720p.Blu-ray.AC3.-HELLYWOOD.avi", quality.BLURAY_720P),
+            ("[Elysium]Lucky.Star.01(BD.720p.AAC.DA)[0BB96AD8].mkv", quality.BLURAY_720P),
+            ("Battlestar.Galactica.S01E01.33.720p.HDDVD.x264-SiNNERS.mkv", quality.BLURAY_720P),
+            ("The.Expanse.S01E07.RERIP.720p.BluRay.x264-DEMAND", quality.BLURAY_720P),
+            ("Sans.Laisser.De.Traces.FRENCH.720p.BluRay.x264-FHD", quality.BLURAY_720P),
         ]
 
     def test_movie(self):

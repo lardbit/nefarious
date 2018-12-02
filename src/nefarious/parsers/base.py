@@ -21,6 +21,7 @@ class ParserBase:
     clean_quality_brackets_regex = regex.compile(r"\[[a-z0-9 ._-]+\]$")
     resolution_regex = regex.compile(r"\b(?:(?<R480p>480p|640x480|848x480)|(?<R576p>576p)|(?<R720p>720p|1280x720)|(?<R1080p>1080p|1920x1080|1440p|FHD|1080i)|(?<R2160p>2160p|4k[-_. ](?:UHD|HEVC|BD)|(?:UHD|HEVC|BD)[-_. ]4k))\b", regex.I)
     source_regex = regex.compile(r"\b(?:(?<bluray>BluRay|Blu-Ray|HD-?DVD|BD)|(?<webdl>WEB[-_. ]DL|WEBDL|WebRip|AmazonHD|iTunesHD|NetflixU?HD|WebHD|[. ]WEB[. ](?:[xh]26[45]|DDP?5[. ]1)|\d+0p[. ]WEB[. ]|WEB-DLMux)|(?<hdtv>HDTV)|(?<bdrip>BDRip)|(?<brrip>BRRip)|(?<dvd>DVD|DVDRip|NTSC|PAL|xvidvd)|(?<dsr>WS[-_. ]DSR|DSR)|(?<pdtv>PDTV)|(?<sdtv>SDTV)|(?<tvrip>TVRip))\b", regex.I)
+    anime_bluray_regex = regex.compile(r"bd(?:720|1080)|(?<=[-_. (\[])bd(?=[-_. )\]])", regex.I)
     high_def_pdtv_regex = regex.compile(r"hr[-_. ]ws", regex.I)
 
     def __init__(self, title):
@@ -98,6 +99,13 @@ class ParserBase:
                 return quality.SDTV
 
             return quality.UNKNOWN
+
+        elif self.anime_bluray_regex.search(name):
+            if resolution in [Resolution.R480P, Resolution.R576p] or '480p' in name:
+                return quality.DVD
+            elif resolution == Resolution.R1080p or '1080p' in name:
+                return quality.BLURAY_1080P
+            return quality.BLURAY_720P
 
         elif resolution == Resolution.R2160p:
             return quality.HDTV_2160P
