@@ -187,6 +187,11 @@ class QualityMatch(TestCase):
             #("[Coalgirls]_Durarara!!_01_(1920x1080_Blu-ray_FLAC)_[8370CB8F].mkv", quality.BLURAY_1080P),
             ("Planet.Earth.S01E11.Ocean.Deep.1080p.HD-DVD.DD.VC1-TRB", quality.BLURAY_1080P),
             ("Spirited Away(2001) Bluray FHD Hi10P.mkv", quality.BLURAY_1080P),
+
+            # bluray2160
+            ("House.of.Cards.US.s05e13.4K.UHD.Bluray", quality.BLURAY_2160P),
+            ("House.of.Cards.US.s05e13.UHD.4K.Bluray", quality.BLURAY_2160P),
+            ("[DameDesuYo] Backlog Bundle - Part 1 (BD 4K 8bit FLAC)", quality.BLURAY_2160P),
         ]
 
     def test_movie(self):
