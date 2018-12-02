@@ -121,6 +121,31 @@ class QualityMatch(TestCase):
             ("Hush 2016 German DD51 DL 720p NetflixHD x264-TVS", quality.WEBDL_720P),
             ("Community.6x10.Basic.RV.Repair.and.Palmistry.ITA.ENG.720p.WEB-DLMux.H.264-GiuseppeTnT", quality.WEBDL_720P),
             ("Community.6x11.Modern.Espionage.ITA.ENG.720p.WEB.DLMux.H.264-GiuseppeTnT", quality.WEBDL_720P),
+
+            # webdl1080
+            ("Arrested.Development.S04E01.iNTERNAL.1080p.WEBRip.x264-QRUS", quality.WEBDL_1080P),
+            ("CSI NY S09E03 1080p WEB DL DD5 1 H264 NFHD", quality.WEBDL_1080P),
+            ("Two and a Half Men S10E03 1080p WEB DL DD5 1 H 264 NFHD", quality.WEBDL_1080P),
+            ("Criminal.Minds.S08E01.1080p.WEB-DL.DD5.1.H264-NFHD", quality.WEBDL_1080P),
+            ("Its.Always.Sunny.in.Philadelphia.S08E01.1080p.WEB-DL.proper.AAC2.0.H.264", quality.WEBDL_1080P),
+            ("Two and a Half Men S10E03 1080p WEB DL DD5 1 H 264 REPACK NFHD", quality.WEBDL_1080P),
+            ("Glee.S04E09.Swan.Song.1080p.WEB-DL.DD5.1.H.264-ECI", quality.WEBDL_1080P),
+            ("The.Big.Bang.Theory.S06E11.The.Santa.Simulation.1080p.WEB-DL.DD5.1.H.264", quality.WEBDL_1080P),
+            ("Rosemary's.Baby.S01E02.Night.2.[WEBDL-1080p].mkv", quality.WEBDL_1080P),
+            ("The.Nightly.Show.2016.03.14.1080p.WEB.x264-spamTV", quality.WEBDL_1080P),
+            ("The.Nightly.Show.2016.03.14.1080p.WEB.h264-spamTV", quality.WEBDL_1080P),
+            ("Psych.S01.1080p.WEB-DL.AAC2.0.AVC-TrollHD", quality.WEBDL_1080P),
+            ("Series Title S06E08 1080p WEB h264-EXCLUSIVE", quality.WEBDL_1080P),
+            ("Series Title S06E08 No One PROPER 1080p WEB DD5 1 H 264-EXCLUSIVE", quality.WEBDL_1080P),
+            ("Series Title S06E08 No One PROPER 1080p WEB H 264-EXCLUSIVE", quality.WEBDL_1080P),
+            # TODO - "source_regex" captures "PAL" (ie. dvd group) and "webdl" comes up blank.
+            #        look into regex library as I believe it's only returning a single result vs all groups
+            #("The.Simpsons.S25E21.Pay.Pal.1080p.WEB-DL.DD5.1.H.264-NTb", quality.WEBDL_1080P),
+            ("Incorporated.S01E08.Das.geloeschte.Ich.German.DD51.Dubbed.DL.1080p.AmazonHD.x264-TVS", quality.WEBDL_1080P),
+            ("Death.Note.2017.German.DD51.DL.1080p.NetflixHD.x264-TVS", quality.WEBDL_1080P),
+            ("Played.S01E08.Pro.Gamer.1440p.BKPL.WEB-DL.H.264-LiGHT", quality.WEBDL_1080P),
+            ("Good.Luck.Charlie.S04E11.Teddy's.Choice.FHD.1080p.Web-DL", quality.WEBDL_1080P),
+            ("Outlander.S04E03.The.False.Bride.1080p.NF.WEB.DDP5.1.x264-NTb[rartv]", quality.WEBDL_1080P),
         ]
 
     def test_movie(self):
