@@ -173,6 +173,20 @@ class QualityMatch(TestCase):
             ("Battlestar.Galactica.S01E01.33.720p.HDDVD.x264-SiNNERS.mkv", quality.BLURAY_720P),
             ("The.Expanse.S01E07.RERIP.720p.BluRay.x264-DEMAND", quality.BLURAY_720P),
             ("Sans.Laisser.De.Traces.FRENCH.720p.BluRay.x264-FHD", quality.BLURAY_720P),
+
+            # bluray1080
+            ("Chuck - S01E03 - Come Fly With Me - 1080p BluRay.mkv", quality.BLURAY_1080P),
+            ("Sons.Of.Anarchy.S02E13.1080p.BluRay.x264-AVCDVD", quality.BLURAY_1080P),
+            ("Revolution.S01E02.Chained.Heat.[Bluray1080p].mkv", quality.BLURAY_1080P),
+            ("[FFF] Namiuchigiwa no Muromi-san - 10 [BD][1080p-FLAC][0C4091AF]", quality.BLURAY_1080P),
+            ("[coldhell] Pupa v2 [BD1080p][5A45EABE].mkv", quality.BLURAY_1080P),
+            ("[Kaylith] Isshuukan Friends Specials - 01 [BD 1080p FLAC][429FD8C7].mkv", quality.BLURAY_1080P),
+            ("[Zurako] Log Horizon - 01 - The Apocalypse (BD 1080p AAC) [7AE12174].mkv", quality.BLURAY_1080P),
+            ("WEEDS.S03E01-06.DUAL.1080p.Blu-ray.AC3.-HELLYWOOD.avi", quality.BLURAY_1080P),
+            # TODO - the "source_regex" word boundaries don't work with the surrounding underscores,.ie "_Blu-ray_"
+            #("[Coalgirls]_Durarara!!_01_(1920x1080_Blu-ray_FLAC)_[8370CB8F].mkv", quality.BLURAY_1080P),
+            ("Planet.Earth.S01E11.Ocean.Deep.1080p.HD-DVD.DD.VC1-TRB", quality.BLURAY_1080P),
+            ("Spirited Away(2001) Bluray FHD Hi10P.mkv", quality.BLURAY_1080P),
         ]
 
     def test_movie(self):
