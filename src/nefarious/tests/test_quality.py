@@ -211,7 +211,7 @@ class QualityMatch(TestCase):
             ("Droned.S01E01.The.Web.MT-dd", quality.UNKNOWN),
         ]
 
-    def test_movie(self):
+    def test_quality(self):
         for name, expected_quality in self.quality_tests:
             parser = ParserBase(name)
             parser_quality = parser.parse_quality(name)
