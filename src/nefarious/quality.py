@@ -20,8 +20,21 @@ class Quality:
     def __str__(self):
         return self.name
 
+    def __repr__(self):
+        return '<Quality: {}>'.format(self.name)
+
     def __eq__(self, other):
-        return self.name == other.name
+        if isinstance(other, Quality):
+            return self.name == other.name
+        elif isinstance(other, str):
+            return self.name.lower() == other.lower()
+
+    @staticmethod
+    def get_from_name(quality_name: str):
+        for quality in QUALITIES:
+            if quality == quality_name:
+                return quality
+        raise Exception('Quality {} does not exist'.format(quality_name))
 
 
 class Profile:
@@ -36,7 +49,20 @@ class Profile:
         return self.name
 
     def __eq__(self, other):
-        return self.name == other.name
+        if isinstance(other, Profile):
+            return self.name == other.name
+        elif isinstance(other, str):
+            return self.name.lower() == other.lower()
+
+    def __repr__(self):
+        return '<Profile: {}>'.format(self.name)
+
+    @staticmethod
+    def get_from_name(profile_name: str):
+        for profile in PROFILES:
+            if profile == profile_name:
+                return profile
+        raise Exception('Profile {} does not exist'.format(profile_name))
 
 
 UNKNOWN = Quality(0, "Unknown", 0)

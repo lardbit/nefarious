@@ -1,12 +1,14 @@
 import regex
 from nefarious import quality
-from nefarious.quality import Resolution
+from nefarious.quality import Resolution, Profile
+
 
 # https://github.com/Sonarr/Sonarr/blob/baf8f6cca637f76db64957c1871420196630dad3/src/NzbDrone.Core/Parser/Parser.cs
 # https://github.com/Sonarr/Sonarr/blob/537e4d7c39e839e75e7a7ad84e95cd582ec1d20e/src/NzbDrone.Core/Parser/QualityParser.cs
 
 
 class ParserBase:
+    title_query: str = None
     media_regex_list = list()
     match: dict = None
 
@@ -26,22 +28,25 @@ class ParserBase:
     raw_hd_regex = regex.compile(r"\b(?<rawhd>RawHD|1080i[-_. ]HDTV|Raw[-_. ]HD|MPEG[-_. ]?2)\b", regex.I)
 
     def __init__(self, title):
-        self.parse(title)
+        self.title_query = title
+        self.parse()
 
-    def parse(self, name):
-        title = self.normalize_title(name)
+    def parse(self):
+        title = self.normalize_title(self.title_query)
         matches = self.matches(title)
         if matches:
+
             # get the first match
             self.match = matches[0]
-            # single title
+
+            # title
             if 'title' in self.match and self.match['title']:
                 self.match['title'] = self.normalize_media_title(self.match['title'][0])
 
             # quality
-            title_quality = self.parse_quality(name)
+            title_quality = self.parse_quality(self.title_query)
             self.match['quality'] = title_quality.name
-            self.match['resolution'] = self.parse_resolution(name)
+            self.match['resolution'] = self.parse_resolution(self.title_query)
 
     def parse_quality(self, name: str):
         name = name.strip().lower()
@@ -147,7 +152,7 @@ class ParserBase:
         elif 'bluray1080p' in name:
             return quality.BLURAY_1080P
 
-        return quality.quality_from_extension(self._extension(name))
+        return quality.quality_from_extension(self._get_extension(name))
 
     def parse_resolution(self, name):
         match = self.resolution_regex.search(name)
@@ -191,14 +196,13 @@ class ParserBase:
         title = self.website_prefix_regex.sub('', title)
         title = self.clean_torrent_suffix_regex.sub('', title)
 
-        # TODO - this may be unnecessary (use _extension function regardless)
         # remove known extensions
-        match = self.file_extension_regex.search(title)
-        if match:
-            match_ext = match.group().lower()
+        extension = self._get_extension(title)
+        if extension:
             for ext, _ in quality.EXTENSIONS.items():
-                if match_ext == ext:
-                    title = title.replace(match_ext, '')
+                if extension == ext:
+                    title = title.replace(extension, '')
+                    break
 
         title = self.simple_title_regex.sub(' ', title)
         title = self.clean_quality_brackets_regex.sub('', title)
@@ -207,10 +211,16 @@ class ParserBase:
 
         return title.strip().lower()
 
-    def is_match(self, *args) -> bool:
+    def is_match(self, title, *args) -> bool:
+        return self._is_match(title, *args)
+
+    def is_quality_match(self, profile: Profile) -> bool:
+        return self.match['quality'] in profile.qualities
+
+    def _is_match(self, *args) -> bool:
         raise NotImplementedError
 
-    def _extension(self, name):
+    def _get_extension(self, name):
         result = None
         match = self.file_extension_regex.search(name)
         if match:

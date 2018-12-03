@@ -3,6 +3,7 @@ import logging
 from nefarious.models import WatchMovie, NefariousSettings, TorrentBlacklist, WatchTVEpisode, WatchTVShow
 from nefarious.parsers.movie import MovieParser
 from nefarious.parsers.tv import TVParser
+from nefarious.quality import Profile
 from nefarious.search import SearchTorrents, MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
@@ -31,7 +32,7 @@ class WatchProcessorBase:
         if search.ok:
 
             for result in search.results['Results']:
-                if self._is_match(result['Title']):
+                if self.is_match(result['Title']):
                     valid_search_results.append(result)
                 else:
                     logging.info('Not matched: {}'.format(result['Title']))
@@ -77,6 +78,11 @@ class WatchProcessorBase:
 
         return False
 
+    def is_match(self, title: str) -> bool:
+        parser = self._get_parser(title)
+        profile = Profile.get_from_name(self.nefarious_settings.quality_profile)
+        return self._is_match(parser) and parser.is_quality_match(profile)
+
     def _get_best_torrent_result(self, results: list):
         best_result = None
         valid_search_results = []
@@ -118,7 +124,7 @@ class WatchProcessorBase:
     def _get_tmdb_media(self):
         raise NotImplementedError
 
-    def _get_parser_class(self):
+    def _get_parser(self, title: str):
         raise NotImplementedError
 
     def _get_tmdb_title_key(self):
@@ -132,7 +138,7 @@ class WatchProcessorBase:
         self.watch_media.transmission_torrent_hash = torrent.hashString
         self.watch_media.save()
 
-    def _is_match(self, title: str) -> str:
+    def _is_match(self, parser) -> bool:
         raise NotImplementedError
 
     def _get_search_results(self):
@@ -141,9 +147,10 @@ class WatchProcessorBase:
 
 class WatchMovieProcessor(WatchProcessorBase):
 
-    def _is_match(self, title):
-        parser_class = self._get_parser_class()
-        parser = parser_class(title)
+    def _get_parser(self, title: str):
+        return MovieParser(title)
+
+    def _is_match(self, parser):
         return parser.is_match(self.tmdb_media[self._get_tmdb_title_key()])
 
     def _get_media_type(self) -> str:
@@ -152,9 +159,6 @@ class WatchMovieProcessor(WatchProcessorBase):
     def _get_download_dir(self, transmission_session):
         return os.path.join(
             transmission_session.download_dir, self.nefarious_settings.transmission_movie_download_dir.lstrip('/'))
-
-    def _get_parser_class(self):
-        return MovieParser
 
     def _get_tmdb_title_key(self):
         return 'original_title'
@@ -175,6 +179,9 @@ class WatchMovieProcessor(WatchProcessorBase):
 
 class WatchTVProcessorBase(WatchProcessorBase):
 
+    def _get_parser(self, title: str):
+        return TVParser(title)
+
     def _get_watch_media(self, watch_media_id: int):
         watch_movie = WatchTVEpisode.objects.get(pk=watch_media_id)
         return watch_movie
@@ -185,9 +192,6 @@ class WatchTVProcessorBase(WatchProcessorBase):
     def _get_download_dir(self, transmission_session):
         return os.path.join(
             transmission_session.download_dir, self.nefarious_settings.transmission_tv_download_dir.lstrip('/'))
-
-    def _get_parser_class(self):
-        return TVParser
 
     def _get_tmdb_title_key(self):
         return 'name'
@@ -202,9 +206,7 @@ class WatchTVEpisodeProcessor(WatchTVProcessorBase):
         watch_episode = WatchTVEpisode.objects.get(pk=watch_media_id)
         return watch_episode
 
-    def _is_match(self, title):
-        parser_class = self._get_parser_class()
-        parser = parser_class(title)
+    def _is_match(self, parser):
         return parser.is_match(
             self.tmdb_media[self._get_tmdb_title_key()],
             self.tmdb_media['season_number'],
@@ -238,9 +240,7 @@ class WatchTVShowProcessor(WatchTVProcessorBase):
         watch_show = WatchTVShow.objects.get(pk=watch_media_id)
         return watch_show
 
-    def _is_match(self, title):
-        parser_class = self._get_parser_class()
-        parser = parser_class(title)
+    def _is_match(self, parser):
         return parser.is_match(
             self.tmdb_media[self._get_tmdb_title_key()],
             self.season_number,

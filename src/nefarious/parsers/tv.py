@@ -344,8 +344,8 @@ class TVParser(ParserBase):
         else:
             return self._parse_number_word(value)
 
-    def parse(self, name):
-        title = self.normalize_title(name)
+    def parse(self):
+        title = self.normalize_title(self.title_query)
 
         matches = self.matches(title)
 
@@ -373,13 +373,13 @@ class TVParser(ParserBase):
                 self.match['episode'][i] = self.normalize_season_episode(episode)
 
         # quality
-        title_quality = self.parse_quality(name)
+        title_quality = self.parse_quality(self.title_query)
         self.match['quality'] = title_quality.name
-        self.match['resolution'] = self.parse_resolution(name)
+        self.match['resolution'] = self.parse_resolution(self.title_query)
 
         return self.match
 
-    def is_match(self, title, season_number, episode_number=None):
+    def _is_match(self, title, season_number, episode_number=None):
         if episode_number is not None:
             return self._is_episode_match(title, season_number, episode_number)
         else:

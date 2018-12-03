@@ -43,5 +43,5 @@ class MovieParser(ParserBase):
         ),
     ]
 
-    def is_match(self, title) -> bool:
+    def _is_match(self, title) -> bool:
         return self.match and self.match['title'] == self.normalize_media_title(title)
