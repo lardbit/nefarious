@@ -22,9 +22,16 @@ class NefariousSettings(models.Model):
     tmdb_configuration_date = models.DateTimeField(blank=True, null=True, auto_now=True)
     quality_profile = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
 
+    @classmethod
+    def singleton(cls):
+        if cls.objects.all().count() > 1:
+            raise Exception('Should not have multiple settings records')
+        return cls.objects.get()
+
 
 class WatchMediaBase(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    quality_profile_custom = models.CharField(max_length=500, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
 
     class Meta:
         abstract = True
@@ -38,7 +45,7 @@ class WatchMovie(WatchMediaBase):
     collected = models.BooleanField(default=False)
     collected_date = models.DateTimeField(blank=True, null=True)
     transmission_torrent_id = models.IntegerField(null=True, blank=True)
-    transmission_torrent_hash = models.CharField(max_length=100, null=True, blank=True)
+    transmission_torrent_hash = models.CharField(max_length=100, blank=True)
 
     class Meta:
         permissions = (
@@ -72,7 +79,7 @@ class WatchTVEpisode(WatchMediaBase):
     collected = models.BooleanField(default=False)
     collected_date = models.DateTimeField(blank=True, null=True)
     transmission_torrent_id = models.IntegerField(null=True, blank=True)
-    transmission_torrent_hash = models.CharField(max_length=100, null=True, blank=True)
+    transmission_torrent_hash = models.CharField(max_length=100, blank=True)
 
     class Meta:
         unique_together = ('watch_tv_show', 'season_number', 'episode_number')

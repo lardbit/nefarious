@@ -28,7 +28,7 @@ def refresh_tmdb_configuration():
 
     logging.info('Refreshing TMDB Configuration')
 
-    nefarious_settings = NefariousSettings.objects.get()
+    nefarious_settings = NefariousSettings.singleton()
 
     tmdb_client = get_tmdb_client(nefarious_settings)
     configuration = tmdb_client.Configuration()

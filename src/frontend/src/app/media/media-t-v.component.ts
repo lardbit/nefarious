@@ -8,7 +8,7 @@ import { catchError, tap } from 'rxjs/operators';
 
 
 @Component({
-  selector: 'app-search-auto-media-tv',
+  selector: 'app-media-tv',
   templateUrl: './media-t-v.component.html',
   styleUrls: ['./media-t-v.component.css']
 })

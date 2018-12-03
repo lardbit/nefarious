@@ -6,12 +6,14 @@ import * as _ from 'lodash';
 
 
 @Component({
-  selector: 'app-search-auto-media-movie',
+  selector: 'app-media-movie',
   templateUrl: './media-movie.component.html',
   styleUrls: ['./media-movie.component.css']
 })
 export class MediaMovieComponent implements OnInit {
   public result: any;
+  public watchMovie: any;
+  public qualityProfileCustom: string;
   public isLoading = true;
   public isSaving = false;
   public isWatchingMovie = false;
@@ -29,7 +31,9 @@ export class MediaMovieComponent implements OnInit {
       (data) => {
         this.result = data;
         this.isLoading = false;
-        this.isWatchingMovie = !!this.getWatchMovie();
+        this.watchMovie = this.getWatchMovie();
+        this.isWatchingMovie = !!this.watchMovie;
+        this.qualityProfileCustom = this.watchMovie.quality_profile_custom;
       },
       (error) => {
         this.isLoading = false;
@@ -40,20 +44,20 @@ export class MediaMovieComponent implements OnInit {
 
   public submit() {
     let endpoint;
-    const watchMovie = this.getWatchMovie();
 
-    if (this.isWatchingMovie && !watchMovie) {
-      endpoint = this.apiService.watchMovie(this.result.id, this.result.original_title, this.mediaPosterURL(this.result));
-    } else if (!this.isWatchingMovie && watchMovie ) {
-      endpoint = this.apiService.unWatchMovie(watchMovie.id);
+    if (this.isWatchingMovie) {
+      endpoint = this.apiService.watchMovie(this.result.id, this.result.original_title, this.mediaPosterURL(this.result), this.qualityProfileCustom);
+    } else if (!this.isWatchingMovie && this.watchMovie) {
+      endpoint = this.apiService.unWatchMovie(this.watchMovie.id);
     } else {
       return;
     }
 
     endpoint.subscribe(
-      () => {
+      (data) => {
         let verb;
         if (this.isWatchingMovie) {
+          this.watchMovie = data;
           verb = 'Watching';
         } else {
           verb = 'Stop watching';
@@ -78,7 +82,14 @@ export class MediaMovieComponent implements OnInit {
   }
 
   public hasWatchMovieTransmissionId() {
-    const watchMovie = this.getWatchMovie();
-    return watchMovie && watchMovie.transmission_torrent_id;
+    return this.watchMovie && this.watchMovie.transmission_torrent_id;
+  }
+
+  public userIsStaff(): boolean {
+    return this.apiService.userIsStaff();
+  }
+
+  public qualityProfiles(): string[] {
+    return this.apiService.settings.quality_profiles;
   }
 }

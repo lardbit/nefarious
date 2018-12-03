@@ -13,7 +13,7 @@ class SearchTorrents:
 
     def __init__(self, media_type: str, query: str):
         assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
-        nefarious_settings = NefariousSettings.objects.all().get()
+        nefarious_settings = NefariousSettings.singleton()
         category = 2000 if media_type == MEDIA_TYPE_MOVIE else 5000
         params = {
             'apikey': nefarious_settings.jackett_token,

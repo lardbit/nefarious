@@ -25,6 +25,13 @@
                         <input class="form-check-input" type="checkbox" [(ngModel)]="isWatchingMovie" [name]="result.id" [id]="result.id">
                         <label class="form-check-label" [for]="result.id">Watch</label>
                       </div>
+                      <div class="form-group mt-4" *ngIf="userIsStaff()">
+                        <label>Custom Profile</label>
+                        <select type="text" class="form-control form-control-sm" [(ngModel)]="qualityProfileCustom" name="quality-profile-custom">
+                          <option></option>
+                          <option *ngFor="let profile of qualityProfiles()" [value]="profile">{{ profile }}</option>
+                        </select>
+                      </div>
                       <div class="row justify-content-between m-3">
                         <button type="submit" class="btn btn-primary">
                           Save

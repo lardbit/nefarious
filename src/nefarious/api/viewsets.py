@@ -16,7 +16,6 @@ from nefarious.api.serializers import (
     UserSerializer, WatchMovieSerializer, NefariousPartialSettingsSerializer,
     TransmissionTorrentSerializer)
 from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, TorrentBlacklist
-from nefarious.parsers.tv import TVParser
 from nefarious.search import MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrents
 from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task, refresh_tmdb_configuration
 from nefarious.utils import (
@@ -33,13 +32,18 @@ class WatchMovieViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
-        # create a task to download the episode
+        # create a task to download the movie
+        watch_movie_task.delay(serializer.instance.id)
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        # create a task to download the movie
         watch_movie_task.delay(serializer.instance.id)
 
     @action(['post'], detail=True, url_path='blacklist-auto-retry')
     def blacklist_auto_retry(self, request, pk):
         watch_movie = self.get_object()  # type: WatchMovie
-        nefarious_settings = NefariousSettings.objects.all().get()
+        nefarious_settings = NefariousSettings.singleton()
 
         # add to blacklist
         logging.info('Blacklisting {}'.format(watch_movie.transmission_torrent_hash))
@@ -69,7 +73,7 @@ class WatchTVShowViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
     @action(methods=['post', 'get'], detail=True, url_path='entire-season')
     def watch_entire_season(self, request, pk):
         watch_tv_show = self.get_object()  # type: WatchTVShow
-        nefarious_settings = NefariousSettings.objects.all().get()
+        nefarious_settings = NefariousSettings.singleton()
         data = request.query_params or request.data
 
         if 'season_number' not in data:
@@ -145,7 +149,7 @@ class MediaDetailView(views.APIView):
 
     @method_decorator(cache_page(CACHE_MINUTES))
     def get(self, request, media_type, media_id):
-        nefarious_settings = NefariousSettings.objects.get()
+        nefarious_settings = NefariousSettings.singleton()
         tmdb = get_tmdb_client(nefarious_settings)
 
         if media_type == MEDIA_TYPE_MOVIE:
@@ -169,7 +173,7 @@ class SearchMediaView(views.APIView):
         media_type = request.query_params.get('media_type', MEDIA_TYPE_TV)
         assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
 
-        nefarious_settings = NefariousSettings.objects.get()
+        nefarious_settings = NefariousSettings.singleton()
 
         # prepare query
         tmdb = get_tmdb_client(nefarious_settings)
@@ -201,7 +205,7 @@ class SearchTorrentsView(views.APIView):
 class DownloadTorrentsView(views.APIView):
 
     def post(self, request):
-        nefarious_settings = NefariousSettings.objects.get()
+        nefarious_settings = NefariousSettings.singleton()
         torrent = request.data.get('torrent')
         if not is_magnet_url(torrent):
             torrent = swap_jackett_host(torrent, nefarious_settings)
@@ -226,7 +230,7 @@ class DownloadTorrentsView(views.APIView):
 class CurrentTorrentsView(views.APIView):
 
     def get(self, request, torrent_id=None):
-        nefarious_settings = NefariousSettings.objects.get()
+        nefarious_settings = NefariousSettings.singleton()
         transmission_client = get_transmission_client(nefarious_settings)
         params = {}
         try:

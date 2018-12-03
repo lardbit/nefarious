@@ -19,7 +19,7 @@ class WatchProcessorBase:
     transmission_client = None
 
     def __init__(self, watch_media_id: int, *args):
-        self.nefarious_settings = NefariousSettings.objects.all().get()
+        self.nefarious_settings = NefariousSettings.singleton()
         self.tmdb_client = get_tmdb_client(self.nefarious_settings)
         self.transmission_client = get_transmission_client(self.nefarious_settings)
         self.watch_media = self._get_watch_media(watch_media_id)
@@ -80,7 +80,15 @@ class WatchProcessorBase:
 
     def is_match(self, title: str) -> bool:
         parser = self._get_parser(title)
-        profile = Profile.get_from_name(self.nefarious_settings.quality_profile)
+
+        # use custom quality profile if one exists
+        if self.watch_media.quality_profile_custom:
+            quality_profile = self.watch_media.quality_profile_custom
+        else:
+            quality_profile = self.nefarious_settings.quality_profile
+
+        profile = Profile.get_from_name(quality_profile)
+
         return self._is_match(parser) and parser.is_quality_match(profile)
 
     def _get_best_torrent_result(self, results: list):

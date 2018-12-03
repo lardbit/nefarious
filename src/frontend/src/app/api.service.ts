@@ -66,11 +66,8 @@ export class ApiService {
     );
   }
 
-  protected _requestHeaders() {
-    return new HttpHeaders({
-        'Content-Type':  'application/json',
-        'Authorization': `Token ${this.userToken}`,
-    });
+  public userIsStaff(): boolean {
+    return !!this.user.is_staff;
   }
 
   public loadFromStorage(): Observable<any> {
@@ -274,7 +271,7 @@ export class ApiService {
     );
   }
 
-  public watchTVShow(showId: Number, name: String, posterImageUrl: String) {
+  public watchTVShow(showId: number, name: string, posterImageUrl: string) {
     const params = {
       tmdb_show_id: showId,
       name: name,
@@ -288,7 +285,7 @@ export class ApiService {
     );
   }
 
-  public watchTVEpisode(watchShowId: Number, episodeId: Number, seasonNumber: Number, episodeNumber: Number) {
+  public watchTVEpisode(watchShowId: number, episodeId: number, seasonNumber: number, episodeNumber: number) {
     const params = {
       watch_tv_show: watchShowId,
       tmdb_episode_id: episodeId,
@@ -303,7 +300,7 @@ export class ApiService {
     );
   }
 
-  public watchTVSeason(watchShowId: Number, seasonNumber: Number) {
+  public watchTVSeason(watchShowId: number, seasonNumber: number) {
     const params = {
       watch_tv_show: watchShowId,
       season_number: seasonNumber,
@@ -330,15 +327,29 @@ export class ApiService {
     );
   }
 
-  public watchMovie(movieId: Number, name: String, posterImageUrl: String) {
+  public watchMovie(movieId: number, name: string, posterImageUrl: string, qualityProfileCustom?: string) {
     const params = {
       tmdb_movie_id: movieId,
       name: name,
       poster_image_url: posterImageUrl,
+      quality_profile_custom: qualityProfileCustom,
     };
-    return this.http.post(this.API_URL_WATCH_MOVIE, params, {headers: this._requestHeaders()}).pipe(
+
+    const watchMovie = _.find(this.watchMovies, (watchMovie) => {
+      return watchMovie.tmdb_movie_id == movieId;
+    });
+
+    const endpoint = watchMovie ?
+      this.http.patch(`${this.API_URL_WATCH_MOVIE}${watchMovie.id}/`, params, {headers: this._requestHeaders()}) :
+      this.http.post(this.API_URL_WATCH_MOVIE, params, {headers: this._requestHeaders()});
+
+    return endpoint.pipe(
       map((data: any) => {
-        this.watchMovies.push(data);
+        if (watchMovie) {
+          _.assign(watchMovie, data);
+        } else {
+          this.watchMovies.push(data);
+        }
         return data;
       }),
     );
@@ -378,4 +389,10 @@ export class ApiService {
       }));
   }
 
+  protected _requestHeaders() {
+    return new HttpHeaders({
+      'Content-Type':  'application/json',
+      'Authorization': `Token ${this.userToken}`,
+    });
+  }
 }
