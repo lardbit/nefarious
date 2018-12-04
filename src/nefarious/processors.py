@@ -57,8 +57,8 @@ class WatchProcessorBase:
                     # verify it's not blacklisted and save & start this torrent
                     if not TorrentBlacklist.objects.filter(hash=torrent.hashString).exists():
                         logging.info('Adding torrent for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
-                        logging.info('Adding torrent {} with {} seeders'.format(best_result['Title'], best_result['Seeders']))
-                        logging.info('Starting torrent id: {}'.format(torrent.id))
+                        logging.info('Added torrent {} with {} seeders'.format(best_result['Title'], best_result['Seeders']))
+                        logging.info('Starting torrent id: {} and hash {}'.format(torrent.id, torrent.hashString))
 
                         # save torrent details on our watch instance
                         self._save_torrent_details(torrent)

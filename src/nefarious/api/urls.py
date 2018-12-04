@@ -18,5 +18,6 @@ urlpatterns = [
     path('current/torrents/', viewsets.CurrentTorrentsView.as_view()),
     path('search/media/', viewsets.SearchMediaView.as_view()),
     path('search/media/<str:media_type>/<int:media_id>/', viewsets.MediaDetailView.as_view()),
+    path('discover/media/<str:media_type>/', viewsets.DiscoverMediaView.as_view()),
     path('auth/', views.obtain_auth_token),  # authenticates user and returns token
 ]

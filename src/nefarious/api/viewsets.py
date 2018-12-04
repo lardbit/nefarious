@@ -245,3 +245,25 @@ class CurrentTorrentsView(views.APIView):
             raise ValidationError({'torrent_id': [str(e)]})
 
         return Response(TransmissionTorrentSerializer(result, **params).data)
+
+
+class DiscoverMediaView(views.APIView):
+
+    @method_decorator(cache_page(CACHE_MINUTES))
+    def get(self, request, media_type):
+        assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
+
+        nefarious_settings = NefariousSettings.singleton()
+
+        # prepare query
+        tmdb = get_tmdb_client(nefarious_settings)
+        args = request.query_params
+
+        discover = tmdb.Discover()
+
+        if media_type == MEDIA_TYPE_MOVIE:
+            results = discover.movie(**args)
+        else:
+            results = discover.tv(**args)
+
+        return Response(results)

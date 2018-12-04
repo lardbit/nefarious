@@ -1,0 +1,23 @@
+<form (submit)="submit()">
+  <div class="row">
+    <div class="col-12 col-md-6 col-lg-3">
+      <label for="sort">Sort</label>
+      <select class="form-control" id="sort">
+        <option value="vote_average.desc">Votes</option>
+        <option value="popularity.desc">Popularity</option>
+      </select>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+      <label for="certification">Certification</label>
+      <select class="form-control" id="certification">
+        <option>R</option>
+        <option>PG-13</option>
+        <option>PG</option>
+      </select>
+    </div>
+  </div>
+  <div class="row justify-content-end mt-3">
+    <button class="btn btn-primary">Search</button>
+  </div>
+  <app-media-results *ngIf="results" [results]="results" [mediaType]="'movie'"></app-media-results>
+</form>

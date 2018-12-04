@@ -1,5 +1,5 @@
 import { ActivatedRoute, Router } from '@angular/router';
-import {Component, EventEmitter, OnInit, Output, Input} from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, Input } from '@angular/core';
 import { ApiService } from "../api.service";
 import { ToastrService } from "ngx-toastr";
 

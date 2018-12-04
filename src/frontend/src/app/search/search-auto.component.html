@@ -7,17 +7,5 @@
 
   <div class="alert alert-danger col-12 mt-3" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-  <div class="card result" *ngFor="let result of results">
-    <a [routerLink]="['/media', searchMediaType(), result.id]"><img class="card-img-top" [src]="mediaPosterURL(result)" alt="Card image cap"></a>
-    <div class="card-body">
-      <ng-container *ngIf="isSearchingMovies()">
-        <h4 class="card-title">{{ result.title }}</h4>
-        <h6 class="card-title">{{ result.release_date | date: 'y' }}</h6>
-      </ng-container>
-      <ng-container *ngIf="isSearchingTV()">
-        <h4 class="card-title">{{ result.name }}</h4>
-      </ng-container>
-      <p class="card-text">{{ result.overview }}</p>
-    </div>
-  </div>
+  <app-media-results [results]="results" [mediaType]="searchMediaType()"></app-media-results>
 </div>

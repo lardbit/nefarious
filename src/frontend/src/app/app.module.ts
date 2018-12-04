@@ -26,6 +26,8 @@ import { LoginComponent } from './login/login.component';
 import { ApiService } from './api.service';
 import { WatchingComponent } from './watching/watching.component';
 import { TorrentDetailsComponent } from './torrent-details/torrent-details.component';
+import { DiscoverComponent } from './discover/discover.component';
+import { MediaResultsComponent } from './media-results/media-results.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'search/auto', pathMatch: 'full' },
@@ -37,6 +39,7 @@ const appRoutes: Routes = [
   { path: 'media/movie/:id', component: MediaMovieComponent, canActivate: [LoginGuard, SettingsGuard] },
   { path: 'watching/:type', component: WatchingComponent, canActivate: [LoginGuard, SettingsGuard] },
   { path: 'settings', component: SettingsComponent, canActivate: [LoginGuard, StaffGuard] },
+  { path: 'discover', component: DiscoverComponent, canActivate: [LoginGuard, SettingsGuard] },
   { path: 'page-not-found', component: PageNotFoundComponent },
   { path: '**', component: PageNotFoundComponent }
 ];
@@ -66,6 +69,8 @@ export function init(apiService: ApiService) {
     MediaMovieComponent,
     WatchingComponent,
     TorrentDetailsComponent,
+    DiscoverComponent,
+    MediaResultsComponent,
   ],
   imports: [
     RouterModule.forRoot(

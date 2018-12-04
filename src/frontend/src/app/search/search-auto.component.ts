@@ -25,18 +25,6 @@ export class SearchAutoComponent implements OnInit {
     return this.apiService.searchQuery.type;
   }
 
-  public isSearchingTV() {
-    return this.apiService.searchQuery.type === this.apiService.SEARCH_MEDIA_TYPE_TV;
-  }
-
-  public isSearchingMovies() {
-    return this.apiService.searchQuery.type === this.apiService.SEARCH_MEDIA_TYPE_MOVIE;
-  }
-
-  public mediaPosterURL(result) {
-    return `${this.apiService.settings.tmdb_configuration.images.base_url}/original/${result.poster_path}`;
-  }
-
   public search() {
     this.errorMessage = null;
     this.results = [];

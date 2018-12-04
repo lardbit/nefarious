@@ -22,6 +22,8 @@ export class ApiService {
   API_URL_WATCH_TV_SHOW = '/api/watch-tv-show/';
   API_URL_WATCH_MOVIE = '/api/watch-movie/';
   API_URL_CURRENT_TORRENTS = '/api/current/torrents/';
+  API_URL_DISCOVER_MOVIES = '/api/discover/media/movie/';
+  API_URL_DISCOVER_TV = '/api/discover/media/tv/';
 
   SEARCH_MEDIA_TYPE_TV = 'tv';
   SEARCH_MEDIA_TYPE_MOVIE = 'movie';
@@ -387,6 +389,20 @@ export class ApiService {
         });
         return data;
       }));
+  }
+
+  public discoverMovies(params: any) {
+    return this._discoverMedia(this.SEARCH_MEDIA_TYPE_MOVIE, params);
+  }
+
+  public discoverTV(params: any) {
+    return this._discoverMedia(this.SEARCH_MEDIA_TYPE_TV, params);
+  }
+
+  protected _discoverMedia(mediaType: string, params: any) {
+    const httpParams = new HttpParams({fromObject: params});
+    const url = mediaType == this.SEARCH_MEDIA_TYPE_MOVIE ? this.API_URL_DISCOVER_MOVIES : this.API_URL_DISCOVER_TV;
+    return this.http.get(url, {params: httpParams, headers: this._requestHeaders()});
   }
 
   protected _requestHeaders() {
