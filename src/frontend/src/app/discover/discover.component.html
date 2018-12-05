@@ -1,29 +1,40 @@
-<div class="card">
+<div class="position-relative">
+  <ngx-loading [show]="isSearching"></ngx-loading>
+  <div class="card">
+    <div class="card-header">
+      Filters
+    </div>
+    <div class="card-body">
+      <form  [formGroup]="form" (ngSubmit)="search()">
+        <div class="row">
+          <div class="col-12 col-md-6 col-lg-3">
+            <label for="sort">Sort</label>
+            <select class="form-control" id="sort" formControlName="sort_by">
+              <option *ngFor="let option of OPTIONS_SORT" [value]="option.value">{{ option.name }}</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <label for="release_date_gte">Release Date Min</label>
+            <input class="form-control" type="number" min="1800" step="1" formControlName="primary_release_date.gte" id="release_date_gte">
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <label for="release_date_lte">Release Date Max</label>
+            <input class="form-control" type="number" min="1800" step="1" formControlName="primary_release_date.lte" id="release_date_lte">
+          </div>
+        </div>
+        <div class="row justify-content-end mt-3">
+          <button class="btn btn-primary">Search</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="card" *ngIf="results">
   <div class="card-header">
-    Filters
+    Results
   </div>
   <div class="card-body">
-    <form  [formGroup]="form" (ngSubmit)="submit()">
-      <div class="row">
-        <div class="col-12 col-md-6 col-lg-3">
-          <label for="sort">Sort</label>
-          <select class="form-control" id="sort" formControlName="sort_by">
-            <option *ngFor="let option of OPTIONS_SORT" [value]="option.value">{{ option.name }}</option>
-          </select>
-        </div>
-        <div class="col-12 col-md-6 col-lg-3">
-          <label for="release_date_gte">Release Date Min</label>
-          <input class="form-control" type="number" min="1800" step="1" formControlName="release_date_gte" id="release_date_gte">
-        </div>
-        <div class="col-12 col-md-6 col-lg-3">
-          <label for="release_date_lte">Release Date Max</label>
-          <input class="form-control" type="number" min="1800" step="1" formControlName="release_date_lte" id="release_date_lte">
-        </div>
-      </div>
-      <div class="row justify-content-end mt-3">
-        <button class="btn btn-primary">Search</button>
-      </div>
-      <app-media-results *ngIf="results" [results]="results" [mediaType]="'movie'"></app-media-results>
-    </form>
+    <app-media-results [results]="results" [mediaType]="'movie'"></app-media-results>
   </div>
 </div>

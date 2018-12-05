@@ -23,7 +23,11 @@ from nefarious.utils import (
     verify_settings_jackett, verify_settings_transmission, verify_settings_tmdb,
 )
 
-CACHE_MINUTES = 60 * 60 * 12
+CACHE_MINUTE = 60
+CACHE_HOUR = CACHE_MINUTE * 60
+CACHE_HALF_DAY = CACHE_HOUR * 12
+CACHE_DAY = CACHE_HALF_DAY * 2
+CACHE_WEEK = CACHE_DAY * 7
 
 
 class WatchMovieViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
@@ -147,7 +151,7 @@ class CurrentUserViewSet(viewsets.ModelViewSet):
 
 class MediaDetailView(views.APIView):
 
-    @method_decorator(cache_page(CACHE_MINUTES))
+    @method_decorator(cache_page(CACHE_DAY))
     def get(self, request, media_type, media_id):
         nefarious_settings = NefariousSettings.singleton()
         tmdb = get_tmdb_client(nefarious_settings)
@@ -168,7 +172,7 @@ class MediaDetailView(views.APIView):
 
 class SearchMediaView(views.APIView):
 
-    @method_decorator(cache_page(CACHE_MINUTES))
+    @method_decorator(cache_page(CACHE_DAY))
     def get(self, request):
         media_type = request.query_params.get('media_type', MEDIA_TYPE_TV)
         assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
@@ -192,7 +196,7 @@ class SearchMediaView(views.APIView):
 
 class SearchTorrentsView(views.APIView):
 
-    @method_decorator(cache_page(CACHE_MINUTES))
+    @method_decorator(cache_page(CACHE_HALF_DAY))
     def get(self, request):
         query = request.query_params.get('q')
         media_type = request.query_params.get('media_type', MEDIA_TYPE_MOVIE)
@@ -249,7 +253,7 @@ class CurrentTorrentsView(views.APIView):
 
 class DiscoverMediaView(views.APIView):
 
-    @method_decorator(cache_page(CACHE_MINUTES))
+    @method_decorator(cache_page(CACHE_WEEK))
     def get(self, request, media_type):
         assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
 
@@ -258,7 +262,6 @@ class DiscoverMediaView(views.APIView):
         # prepare query
         tmdb = get_tmdb_client(nefarious_settings)
         args = request.query_params
-
         discover = tmdb.Discover()
 
         if media_type == MEDIA_TYPE_MOVIE:
