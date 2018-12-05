@@ -270,3 +270,24 @@ class DiscoverMediaView(views.APIView):
             results = discover.tv(**args)
 
         return Response(results)
+
+
+class GenresView(views.APIView):
+
+    @method_decorator(cache_page(CACHE_WEEK))
+    def get(self, request, media_type):
+        assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
+
+        nefarious_settings = NefariousSettings.singleton()
+
+        # prepare query
+        tmdb = get_tmdb_client(nefarious_settings)
+        args = request.query_params
+        genres = tmdb.Genres()
+
+        if media_type == MEDIA_TYPE_MOVIE:
+            results = genres.movie_list(**args)
+        else:
+            results = genres.tv_list(**args)
+
+        return Response(results)

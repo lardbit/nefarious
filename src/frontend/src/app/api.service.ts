@@ -24,6 +24,8 @@ export class ApiService {
   API_URL_CURRENT_TORRENTS = '/api/current/torrents/';
   API_URL_DISCOVER_MOVIES = '/api/discover/media/movie/';
   API_URL_DISCOVER_TV = '/api/discover/media/tv/';
+  API_URL_GENRES_MOVIE = '/api/genres/movie/';
+  API_URL_GENRES_TV = '/api/genres/tv/';
 
   SEARCH_MEDIA_TYPE_TV = 'tv';
   SEARCH_MEDIA_TYPE_MOVIE = 'movie';
@@ -397,6 +399,19 @@ export class ApiService {
 
   public discoverTV(params: any) {
     return this._discoverMedia(this.SEARCH_MEDIA_TYPE_TV, params);
+  }
+
+  public fetchMovieGenres() {
+    return this._fetchGenres(this.SEARCH_MEDIA_TYPE_MOVIE);
+  }
+
+  public fetchTVGenres() {
+    return this._fetchGenres(this.SEARCH_MEDIA_TYPE_TV);
+  }
+
+  protected _fetchGenres(mediaType: string) {
+    const url = mediaType === this.SEARCH_MEDIA_TYPE_MOVIE ? this.API_URL_GENRES_MOVIE : this.API_URL_GENRES_TV;
+    return this.http.get(url, {headers: this._requestHeaders()});
   }
 
   protected _discoverMedia(mediaType: string, params: any) {

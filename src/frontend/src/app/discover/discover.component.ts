@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, Validators} from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-discover',
@@ -10,9 +11,13 @@ import { ApiService } from '../api.service';
   styleUrls: ['./discover.component.css']
 })
 export class DiscoverComponent implements OnInit {
-  public results: any[];
+  public results: any[] = [];
   public form;
-  public isSearching = false;
+  public isLoading = true;
+  public genres: {
+    id: number,
+    name: string
+  }[];
 
   public DEFAULT_SORT = 'popularity.desc';
   public OPTIONS_SORT = [
@@ -39,38 +44,64 @@ export class DiscoverComponent implements OnInit {
       'sort_by': [this.DEFAULT_SORT, Validators.required],
       'primary_release_date.gte': ['', Validators.pattern('\d{4}')],
       'primary_release_date.lte': ['', Validators.pattern('\d{4}')],
+      'with_genres': ['', Validators.pattern('\d+')],
+      'page': [1, Validators.pattern('\d+')],
     });
 
-    // auto submit search if there were filters already set in the URL
-    if (this.route.snapshot.params) {
-      this.form.setValue(this.route.snapshot.params);
-      this.search();
-    }
+    this.apiService.fetchMovieGenres().subscribe(
+      (data: any) => {
+        this.genres = data.genres;
+        this.isLoading = false;
+
+        // auto submit search if there were filters set in the URL
+        if (this.route.snapshot.params) {
+
+          // set the url param values on the form
+          _.forOwn(this.route.snapshot.params, (value, key) => {
+            if (value) {
+              this.form.controls[key].setValue(value);
+            }
+          });
+
+          this.search();
+        }
+      },
+      (error) => {
+        this.toastr.error('An error occurred fetching genres');
+        this.isLoading = false;
+      }
+    );
   }
 
-  public search() {
-    this.isSearching = true;
-    this.results = [];
+  public search(appendResults: boolean = false) {
+    this.isLoading = true;
+
+    if (!appendResults) {
+      this.results = [];
+      // reset the page value
+      this.form.controls['page'].setValue(1);
+    }
 
     let currentUrl = this.route.snapshot.url.map((data) => {
       return data.path;
     });
 
-    // navigate to the search component with the search query as parameters
+    // update the url params then search
     this.router.navigate([`/${currentUrl.join('/')}/`, this.form.value]).then(
       () => {
         this.apiService.discoverMovies(this.form.value).subscribe(
           (data: any) => {
-            this.results = data.results;
-            this.isSearching = false;
+            this.results = this.results.concat(data.results);
+            // increment the "page" input value
+            this.form.controls['page'].setValue(data.page + 1);
+            this.isLoading = false;
           },
           (error) => {
-            this.toastr.error('An unknown error occured');
-            this.isSearching = false;
+            this.toastr.error('An unknown error occurred');
+            this.isLoading = false;
           }
         );
       }
     );
   }
-
 }
