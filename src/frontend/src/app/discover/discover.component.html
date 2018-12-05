@@ -1,23 +1,29 @@
-<form (submit)="submit()">
-  <div class="row">
-    <div class="col-12 col-md-6 col-lg-3">
-      <label for="sort">Sort</label>
-      <select class="form-control" id="sort">
-        <option value="vote_average.desc">Votes</option>
-        <option value="popularity.desc">Popularity</option>
-      </select>
-    </div>
-    <div class="col-12 col-md-6 col-lg-3">
-      <label for="certification">Certification</label>
-      <select class="form-control" id="certification">
-        <option>R</option>
-        <option>PG-13</option>
-        <option>PG</option>
-      </select>
-    </div>
+<div class="card">
+  <div class="card-header">
+    Filters
   </div>
-  <div class="row justify-content-end mt-3">
-    <button class="btn btn-primary">Search</button>
+  <div class="card-body">
+    <form  [formGroup]="form" (ngSubmit)="submit()">
+      <div class="row">
+        <div class="col-12 col-md-6 col-lg-3">
+          <label for="sort">Sort</label>
+          <select class="form-control" id="sort" formControlName="sort_by">
+            <option *ngFor="let option of OPTIONS_SORT" [value]="option.value">{{ option.name }}</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <label for="release_date_gte">Release Date Min</label>
+          <input class="form-control" type="number" min="1800" step="1" formControlName="release_date_gte" id="release_date_gte">
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <label for="release_date_lte">Release Date Max</label>
+          <input class="form-control" type="number" min="1800" step="1" formControlName="release_date_lte" id="release_date_lte">
+        </div>
+      </div>
+      <div class="row justify-content-end mt-3">
+        <button class="btn btn-primary">Search</button>
+      </div>
+      <app-media-results *ngIf="results" [results]="results" [mediaType]="'movie'"></app-media-results>
+    </form>
   </div>
-  <app-media-results *ngIf="results" [results]="results" [mediaType]="'movie'"></app-media-results>
-</form>
+</div>
