@@ -6,16 +6,16 @@ Nefarious is a web application that aims to combine *some* of the features of
 It uses [Jackett](https://github.com/Jackett/Jackett/) under the hood and expects [Transmission](https://transmissionbt.com/) to be running somewhere.
 If you want to run a dockerized instance of transmission + openvpn I suggest [docker-transmission-openvpn](https://github.com/haugene/docker-transmission-openvpn).
 
-Nefarious also needs an API token from [TMDB](http://themoviedb.org).
-
 Features:
 - [x] Search TV
 - [x] Search Movies
 - [x] Auto download TV (individual or full season)
 - [x] Auto download Movies
+- [x] Discover Movies (by popularity, genres etc)
+- [ ] Discover TV (by popularity, genres etc)
 - [x] Manually search Jackett results and download
 - [ ] Support blacklisting torrent results
-- [ ] Support quality profiles
+- [X] Support quality profiles
 - [ ] Support multiple user permissions (i.e a user must "request" to watch something)
 - [ ] Monitor transmission data results from within the app
 - [ ] Auto download media once it's released (routinely scan)
@@ -38,18 +38,13 @@ Configure your local Jackett instance at [http://localhost:9117](http://localhos
 
 Open nefarious at [http://localhost:8000](http://localhost:8000).  You'll be redirected to the settings page.
 
-###### Configure jackett
+###### Jackett settings
 
 Since jackett is running in the same docker network, you'll need to set the host as `jackett`.  The default port is `9117`.  Enter your api token.
 
-###### Configure transmission
+###### Transmission settings
 
 Configure your transmission host, port, username and password, and download directory.  Nefarious will save TV and Movies in a sub-folder of this path.
-
-###### Configure The Movie Database
-
-Configure your TMDB token.  You need to create an account on [http://themoviedb.org](http://themoviedb.org) and request an api token.  You can't continue without one.
-
 
 ## Debugging
    

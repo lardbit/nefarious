@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.conf import settings
 from jsonfield import JSONField
 from django.db import models
 from nefarious import quality
@@ -17,7 +18,7 @@ class NefariousSettings(models.Model):
     transmission_pass = models.CharField(max_length=500)
     transmission_tv_download_dir = models.CharField(max_length=500, default='tv/', help_text='Relative to download path')
     transmission_movie_download_dir = models.CharField(max_length=500, default='movies/', help_text='Relative to download path')
-    tmdb_token = models.CharField(max_length=500)
+    tmdb_token = models.CharField(max_length=500, default=settings.TMDB_API_TOKEN)
     tmdb_configuration = JSONField(blank=True, null=True)
     tmdb_configuration_date = models.DateTimeField(blank=True, null=True, auto_now=True)
     quality_profile = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))

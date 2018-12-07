@@ -31,7 +31,6 @@ export class SettingsComponent implements OnInit {
       'transmission_pass': [settings['transmission_pass'], Validators.required],
       'transmission_tv_download_dir': [settings['transmission_tv_download_dir'], Validators.required],
       'transmission_movie_download_dir': [settings['transmission_movie_download_dir'], Validators.required],
-      'tmdb_token': [settings['tmdb_token'], Validators.required],
       'quality_profile': [settings['quality_profile'], Validators.required],
     });
   }
