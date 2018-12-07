@@ -30,7 +30,7 @@ import { DiscoverComponent } from './discover/discover.component';
 import { MediaResultsComponent } from './media-results/media-results.component';
 
 const appRoutes: Routes = [
-  { path: '', redirectTo: 'search/auto', pathMatch: 'full' },
+  { path: '', redirectTo: 'discover', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'search', redirectTo: 'search/auto', pathMatch: 'full', canActivate: [LoginGuard] },
   { path: 'search/auto', component: SearchAutoComponent, canActivate: [LoginGuard, SettingsGuard] },
