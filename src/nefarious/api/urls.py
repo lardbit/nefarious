@@ -20,5 +20,6 @@ urlpatterns = [
     path('search/media/<str:media_type>/<int:media_id>/', viewsets.MediaDetailView.as_view()),
     path('discover/media/<str:media_type>/', viewsets.DiscoverMediaView.as_view()),
     path('genres/<str:media_type>/', viewsets.GenresView.as_view()),
+    path('quality-profiles/', viewsets.QualityProfilesView.as_view()),
     path('auth/', views.obtain_auth_token),  # authenticates user and returns token
 ]

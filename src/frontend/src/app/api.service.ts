@@ -26,6 +26,7 @@ export class ApiService {
   API_URL_DISCOVER_TV = '/api/discover/media/tv/';
   API_URL_GENRES_MOVIE = '/api/genres/movie/';
   API_URL_GENRES_TV = '/api/genres/tv/';
+  API_URL_QUALITY_PROFILES = '/api/quality-profiles/';
 
   SEARCH_MEDIA_TYPE_TV = 'tv';
   SEARCH_MEDIA_TYPE_MOVIE = 'movie';
@@ -33,6 +34,7 @@ export class ApiService {
   public user: any;
   public userToken: string;
   public settings: any;
+  public qualityProfiles: string[];
   public watchTVEpisodes: any[] = [];
   public watchTVShows: any[] = [];
   public watchMovies: any[] = [];
@@ -103,6 +105,7 @@ export class ApiService {
       this.fetchWatchTVShows(),
       this.fetchWatchTVEpisodes(),
       this.fetchWatchMovies(),
+      this.fetchQualityProfiles(),
     );
   }
 
@@ -115,6 +118,19 @@ export class ApiService {
           console.log('no settings');
         }
         return this.settings;
+      }),
+    );
+  }
+
+  public fetchQualityProfiles() {
+    return this.http.get(this.API_URL_QUALITY_PROFILES, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        if (data.profiles) {
+          this.qualityProfiles = data.profiles;
+        } else {
+          console.error('no quality profiles');
+        }
+        return this.qualityProfiles;
       }),
     );
   }

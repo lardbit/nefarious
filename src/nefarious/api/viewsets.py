@@ -8,7 +8,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
-from nefarious.api.mixins import UserReferenceViewSetMixin
+from nefarious.api.mixins import UserReferenceViewSetMixin, BlacklistAndRetryMixin
+from nefarious.quality import PROFILES
 from nefarious.transmission import get_transmission_client
 from nefarious.tmdb import get_tmdb_client
 from nefarious.api.serializers import (
@@ -30,7 +31,7 @@ CACHE_DAY = CACHE_HALF_DAY * 2
 CACHE_WEEK = CACHE_DAY * 7
 
 
-class WatchMovieViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
+class WatchMovieViewSet(BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchMovie.objects.all()
     serializer_class = WatchMovieSerializer
 
@@ -44,30 +45,8 @@ class WatchMovieViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
         # create a task to download the movie
         watch_movie_task.delay(serializer.instance.id)
 
-    @action(['post'], detail=True, url_path='blacklist-auto-retry')
-    def blacklist_auto_retry(self, request, pk):
-        watch_movie = self.get_object()  # type: WatchMovie
-        nefarious_settings = NefariousSettings.singleton()
-
-        # add to blacklist
-        logging.info('Blacklisting {}'.format(watch_movie.transmission_torrent_hash))
-        TorrentBlacklist.objects.get_or_create(hash=watch_movie.transmission_torrent_hash)
-
-        # unset previous transmission details
-        del_transmission_torrent_id = watch_movie.transmission_torrent_id
-        watch_movie.transmission_torrent_id = None
-        watch_movie.transmission_torrent_hash = None
-        watch_movie.save()
-
-        # re-queue search
-        watch_movie_task.delay(watch_movie.id)
-
-        # remove torrent and delete data
-        logging.info('Removing blacklisted torrent id: {}'.format(del_transmission_torrent_id))
-        transmission_client = get_transmission_client(nefarious_settings=nefarious_settings)
-        transmission_client.remove_torrent([del_transmission_torrent_id], delete_data=True)
-
-        return Response(WatchMovieSerializer(watch_movie).data)
+    def _watch_media_task(self, watch_media_id: int):
+        watch_movie_task.delay(watch_media_id)
 
 
 class WatchTVShowViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
@@ -291,3 +270,9 @@ class GenresView(views.APIView):
             results = genres.tv_list(**args)
 
         return Response(results)
+
+
+class QualityProfilesView(views.APIView):
+
+    def get(self, request):
+        return Response({'profiles': [p.name for p in PROFILES]})

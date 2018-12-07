@@ -45,7 +45,7 @@ class WatchMovie(WatchMediaBase):
     collected = models.BooleanField(default=False)
     collected_date = models.DateTimeField(blank=True, null=True)
     transmission_torrent_id = models.IntegerField(null=True, blank=True)
-    transmission_torrent_hash = models.CharField(max_length=100, blank=True)
+    transmission_torrent_hash = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         permissions = (
@@ -79,7 +79,7 @@ class WatchTVEpisode(WatchMediaBase):
     collected = models.BooleanField(default=False)
     collected_date = models.DateTimeField(blank=True, null=True)
     transmission_torrent_id = models.IntegerField(null=True, blank=True)
-    transmission_torrent_hash = models.CharField(max_length=100, blank=True)
+    transmission_torrent_hash = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         unique_together = ('watch_tv_show', 'season_number', 'episode_number')

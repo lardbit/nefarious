@@ -33,7 +33,7 @@ export class MediaMovieComponent implements OnInit {
         this.isLoading = false;
         this.watchMovie = this.getWatchMovie();
         this.isWatchingMovie = !!this.watchMovie;
-        this.qualityProfileCustom = this.watchMovie.quality_profile_custom;
+        this.qualityProfileCustom = this.watchMovie ? this.watchMovie.quality_profile_custom : '';
       },
       (error) => {
         this.isLoading = false;
@@ -90,6 +90,6 @@ export class MediaMovieComponent implements OnInit {
   }
 
   public qualityProfiles(): string[] {
-    return this.apiService.settings.quality_profiles;
+    return this.apiService.qualityProfiles;
   }
 }

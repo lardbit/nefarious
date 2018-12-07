@@ -26,8 +26,8 @@ class WatchProcessorBase:
         self.tmdb_media = self._get_tmdb_media()
 
     def fetch(self):
-        search = self._get_search_results()
         valid_search_results = []
+        search = self._get_search_results()
 
         if search.ok:
 
@@ -39,7 +39,12 @@ class WatchProcessorBase:
 
             if valid_search_results:
 
+                # trace the "torrent url" (sometimes magnet) in each valid result
+                valid_search_results = self._results_with_valid_urls(valid_search_results)
+
                 while valid_search_results:
+
+                    logging.info('Valid Search Results: {}'.format(len(valid_search_results)))
 
                     # find the torrent result with the highest weight (i.e seeds)
                     best_result = self._get_best_torrent_result(valid_search_results)
@@ -50,7 +55,7 @@ class WatchProcessorBase:
 
                     torrent = transmission_client.add_torrent(
                         best_result['torrent_url'],
-                        paused=True,  # start paused so we can verify this torrent hasn't been blacklisted - then start it
+                        paused=True,  # verify torrent hasn't been blacklisted, then start it
                         download_dir=self._get_download_dir(transmission_session)
                     )
 
@@ -71,6 +76,7 @@ class WatchProcessorBase:
                         logging.info('BLACKLISTED: {} ({}) - trying next best result'.format(best_result['Title'], torrent.hashString))
                         transmission_client.remove_torrent([torrent.id])
                         valid_search_results.pop()
+                        continue
             else:
                 logging.info('No valid search results for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
         else:
@@ -91,9 +97,8 @@ class WatchProcessorBase:
 
         return self._is_match(parser) and parser.is_quality_match(profile)
 
-    def _get_best_torrent_result(self, results: list):
-        best_result = None
-        valid_search_results = []
+    def _results_with_valid_urls(self, results: list):
+        populated_results = []
 
         for result in results:
 
@@ -108,13 +113,18 @@ class WatchProcessorBase:
 
             # add torrent to valid search results
             logging.info('Valid Match: {} with {} Seeders'.format(result['Title'], result['Seeders']))
-            valid_search_results.append(result)
+            populated_results.append(result)
 
-        if valid_search_results:
+        return populated_results
+
+    def _get_best_torrent_result(self, results: list):
+        best_result = None
+
+        if results:
 
             # find the torrent result with the highest weight (i.e seeds)
-            best_result = valid_search_results[0]
-            for result in valid_search_results:
+            best_result = results[0]
+            for result in results:
                 if result['Seeders'] > best_result['Seeders']:
                     best_result = result
 

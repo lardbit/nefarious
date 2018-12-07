@@ -78,6 +78,6 @@ export class SettingsComponent implements OnInit {
   }
 
   public qualityProfiles(): string[] {
-    return this.apiService.settings.quality_profiles;
+    return this.apiService.qualityProfiles;
   }
 }
