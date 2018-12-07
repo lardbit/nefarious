@@ -1,10 +1,12 @@
 # Nefarious
 
+[![Build Status](https://travis-ci.org/lardbit/nefarious.svg?branch=master)](https://travis-ci.org/lardbit/nefarious)
+
 Nefarious is a web application that aims to combine *some* of the features of
 [Sonarr](https://github.com/Sonarr/Sonarr/), [Radarr](https://github.com/Radarr/Radarr) and [Ombi](https://github.com/tidusjar/Ombi).
 
 It uses [Jackett](https://github.com/Jackett/Jackett/) under the hood and expects [Transmission](https://transmissionbt.com/) to be running somewhere.
-If you want to run a dockerized instance of transmission + openvpn I suggest [docker-transmission-openvpn](https://github.com/haugene/docker-transmission-openvpn).
+(If you want to run a dockerized instance of transmission + openvpn I suggest [docker-transmission-openvpn](https://github.com/haugene/docker-transmission-openvpn).)
 
 Features:
 - [x] Search TV
@@ -17,12 +19,15 @@ Features:
 - [ ] Support blacklisting torrent results
 - [X] Support quality profiles
 - [ ] Support multiple user permissions (i.e a user must "request" to watch something)
-- [ ] Monitor transmission data results from within the app
 - [ ] Auto download media once it's released (routinely scan)
+- [ ] Monitor transmission data results from within the app
+- [x] Auto updating application
 
 ### Running via docker-compose
 
-Copy `.env.template` to `.env` and update accordingly.
+The default user/pass is `admin/admin`.
+
+~Copy `.env.template` to `.env` and update accordingly.~
 
 Run nefarious and dependencies (except transmission):
     
