@@ -21,6 +21,8 @@ export class DiscoverComponent implements OnInit {
 
   public DEFAULT_SORT = 'popularity.desc';
   public OPTIONS_SORT = [
+    {name: 'Release Date (newest)', value: 'primary_release_date.desc'},
+    {name: 'Release Date (oldest)', value: 'primary_release_date.asc'},
     {name: 'Most Popular', value: 'popularity.desc'},
     {name: 'Least Popular', value: 'popularity.asc'},
     {name: 'Highest Votes', value: 'vote_average.desc'},
@@ -43,7 +45,7 @@ export class DiscoverComponent implements OnInit {
     this.form = this.fb.group({
       'sort_by': [this.DEFAULT_SORT, Validators.required],
       'primary_release_date.gte': ['', Validators.pattern('\d{4}')],
-      'primary_release_date.lte': ['', Validators.pattern('\d{4}')],
+      'primary_release_date.lte': [(new Date).getFullYear(), Validators.pattern('\d{4}')],
       'with_genres': ['', Validators.pattern('\d+')],
       'page': [1, Validators.pattern('\d+')],
     });
@@ -87,9 +89,9 @@ export class DiscoverComponent implements OnInit {
     });
 
     // update the url params then search
-    this.router.navigate([`/${currentUrl.join('/')}/`, this.form.value]).then(
+    this.router.navigate([`/${currentUrl.join('/')}/`, this._formValues()]).then(
       () => {
-        this.apiService.discoverMovies(this.form.value).subscribe(
+        this.apiService.discoverMovies(this._formValues()).subscribe(
           (data: any) => {
             this.results = this.results.concat(data.results);
             // increment the "page" input value
@@ -103,5 +105,16 @@ export class DiscoverComponent implements OnInit {
         );
       }
     );
+  }
+
+  protected _formValues() {
+    // returns populated values
+    const values = {};
+    _.forOwn(this.form.value, (value, key) => {
+      if (value) {
+        values[key] = value;
+      }
+    });
+    return values;
   }
 }
