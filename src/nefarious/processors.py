@@ -91,7 +91,7 @@ class WatchProcessorBase:
         if self.watch_media.quality_profile_custom:
             quality_profile = self.watch_media.quality_profile_custom
         else:
-            quality_profile = self.nefarious_settings.quality_profile
+            quality_profile = self._get_quality_profile()
 
         profile = Profile.get_from_name(quality_profile)
 
@@ -133,6 +133,9 @@ class WatchProcessorBase:
 
         return best_result
 
+    def _get_quality_profile(self):
+        raise NotImplementedError
+
     def _get_watch_media(self, watch_media_id: int):
         raise NotImplementedError
 
@@ -165,6 +168,9 @@ class WatchProcessorBase:
 
 class WatchMovieProcessor(WatchProcessorBase):
 
+    def _get_quality_profile(self):
+        return self.nefarious_settings.quality_profile_movies
+
     def _get_parser(self, title: str):
         return MovieParser(title)
 
@@ -196,6 +202,9 @@ class WatchMovieProcessor(WatchProcessorBase):
 
 
 class WatchTVProcessorBase(WatchProcessorBase):
+
+    def _get_quality_profile(self):
+        return self.nefarious_settings.quality_profile_tv
 
     def _get_parser(self, title: str):
         return TVParser(title)

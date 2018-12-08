@@ -19,7 +19,7 @@ export class WatchingComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    const routeParams = this.route.params.subscribe(
+    this.route.params.subscribe(
       (params) => {
         this.alertMessage = null;
         this.mediaType = params.type;

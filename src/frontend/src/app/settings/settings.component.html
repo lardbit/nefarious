@@ -53,8 +53,14 @@
       <div class="card-header">Quality Profile</div>
       <div class="card-body">
         <div class="form-group">
-          <label>Profile</label>
-          <select type="text" class="form-control" formControlName="quality_profile" required>
+          <label>TV</label>
+          <select type="text" class="form-control" formControlName="quality_profile_tv" required>
+            <option *ngFor="let profile of qualityProfiles()" [value]="profile">{{ profile }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Movies</label>
+          <select type="text" class="form-control" formControlName="quality_profile_movies" required>
             <option *ngFor="let profile of qualityProfiles()" [value]="profile">{{ profile }}</option>
           </select>
         </div>

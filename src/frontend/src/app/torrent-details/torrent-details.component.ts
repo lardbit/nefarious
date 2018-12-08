@@ -13,8 +13,8 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
   @Input() watchMedia: any[];
   public torrents: any[] = [];
   public isSaving = false;
+  public POLL_TIME = 5000;
 
-  protected POLL_TIME = 5000;
   protected _torrentFetchInterval: any;
 
   constructor(
@@ -51,6 +51,7 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
   public blacklistRetry(torrent) {
     this.isSaving = true;
     const watchMedia = this.getWatchMediaFromTorrentId(torrent.id);
+    // TODO - handle TV
     this.apiService.blacklistRetryMovie(watchMedia.id).subscribe(
       (data) => {
         console.log(data);
@@ -67,9 +68,10 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
     const transmission_torrent_ids = this.getTorrentIds();
 
     for (const watchMedia of this.watchMedia) {
+      // fetch watch instance if there's no torrent id populated yet
       if (!watchMedia.transmission_torrent_id) {
-        // type tv show
-        if (watchMedia.tmdb_show_id) {
+        // type tv episode
+        if (watchMedia.tmdb_episode_id) {
           this.apiService.fetchWatchTVEpisode(watchMedia.id).subscribe();
         } else { // type movie
           this.apiService.fetchWatchMovie(watchMedia.id).subscribe();

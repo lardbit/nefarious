@@ -68,13 +68,18 @@ class WatchTVShowViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
 
         # save individual episode watches
         for episode in season['episodes']:
-            WatchTVEpisode.objects.get_or_create(
+            watch_episode, was_created = WatchTVEpisode.objects.get_or_create(
                 user=request.user,
                 watch_tv_show=watch_tv_show,
                 tmdb_episode_id=episode['id'],
                 season_number=data['season_number'],
                 episode_number=episode['episode_number'],
             )
+            # unset any previously set torrent details
+            if not was_created:
+                watch_episode.transmission_torrent_id = None
+                watch_episode.transmission_torrent_hash = None
+                watch_episode.save()
 
         # create a task to download the whole season
         watch_tv_show_season_task.delay(watch_tv_show.id, data['season_number'])

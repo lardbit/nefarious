@@ -97,7 +97,7 @@ export class MediaTVComponent implements OnInit {
     for (const season of this.result.seasons) {
       for (const episode of season.episodes) {
         const watchEpisode = this._getEpisodeWatch(episode.id);
-        if (watchEpisode && watchEpisode.transmission_torrent_id) {
+        if (watchEpisode) {
           watchEpisodes.push(watchEpisode);
         }
       }
