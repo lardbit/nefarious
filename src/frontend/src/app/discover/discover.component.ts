@@ -43,6 +43,7 @@ export class DiscoverComponent implements OnInit {
   ngOnInit() {
 
     this.form = this.fb.group({
+      'mediaType': [this.apiService.SEARCH_MEDIA_TYPE_MOVIE, Validators.required],
       'sort_by': [this.DEFAULT_SORT, Validators.required],
       'primary_release_date.gte': ['', Validators.pattern('\d{4}')],
       'primary_release_date.lte': [(new Date).getFullYear(), Validators.pattern('\d{4}')],
@@ -88,10 +89,14 @@ export class DiscoverComponent implements OnInit {
       return data.path;
     });
 
+    let discoverEndpoint = this.form.value.mediaType == this.apiService.SEARCH_MEDIA_TYPE_MOVIE ?
+      this.apiService.discoverMovies(this._formValues()) :
+      this.apiService.discoverTV(this._formValues());
+
     // update the url params then search
     this.router.navigate([`/${currentUrl.join('/')}/`, this._formValues()]).then(
       () => {
-        this.apiService.discoverMovies(this._formValues()).subscribe(
+        discoverEndpoint.subscribe(
           (data: any) => {
             this.results = this.results.concat(data.results);
             // increment the "page" input value

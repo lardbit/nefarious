@@ -9,6 +9,13 @@
         <input type="hidden" formControlName="page">
         <div class="row">
           <div class="col-12 col-md-6 col-lg-3">
+            <label for="media-type">Media</label>
+            <select class="form-control" id="media-type" formControlName="mediaType">
+              <option value="movie">Movies</option>
+              <option value="tv">TV</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
             <label for="sort">Sort</label>
             <select class="form-control" id="sort" formControlName="sort_by">
               <option *ngFor="let option of OPTIONS_SORT" [value]="option.value">{{ option.name }}</option>
@@ -42,7 +49,7 @@
     Results
   </div>
   <div class="card-body">
-    <app-media-results [results]="results" [mediaType]="'movie'"></app-media-results>
+    <app-media-results [results]="results" [mediaType]="form.value.mediaType"></app-media-results>
     <button class="btn btn-info" (click)="search(true)">More</button>
   </div>
 </div>
