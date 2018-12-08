@@ -11,9 +11,14 @@ import * as _ from 'lodash';
 })
 export class TorrentDetailsComponent implements OnInit, OnDestroy {
   @Input() watchMedia: any[];
+  @Input() mediaType: string;
   public torrents: any[] = [];
   public isSaving = false;
   public POLL_TIME = 5000;
+  public results: {
+    watchMedia: any,
+    torrent: any,
+  }[] = [];
 
   protected _torrentFetchInterval: any;
 
@@ -39,29 +44,43 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
   }
 
   public getWatchMediaFromTorrentId(id) {
-    return _.find(this.watchMedia, (media) => {
+    return _.filter(this.watchMedia, (media) => {
       return media.transmission_torrent_id === id;
     });
   }
 
   public getTorrentIds() {
-    return this.watchMedia.filter((v) => v.transmission_torrent_id).map((v) => v.transmission_torrent_id);
+    return this.watchMedia
+      .filter((v) => v.transmission_torrent_id)
+      .map((v) => v.transmission_torrent_id);
   }
 
   public blacklistRetry(torrent) {
     this.isSaving = true;
-    const watchMedia = this.getWatchMediaFromTorrentId(torrent.id);
-    // TODO - handle TV
-    this.apiService.blacklistRetryMovie(watchMedia.id).subscribe(
-      (data) => {
-        console.log(data);
-        this.isSaving = false;
-      },
-      (error) => {
-        console.error(error);
-        this.isSaving = false;
-      }
-    );
+    const watchMediaList = this.getWatchMediaFromTorrentId(torrent.id);
+
+    watchMediaList.forEach((watchMedia) => {
+
+      const endpoint = this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_MOVIE ?
+        this.apiService.blacklistRetryMovie(watchMedia.id) :
+        this.apiService.blacklistRetryTV(watchMedia.id);
+
+      endpoint.subscribe(
+        (data) => {
+          this.isSaving = false;
+
+          // filter the watch media/torrent results since it was updated
+          this.results = _.filter(this.results, (result) => {
+            return result.watchMedia.id === watchMedia.id;
+          })
+        },
+        (error) => {
+          console.error(error);
+          this.isSaving = false;
+        }
+      );
+
+    })
   }
 
   protected _fetchTorrents() {
@@ -87,6 +106,14 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
     this.apiService.fetchCurrentTorrents(transmission_torrent_ids).subscribe(
       (data) => {
         this.torrents = data;
+        this.results = this.watchMedia.map((watchMedia) => {
+          return {
+            watchMedia: watchMedia,
+            torrent: _.find(this.torrents, (torrent) => {
+              return torrent.id === watchMedia.transmission_torrent_id;
+            }),
+          };
+        });
       },
       (error) => {
         console.error(error);

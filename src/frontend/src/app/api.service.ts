@@ -409,6 +409,18 @@ export class ApiService {
       }));
   }
 
+  public blacklistRetryTV(watchMediaId: number) {
+    return this.http.post(`${this.API_URL_WATCH_TV_EPISODE}${watchMediaId}/blacklist-auto-retry/`, null, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        this.watchTVEpisodes.forEach((watchEpisode) => {
+          if (data.id === watchEpisode.id) {
+            _.assign(watchEpisode, data);
+          }
+        });
+        return data;
+      }));
+  }
+
   public discoverMovies(params: any) {
     return this._discoverMedia(this.SEARCH_MEDIA_TYPE_MOVIE, params);
   }

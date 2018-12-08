@@ -13,18 +13,18 @@
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let torrent of torrents">
+    <tr *ngFor="let result of results">
       <td>
-        <button type="button" class="btn btn-outline-secondary mr-2" placement="top" [ngbPopover]="torrent.name" popoverTitle="Torrent Name">
-          {{ getWatchMediaFromTorrentId(torrent.id)?.name }}
+        <button type="button" class="btn btn-outline-secondary mr-2" placement="top" [ngbPopover]="result.torrent?.name" popoverTitle="Torrent Name">
+          {{ result.watchMedia.name }}
         </button>
       </td>
-      <td>{{ torrent.status }}</td>
-      <td>{{ torrent.progress }}%</td>
-      <td>{{ torrent.format_eta }}</td>
-      <td>{{ torrent.date_added | date }}</td>
-      <td><span *ngIf="torrent.progress === 100">{{ torrent.date_done | date }}</span></td>
-      <td><button class="btn btn-warning btn-sm" (click)="blacklistRetry(torrent)"><span class="oi oi-ban"></span></button></td>
+      <td><span *ngIf="result.torrent">{{ result.torrent.status }}</span></td>
+      <td><span *ngIf="result.torrent">{{ result.torrent.progress }}%</span></td>
+      <td><span *ngIf="result.torrent">{{ result.torrent.format_eta }}</span></td>
+      <td><span *ngIf="result.torrent">{{ result.torrent.date_added | date }}</span></td>
+      <td><span *ngIf="result.torrent"><span *ngIf="result.torrent.progress === 100">{{ result.torrent.date_done | date }}</span></span></td>
+      <td><span *ngIf="result.torrent"><button class="btn btn-warning btn-sm" (click)="blacklistRetry(result.torrent)"><span class="oi oi-ban"></span></button></span></td>
     </tr>
     </tbody>
   </table>

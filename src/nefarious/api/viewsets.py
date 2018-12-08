@@ -88,9 +88,12 @@ class WatchTVShowViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
             WatchTVEpisodeSerializer(watch_tv_show.watchtvepisode_set.all(), many=True).data)
 
 
-class WatchTVEpisodeViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
+class WatchTVEpisodeViewSet(BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVEpisode.objects.all()
     serializer_class = WatchTVEpisodeSerializer
+
+    def _watch_media_task(self, watch_media_id: int):
+        watch_tv_episode_task.delay(watch_media_id)
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
