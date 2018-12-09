@@ -46,7 +46,7 @@
           <ngb-tab title="Status" *ngIf="isWatchingMovie">
             <ng-template ngbTabContent>
               <div *ngIf="isWatchingMovie && watchMovie">
-                <app-torrent-details mediaType="movie" [watchMedia]="[watchMovie]"></app-torrent-details>
+                <app-torrent-details mediaType="movie" [watchMedia]="[getWatchMovie()]"></app-torrent-details>
               </div>
             </ng-template>
           </ngb-tab>
