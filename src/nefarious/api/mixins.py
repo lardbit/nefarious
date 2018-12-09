@@ -38,8 +38,7 @@ class BlacklistAndRetryMixin:
         TorrentBlacklist.objects.get_or_create(hash=watch_media.transmission_torrent_hash)
 
         # unset previous transmission details
-        del_transmission_torrent_id = watch_media.transmission_torrent_id
-        watch_media.transmission_torrent_id = None
+        del_transmission_torrent_hash = watch_media.transmission_torrent_hash
         watch_media.transmission_torrent_hash = None
         watch_media.save()
 
@@ -47,8 +46,8 @@ class BlacklistAndRetryMixin:
         self._watch_media_task(watch_media_id=watch_media.id)
 
         # remove torrent and delete data
-        logging.info('Removing blacklisted torrent id: {}'.format(del_transmission_torrent_id))
+        logging.info('Removing blacklisted torrent hash: {}'.format(del_transmission_torrent_hash))
         transmission_client = get_transmission_client(nefarious_settings=nefarious_settings)
-        transmission_client.remove_torrent([del_transmission_torrent_id], delete_data=True)
+        transmission_client.remove_torrent([del_transmission_torrent_hash], delete_data=True)
 
         return Response(self.serializer_class(watch_media).data)

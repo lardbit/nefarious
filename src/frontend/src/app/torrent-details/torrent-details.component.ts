@@ -43,21 +43,21 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
       });
   }
 
-  public getWatchMediaFromTorrentId(id) {
+  public getWatchMediaFromTorrent(torrent) {
     return _.filter(this.watchMedia, (media) => {
-      return media.transmission_torrent_id === id;
+      return media.transmission_torrent_hash === torrent.hashString;
     });
   }
 
-  public getTorrentIds() {
+  public getTorrentHashes() {
     return this.watchMedia
-      .filter((v) => v.transmission_torrent_id)
-      .map((v) => v.transmission_torrent_id);
+      .filter((v) => v.transmission_torrent_hash)
+      .map((v) => v.transmission_torrent_hash);
   }
 
   public blacklistRetry(torrent) {
     this.isSaving = true;
-    const watchMediaList = this.getWatchMediaFromTorrentId(torrent.id);
+    const watchMediaList = this.getWatchMediaFromTorrent(torrent);
 
     watchMediaList.forEach((watchMedia) => {
 
@@ -84,11 +84,11 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
   }
 
   protected _fetchTorrents() {
-    const transmission_torrent_ids = this.getTorrentIds();
+    const transmissionTorrentHashes = this.getTorrentHashes();
 
     for (const watchMedia of this.watchMedia) {
       // fetch watch instance if there's no torrent id populated yet
-      if (!watchMedia.transmission_torrent_id) {
+      if (!watchMedia.transmission_torrent_hash) {
         // type tv episode
         if (watchMedia.tmdb_episode_id) {
           this.apiService.fetchWatchTVEpisode(watchMedia.id).subscribe();
@@ -98,19 +98,19 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
       }
     }
 
-    if (transmission_torrent_ids.length === 0) {
-      console.log('no transmission ids yet');
+    if (transmissionTorrentHashes.length === 0) {
+      console.log('no transmission values yet');
       return;
     }
 
-    this.apiService.fetchCurrentTorrents(transmission_torrent_ids).subscribe(
+    this.apiService.fetchCurrentTorrents(transmissionTorrentHashes).subscribe(
       (data) => {
         this.torrents = data;
         this.results = this.watchMedia.map((watchMedia) => {
           return {
             watchMedia: watchMedia,
             torrent: _.find(this.torrents, (torrent) => {
-              return torrent.id === watchMedia.transmission_torrent_id;
+              return torrent.hashString === watchMedia.transmission_torrent_hash;
             }),
           };
         });

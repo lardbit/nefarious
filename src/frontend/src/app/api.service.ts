@@ -281,9 +281,9 @@ export class ApiService {
     );
   }
 
-  public fetchCurrentTorrents(torrentIds?: Number[]) {
-    torrentIds = torrentIds || [];
-    const httpParams = new HttpParams({fromObject: {ids: torrentIds.map((v) => String(v))}});
+  public fetchCurrentTorrents(torrentHashes?: String[]) {
+    torrentHashes = torrentHashes || [];
+    const httpParams = new HttpParams({fromObject: {ids: torrentHashes.map((v) => String(v))}});
     return this.http.get(this.API_URL_CURRENT_TORRENTS, {headers: this._requestHeaders(), params: httpParams}).pipe(
       map((data: any) => {
         return data;

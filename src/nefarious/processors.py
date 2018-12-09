@@ -155,7 +155,6 @@ class WatchProcessorBase:
         raise NotImplementedError
 
     def _save_torrent_details(self, torrent):
-        self.watch_media.transmission_torrent_id = torrent.id
         self.watch_media.transmission_torrent_hash = torrent.hashString
         self.watch_media.save()
 
@@ -285,6 +284,5 @@ class WatchTVShowProcessor(WatchTVProcessorBase):
     def _save_torrent_details(self, torrent):
         # they'll all be the same transmission id since it's a full season torrent
         for watch_tv_episode in self.watch_media.watchtvepisode_set.filter(season_number=self.season_number):
-            watch_tv_episode.transmission_torrent_id = torrent.id
             watch_tv_episode.transmission_torrent_hash = torrent.hashString
             watch_tv_episode.save()

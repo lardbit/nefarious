@@ -77,7 +77,6 @@ class WatchTVShowViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
             )
             # unset any previously set torrent details
             if not was_created:
-                watch_episode.transmission_torrent_id = None
                 watch_episode.transmission_torrent_hash = None
                 watch_episode.save()
 

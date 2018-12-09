@@ -81,10 +81,6 @@ export class MediaMovieComponent implements OnInit {
     });
   }
 
-  public hasWatchMovieTransmissionId() {
-    return this.watchMovie && this.watchMovie.transmission_torrent_id;
-  }
-
   public userIsStaff(): boolean {
     return this.apiService.userIsStaff();
   }

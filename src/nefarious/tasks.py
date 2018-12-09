@@ -67,5 +67,4 @@ def completed_media_task():
         except KeyError:
             logging.info("Media's torrent no longer present, removing reference: {}".format(media))
             media.transmission_torrent_hash = None
-            media.transmission_torrent_id = None
             media.save()

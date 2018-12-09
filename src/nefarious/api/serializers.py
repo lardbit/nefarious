@@ -111,6 +111,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class TransmissionTorrentSerializer(serializers.Serializer):
     id = serializers.IntegerField()
+    hashString = serializers.CharField()
     name = serializers.CharField()
     date_active = serializers.DateTimeField()
     date_added = serializers.DateTimeField()
