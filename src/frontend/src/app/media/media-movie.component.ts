@@ -31,7 +31,7 @@ export class MediaMovieComponent implements OnInit {
       (data) => {
         this.result = data;
         this.isLoading = false;
-        this.watchMovie = this.getWatchMovie();
+        this.watchMovie = this._getWatchMovie();
         this.isWatchingMovie = !!this.watchMovie;
         this.qualityProfileCustom = this.watchMovie ? this.watchMovie.quality_profile_custom : '';
       },
@@ -75,17 +75,17 @@ export class MediaMovieComponent implements OnInit {
     return `${this.apiService.settings.tmdb_configuration.images.base_url}/original/${result.poster_path}`;
   }
 
-  public getWatchMovie() {
-    return _.find(this.apiService.watchMovies, (watchMovie) => {
-      return watchMovie.tmdb_movie_id === this.result.id;
-    });
-  }
-
   public userIsStaff(): boolean {
     return this.apiService.userIsStaff();
   }
 
   public qualityProfiles(): string[] {
     return this.apiService.qualityProfiles;
+  }
+
+  protected _getWatchMovie() {
+    return _.find(this.apiService.watchMovies, (watchMovie) => {
+      return watchMovie.tmdb_movie_id === this.result.id;
+    });
   }
 }

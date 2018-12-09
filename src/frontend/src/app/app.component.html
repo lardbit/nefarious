@@ -21,7 +21,7 @@
         <a class="nav-link" [routerLink]="['settings']" (click)="collapseNav()" routerLinkActive="active">Settings</a>
       </li>
     </ul>
-    <a class="" [routerLink]="['/login']">
+    <a [routerLink]="['/login']">
       <span *ngIf="!isLoggedIn()">Login</span>
       <span *ngIf="isLoggedIn()"><span class="oi oi-person"></span> {{ getUserName() }}</span>
     </a>
