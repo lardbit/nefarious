@@ -55,9 +55,10 @@ services:
       - jackett-config:/config
 
   # auto update service
+  # https://github.com/v2tec/watchtower
   watchtower:
     image: v2tec/watchtower
-    command: --label-enable
+    command: --label-enable --cleanup
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
