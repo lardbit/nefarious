@@ -21,8 +21,34 @@ class ParserBase:
     website_prefix_regex = regex.compile(r"^\[\s*[a-z]+(\.[a-z]+)+\s*\][- ]*|^www\.[a-z]+\.(?:com|net)[ -]*", regex.I)
     clean_torrent_suffix_regex = regex.compile(r"\[(?:ettv|rartv|rarbg|cttv)\]$", regex.I)
     clean_quality_brackets_regex = regex.compile(r"\[[a-z0-9 ._-]+\]$")
-    resolution_regex = regex.compile(r"\b(?:(?<R480p>480p|640x480|848x480)|(?<R576p>576p)|(?<R720p>720p|1280x720)|(?<R1080p>1080p|1920x1080|1440p|FHD|1080i)|(?<R2160p>2160p|4k[-_. ](?:UHD|HEVC|BD)|(?:UHD|HEVC|BD)[-_. ]4k))\b", regex.I)
-    source_regex = regex.compile(r"\b(?:(?<bluray>BluRay|Blu-Ray|HD-?DVD|BD)|(?<webdl>WEB[-_. ]DL|WEBDL|WebRip|AmazonHD|iTunesHD|NetflixU?HD|WebHD|[. ]WEB[. ](?:[xh]26[45]|DDP?5[. ]1)|\d+0p[. ]WEB[. ]|WEB-DLMux)|(?<hdtv>HDTV)|(?<bdrip>BDRip)|(?<brrip>BRRip)|(?<dvd>DVD|DVDRip|NTSC|PAL|xvidvd)|(?<dsr>WS[-_. ]DSR|DSR)|(?<pdtv>PDTV)|(?<sdtv>SDTV)|(?<tvrip>TVRip))\b", regex.I)
+    resolution_regex = regex.compile(
+        r"\b(?:"
+        r"(?<R480p>480p|640x480|848x480)|"
+        r"(?<R576p>576p)|"
+        r"(?<R720p>720p|1280x720)|"
+        r"(?<R1080p>1080p|1920x1080|1440p|FHD|1080i)|"
+        r"(?<R2160p>2160p|4k[-_. ](?:UHD|HEVC|BD)|"
+        r"(?:UHD|HEVC|BD)[-_. ]4k))\b",
+        regex.I)
+    source_regex = regex.compile(
+        r"\b(?:"
+        r"(?<bluray>BluRay|Blu-Ray|HD-?DVD|BD)|"
+        r"(?<webdl>WEB[-_. ]DL|WEBDL|WebRip|AmazonHD|iTunesHD|NetflixU?HD|WebHD|[. ]WEB[. ](?:[xh]26[45]|DDP?5[. ]1)|\d+0p[. ]WEB[. ]|WEB-DLMux)|"
+        r"(?<hdtv>HDTV)|"
+        r"(?<bdrip>BDRip)|"
+        r"(?<brrip>BRRip)|"
+        r"(?<dvd>DVD|DVDRip|NTSC|PAL|xvidvd)|"
+        r"(?<dsr>WS[-_. ]DSR|DSR)|"
+        r"(?<regional>R[0-9]{1}|REGIONAL)|"
+        r"(?<scr>SCR|SCREENER|DVDSCR|DVDSCREENER)|"
+        r"(?<ts>TS|TELESYNC|HD-TS|HDTS|PDVD|TSRip|HDTSRip)|"
+        r"(?<tc>TC|TELECINE|HD-TC|HDTC)|"
+        r"(?<cam>CAMRIP|CAM|HDCAM|HD-CAM)|"
+        r"(?<wp>WORKPRINT|WP)|"
+        r"(?<pdtv>PDTV)|"
+        r"(?<sdtv>SDTV)|"
+        r"(?<tvrip>TVRip))\b",
+        regex.I)
     anime_bluray_regex = regex.compile(r"bd(?:720|1080)|(?<=[-_. (\[])bd(?=[-_. )\]])", regex.I)
     high_def_pdtv_regex = regex.compile(r"hr[-_. ]ws", regex.I)
     raw_hd_regex = regex.compile(r"\b(?<rawhd>RawHD|1080i[-_. ]HDTV|Raw[-_. ]HD|MPEG[-_. ]?2)\b", regex.I)
@@ -101,6 +127,16 @@ class ParserBase:
                 return quality.DVD
             elif result['dvd']:
                 return quality.DVD
+            elif result['cam']:
+                return quality.CAM
+            elif result['scr']:
+                return quality.DVDSCR
+            elif result['regional']:
+                return quality.REGIONAL
+            elif result['ts']:
+                return quality.TELESYNC
+            elif result['tc']:
+                return quality.TELECINE
             elif any([result['pdtv'], result['sdtv'], result['dsr'], result['tvrip']]):
                 if resolution == Resolution.R1080p or '1080p' in name:
                     return quality.HDTV_1080P

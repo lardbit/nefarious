@@ -83,8 +83,26 @@ WEBRIP_2160P = Quality(17, "WEBRip-2160p", 2160)
 WEBDL_2160P = Quality(18, "WEBDL-2160p", 2160)
 BLURAY_2160P = Quality(19, "Bluray-2160p", 2160)
 
+
+# pre-releases
+WORKPRINT = Quality(24, "WORKPRINT", 0)
+CAM = Quality(25, "CAM", 0)
+TELESYNC = Quality(26, "TELESYNC", 0)
+TELECINE = Quality(27, "TELECINE", 0)
+DVDSCR = Quality(28, "DVDSCR", 480)
+REGIONAL = Quality(29, "REGIONAL", 480)
+
 QUALITIES = [
     UNKNOWN,
+
+    # pre-releases
+    WORKPRINT,
+    CAM,
+    TELESYNC,
+    TELECINE,
+    DVDSCR,
+    REGIONAL,
+
     SDTV,
     DVD,
     BLURAY_720P,
@@ -108,6 +126,12 @@ QUALITY_NAMES = [q.name for q in QUALITIES]
 
 PROFILE_ANY = Profile('any', [
     UNKNOWN,
+    WORKPRINT,
+    CAM,
+    TELESYNC,
+    TELECINE,
+    DVDSCR,
+    REGIONAL,
     SDTV,
     DVD,
     BLURAY_720P,
@@ -126,6 +150,12 @@ PROFILE_ANY = Profile('any', [
 ])
 
 PROFILE_SD = Profile('sd', [
+    WORKPRINT,
+    CAM,
+    TELESYNC,
+    TELECINE,
+    DVDSCR,
+    REGIONAL,
     SDTV,
     WEBDL_480P,
     DVD,
