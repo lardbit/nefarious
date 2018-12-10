@@ -25,4 +25,8 @@ app.conf.beat_schedule = {
         'task': 'nefarious.tasks.completed_media_task',
         'schedule': 60 * 5,
     },
+    'Wanted Media Task': {
+        'task': 'nefarious.tasks.wanted_media_task',
+        'schedule': 60 * 60 * 2,
+    },
 }

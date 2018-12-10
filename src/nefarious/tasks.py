@@ -48,10 +48,8 @@ def completed_media_task():
 
     movies = WatchMovie.objects.filter(collected=False)
     movies = movies.exclude(transmission_torrent_hash__isnull=True)
-    movies = movies.exclude(transmission_torrent_hash__exact='')
     tv = WatchTVEpisode.objects.filter(collected=False)
     tv = tv.exclude(transmission_torrent_hash__isnull=True)
-    tv = tv.exclude(transmission_torrent_hash__exact='')
 
     uncollected_media = list(movies) + list(tv)
 
@@ -68,3 +66,18 @@ def completed_media_task():
             logging.info("Media's torrent no longer present, removing reference: {}".format(media))
             media.transmission_torrent_hash = None
             media.save()
+
+
+@app.task
+def wanted_media_task():
+    wanted_movies = WatchMovie.objects.filter(collected=False, transmission_torrent_hash__isnull=True)
+    wanted_tv_episodes = WatchTVEpisode.objects.filter(collected=False, transmission_torrent_hash__isnull=True)
+
+    for media in wanted_movies:
+        logging.info('Wanted movie: {}'.format(media))
+        watch_movie_task.delay(media.id)
+
+    # TODO - should properly request entire season if that was originally requested
+    for media in wanted_tv_episodes:
+        logging.info('Wanted tv episode: {}'.format(media))
+        watch_tv_episode_task.delay(media.id)
