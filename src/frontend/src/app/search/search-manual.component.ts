@@ -55,7 +55,7 @@ export class SearchManualComponent implements OnInit {
     this.apiService.searchTorrents(this.apiService.searchQuery.query, this.apiService.searchQuery.type).subscribe(
       (results) => {
         console.log(results);
-        this.results = results.Results;
+        this.results = results;
         this.filterChange();
         this.isSearching = false;
       }, (error) => {

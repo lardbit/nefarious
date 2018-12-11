@@ -4,7 +4,7 @@ from nefarious.models import WatchMovie, NefariousSettings, TorrentBlacklist, Wa
 from nefarious.parsers.movie import MovieParser
 from nefarious.parsers.tv import TVParser
 from nefarious.quality import Profile
-from nefarious.search import SearchTorrents, MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV
+from nefarious.search import SearchTorrents, MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrentsCombined
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
 from nefarious.utils import trace_torrent_url, swap_jackett_host
@@ -31,7 +31,7 @@ class WatchProcessorBase:
 
         if search.ok:
 
-            for result in search.results['Results']:
+            for result in search.results:
                 if self.is_match(result['Title']):
                     valid_search_results.append(result)
                 else:
@@ -245,11 +245,22 @@ class WatchTVEpisodeProcessor(WatchTVProcessorBase):
         return episode
 
     def _get_search_results(self):
-        # query the show for this episode
+        # query the show name AND the season/episode name separately
+        # i.e search for "Atlanta" and "Atlanta s01e05" individually for best results
         watch_episode = self.watch_media  # type: WatchTVEpisode
         show_result = self.tmdb_client.TV(watch_episode.watch_tv_show.tmdb_show_id)
         show = show_result.info()
-        return SearchTorrents(MEDIA_TYPE_TV, show['name'])
+
+        return SearchTorrentsCombined([
+            # search the show name
+            SearchTorrents(MEDIA_TYPE_TV, show['name']),
+            # search the show name and the season/episode combination
+            SearchTorrents(MEDIA_TYPE_TV, '{} s{:02d}e{:02d}'.format(
+                show['name'],
+                self.tmdb_media['season_number'],
+                self.tmdb_media['episode_number'],
+            )),
+        ])
 
 
 class WatchTVShowProcessor(WatchTVProcessorBase):
