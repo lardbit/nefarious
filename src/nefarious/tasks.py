@@ -6,6 +6,17 @@ from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, W
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
 
+app.conf.beat_schedule = {
+    'Completed Media Task': {
+        'task': 'nefarious.tasks.completed_media_task',
+        'schedule': 60 * 5,
+    },
+    'Wanted Media Task': {
+        'task': 'nefarious.tasks.wanted_media_task',
+        'schedule': 60 * 60 * 2,
+    },
+}
+
 
 @app.task
 def watch_tv_show_season_task(watch_tv_show_id: int, season_number: int):
@@ -46,14 +57,14 @@ def completed_media_task():
     nefarious_settings = NefariousSettings.singleton()
     transmission_client = get_transmission_client(nefarious_settings)
 
-    movies = WatchMovie.objects.filter(collected=False)
-    movies = movies.exclude(transmission_torrent_hash__isnull=True)
-    tv = WatchTVEpisode.objects.filter(collected=False)
-    tv = tv.exclude(transmission_torrent_hash__isnull=True)
+    incomplete_kwargs = dict(collected=False, transmission_torrent_hash__isnull=False)
 
-    uncollected_media = list(movies) + list(tv)
+    movies = WatchMovie.objects.filter(**incomplete_kwargs)
+    tv = WatchTVEpisode.objects.filter(**incomplete_kwargs)
 
-    for media in uncollected_media:
+    incomplete_media = list(movies) + list(tv)
+
+    for media in incomplete_media:
         logging.info('Media not flagged completed: {}'.format(media))
         try:
             torrent = transmission_client.get_torrent(media.transmission_torrent_hash)
@@ -73,11 +84,15 @@ def wanted_media_task():
     wanted_movies = WatchMovie.objects.filter(collected=False, transmission_torrent_hash__isnull=True)
     wanted_tv_episodes = WatchTVEpisode.objects.filter(collected=False, transmission_torrent_hash__isnull=True)
 
+    countdown = 0
     for media in wanted_movies:
         logging.info('Wanted movie: {}'.format(media))
-        watch_movie_task.delay(media.id)
+        watch_movie_task.s(media.id).apply_async(countdown=countdown)
+        countdown += 60
 
     # TODO - should properly request entire season if that was originally requested
+    countdown = 0
     for media in wanted_tv_episodes:
         logging.info('Wanted tv episode: {}'.format(media))
-        watch_tv_episode_task.delay(media.id)
+        watch_tv_episode_task.s(media.id).apply_async(countdown=countdown)
+        countdown += 60

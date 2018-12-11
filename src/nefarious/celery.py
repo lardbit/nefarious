@@ -19,14 +19,3 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
-
-app.conf.beat_schedule = {
-    'Completed Media Task': {
-        'task': 'nefarious.tasks.completed_media_task',
-        'schedule': 60 * 5,
-    },
-    'Wanted Media Task': {
-        'task': 'nefarious.tasks.wanted_media_task',
-        'schedule': 60 * 60 * 2,
-    },
-}
