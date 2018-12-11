@@ -14,14 +14,14 @@ Features:
 - [x] Auto download TV (individual or full season)
 - [x] Auto download Movies
 - [x] Discover Movies (by popularity, genres etc)
-- [ ] Discover TV (by popularity, genres etc)
+- [x] Discover TV (by popularity, genres etc)
 - [x] Manually search Jackett results and download
-- [ ] Support blacklisting torrent results
+- [x] Support blacklisting torrent results
 - [X] Support quality profiles
 - [ ] Support multiple user permissions (i.e a user must "request" to watch something)
-- [ ] Auto download media once it's released (routinely scan)
-- [ ] Monitor transmission data results from within the app
-- [x] Auto updating application
+- [x] Auto download media once it's released (routinely scan)
+- [x] Monitor transmission data results from within the app
+- [x] Self/auto updating
 
 ### Running via docker-compose
 
@@ -49,7 +49,7 @@ Since jackett is running in the same docker network, you'll need to set the host
 
 ###### Transmission settings
 
-Configure your transmission host, port, username and password, and download directory.  Nefarious will save TV and Movies in a sub-folder of this path.
+Configure your transmission host, port, username and password, and download directories.  Nefarious will save TV and Movies in individual sub-folders of your configured Transmission download path.
 
 ## Debugging
    
