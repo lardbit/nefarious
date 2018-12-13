@@ -71,9 +71,24 @@ class WatchTVShow(WatchMediaBase):
         return self.name
 
 
-class WatchTVEpisode(WatchMediaBase):
+class WatchTVSeason(WatchMediaBase):
     watch_tv_show = models.ForeignKey(WatchTVShow, on_delete=models.CASCADE)
+    season_number = models.IntegerField()
+
+    class Meta:
+        unique_together = ('watch_tv_show', 'season_number',)
+
+    def __str__(self):
+        return '{} - Season {}'.format(self.watch_tv_show, self.season_number)
+
+
+class WatchTVEpisode(WatchMediaBase):
+    # TODO - deprecated
+    watch_tv_show = models.ForeignKey(WatchTVShow, on_delete=models.CASCADE)
+    # TODO - make required after migration
+    watch_tv_season = models.ForeignKey(WatchTVSeason, null=True, on_delete=models.CASCADE)
     tmdb_episode_id = models.IntegerField(unique=True)
+    # TODO - deprecated
     season_number = models.IntegerField()
     episode_number = models.IntegerField()
     date_added = models.DateTimeField(auto_now_add=True)

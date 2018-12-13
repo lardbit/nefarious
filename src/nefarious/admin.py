@@ -1,5 +1,7 @@
 from django.contrib import admin
-from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, TorrentBlacklist
+from nefarious.models import (
+    NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, TorrentBlacklist, WatchTVSeason
+)
 
 
 class WatchTVEpisodeInline(admin.TabularInline):
@@ -13,6 +15,6 @@ class TVShowAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(NefariousSettings, WatchTVEpisode, WatchMovie, TorrentBlacklist, )
+@admin.register(NefariousSettings, WatchTVEpisode, WatchMovie, TorrentBlacklist, WatchTVSeason)
 class Admin(admin.ModelAdmin):
     pass
