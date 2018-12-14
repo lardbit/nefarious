@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from nefarious.celery import app
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode
-from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVShowProcessor
+from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
 
@@ -15,12 +15,16 @@ app.conf.beat_schedule = {
         'task': 'nefarious.tasks.wanted_media_task',
         'schedule': 60 * 60 * 2,
     },
+    'Refresh TMDB Settings': {
+        'task': 'nefarious.tasks.refresh_tmdb_configuration',
+        'schedule': 60 * 60 * 24 * 1,
+    },
 }
 
 
 @app.task
-def watch_tv_show_season_task(watch_tv_show_id: int, season_number: int):
-    processor = WatchTVShowProcessor(watch_media_id=watch_tv_show_id, season_number=season_number)
+def watch_tv_show_season_task(watch_tv_season_id: int):
+    processor = WatchTVSeasonProcessor(watch_media_id=watch_tv_season_id)
     processor.fetch()
 
 

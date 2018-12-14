@@ -16,17 +16,11 @@ class WatchTVSeasonInline(admin.TabularInline):
 @admin.register(WatchTVShow)
 class TVShowAdmin(admin.ModelAdmin):
     inlines = (
+        WatchTVEpisodeInline,
         WatchTVSeasonInline,
     )
 
 
-@admin.register(WatchTVSeason)
-class TVSeasonAdmin(admin.ModelAdmin):
-    inlines = (
-        WatchTVEpisodeInline,
-    )
-
-
-@admin.register(NefariousSettings, WatchTVEpisode, WatchMovie, TorrentBlacklist)
+@admin.register(NefariousSettings, WatchTVSeason, WatchTVEpisode, WatchMovie, TorrentBlacklist)
 class Admin(admin.ModelAdmin):
     pass

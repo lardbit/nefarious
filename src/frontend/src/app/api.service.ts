@@ -35,6 +35,7 @@ export class ApiService {
   public userToken: string;
   public settings: any;
   public qualityProfiles: string[];
+  public watchTVSeasons: any[] = [];
   public watchTVEpisodes: any[] = [];
   public watchTVShows: any[] = [];
   public watchMovies: any[] = [];
@@ -327,7 +328,7 @@ export class ApiService {
     };
     return this.http.post(`${this.API_URL_WATCH_TV_SHOW}${watchShowId}/entire-season/`, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        this.watchTVEpisodes = data;
+        this.watchTVSeasons = data;
         return data;
       }),
     );
@@ -444,7 +445,7 @@ export class ApiService {
 
   protected _discoverMedia(mediaType: string, params: any) {
     const httpParams = new HttpParams({fromObject: params});
-    const url = mediaType == this.SEARCH_MEDIA_TYPE_MOVIE ? this.API_URL_DISCOVER_MOVIES : this.API_URL_DISCOVER_TV;
+    const url = mediaType === this.SEARCH_MEDIA_TYPE_MOVIE ? this.API_URL_DISCOVER_MOVIES : this.API_URL_DISCOVER_TV;
     return this.http.get(url, {params: httpParams, headers: this._requestHeaders()});
   }
 

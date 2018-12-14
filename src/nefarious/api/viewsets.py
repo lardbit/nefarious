@@ -15,12 +15,12 @@ from nefarious.tmdb import get_tmdb_client
 from nefarious.api.serializers import (
     NefariousSettingsSerializer, WatchTVEpisodeSerializer, WatchTVShowSerializer,
     UserSerializer, WatchMovieSerializer, NefariousPartialSettingsSerializer,
-    TransmissionTorrentSerializer)
-from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, TorrentBlacklist
+    TransmissionTorrentSerializer, WatchTVSeasonSerializer)
+from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason
 from nefarious.search import MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrents
-from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task, refresh_tmdb_configuration
+from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task
 from nefarious.utils import (
-    trace_torrent_url, swap_jackett_host, is_magnet_url, needs_tmdb_configuration,
+    trace_torrent_url, swap_jackett_host, is_magnet_url,
     verify_settings_jackett, verify_settings_transmission, verify_settings_tmdb,
 )
 
@@ -53,38 +53,41 @@ class WatchTVShowViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVShow.objects.all()
     serializer_class = WatchTVShowSerializer
 
-    @action(methods=['post', 'get'], detail=True, url_path='entire-season')
+    @action(methods=['post'], detail=True, url_path='entire-season')
     def watch_entire_season(self, request, pk):
         watch_tv_show = self.get_object()  # type: WatchTVShow
-        nefarious_settings = NefariousSettings.singleton()
         data = request.query_params or request.data
 
         if 'season_number' not in data:
             raise ValidationError({'season_number': ['This field is required']})
 
-        tmdb = get_tmdb_client(nefarious_settings)
-        season_request = tmdb.TV_Seasons(watch_tv_show.tmdb_show_id, data['season_number'])
-        season = season_request.info()
+        watch_tv_season, was_created = WatchTVSeason.objects.get_or_create(
+            user=request.user,
+            watch_tv_show=watch_tv_show,
+            season_number=data['season_number'],
+        )
 
-        # save individual episode watches
-        for episode in season['episodes']:
-            watch_episode, was_created = WatchTVEpisode.objects.get_or_create(
-                user=request.user,
-                watch_tv_show=watch_tv_show,
-                tmdb_episode_id=episode['id'],
-                season_number=data['season_number'],
-                episode_number=episode['episode_number'],
-            )
-            # unset any previously set torrent details
-            if not was_created:
-                watch_episode.transmission_torrent_hash = None
-                watch_episode.save()
+        if was_created:
+            watch_tv_season.save()
 
         # create a task to download the whole season
-        watch_tv_show_season_task.delay(watch_tv_show.id, data['season_number'])
+        watch_tv_show_season_task.delay(watch_tv_season.id)
 
         return Response(
-            WatchTVEpisodeSerializer(watch_tv_show.watchtvepisode_set.all(), many=True).data)
+            WatchTVSeasonSerializer(watch_tv_season).data)
+
+
+class WatchTVSeasonViewSet(BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
+    queryset = WatchTVSeason.objects.all()
+    serializer_class = WatchTVSeasonSerializer
+
+    def _watch_media_task(self, watch_media_id: int):
+        watch_tv_show_season_task.delay(watch_media_id)
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        # create a task to download the episode
+        watch_tv_show_season_task.delay(serializer.instance.id)
 
 
 class WatchTVEpisodeViewSet(BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
@@ -113,13 +116,6 @@ class SettingsViewSet(viewsets.ModelViewSet):
         except Exception as e:
             raise ValidationError(str(e))
         return Response()
-
-    def list(self, request, *args, **kwargs):
-        # asynchronously refresh tmdb configuration (if necessary)
-        nefarious_settings = self.queryset
-        if nefarious_settings.exists() and needs_tmdb_configuration(nefarious_settings.get()):
-            refresh_tmdb_configuration.delay()
-        return super().list(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.request.user.is_staff:

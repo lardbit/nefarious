@@ -67,13 +67,3 @@ def verify_settings_jackett(nefarious_settings: NefariousSettings):
     except Exception as e:
         logging.error(str(e))
         raise Exception('Could not connect to jackett')
-
-
-def needs_tmdb_configuration(nefarious_settings: NefariousSettings):
-    if not nefarious_settings.tmdb_configuration:
-        return True
-    elif not nefarious_settings.tmdb_configuration_date:
-        return True
-    elif (datetime.utcnow().replace(tzinfo=timezone.utc) - nefarious_settings.tmdb_configuration_date).days >= settings.TMDB_CONFIGURATION_STALE_DAYS:
-        return True
-    return False

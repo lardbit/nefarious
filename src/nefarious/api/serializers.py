@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from nefarious.models import (
     NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie,
     PERM_CAN_WATCH_IMMEDIATELY_TV, PERM_CAN_WATCH_IMMEDIATELY_MOVIE,
-)
+    WatchTVSeason)
 from nefarious.tmdb import get_tmdb_client
 from nefarious.utils import verify_settings_jackett, verify_settings_transmission, verify_settings_tmdb
 
@@ -77,6 +77,13 @@ class WatchTVShowSerializer(UserReferenceSerializerMixin, serializers.ModelSeria
 
     class Meta:
         model = WatchTVShow
+        fields = '__all__'
+
+
+class WatchTVSeasonSerializer(UserReferenceSerializerMixin, serializers.ModelSerializer):
+
+    class Meta:
+        model = WatchTVSeason
         fields = '__all__'
 
 

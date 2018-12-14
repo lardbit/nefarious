@@ -6,6 +6,7 @@ from rest_framework.authtoken import views
 router = routers.DefaultRouter()
 router.register(r'settings', viewsets.SettingsViewSet)
 router.register(r'watch-tv-show', viewsets.WatchTVShowViewSet)
+router.register(r'watch-tv-season', viewsets.WatchTVSeasonViewSet)
 router.register(r'watch-tv-episode', viewsets.WatchTVEpisodeViewSet)
 router.register(r'user', viewsets.CurrentUserViewSet)
 router.register(r'watch-movie', viewsets.WatchMovieViewSet)

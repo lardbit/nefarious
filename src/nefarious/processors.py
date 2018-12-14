@@ -1,6 +1,6 @@
 import os
 import logging
-from nefarious.models import WatchMovie, NefariousSettings, TorrentBlacklist, WatchTVEpisode, WatchTVShow
+from nefarious.models import WatchMovie, NefariousSettings, TorrentBlacklist, WatchTVEpisode, WatchTVSeason
 from nefarious.parsers.movie import MovieParser
 from nefarious.parsers.tv import TVParser
 from nefarious.quality import Profile
@@ -263,37 +263,26 @@ class WatchTVEpisodeProcessor(WatchTVProcessorBase):
         ])
 
 
-class WatchTVShowProcessor(WatchTVProcessorBase):
+class WatchTVSeasonProcessor(WatchTVProcessorBase):
     """
     Entire season
     """
-    season_number = None
-
-    def __init__(self, watch_media_id: int, season_number: int):
-        self.season_number = season_number
-        super().__init__(watch_media_id)
 
     def _get_watch_media(self, watch_media_id: int):
-        watch_show = WatchTVShow.objects.get(pk=watch_media_id)
-        return watch_show
+        watch_season = WatchTVSeason.objects.get(pk=watch_media_id)
+        return watch_season
 
     def _is_match(self, parser):
         return parser.is_match(
             self.tmdb_media[self._get_tmdb_title_key()],
-            self.season_number,
+            self.watch_media.season_number,
         )
 
     def _get_tmdb_media(self):
-        show_result = self.tmdb_client.TV(self.watch_media.tmdb_show_id)
+        show_result = self.tmdb_client.TV(self.watch_media.watch_tv_show.tmdb_show_id)
         show = show_result.info()
         return show
 
     def _get_search_results(self):
         media = self.tmdb_media
         return SearchTorrents(MEDIA_TYPE_TV, media[self._get_tmdb_title_key()])
-
-    def _save_torrent_details(self, torrent):
-        # they'll all be the same transmission id since it's a full season torrent
-        for watch_tv_episode in self.watch_media.watchtvepisode_set.filter(season_number=self.season_number):
-            watch_tv_episode.transmission_torrent_hash = torrent.hashString
-            watch_tv_episode.save()
