@@ -160,8 +160,7 @@ REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
-        # session auth is only for browsing the api when you're already logged into the admin
-        # and it's important it goes beneath token auth because the app isn't configured to send csrf tokens
+        # session auth is really only for browsing the api when you're already logged into the admin
         'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (

@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework import routers
 from nefarious.api import viewsets
-from rest_framework.authtoken import views
+from nefarious.api import views
 
 router = routers.DefaultRouter()
 router.register(r'settings', viewsets.SettingsViewSet)
@@ -22,5 +22,5 @@ urlpatterns = [
     path('discover/media/<str:media_type>/', viewsets.DiscoverMediaView.as_view()),
     path('genres/<str:media_type>/', viewsets.GenresView.as_view()),
     path('quality-profiles/', viewsets.QualityProfilesView.as_view()),
-    path('auth/', views.obtain_auth_token),  # authenticates user and returns token
+    path('auth/', views.ObtainAuthToken.as_view()),  # authenticates user and returns token
 ]
