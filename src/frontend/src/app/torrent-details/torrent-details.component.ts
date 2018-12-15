@@ -89,10 +89,15 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
     for (const watchMedia of this.watchMedia) {
       // fetch watch instance if there's no torrent id populated yet
       if (!watchMedia.transmission_torrent_hash) {
-        // type tv episode
-        if (watchMedia.tmdb_episode_id) {
-          this.apiService.fetchWatchTVEpisode(watchMedia.id).subscribe();
-        } else { // type movie
+        // type tv
+        if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV) {
+          // type tv episode
+          if (watchMedia.tmdb_episode_id) {
+            this.apiService.fetchWatchTVEpisode(watchMedia.id).subscribe();
+          } else {  // type tv show
+            this.apiService.fetchWatchTVSeason(watchMedia.id).subscribe();
+          }
+        } else {
           this.apiService.fetchWatchMovie(watchMedia.id).subscribe();
         }
       }

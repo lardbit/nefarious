@@ -48,7 +48,7 @@
         </ngb-tab>
         <ngb-tab title="Status" *ngIf="isWatchingShow(result.id)">
           <ng-template ngbTabContent>
-            <app-torrent-details mediaType="tv" [watchMedia]="getWatchEpisodes()"></app-torrent-details>
+            <app-torrent-details mediaType="tv" [watchMedia]="getWatchMedia()"></app-torrent-details>
           </ng-template>
         </ngb-tab>
       </ngb-tabset>

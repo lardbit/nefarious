@@ -90,17 +90,21 @@ export class MediaTVComponent implements OnInit {
     }
   }
 
-  public getWatchEpisodes() {
-    const watchEpisodes = [];
+  public getWatchMedia() {
+    const watching = [];
     for (const season of this.result.seasons) {
+      const watchSeason = this._getWatchSeason(season.season_number);
+      if (watchSeason) {
+        watching.push(watchSeason);
+      }
       for (const episode of season.episodes) {
         const watchEpisode = this._getEpisodeWatch(episode.id);
         if (watchEpisode) {
-          watchEpisodes.push(watchEpisode);
+          watching.push(watchEpisode);
         }
       }
     }
-    return watchEpisodes;
+    return watching;
   }
 
   public isWatchingSeason(seasonNumber: number) {

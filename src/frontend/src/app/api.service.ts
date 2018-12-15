@@ -286,6 +286,18 @@ export class ApiService {
     );
   }
 
+  public fetchWatchTVSeason(id: number) {
+    return this.http.get(`${this.API_URL_WATCH_TV_SEASON}${id}/`, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        this.watchTVSeasons.forEach((watchTVSeason) => {
+          if (data.id === watchTVSeason.id) {
+            _.assign(watchTVSeason, data);
+          }
+        });
+      })
+    );
+  }
+
   public fetchWatchTVEpisodes() {
     return this.http.get(this.API_URL_WATCH_TV_EPISODE, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
