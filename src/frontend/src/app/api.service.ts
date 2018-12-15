@@ -341,7 +341,7 @@ export class ApiService {
     };
     return this.http.post(`${this.API_URL_WATCH_TV_SHOW}${watchShowId}/entire-season/`, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        this.watchTVSeasons = data;
+        this.watchTVSeasons.push(data);
         return data;
       }),
     );

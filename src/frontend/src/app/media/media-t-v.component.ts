@@ -74,7 +74,6 @@ export class MediaTVComponent implements OnInit {
     } else {
 
         const watchTvShow = this._getWatchShowFromShowId(this.result.id);
-        console.log('watching season', season, watchTvShow);
 
         this.apiService.watchTVSeason(watchTvShow.id, season.season_number).subscribe(
           (data) => {
