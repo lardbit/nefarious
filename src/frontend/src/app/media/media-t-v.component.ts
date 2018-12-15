@@ -45,14 +45,13 @@ export class MediaTVComponent implements OnInit {
 
     // watch show if not already
     if (!this.isWatchingShow(this.result.id)) {
-      console.log('not already watching %s', this.result.id);
+      console.log('not already watching show %s', this.result.id);
       this._watchShow().subscribe(
         (data) => {
           this._watchEpisodes();
         },
       );
     } else {
-      console.log('already watching %s', this.result.id);
       this._watchEpisodes();
     }
   }
@@ -105,6 +104,26 @@ export class MediaTVComponent implements OnInit {
     return watchEpisodes;
   }
 
+  public isWatchingSeason(seasonNumber: number) {
+    const watchSeason = this._getWatchSeason(seasonNumber);
+    return Boolean(watchSeason);
+  }
+
+  public stopWatchingEntireSeason(season: any) {
+    const watchSeason = this._getWatchSeason(season.season_number);
+    if (watchSeason) {
+        this.apiService.unWatchTVSeason(watchSeason.id).subscribe(
+          (data) => {
+            this.toastr.success(`Stop watching ${this.result.name} - Season ${watchSeason.season_number}`)
+          },
+          (error) => {
+            console.error(error);
+            this.toastr.success('An unknown error occurred');
+          }
+        );
+    }
+  }
+
   public isWatchingShow(showId) {
     return Boolean(this._getWatchShowFromShowId(showId));
   }
@@ -121,11 +140,18 @@ export class MediaTVComponent implements OnInit {
     );
   }
 
+  protected _getWatchSeason(seasonNumber: number) {
+    const watchShow = this._getWatchShowFromShowId(this.result.id);
+    return _.find(this.apiService.watchTVSeasons, (watchSeason) => {
+      return watchSeason.watch_tv_show === watchShow.id && watchSeason.season_number === seasonNumber;
+    });
+  }
+
   protected _buildWatchOptions() {
     const watchingOptions: any = {};
     for (const season of this.result.seasons) {
       for (const episode of season.episodes) {
-        watchingOptions[episode.id] = this._isWatchingEpisode(episode.id);
+        watchingOptions[episode.id] = this._isWatchingEpisode(episode.id) || this.isWatchingSeason(season.season_number);
       }
     }
     this.watchEpisodesOptions = watchingOptions;

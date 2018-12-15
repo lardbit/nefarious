@@ -20,6 +20,7 @@ export class ApiService {
   API_URL_SEARCH_MEDIA = '/api/search/media/';
   API_URL_WATCH_TV_EPISODE = '/api/watch-tv-episode/';
   API_URL_WATCH_TV_SHOW = '/api/watch-tv-show/';
+  API_URL_WATCH_TV_SEASON = '/api/watch-tv-season/';
   API_URL_WATCH_MOVIE = '/api/watch-movie/';
   API_URL_CURRENT_TORRENTS = '/api/current/torrents/';
   API_URL_DISCOVER_MOVIES = '/api/discover/media/movie/';
@@ -104,6 +105,7 @@ export class ApiService {
     return forkJoin(
       this.fetchSettings(),
       this.fetchWatchTVShows(),
+      this.fetchWatchTVSeasons(),
       this.fetchWatchTVEpisodes(),
       this.fetchWatchMovies(),
       this.fetchQualityProfiles(),
@@ -233,6 +235,17 @@ export class ApiService {
       map((data: any) => {
         this.watchTVShows = data;
         return this.watchTVShows;
+      }),
+    );
+  }
+
+  public fetchWatchTVSeasons(params?: any) {
+    params = params || {};
+    const httpParams = new HttpParams({fromObject: params});
+    return this.http.get(this.API_URL_WATCH_TV_SEASON, {params: httpParams, headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        this.watchTVSeasons = data;
+        return this.watchTVSeasons;
       }),
     );
   }
@@ -384,6 +397,20 @@ export class ApiService {
         });
         if (foundIndex >= 0) {
           this.watchMovies.splice(foundIndex, 1);
+        }
+        return data;
+      })
+    );
+  }
+
+  public unWatchTVSeason(watchId) {
+    return this.http.delete(`${this.API_URL_WATCH_TV_SEASON}${watchId}`, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        const foundIndex = _.findIndex(this.watchTVSeasons, (watch) => {
+          return watch.id === watchId;
+        });
+        if (foundIndex >= 0) {
+          this.watchTVSeasons.splice(foundIndex, 1);
         }
         return data;
       })

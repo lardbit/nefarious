@@ -179,7 +179,3 @@ REST_FRAMEWORK = {
 # rate limiting is supposedly per IP address (not per token) so this should be safe to use across all installations
 # https://developers.themoviedb.org/3/getting-started/request-rate-limiting
 TMDB_API_TOKEN = '21c8985a267ac3f11ea75baf2c05c3ba'
-
-# number of days to wait until we refresh the tmdb configuration settings
-# https://developers.themoviedb.org/3/configuration/get-api-configuration
-TMDB_CONFIGURATION_STALE_DAYS = 7

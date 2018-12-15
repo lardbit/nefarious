@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from nefarious.celery import app
-from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode
+from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, WatchTVSeason
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
@@ -85,18 +85,23 @@ def completed_media_task():
 
 @app.task
 def wanted_media_task():
-    wanted_movies = WatchMovie.objects.filter(collected=False, transmission_torrent_hash__isnull=True)
-    wanted_tv_episodes = WatchTVEpisode.objects.filter(collected=False, transmission_torrent_hash__isnull=True)
+    wanted_kwargs = dict(collected=False, transmission_torrent_hash__isnull=True)
+    wanted_movies = WatchMovie.objects.filter(**wanted_kwargs)
+    wanted_tv_seasons = WatchTVSeason.objects.filter(**wanted_kwargs)
+    wanted_tv_episodes = WatchTVEpisode.objects.filter(**wanted_kwargs)
 
     countdown = 0
     for media in wanted_movies:
         logging.info('Wanted movie: {}'.format(media))
         watch_movie_task.s(media.id).apply_async(countdown=countdown)
-        countdown += 60
+        countdown += 30
 
-    # TODO - should properly request entire season if that was originally requested
-    countdown = 0
+    for media in wanted_tv_seasons:
+        logging.info('Wanted tv season: {}'.format(media))
+        watch_tv_show_season_task.s(media.id).apply_async(countdown=countdown)
+        countdown += 30
+
     for media in wanted_tv_episodes:
         logging.info('Wanted tv episode: {}'.format(media))
         watch_tv_episode_task.s(media.id).apply_async(countdown=countdown)
-        countdown += 60
+        countdown += 30
