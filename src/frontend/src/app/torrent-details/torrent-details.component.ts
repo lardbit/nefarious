@@ -91,31 +91,34 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
   }
 
   protected _fetchTorrents() {
-    const transmissionTorrentHashes = this.getTorrentHashes();
+    const params = {
+      tmdb_movie_ids: [],
+      tmdb_episode_ids: [],
+      tmdb_show_id: null,
+      tmdb_season_numbers: [],
+    };
 
+    // update media instances and build torrent params
     for (const watchMedia of this.watchMedia) {
-      // fetch watch instance if there's no torrent id populated yet
-      if (!watchMedia.transmission_torrent_hash) {
-        // type tv
-        if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV) {
-          // type tv episode
-          if (watchMedia.tmdb_episode_id) {
-            this.apiService.fetchWatchTVEpisode(watchMedia.id).subscribe();
-          } else {  // type tv show
-            this.apiService.fetchWatchTVSeason(watchMedia.id).subscribe();
-          }
-        } else {
-          this.apiService.fetchWatchMovie(watchMedia.id).subscribe();
+      // type tv
+      if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV) {
+        // type tv episode
+        if (watchMedia.tmdb_episode_id) {
+          this.apiService.fetchWatchTVEpisode(watchMedia.id).subscribe();
+          params.tmdb_episode_ids.push(watchMedia.tmdb_episode_id);
+        } else {  // type tv show
+          this.apiService.fetchWatchTVSeason(watchMedia.id).subscribe();
+          params.tmdb_season_numbers.push(watchMedia.season_number);
+          params.tmdb_show_id = watchMedia.tmdb_show_id;
         }
+      } else {
+        // fetch media if there's no torrent details yet
+        this.apiService.fetchWatchMovie(watchMedia.id).subscribe();
+        params.tmdb_movie_ids.push(watchMedia.tmdb_movie_id);
       }
     }
 
-    if (transmissionTorrentHashes.length === 0) {
-      console.log('no transmission values yet');
-      return;
-    }
-
-    this.apiService.fetchCurrentTorrents(transmissionTorrentHashes).subscribe(
+    this.apiService.fetchCurrentTorrents(params).subscribe(
       (data) => {
         this.torrents = data;
         this.results = this.watchMedia.map((watchMedia) => {
