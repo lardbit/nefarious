@@ -94,7 +94,6 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
     const params = {
       tmdb_movie_ids: [],
       tmdb_episode_ids: [],
-      tmdb_show_id: null,
       tmdb_season_numbers: [],
     };
 
@@ -109,7 +108,7 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
         } else {  // type tv show
           this.apiService.fetchWatchTVSeason(watchMedia.id).subscribe();
           params.tmdb_season_numbers.push(watchMedia.season_number);
-          params.tmdb_show_id = watchMedia.tmdb_show_id;
+          params['tmdb_show_id'] = watchMedia.tmdb_show_id;
         }
       } else {
         // fetch media if there's no torrent details yet
