@@ -61,9 +61,16 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
 
     watchMediaList.forEach((watchMedia) => {
 
-      const endpoint = this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_MOVIE ?
-        this.apiService.blacklistRetryMovie(watchMedia.id) :
-        this.apiService.blacklistRetryTV(watchMedia.id);
+      let endpoint;
+      if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_MOVIE) {
+        endpoint = this.apiService.blacklistRetryMovie(watchMedia.id);
+      } else {
+        if (watchMedia.tmdb_episode_id) {
+          endpoint = this.apiService.blacklistRetryTVEpisode(watchMedia.id);
+        } else {
+          endpoint = this.apiService.blacklistRetryTVSeason(watchMedia.id);
+        }
+      }
 
       endpoint.subscribe(
         (data) => {

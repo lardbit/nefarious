@@ -21,7 +21,7 @@
                       <ng-template ngbPanelContent>
                         <p *ngIf="season.overview">{{ season.overview }}</p>
                         <div class="m-3">
-                          <button *ngIf="!isWatchingSeason(season.season_number)" type="button" class="btn btn-info" (click)="watchEntireSeason(season)">
+                          <button *ngIf="!isWatchingSeason(season.season_number)" type="button" class="btn btn-success" (click)="watchEntireSeason(season)">
                             Watch entire season
                           </button>
                           <button *ngIf="isWatchingSeason(season.season_number)" type="button" class="btn btn-warning" (click)="stopWatchingEntireSeason(season)">
@@ -34,8 +34,8 @@
                             <input class="form-check-input" [class.disabled]="isWatchingSeason(season.season_number)" [disabled]="isWatchingSeason(season.season_number)" type="checkbox" [(ngModel)]="watchEpisodesOptions[episode.id]" [name]="episode.id" [id]="episode.id">
                             <label class="form-check-label" [for]="episode.id">#{{ episode.episode_number }} - {{ episode.name }}</label>
                           </div>
-                          <button type="submit" class="btn btn-primary m-3" [class.disabled]="isWatchingSeason(season.season_number)" [disabled]="isWatchingSeason(season.season_number)">
-                            Save individual episodes
+                          <button type="submit" class="btn btn-info m-3" [class.disabled]="isWatchingSeason(season.season_number)" [disabled]="isWatchingSeason(season.season_number)">
+                            Watch individual episodes
                           </button>
                         </form>
                       </ng-template>

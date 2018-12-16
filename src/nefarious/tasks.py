@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from django.shortcuts import get_object_or_404
 from nefarious.celery import app
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, WatchTVSeason
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
@@ -25,7 +26,36 @@ app.conf.beat_schedule = {
 @app.task
 def watch_tv_show_season_task(watch_tv_season_id: int):
     processor = WatchTVSeasonProcessor(watch_media_id=watch_tv_season_id)
-    processor.fetch()
+    success = processor.fetch()
+
+    # delete watch_tv_season and fallback to individual episodes
+    if not success:
+        watch_tv_season = get_object_or_404(WatchTVSeason, pk=watch_tv_season_id)
+        logging.info('Failed fetching season {} - falling back to individual episodes'.format(watch_tv_season))
+        nefarious_settings = NefariousSettings.singleton()
+        tmdb = get_tmdb_client(nefarious_settings)
+        season_request = tmdb.TV_Seasons(watch_tv_season.watch_tv_show.tmdb_show_id, watch_tv_season.season_number)
+        season = season_request.info()
+
+        # save individual episode watches
+        watch_tv_episodes = []
+        for episode in season['episodes']:
+            watch_tv_episode, was_created = WatchTVEpisode.objects.get_or_create(
+                user=watch_tv_season.user,
+                watch_tv_show=watch_tv_season.watch_tv_show,
+                tmdb_episode_id=episode['id'],
+                season_number=watch_tv_season.season_number,
+                episode_number=episode['episode_number'],
+            )
+            watch_tv_episodes.append(watch_tv_episode)
+
+        countdown = 0
+        for watch_tv_episode in watch_tv_episodes:
+            watch_tv_episode_task.s(watch_tv_episode.id).apply_async(countdown=countdown)
+            countdown += 15
+
+        # remove the "watch season" now that we've requested to fetch all individual episodes
+        watch_tv_season.delete()
 
 
 @app.task
@@ -85,20 +115,17 @@ def completed_media_task():
 
 @app.task
 def wanted_media_task():
+    # TODO - prevent long running and eventually overlapping tasks (due to countdown)
+    #      - should use celery's chaining instead
+
     wanted_kwargs = dict(collected=False, transmission_torrent_hash__isnull=True)
     wanted_movies = WatchMovie.objects.filter(**wanted_kwargs)
-    wanted_tv_seasons = WatchTVSeason.objects.filter(**wanted_kwargs)
     wanted_tv_episodes = WatchTVEpisode.objects.filter(**wanted_kwargs)
 
     countdown = 0
     for media in wanted_movies:
         logging.info('Wanted movie: {}'.format(media))
         watch_movie_task.s(media.id).apply_async(countdown=countdown)
-        countdown += 30
-
-    for media in wanted_tv_seasons:
-        logging.info('Wanted tv season: {}'.format(media))
-        watch_tv_show_season_task.s(media.id).apply_async(countdown=countdown)
         countdown += 30
 
     for media in wanted_tv_episodes:

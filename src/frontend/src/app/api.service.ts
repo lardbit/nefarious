@@ -449,7 +449,19 @@ export class ApiService {
       }));
   }
 
-  public blacklistRetryTV(watchMediaId: number) {
+  public blacklistRetryTVSeason(watchMediaId: number) {
+    return this.http.post(`${this.API_URL_WATCH_TV_SEASON}${watchMediaId}/blacklist-auto-retry/`, null, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        this.watchTVSeasons.forEach((watchSeason) => {
+          if (data.id === watchSeason.id) {
+            _.assign(watchSeason, data);
+          }
+        });
+        return data;
+      }));
+  }
+
+  public blacklistRetryTVEpisode(watchMediaId: number) {
     return this.http.post(`${this.API_URL_WATCH_TV_EPISODE}${watchMediaId}/blacklist-auto-retry/`, null, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
         this.watchTVEpisodes.forEach((watchEpisode) => {

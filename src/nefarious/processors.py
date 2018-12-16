@@ -82,6 +82,8 @@ class WatchProcessorBase:
         else:
             logging.info('Search error: {}'.format(search.error_content))
 
+        logging.info('Unable to find any results for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
+
         return False
 
     def is_match(self, title: str) -> bool:
