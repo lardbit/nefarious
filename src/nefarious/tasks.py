@@ -1,4 +1,5 @@
 import logging
+from celery import chain
 from datetime import datetime
 from django.shortcuts import get_object_or_404
 from nefarious.celery import app
@@ -10,7 +11,7 @@ from nefarious.transmission import get_transmission_client
 app.conf.beat_schedule = {
     'Completed Media Task': {
         'task': 'nefarious.tasks.completed_media_task',
-        'schedule': 60 * 5,
+        'schedule': 60 * 3,
     },
     'Wanted Media Task': {
         'task': 'nefarious.tasks.wanted_media_task',
@@ -94,9 +95,10 @@ def completed_media_task():
     incomplete_kwargs = dict(collected=False, transmission_torrent_hash__isnull=False)
 
     movies = WatchMovie.objects.filter(**incomplete_kwargs)
-    tv = WatchTVEpisode.objects.filter(**incomplete_kwargs)
+    tv_seasons = WatchTVSeason.objects.filter(**incomplete_kwargs)
+    tv_episodes = WatchTVEpisode.objects.filter(**incomplete_kwargs)
 
-    incomplete_media = list(movies) + list(tv)
+    incomplete_media = list(movies) + list(tv_episodes) + list(tv_seasons)
 
     for media in incomplete_media:
         logging.info('Media not flagged completed: {}'.format(media))
@@ -115,20 +117,21 @@ def completed_media_task():
 
 @app.task
 def wanted_media_task():
-    # TODO - prevent long running and eventually overlapping tasks (due to countdown)
-    #      - should use celery's chaining instead
 
     wanted_kwargs = dict(collected=False, transmission_torrent_hash__isnull=True)
+
     wanted_movies = WatchMovie.objects.filter(**wanted_kwargs)
     wanted_tv_episodes = WatchTVEpisode.objects.filter(**wanted_kwargs)
 
-    countdown = 0
+    tasks = []
+
     for media in wanted_movies:
         logging.info('Wanted movie: {}'.format(media))
-        watch_movie_task.s(media.id).apply_async(countdown=countdown)
-        countdown += 30
+        tasks.append(watch_movie_task.si(media.id))
 
     for media in wanted_tv_episodes:
         logging.info('Wanted tv episode: {}'.format(media))
-        watch_tv_episode_task.s(media.id).apply_async(countdown=countdown)
-        countdown += 30
+        tasks.append(watch_tv_episode_task.si(media.id))
+
+    # execute tasks sequentially
+    chain(*tasks)()
