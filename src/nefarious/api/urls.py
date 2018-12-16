@@ -15,7 +15,6 @@ urlpatterns = [
     path('', include(router.urls)),
     path('search/torrents/', viewsets.SearchTorrentsView.as_view()),
     path('download/torrents/', viewsets.DownloadTorrentsView.as_view()),
-    path('current/torrents/<int:torrent_id>/', viewsets.CurrentTorrentsView.as_view()),
     path('current/torrents/', viewsets.CurrentTorrentsView.as_view()),
     path('search/media/', viewsets.SearchMediaView.as_view()),
     path('search/media/<str:media_type>/<int:media_id>/', viewsets.MediaDetailView.as_view()),
