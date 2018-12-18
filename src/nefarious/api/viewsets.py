@@ -164,14 +164,24 @@ class SearchMediaView(views.APIView):
         # prepare query
         tmdb = get_tmdb_client(nefarious_settings)
         query = request.query_params.get('q')
+        year = request.query_params.get('year')
+
+        params = {
+            'query': query,
+        }
+        if year:
+            if media_type == MEDIA_TYPE_TV:
+                params['first_air_date_year'] = year
+            else:
+                params['primary_release_year'] = year
 
         # search for media
         search = tmdb.Search()
 
         if media_type == MEDIA_TYPE_MOVIE:
-            results = search.movie(query=query)
+            results = search.movie(**params)
         else:
-            results = search.tv(query=query)
+            results = search.tv(**params)
 
         return Response(results)
 

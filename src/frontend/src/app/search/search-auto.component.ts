@@ -32,9 +32,8 @@ export class SearchAutoComponent implements OnInit {
 
     console.log('Searching %s for %s', this.apiService.searchQuery.type, this.apiService.searchQuery.query);
 
-    this.apiService.searchMedia(this.apiService.searchQuery.query, this.apiService.searchQuery.type).subscribe(
+    this.apiService.searchMedia(this.apiService.searchQuery.query, this.apiService.searchQuery.type, this.apiService.searchQuery.year).subscribe(
       (data) => {
-        console.log(data);
         this.results = data.results.filter((result) => {
           return result.poster_path;
         });

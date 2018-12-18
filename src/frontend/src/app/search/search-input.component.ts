@@ -15,6 +15,7 @@ export class SearchInputComponent implements OnInit {
   public searchQuery: {
     query: string,
     type: string,
+    year: number,
   };
 
   constructor(
@@ -33,16 +34,22 @@ export class SearchInputComponent implements OnInit {
     if (this.route.snapshot.params['q'] && this.route.snapshot.params['type']) {
       this.apiService.searchQuery.query = this.route.snapshot.params['q'];
       this.apiService.searchQuery.type = this.route.snapshot.params['type'];
+      this.apiService.searchQuery.year = this.route.snapshot.params['year'];
       this.submitSearch();
     }
   }
 
   public submitSearch() {
-    let currentUrl = this.route.snapshot.url.map((data) => {
+    const params = {
+      q: this.searchQuery.query,
+      type: this.searchQuery.type,
+      year: this.searchQuery.year,
+    };
+    const currentUrl = this.route.snapshot.url.map((data) => {
       return data.path;
     });
     // navigate to the search component with the search query as parameters
-    this.router.navigate([`/${currentUrl.join('/')}/`, {q: this.searchQuery.query, type: this.searchQuery.type}]).then(
+    this.router.navigate([`/${currentUrl.join('/')}/`, params]).then(
       () => {
         // communicate a query was submitted
         this.query.emit();
