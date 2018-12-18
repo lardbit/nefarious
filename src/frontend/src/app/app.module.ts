@@ -40,7 +40,7 @@ const appRoutes: Routes = [
   { path: 'media/tv/:id', component: MediaTVComponent, canActivate: [LoginGuard, SettingsGuard] },
   { path: 'media/movie/:id', component: MediaMovieComponent, canActivate: [LoginGuard, SettingsGuard] },
   { path: 'watching/:type', component: WatchingComponent, canActivate: [LoginGuard, SettingsGuard] },
-  { path: 'wanted', component: WantedComponent, canActivate: [LoginGuard, SettingsGuard] },
+  { path: 'wanted/:type', component: WantedComponent, canActivate: [LoginGuard, SettingsGuard] },
   { path: 'settings', component: SettingsComponent, canActivate: [LoginGuard, StaffGuard] },
   { path: 'discover', component: DiscoverComponent, canActivate: [LoginGuard, SettingsGuard] },
   { path: 'page-not-found', component: PageNotFoundComponent },

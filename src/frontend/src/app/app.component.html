@@ -12,13 +12,22 @@
         <a class="nav-link" [routerLink]="['discover']" (click)="collapseNav()" routerLinkActive="active">Discover</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" [routerLink]="['watching/tv']" (click)="collapseNav()" routerLinkActive="active">Watching TV</a>
+        <div ngbDropdown class="d-inline-block">
+          <span class="nav-link" ngbDropdownToggle>Watching</span>
+          <div ngbDropdownMenu>
+            <a class="dropdown-item" [routerLink]="['watching/tv']" (click)="collapseNav()" routerLinkActive="active">TV</a>
+            <a class="dropdown-item" [routerLink]="['watching/movie']" (click)="collapseNav()" routerLinkActive="active">Movies</a>
+          </div>
+        </div>
       </li>
       <li class="nav-item">
-        <a class="nav-link" [routerLink]="['watching/movie']" (click)="collapseNav()" routerLinkActive="active">Watching Movies</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" [routerLink]="['wanted']" (click)="collapseNav()" routerLinkActive="active">Wanted</a>
+        <div ngbDropdown class="d-inline-block">
+          <span class="nav-link" ngbDropdownToggle>Wanted</span>
+          <div ngbDropdownMenu>
+            <a class="dropdown-item" [routerLink]="['wanted/tv']" (click)="collapseNav()" routerLinkActive="active">TV</a>
+            <a class="dropdown-item" [routerLink]="['wanted/movie']" (click)="collapseNav()" routerLinkActive="active">Movies</a>
+          </div>
+        </div>
       </li>
       <li class="nav-item" *ngIf="isStaff()">
         <a class="nav-link" [routerLink]="['settings']" (click)="collapseNav()" routerLinkActive="active">Settings</a>
