@@ -228,26 +228,26 @@ class CurrentTorrentsView(views.APIView):
     def get(self, request):
         nefarious_settings = NefariousSettings.singleton()
         transmission_client = get_transmission_client(nefarious_settings)
-        tmdb_movie_ids = request.query_params.getlist('tmdb_movie_ids')
-        tmdb_episode_ids = request.query_params.getlist('tmdb_episode_ids')
-        tmdb_season_numbers = request.query_params.getlist('tmdb_season_numbers')
-        tmdb_show_id = request.query_params.get('tmdb_show_id')
+
+        watch_movies = request.query_params.getlist('watch_movies')
+        watch_tv_episodes = request.query_params.getlist('watch_tv_episodes')
+        watch_tv_seasons = request.query_params.getlist('watch_tv_seasons')
 
         querysets = []
         torrent_hashes = []
 
         # movies
-        if tmdb_movie_ids:
+        if watch_movies:
             querysets.append(
-                WatchMovie.objects.filter(tmdb_movie_id__in=tmdb_movie_ids))
+                WatchMovie.objects.filter(id__in=watch_movies))
         # tv episodes
-        if tmdb_episode_ids:
+        if watch_tv_episodes:
             querysets.append(
-                WatchTVEpisode.objects.filter(tmdb_episode_id__in=tmdb_episode_ids))
+                WatchTVEpisode.objects.filter(id__in=watch_tv_episodes))
         # tv seasons
-        if tmdb_show_id and tmdb_season_numbers:
+        if watch_tv_seasons:
             querysets.append(
-                WatchTVSeason.objects.filter(tmdb_show_id=tmdb_show_id, season_number__in=tmdb_season_numbers))
+                WatchTVSeason.objects.filter(id__in=watch_tv_seasons))
 
         for query in querysets:
             torrent_hashes += [media.transmission_torrent_hash for media in query if media.transmission_torrent_hash]

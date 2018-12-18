@@ -92,9 +92,9 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
 
   protected _fetchTorrents() {
     const params = {
-      tmdb_movie_ids: [],
-      tmdb_episode_ids: [],
-      tmdb_season_numbers: [],
+      watch_movies: [],
+      watch_tv_episodes: [],
+      watch_tv_seasons: [],
     };
 
     // update media instances and build torrent params
@@ -104,16 +104,15 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
         // type tv episode
         if (watchMedia.tmdb_episode_id) {
           this.apiService.fetchWatchTVEpisode(watchMedia.id).subscribe();
-          params.tmdb_episode_ids.push(watchMedia.tmdb_episode_id);
-        } else {  // type tv show
+          params.watch_tv_episodes.push(watchMedia.id);
+        } else {  // type tv season
           this.apiService.fetchWatchTVSeason(watchMedia.id).subscribe();
-          params.tmdb_season_numbers.push(watchMedia.season_number);
-          params['tmdb_show_id'] = watchMedia.tmdb_show_id;
+          params.watch_tv_seasons.push(watchMedia.id);
         }
       } else {
         // fetch media if there's no torrent details yet
         this.apiService.fetchWatchMovie(watchMedia.id).subscribe();
-        params.tmdb_movie_ids.push(watchMedia.tmdb_movie_id);
+        params.watch_movies.push(watchMedia.id);
       }
     }
 
