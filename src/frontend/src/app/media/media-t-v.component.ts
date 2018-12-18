@@ -161,9 +161,12 @@ export class MediaTVComponent implements OnInit {
 
   protected _getWatchSeason(seasonNumber: number) {
     const watchShow = this._getWatchShowFromShowId(this.result.id);
-    return _.find(this.apiService.watchTVSeasons, (watchSeason) => {
-      return watchSeason.watch_tv_show === watchShow.id && watchSeason.season_number === seasonNumber;
-    });
+    if (watchShow) {
+      return _.find(this.apiService.watchTVSeasons, (watchSeason) => {
+        return watchSeason.watch_tv_show === watchShow.id && watchSeason.season_number === seasonNumber;
+      });
+    }
+    return null;
   }
 
   protected _buildWatchOptions() {
