@@ -1,7 +1,7 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, EventEmitter, OnInit, Output, Input } from '@angular/core';
-import { ApiService } from "../api.service";
-import { ToastrService } from "ngx-toastr";
+import { ApiService } from '../api.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-search-input',
@@ -15,7 +15,6 @@ export class SearchInputComponent implements OnInit {
   public searchQuery: {
     query: string,
     type: string,
-    year: number,
   };
 
   constructor(
@@ -34,7 +33,6 @@ export class SearchInputComponent implements OnInit {
     if (this.route.snapshot.params['q'] && this.route.snapshot.params['type']) {
       this.apiService.searchQuery.query = this.route.snapshot.params['q'];
       this.apiService.searchQuery.type = this.route.snapshot.params['type'];
-      this.apiService.searchQuery.year = this.route.snapshot.params['year'];
       this.submitSearch();
     }
   }
@@ -43,7 +41,6 @@ export class SearchInputComponent implements OnInit {
     const params = {
       q: this.searchQuery.query,
       type: this.searchQuery.type,
-      year: this.searchQuery.year,
     };
     const currentUrl = this.route.snapshot.url.map((data) => {
       return data.path;

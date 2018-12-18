@@ -46,7 +46,7 @@ export class DiscoverComponent implements OnInit {
       'mediaType': [this.apiService.SEARCH_MEDIA_TYPE_MOVIE, Validators.required],
       'sort_by': [this.DEFAULT_SORT, Validators.required],
       'primary_release_date.gte': ['', Validators.pattern('\d{4}')],
-      'primary_release_date.lte': [(new Date).getFullYear(), Validators.pattern('\d{4}')],
+      'primary_release_date.lte': ['', Validators.pattern('\d{4}')],
       'with_genres': ['', Validators.pattern('\d+')],
       'page': [1, Validators.pattern('\d+')],
     });
@@ -85,11 +85,11 @@ export class DiscoverComponent implements OnInit {
       this.form.controls['page'].setValue(1);
     }
 
-    let currentUrl = this.route.snapshot.url.map((data) => {
+    const currentUrl = this.route.snapshot.url.map((data) => {
       return data.path;
     });
 
-    let discoverEndpoint = this.form.value.mediaType == this.apiService.SEARCH_MEDIA_TYPE_MOVIE ?
+    const discoverEndpoint = this.form.value.mediaType === this.apiService.SEARCH_MEDIA_TYPE_MOVIE ?
       this.apiService.discoverMovies(this._formValues()) :
       this.apiService.discoverTV(this._formValues());
 

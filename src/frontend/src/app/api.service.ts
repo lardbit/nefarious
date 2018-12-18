@@ -43,11 +43,9 @@ export class ApiService {
   public searchQuery: {
     query: string,
     type: string,
-    year: number,
   } = {
     query: '',
     type: this.SEARCH_MEDIA_TYPE_TV,
-    year: null,
   };
 
   constructor(
@@ -214,11 +212,10 @@ export class ApiService {
     );
   }
 
-  public searchMedia(query: string, mediaType: string, year: number) {
+  public searchMedia(query: string, mediaType: string) {
     const httpParams = new HttpParams({fromObject: {
         q: query,
         media_type: mediaType,
-        year: String(year),
       }});
     return this.http.get(this.API_URL_SEARCH_MEDIA, {headers: this._requestHeaders(), params: httpParams}).pipe(
       map((data: any) => {

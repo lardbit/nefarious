@@ -1,16 +1,19 @@
 <form (ngSubmit)="submitSearch()">
+  <div class="d-flex mb-2">
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" [(ngModel)]="searchQuery.type" type="radio" name="type" id="movie" value="movie">
+      <label class="form-check-label" for="movie">Movies</label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" [(ngModel)]="searchQuery.type" type="radio" name="type" id="tv" value="tv">
+      <label class="form-check-label" for="tv">TV</label>
+    </div>
+  </div>
   <div class="d-flex">
     <input class="form-control form-control-lg" [(ngModel)]="searchQuery.query" required minlength="2" name="q" #q="ngModel" type="text" placeholder="Search..." autocomplete="off">
   </div>
-  <div class="d-flex justify-content-between">
-    <select [(ngModel)]="searchQuery.type" class="form-control form-control-sm" name="type" #type="ngModel">
-      <option value="movie">Movies</option>
-      <option value="tv">TV Shows</option>
-    </select>
-    <input class="form-control form-control-sm"  [(ngModel)]="searchQuery.year" type="number" required minlength="4" name="year" #year="ngModel" placeholder="Year" autocomplete="off">
-  </div>
-  <div class="d-flex justify-content-end mt-2">
-    <button class="btn btn-primary position-relative" type="submit" [disabled]="q.invalid" [ngClass]="{'disabled': q.invalid}">
+  <div class="d-flex justify-content-end mt-3">
+    <button class="btn btn-primary position-relative" [disabled]="q.invalid" [ngClass]="{'disabled': q.invalid}">
       <ngx-loading [show]="isSearching"></ngx-loading>
       <span class="oi oi-magnifying-glass"></span> Search
     </button>

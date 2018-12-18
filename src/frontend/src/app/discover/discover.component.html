@@ -45,12 +45,7 @@
   </div>
 </div>
 
-<div class="card" *ngIf="results">
-  <div class="card-header">
-    Results
-  </div>
-  <div class="card-body">
-    <app-media-results [results]="results" [mediaType]="form.value.mediaType"></app-media-results>
-    <button class="btn btn-info" (click)="search(true)">More</button>
-  </div>
+<div *ngIf="results">
+  <app-media-results [results]="results" [mediaType]="form.value.mediaType"></app-media-results>
+  <button class="btn btn-info" (click)="search(true)">More</button>
 </div>
