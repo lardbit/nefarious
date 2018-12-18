@@ -29,16 +29,18 @@ import { TorrentDetailsComponent } from './torrent-details/torrent-details.compo
 import { DiscoverComponent } from './discover/discover.component';
 import { MediaResultsComponent } from './media-results/media-results.component';
 import { FilterPipe } from './filter.pipe';
+import { WantedComponent } from './wanted/wanted.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'search/auto', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
   { path: 'search', redirectTo: 'search/auto', pathMatch: 'full', canActivate: [LoginGuard] },
+  { path: 'login', component: LoginComponent },
   { path: 'search/auto', component: SearchAutoComponent, canActivate: [LoginGuard, SettingsGuard] },
   { path: 'search/manual', component: SearchManualComponent, canActivate: [LoginGuard, SettingsGuard] },
   { path: 'media/tv/:id', component: MediaTVComponent, canActivate: [LoginGuard, SettingsGuard] },
   { path: 'media/movie/:id', component: MediaMovieComponent, canActivate: [LoginGuard, SettingsGuard] },
   { path: 'watching/:type', component: WatchingComponent, canActivate: [LoginGuard, SettingsGuard] },
+  { path: 'wanted', component: WantedComponent, canActivate: [LoginGuard, SettingsGuard] },
   { path: 'settings', component: SettingsComponent, canActivate: [LoginGuard, StaffGuard] },
   { path: 'discover', component: DiscoverComponent, canActivate: [LoginGuard, SettingsGuard] },
   { path: 'page-not-found', component: PageNotFoundComponent },
@@ -73,6 +75,7 @@ export function init(apiService: ApiService) {
     DiscoverComponent,
     MediaResultsComponent,
     FilterPipe,
+    WantedComponent,
   ],
   imports: [
     RouterModule.forRoot(

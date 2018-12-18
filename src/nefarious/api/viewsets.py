@@ -34,6 +34,7 @@ CACHE_WEEK = CACHE_DAY * 7
 class WatchMovieViewSet(BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchMovie.objects.all()
     serializer_class = WatchMovieSerializer
+    filter_fields = ('collected',)
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -80,6 +81,7 @@ class WatchTVShowViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
 class WatchTVSeasonViewSet(BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVSeason.objects.all()
     serializer_class = WatchTVSeasonSerializer
+    filter_fields = ('collected',)
 
     def _watch_media_task(self, watch_media_id: int):
         watch_tv_show_season_task.delay(watch_media_id)
@@ -93,6 +95,7 @@ class WatchTVSeasonViewSet(BlacklistAndRetryMixin, UserReferenceViewSetMixin, vi
 class WatchTVEpisodeViewSet(BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVEpisode.objects.all()
     serializer_class = WatchTVEpisodeSerializer
+    filter_fields = ('collected',)
 
     def _watch_media_task(self, watch_media_id: int):
         watch_tv_episode_task.delay(watch_media_id)

@@ -492,6 +492,21 @@ export class ApiService {
     return this._fetchGenres(this.SEARCH_MEDIA_TYPE_TV);
   }
 
+  public fetchWantedMovies() {
+    const httpParams = new HttpParams({fromObject: {collected: 'false'}})
+    return this.http.get(this.API_URL_WATCH_MOVIE, {headers: this._requestHeaders(), params: httpParams});
+  }
+
+  public fetchWantedTVSeasons() {
+    const httpParams = new HttpParams({fromObject: {collected: 'false'}})
+    return this.http.get(this.API_URL_WATCH_TV_SEASON, {headers: this._requestHeaders(), params: httpParams});
+  }
+
+  public fetchWantedTVEpisodes() {
+    const httpParams = new HttpParams({fromObject: {collected: 'false'}})
+    return this.http.get(this.API_URL_WATCH_TV_EPISODE, {headers: this._requestHeaders(), params: httpParams});
+  }
+
   protected _fetchGenres(mediaType: string) {
     const url = mediaType === this.SEARCH_MEDIA_TYPE_MOVIE ? this.API_URL_GENRES_MOVIE : this.API_URL_GENRES_TV;
     return this.http.get(url, {headers: this._requestHeaders()});

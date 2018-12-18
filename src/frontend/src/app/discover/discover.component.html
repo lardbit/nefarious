@@ -9,7 +9,7 @@
         <input type="hidden" formControlName="page">
         <div class="row">
           <div class="col-12 col-md-6 col-lg-3">
-            <label for="media-type">Media</label>
+            <label for="media-type">Type</label>
             <select class="form-control" id="media-type" formControlName="mediaType">
               <option value="movie">Movies</option>
               <option value="tv">TV</option>
@@ -47,5 +47,5 @@
 
 <div *ngIf="results">
   <app-media-results [results]="results" [mediaType]="form.value.mediaType"></app-media-results>
-  <button class="btn btn-info" (click)="search(true)">More</button>
+  <button class="btn btn-info" type="button" (click)="search(true)">More</button>
 </div>
