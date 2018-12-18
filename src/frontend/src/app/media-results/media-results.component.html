@@ -1,7 +1,4 @@
 <div class="card" *ngIf="results.length">
-  <div class="card-header">
-    Results
-  </div>
   <div class="card-body row">
     <input class="form-control form-control-lg mb-3" [(ngModel)]="search" required minlength="2" name="search" type="text" placeholder="Filter..." autocomplete="off">
     <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let result of results | filter: search">
