@@ -13,19 +13,19 @@
       </li>
       <li class="nav-item">
         <div ngbDropdown class="d-inline-block">
-          <span class="nav-link" ngbDropdownToggle>Watching</span>
+          <span class="nav-link" [class.active]="watchingMovies.isActive || watchingTV.isActive" ngbDropdownToggle>Watching</span>
           <div ngbDropdownMenu>
-            <a class="dropdown-item" [routerLink]="['watching/tv']" (click)="collapseNav()" routerLinkActive="active">TV</a>
-            <a class="dropdown-item" [routerLink]="['watching/movie']" (click)="collapseNav()" routerLinkActive="active">Movies</a>
+            <a class="dropdown-item" [routerLink]="['watching/tv']" (click)="collapseNav()" routerLinkActive="active" #watchingTV="routerLinkActive">TV</a>
+            <a class="dropdown-item" [routerLink]="['watching/movie']" (click)="collapseNav()" routerLinkActive="active" #watchingMovies="routerLinkActive">Movies</a>
           </div>
         </div>
       </li>
       <li class="nav-item">
         <div ngbDropdown class="d-inline-block">
-          <span class="nav-link" ngbDropdownToggle>Wanted</span>
+          <span class="nav-link" [class.active]="wantedMovies.isActive || wantedTV.isActive" ngbDropdownToggle>Wanted</span>
           <div ngbDropdownMenu>
-            <a class="dropdown-item" [routerLink]="['wanted/tv']" (click)="collapseNav()" routerLinkActive="active">TV</a>
-            <a class="dropdown-item" [routerLink]="['wanted/movie']" (click)="collapseNav()" routerLinkActive="active">Movies</a>
+            <a class="dropdown-item" [routerLink]="['wanted/tv']" (click)="collapseNav()" routerLinkActive="active" #wantedTV="routerLinkActive">TV</a>
+            <a class="dropdown-item" [routerLink]="['wanted/movie']" (click)="collapseNav()" routerLinkActive="active" #wantedMovies="routerLinkActive">Movies</a>
           </div>
         </div>
       </li>
