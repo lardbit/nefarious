@@ -60,6 +60,22 @@ export class MediaTVComponent implements OnInit {
     return `${this.apiService.settings.tmdb_configuration.images.base_url}/original/${result.poster_path}`;
   }
 
+  public watchAllSeasons() {
+
+    if (!this.isWatchingShow(this.result.id)) {
+      console.log('not yet watching show %s', this.result.name);
+      this._watchShow().subscribe(
+        (data) => {
+          this.watchAllSeasons();
+        }
+      );
+    } else {
+        for (const season of this.result.seasons) {
+          this.watchEntireSeason(season);
+        }
+    }
+  }
+
   public watchEntireSeason(season) {
 
     this.isSaving = true;

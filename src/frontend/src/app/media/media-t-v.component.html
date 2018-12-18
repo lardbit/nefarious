@@ -4,16 +4,18 @@
     <div class="card-body">
       <h5 class="card-title">{{ result.name }}</h5>
       <p class="card-text">{{ result.overview }}</p>
+      <div class="d-flex justify-content-end">
+        <button type="button" class="btn btn-success" (click)="watchAllSeasons()">
+          <span class="oi oi-video"></span> Watch all seasons
+        </button>
+      </div>
     </div>
     <div class="card-body">
       <ngb-tabset>
         <ngb-tab title="Details">
           <ng-template ngbTabContent>
             <div class="row">
-              <div class="col">
-                <img [src]="mediaPosterURL(result)"  class="img-fluid">
-              </div>
-              <div class="col position-relative">
+              <div class="col-12 col-md-6 mb-3 position-relative">
                 <ngx-loading [show]="isSaving"></ngx-loading>
                 <ul class="list-group" *ngFor="let season of result.seasons">
                   <ngb-accordion>
@@ -21,8 +23,8 @@
                       <ng-template ngbPanelContent>
                         <p *ngIf="season.overview">{{ season.overview }}</p>
                         <div class="m-3">
-                          <button *ngIf="!isWatchingSeason(season.season_number)" type="button" class="btn btn-success" (click)="watchEntireSeason(season)">
-                            Watch entire season
+                          <button *ngIf="!isWatchingSeason(season.season_number)" type="button" class="btn btn-primary" (click)="watchEntireSeason(season)">
+                            <span class="oi oi-video"></span> Watch entire season
                           </button>
                           <button *ngIf="isWatchingSeason(season.season_number)" type="button" class="btn btn-warning" (click)="stopWatchingEntireSeason(season)">
                             Stop Watching entire season
@@ -35,13 +37,16 @@
                             <label class="form-check-label" [for]="episode.id">#{{ episode.episode_number }} - {{ episode.name }}</label>
                           </div>
                           <button type="submit" class="btn btn-info m-3" [class.disabled]="isWatchingSeason(season.season_number)" [disabled]="isWatchingSeason(season.season_number)">
-                            Watch individual episodes
+                            <span class="oi oi-list"></span> Watch individual episodes
                           </button>
                         </form>
                       </ng-template>
                     </ngb-panel>
                   </ngb-accordion>
                 </ul>
+              </div>
+              <div class="col-12 col-md-6">
+                <img [src]="mediaPosterURL(result)"  class="img-fluid">
               </div>
             </div>
           </ng-template>
