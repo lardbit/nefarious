@@ -12,6 +12,7 @@ export class WatchingComponent implements OnInit {
   public results: any[];
   public alertMessage: string;
   public mediaType: string;
+  public search: string;
 
   constructor(
     private apiService: ApiService,

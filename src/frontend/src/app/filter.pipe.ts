@@ -16,6 +16,8 @@ export class FilterPipe implements PipeTransform {
         results.push(item);
       } else if (item.original_name && item.original_name.match(RegExp(search, 'i'))) {
         results.push(item);
+      } else if (item.name && item.name.match(RegExp(search, 'i'))) {
+        results.push(item);
       }
     }
     return results;
