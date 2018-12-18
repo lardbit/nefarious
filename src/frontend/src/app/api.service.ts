@@ -1,7 +1,7 @@
 import { LocalStorage } from '@ngx-pwa/local-storage';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, mergeMap} from 'rxjs/operators';
+import { map, mergeMap, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
 import { forkJoin, Observable, of, zip } from 'rxjs';
 
@@ -359,6 +359,23 @@ export class ApiService {
         this.watchTVSeasons.push(data);
         return data;
       }),
+    );
+  }
+
+  public unWatchTVShow(watchId) {
+    return this.http.delete(`${this.API_URL_WATCH_TV_SHOW}${watchId}`, {headers: this._requestHeaders()}).pipe(
+      tap((data: any) => {
+        // filter out records
+        this.watchTVShows = _.filter(this.watchTVShows, (watch) => {
+          return watch.id !== watchId;
+        });
+        this.watchTVSeasons = _.filter(this.watchTVSeasons, (watch) => {
+          return watch.watch_tv_show !== watchId;
+        });
+        this.watchTVEpisodes = _.filter(this.watchTVEpisodes, (watch) => {
+          return watch.watch_tv_show !== watchId;
+        });
+      })
     );
   }
 

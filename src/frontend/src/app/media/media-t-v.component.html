@@ -8,6 +8,9 @@
         <button type="button" class="btn btn-success" (click)="watchAllSeasons()">
           <span class="oi oi-video"></span> Watch all seasons
         </button>
+        <button type="button" class="btn btn-danger btn-sm ml-3" *ngIf="isWatchingShow()" (click)="stopWatchingShow()">
+          <span class="oi oi-trash"></span> Stop Watching
+        </button>
       </div>
     </div>
     <div class="card-body">
@@ -51,7 +54,7 @@
             </div>
           </ng-template>
         </ngb-tab>
-        <ngb-tab title="Status" *ngIf="isWatchingShow(result.id)">
+        <ngb-tab title="Status" *ngIf="isWatchingShow()">
           <ng-template ngbTabContent>
             <app-torrent-details mediaType="tv" [watchMedia]="getWatchMedia()"></app-torrent-details>
           </ng-template>

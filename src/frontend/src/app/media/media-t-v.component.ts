@@ -44,7 +44,7 @@ export class MediaTVComponent implements OnInit {
   public submit() {
 
     // watch show if not already
-    if (!this.isWatchingShow(this.result.id)) {
+    if (!this.isWatchingShow()) {
       console.log('not already watching show %s', this.result.id);
       this._watchShow().subscribe(
         (data) => {
@@ -62,7 +62,7 @@ export class MediaTVComponent implements OnInit {
 
   public watchAllSeasons() {
 
-    if (!this.isWatchingShow(this.result.id)) {
+    if (!this.isWatchingShow()) {
       console.log('not yet watching show %s', this.result.name);
       this._watchShow().subscribe(
         (data) => {
@@ -80,7 +80,7 @@ export class MediaTVComponent implements OnInit {
 
     this.isSaving = true;
 
-    if (!this.isWatchingShow(this.result.id)) {
+    if (!this.isWatchingShow()) {
       console.log('not yet watching show %s', this.result.name);
       this._watchShow().subscribe(
         (data) => {
@@ -89,7 +89,7 @@ export class MediaTVComponent implements OnInit {
       );
     } else {
 
-        const watchTvShow = this._getWatchShowFromShowId(this.result.id);
+        const watchTvShow = this._getWatchShow();
 
         this.apiService.watchTVSeason(watchTvShow.id, season.season_number).subscribe(
           (data) => {
@@ -103,6 +103,20 @@ export class MediaTVComponent implements OnInit {
             console.log(error);
           }
         );
+    }
+  }
+
+  public stopWatchingShow() {
+    const watchShow = this._getWatchShow();
+    if (watchShow) {
+      this.apiService.unWatchTVShow(watchShow.id).subscribe(
+        (data) => {
+          this.toastr.success('Stop watching show');
+        },
+        (error) => {
+          this.toastr.error('An unknown error occurred');
+        }
+      );
     }
   }
 
@@ -143,8 +157,8 @@ export class MediaTVComponent implements OnInit {
     }
   }
 
-  public isWatchingShow(showId) {
-    return Boolean(this._getWatchShowFromShowId(showId));
+  public isWatchingShow() {
+    return Boolean(this._getWatchShow());
   }
 
   protected _watchShow(): Observable<any> {
@@ -160,7 +174,7 @@ export class MediaTVComponent implements OnInit {
   }
 
   protected _getWatchSeason(seasonNumber: number) {
-    const watchShow = this._getWatchShowFromShowId(this.result.id);
+    const watchShow = this._getWatchShow();
     if (watchShow) {
       return _.find(this.apiService.watchTVSeasons, (watchSeason) => {
         return watchSeason.watch_tv_show === watchShow.id && watchSeason.season_number === seasonNumber;
@@ -217,9 +231,9 @@ export class MediaTVComponent implements OnInit {
     return result;
   }
 
-  protected _getWatchShowFromShowId(showId: Number) {
+  protected _getWatchShow() {
     return _.find(this.apiService.watchTVShows, (watchShow) => {
-      return watchShow.tmdb_show_id === showId;
+      return watchShow.tmdb_show_id === this.result.id;
     });
   }
 
@@ -235,7 +249,7 @@ export class MediaTVComponent implements OnInit {
         if (!this._isWatchingEpisode(episodeId)) {
           const episode = this._getEpisode(episodeId);
           const season = this._getSeasonFromEpisodeId(episodeId);
-          const watchShow = this._getWatchShowFromShowId(this.result.id);
+          const watchShow = this._getWatchShow();
           if (episode && season && watchShow) {
             observables.push(
               this.apiService.watchTVEpisode(
