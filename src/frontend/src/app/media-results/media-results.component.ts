@@ -9,6 +9,7 @@ import { ApiService } from '../api.service';
 export class MediaResultsComponent implements OnInit {
   @Input() results: any[];
   @Input() mediaType: string;
+  public search: string = '';
 
   constructor(
     private apiService: ApiService,

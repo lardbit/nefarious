@@ -28,6 +28,7 @@ import { WatchingComponent } from './watching/watching.component';
 import { TorrentDetailsComponent } from './torrent-details/torrent-details.component';
 import { DiscoverComponent } from './discover/discover.component';
 import { MediaResultsComponent } from './media-results/media-results.component';
+import { FilterPipe } from './filter.pipe';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'search/auto', pathMatch: 'full' },
@@ -71,6 +72,7 @@ export function init(apiService: ApiService) {
     TorrentDetailsComponent,
     DiscoverComponent,
     MediaResultsComponent,
+    FilterPipe,
   ],
   imports: [
     RouterModule.forRoot(
