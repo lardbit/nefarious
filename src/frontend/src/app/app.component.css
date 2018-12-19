@@ -1,3 +1,6 @@
 .dropdown-toggle {
   cursor: pointer;
 }
+.navbar-nav .dropdown-menu {
+  border: none;
+}
