@@ -1,5 +1,6 @@
 import os
 import logging
+from datetime import datetime
 from nefarious.models import WatchMovie, NefariousSettings, TorrentBlacklist, WatchTVEpisode, WatchTVSeason
 from nefarious.parsers.movie import MovieParser
 from nefarious.parsers.tv import TVParser
@@ -18,7 +19,7 @@ class WatchProcessorBase:
     tmdb_client = None
     transmission_client = None
 
-    def __init__(self, watch_media_id: int, *args):
+    def __init__(self, watch_media_id: int):
         self.nefarious_settings = NefariousSettings.singleton()
         self.tmdb_client = get_tmdb_client(self.nefarious_settings)
         self.transmission_client = get_transmission_client(self.nefarious_settings)
@@ -28,6 +29,10 @@ class WatchProcessorBase:
     def fetch(self):
         valid_search_results = []
         search = self._get_search_results()
+
+        # save this attempt date
+        self.watch_media.last_attempt_date = datetime.utcnow()
+        self.watch_media.save()
 
         if search.ok:
 

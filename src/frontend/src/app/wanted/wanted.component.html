@@ -13,12 +13,14 @@
 				<tr>
           <th>Name</th>
           <th>Requested</th>
+          <th>Last Attempt</th>
         </tr>
       </thead>
       <tbody>
 				<tr *ngFor="let result of results | filter: search">
 					<td><a [routerLink]="['/media', mediaType, getTMDBId(result)]">{{ result.name }}</a></td>
 					<td>{{ result.date_added }}</td>
+          <td>{{ result.last_attempt_date }}</td>
 				</tr>
       </tbody>
     </table>
