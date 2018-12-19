@@ -46,7 +46,7 @@ export class MediaMovieComponent implements OnInit {
     let endpoint;
 
     if (this.isWatchingMovie) {
-      endpoint = this.apiService.watchMovie(this.result.id, this.result.original_title, this.mediaPosterURL(this.result), this.qualityProfileCustom);
+      endpoint = this.apiService.watchMovie(this.result.id, this.result.title, this.mediaPosterURL(this.result), this.qualityProfileCustom);
     } else if (!this.isWatchingMovie && this.watchMovie) {
       endpoint = this.apiService.unWatchMovie(this.watchMovie.id);
     } else {
@@ -62,7 +62,7 @@ export class MediaMovieComponent implements OnInit {
         } else {
           verb = 'Stop watching';
         }
-        this.toastr.success(`${verb} ${this.result.original_title}`);
+        this.toastr.success(`${verb} ${this.result.title}`);
       },
       (error) => {
         console.log(error);

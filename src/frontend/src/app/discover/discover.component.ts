@@ -4,6 +4,8 @@ import { FormBuilder, Validators} from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
 import * as _ from 'lodash';
+import { tap } from 'rxjs/operators';
+import { Observable, zip } from 'rxjs';
 
 @Component({
   selector: 'app-discover',
@@ -14,7 +16,11 @@ export class DiscoverComponent implements OnInit {
   public results: any[] = [];
   public form;
   public isLoading = true;
-  public genres: {
+  public movieGenres: {
+    id: number,
+    name: string
+  }[];
+  public tvGenres: {
     id: number,
     name: string
   }[];
@@ -51,25 +57,23 @@ export class DiscoverComponent implements OnInit {
       'page': [1, Validators.pattern('\d+')],
     });
 
-    this.apiService.fetchMovieGenres().subscribe(
-      (data: any) => {
-        this.genres = data.genres;
-        this.isLoading = false;
-
-        // auto submit search if there were filters set in the URL
-        if (this.route.snapshot.params) {
-
-          // set the url param values on the form
-          _.forOwn(this.route.snapshot.params, (value, key) => {
-            if (value) {
-              this.form.controls[key].setValue(value);
-            }
-          });
-
-          this.search();
+    // auto submit search if there were filters set in the URL
+    if (this.route.snapshot.params) {
+      // set the url param values on the form
+      _.forOwn(this.route.snapshot.params, (value, key) => {
+        if (value) {
+          this.form.controls[key].setValue(value);
         }
+      });
+      this.search();
+    }
+
+    this._fetchGenres().subscribe(
+      () => {
+        this.isLoading = false;
       },
       (error) => {
+        console.error(error);
         this.toastr.error('An error occurred fetching genres');
         this.isLoading = false;
       }
@@ -109,6 +113,24 @@ export class DiscoverComponent implements OnInit {
           }
         );
       }
+    );
+  }
+
+  protected _fetchGenres(): Observable<any> {
+    this.tvGenres = [];
+    this.movieGenres = [];
+
+    return zip(
+      this.apiService.fetchMovieGenres().pipe(
+        tap((data: any) => {
+          this.movieGenres = data.genres;
+        })
+      ),
+      this.apiService.fetchTVGenres().pipe(
+        tap((data: any) => {
+          this.tvGenres = data.genres;
+        })
+      ),
     );
   }
 

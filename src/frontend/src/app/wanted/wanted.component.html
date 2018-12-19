@@ -1,26 +1,26 @@
 <div class="alert alert-success col-12 mt-3" *ngIf="alertMessage">{{ alertMessage }}</div>
 
-<div class="position-relative">
-  <ngx-loading [show]="isLoading"></ngx-loading>
-</div>
-
 <div class="card">
   <div class="card-header">
     Wanted
   </div>
   <div class="card-body">
     <div class="d-flex justify-content-end">
-      <input class="form-control form-control-sm w-25 mb-3" [(ngModel)]="search" required minlength="2" name="search" type="text" placeholder="Filter..." autocomplete="off">
+      <input class="form-control form-control-sm w-25 mb-3" [(ngModel)]="search" required minlength="2" type="text" placeholder="Filter..." autocomplete="off">
     </div>
-    <div class="row">
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let result of results | filter: search">
-        <div class="card result">
-          <a [routerLink]="['/media', mediaType, getTMDBId(result)]"><img class="card-img-top" [src]="result.poster_image_url" alt="Card image cap"></a>
-          <div class="card-body">
-            <h5 class="card-title">{{ result.name }}</h5>
-          </div>
-        </div>
-      </div>
-    </div>
+    <table class="table table-striped">
+      <thead>
+				<tr>
+          <th>Name</th>
+          <th>Requested</th>
+        </tr>
+      </thead>
+      <tbody>
+				<tr *ngFor="let result of results | filter: search">
+					<td><a [routerLink]="['/media', mediaType, getTMDBId(result)]">{{ result.name }}</a></td>
+					<td>{{ result.date_added }}</td>
+				</tr>
+      </tbody>
+    </table>
   </div>
 </div>

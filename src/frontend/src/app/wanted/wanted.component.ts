@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
 import { ActivatedRoute } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-wanted',
@@ -10,10 +10,10 @@ import { forkJoin } from 'rxjs';
   styleUrls: ['./wanted.component.css']
 })
 export class WantedComponent implements OnInit {
-  public isLoading = true;
   public results: any[] = [];
   public mediaType: string;
   public alertMessage = '';
+  public search = '';
 
   constructor(
     private apiService: ApiService,
@@ -27,34 +27,16 @@ export class WantedComponent implements OnInit {
       (params) => {
         this.results = [];
         this.mediaType = params.type;
-        let wanted;
+        let wanted: any[];
         if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV) {
-          wanted = forkJoin(
-            this.apiService.fetchWantedTVSeasons(),
-            this.apiService.fetchWantedTVEpisodes(),
-          );
+          wanted = this.apiService.watchTVSeasons.concat(this.apiService.watchTVEpisodes);
         } else {
-          wanted = forkJoin(this.apiService.fetchWantedMovies());
+          wanted = this.apiService.watchMovies;
         }
 
-        wanted.subscribe(
-          (data) => {
-            for (const results of data) {
-              this.results = this.results.concat(results);
-            }
-            if (this.results.length <= 0) {
-              this.alertMessage = 'You have everything you want. Wow.';
-            } else {
-              this.alertMessage = '';
-            }
-            this.isLoading = false;
-          },
-          (error) => {
-            console.error(error);
-            this.toastr.error('An unknown error occurred');
-            this.isLoading = false;
-          }
-        );
+        this.results = _.filter(wanted, (watchMedia) => {
+          return !watchMedia.collected;
+        });
       }
     );
   }

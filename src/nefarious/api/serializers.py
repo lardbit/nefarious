@@ -86,7 +86,7 @@ class WatchTVSeasonSerializer(UserReferenceSerializerMixin, serializers.ModelSer
     tmdb_show_id = serializers.SerializerMethodField()
 
     def get_name(self, obj: WatchTVSeason):
-        return 'Season {}'.format(obj.season_number)
+        return str(obj)
 
     def get_poster_image_url(self, obj: WatchTVSeason):
         return obj.watch_tv_show.poster_image_url
@@ -104,8 +104,8 @@ class WatchTVEpisodeSerializer(UserReferenceSerializerMixin, serializers.ModelSe
     poster_image_url = serializers.SerializerMethodField()
     tmdb_show_id = serializers.SerializerMethodField()
 
-    def get_name(self, obj):
-        return '{}x{}'.format(obj.season_number, obj.episode_number)
+    def get_name(self, obj: WatchTVEpisode):
+        return str(obj)
 
     def get_poster_image_url(self, obj: WatchTVSeason):
         return obj.watch_tv_show.poster_image_url

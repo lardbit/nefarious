@@ -186,7 +186,7 @@ class WatchMovieProcessor(WatchProcessorBase):
             transmission_session.download_dir, self.nefarious_settings.transmission_movie_download_dir.lstrip('/'))
 
     def _get_tmdb_title_key(self):
-        return 'original_title'
+        return 'title'
 
     def _get_tmdb_media(self):
         movie_result = self.tmdb_client.Movies(self.watch_media.tmdb_movie_id)

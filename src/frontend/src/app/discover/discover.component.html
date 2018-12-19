@@ -33,7 +33,12 @@
             <label for="genre">Genre</label>
             <select class="form-control" formControlName="with_genres" id="genre">
               <option></option>
-              <option *ngFor="let genre of genres" [value]="genre.id">{{ genre.name }}</option>
+              <ng-container *ngIf="form.value.mediaType == 'tv'">
+                <option *ngFor="let genre of tvGenres" [value]="genre.id">{{ genre.name }}</option>
+              </ng-container>
+              <ng-container *ngIf="form.value.mediaType == 'movie'">
+                <option *ngFor="let genre of movieGenres" [value]="genre.id">{{ genre.name }}</option>
+              </ng-container>
             </select>
           </div>
         </div>
