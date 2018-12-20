@@ -2,7 +2,9 @@
 
 <div class="card">
   <div class="card-header">
-    Watching
+    <span *ngIf="mediaType == 'tv'">TV Shows</span>
+    <span *ngIf="mediaType == 'movie'">Movies</span>
+    you're currently watching
   </div>
   <div class="card-body">
     <div class="d-flex justify-content-end">
