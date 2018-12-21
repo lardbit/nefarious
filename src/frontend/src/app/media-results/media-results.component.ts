@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ApiService } from '../api.service';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-media-results',
@@ -17,6 +18,22 @@ export class MediaResultsComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  public isWatchingResult(result: any): boolean {
+    if (this.isSearchingTV()) {
+      const watchingEpisode = _.find(this.apiService.watchTVEpisodes, (watch) => {
+        return watch.tmdb_show_id === result.id;
+      });
+      const watchingSeason = _.find(this.apiService.watchTVSeasons, (watch) => {
+        return watch.tmdb_show_id === result.id;
+      });
+      return watchingEpisode || watchingSeason;
+    } else {
+      return _.find(this.apiService.watchMovies, (watch) => {
+        return watch.tmdb_movie_id === result.id;
+      });
+    }
   }
 
   public isSearchingTV() {
