@@ -25,6 +25,10 @@ export class SearchAutoComponent implements OnInit {
     return this.apiService.searchQuery.type;
   }
 
+  public userIsStaff() {
+    return this.apiService.userIsStaff();
+  }
+
   public search() {
     this.errorMessage = null;
     this.results = [];

@@ -1,4 +1,4 @@
-<app-search-tabs></app-search-tabs>
+<app-search-tabs *ngIf="userIsStaff()"></app-search-tabs>
 <app-search-input (query)="search()" [isSearching]="isSearching"></app-search-input>
 
 <div class="position-relative">
