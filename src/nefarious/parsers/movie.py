@@ -5,6 +5,7 @@ from nefarious.parsers.base import ParserBase
 
 
 class MovieParser(ParserBase):
+
     media_regex_list = [
         # Some german or french tracker formats
         (
@@ -43,5 +44,15 @@ class MovieParser(ParserBase):
         ),
     ]
 
-    def _is_match(self, title) -> bool:
-        return self.match and self.match['title'] == self.normalize_media_title(title)
+    def _is_match(self, title, year: str) -> bool:
+        if not self.match:
+            return False
+
+        title_matches = self.match.get('title') == self.normalize_media_title(title)
+
+        # match year if the parser included it
+        if 'year' in self.match:
+            year_matches = year in self.match['year']
+            return title_matches and year_matches
+
+        return title_matches

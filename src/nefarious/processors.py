@@ -1,6 +1,7 @@
 import os
 import logging
 from datetime import datetime
+from django.utils import dateparse
 from nefarious.models import WatchMovie, NefariousSettings, TorrentBlacklist, WatchTVEpisode, WatchTVSeason
 from nefarious.parsers.movie import MovieParser
 from nefarious.parsers.tv import TVParser
@@ -181,7 +182,11 @@ class WatchMovieProcessor(WatchProcessorBase):
         return MovieParser(title)
 
     def _is_match(self, parser):
-        return parser.is_match(self.tmdb_media[self._get_tmdb_title_key()])
+        release_year = dateparse.parse_date(self.tmdb_media['release_date']).strftime('%Y')
+        return parser.is_match(
+            title=self.tmdb_media[self._get_tmdb_title_key()],
+            year=release_year,
+        )
 
     def _get_media_type(self) -> str:
         return MEDIA_TYPE_MOVIE

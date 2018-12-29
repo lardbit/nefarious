@@ -62,10 +62,12 @@ export class MediaMovieComponent implements OnInit {
         } else {
           verb = 'Stop watching';
         }
-        this.toastr.success(`${verb} ${this.result.title}`);
+        const message = `${verb} ${this.result.title}`;
+        console.log(message);
+        this.toastr.success(message);
       },
       (error) => {
-        console.log(error);
+        console.error(error);
         this.toastr.error('An unknown error occurred');
       }
     );

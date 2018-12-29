@@ -247,13 +247,13 @@ class ParserBase:
 
         return title.strip().lower()
 
-    def is_match(self, title, *args) -> bool:
-        return self._is_match(title, *args)
+    def is_match(self, title, **kwargs) -> bool:
+        return self._is_match(title=title, **kwargs)
 
     def is_quality_match(self, profile: Profile) -> bool:
         return self.match['quality'] in profile.qualities
 
-    def _is_match(self, *args) -> bool:
+    def _is_match(self, **kwargs) -> bool:
         raise NotImplementedError
 
     def _get_extension(self, name):
