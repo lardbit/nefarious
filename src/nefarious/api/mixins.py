@@ -40,7 +40,7 @@ class BlacklistAndRetryMixin:
         # unset previous details
         del_transmission_torrent_hash = watch_media.transmission_torrent_hash
         watch_media.transmission_torrent_hash = None
-        watch_media.collected = None
+        watch_media.collected = False
         watch_media.collected_date = None
         watch_media.save()
 
