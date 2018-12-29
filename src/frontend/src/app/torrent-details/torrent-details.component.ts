@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { ApiService } from '../api.service';
+import { ToastrService } from 'ngx-toastr';
 import { interval } from 'rxjs';
 import { throttle } from 'rxjs/operators';
 import * as _ from 'lodash';
@@ -24,6 +25,7 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
 
   constructor(
     private apiService: ApiService,
+    private toastr: ToastrService,
   ) {}
 
   ngOnDestroy() {
@@ -79,11 +81,13 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
           // filter the watch media/torrent results since it was updated
           this.results = _.filter(this.results, (result) => {
             return result.watchMedia.id === watchMedia.id;
-          })
+          });
+          this.toastr.success('Successfully blacklisted');
         },
         (error) => {
           console.error(error);
           this.isSaving = false;
+          this.toastr.error('An unknown error occurred');
         }
       );
 
