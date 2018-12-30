@@ -35,7 +35,7 @@
     "ngx-filesize": "^1.1.2",
     "ngx-loading": "^1.0.15",
     "ngx-moment": "^3.3.0",
-    "ngx-toastr": "^9.1.0",
+    "ngx-toastr": "^9.1.1",
     "rxjs": "^6.0.0",
     "zone.js": "~0.8.26"
   },
