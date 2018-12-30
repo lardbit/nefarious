@@ -19,8 +19,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-venv \
     python3-dev \
-    nodejs \
-    npm \
+    gnupg \
+    curl \
+    && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+    && apt-get install nodejs -y \
     && python3 -m venv /env \
     && /env/bin/pip install --no-cache-dir -r requirements.txt \
     && mkdir -p staticassets && /env/bin/python manage.py collectstatic --no-input \
@@ -29,9 +31,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get remove -y \
         build-essential \
         nodejs \
-        npm \
         python3-venv \
         python3-dev \
+        curl \
+        gnupg \
+    && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
     && true
 
