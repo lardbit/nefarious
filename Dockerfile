@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && /env/bin/pip install --no-cache-dir -r requirements.txt \
     && mkdir -p staticassets && /env/bin/python manage.py collectstatic --no-input \
     && npm --prefix frontend install \
-    && npm --prefix frontend run build \
+    && npm --prefix frontend run build-prod \
     && apt-get remove -y \
         build-essential \
         nodejs \
