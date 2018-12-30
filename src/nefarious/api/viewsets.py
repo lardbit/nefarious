@@ -250,13 +250,16 @@ class CurrentTorrentsView(views.APIView):
         for query in querysets:
             torrent_hashes += [media.transmission_torrent_hash for media in query if media.transmission_torrent_hash]
 
-        if torrent_hashes:
+        for torrent_hash in torrent_hashes:
 
             try:
-                torrents = transmission_client.get_torrents(torrent_hashes)
+                torrent = transmission_client.get_torrent(torrent_hash)
+                torrents.append(torrent)
+            except (KeyError, ValueError):  # torrent no longer exists or was invalid
+                continue
             except Exception as e:
                 logging.error(str(e))
-                raise ValidationError(str(e))
+                raise e
 
         return Response(TransmissionTorrentSerializer(torrents, many=True).data)
 
