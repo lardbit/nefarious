@@ -231,6 +231,7 @@ class CurrentTorrentsView(views.APIView):
         watch_tv_seasons = request.query_params.getlist('watch_tv_seasons')
 
         querysets = []
+        torrents = []
         torrent_hashes = []
 
         # movies
@@ -249,13 +250,15 @@ class CurrentTorrentsView(views.APIView):
         for query in querysets:
             torrent_hashes += [media.transmission_torrent_hash for media in query if media.transmission_torrent_hash]
 
-        try:
-            result = transmission_client.get_torrents(torrent_hashes)
-        except Exception as e:
-            logging.error(str(e))
-            raise ValidationError(str(e))
+        if torrent_hashes:
 
-        return Response(TransmissionTorrentSerializer(result, many=True).data)
+            try:
+                torrents = transmission_client.get_torrents(torrent_hashes)
+            except Exception as e:
+                logging.error(str(e))
+                raise ValidationError(str(e))
+
+        return Response(TransmissionTorrentSerializer(torrents, many=True).data)
 
 
 class DiscoverMediaView(views.APIView):

@@ -5,6 +5,8 @@ import { interval } from 'rxjs';
 import { throttle } from 'rxjs/operators';
 import * as _ from 'lodash';
 
+const POLL_TIME = 5000;
+
 @Component({
   selector: 'app-torrent-details',
   templateUrl: './torrent-details.component.html',
@@ -15,7 +17,6 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
   @Input() mediaType: string;
   public torrents: any[] = [];
   public isSaving = false;
-  public POLL_TIME = 5000;
   public results: {
     watchMedia: any,
     torrent: any,
@@ -37,8 +38,8 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // fetch torrent details on an interval
-    this._torrentFetchInterval = interval(this.POLL_TIME).pipe(
-      throttle(() => interval(this.POLL_TIME))
+    this._torrentFetchInterval = interval(POLL_TIME).pipe(
+      throttle(() => interval(POLL_TIME))
     ).subscribe(
       () => {
         this._fetchTorrents();
