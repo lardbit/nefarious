@@ -107,7 +107,6 @@ def completed_media_task():
     incomplete_media = list(movies) + list(tv_episodes) + list(tv_seasons)
 
     for media in incomplete_media:
-        logging.info('Media not flagged completed: {}'.format(media))
         try:
             torrent = transmission_client.get_torrent(media.transmission_torrent_hash)
             if torrent.progress == 100:
