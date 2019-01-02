@@ -1,5 +1,6 @@
 import logging
 from celery import chain
+from celery.signals import task_failure
 from datetime import datetime
 from django.shortcuts import get_object_or_404
 from nefarious.celery import app
@@ -22,6 +23,11 @@ app.conf.beat_schedule = {
         'schedule': 60 * 60 * 24 * 1,
     },
 }
+
+
+@task_failure.connect
+def log_exception(**kwargs):
+    logging.error('TASK EXCEPTION', exc_info=kwargs['exception'])
 
 
 @app.task

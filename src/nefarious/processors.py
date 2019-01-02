@@ -246,9 +246,9 @@ class WatchTVEpisodeProcessor(WatchTVProcessorBase):
 
     def _is_match(self, parser):
         return parser.is_match(
-            self.tmdb_media[self._get_tmdb_title_key()],
-            self.tmdb_media['season_number'],
-            self.tmdb_media['episode_number'],
+            title=self.tmdb_media[self._get_tmdb_title_key()],
+            season_number=self.tmdb_media['season_number'],
+            episode_number=self.tmdb_media['episode_number'],
         )
 
     def _get_tmdb_media(self):
@@ -286,8 +286,8 @@ class WatchTVSeasonProcessor(WatchTVProcessorBase):
 
     def _is_match(self, parser):
         return parser.is_match(
-            self.tmdb_media[self._get_tmdb_title_key()],
-            self.watch_media.season_number,
+            title=self.tmdb_media[self._get_tmdb_title_key()],
+            season_number=self.watch_media.season_number,
         )
 
     def _get_tmdb_media(self):
