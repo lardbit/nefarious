@@ -37,6 +37,8 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this._updateResults();
+
     // fetch torrent details on an interval
     this._torrentFetchInterval = interval(POLL_TIME).pipe(
       throttle(() => interval(POLL_TIME))
@@ -50,12 +52,6 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
     return _.filter(this.watchMedia, (media) => {
       return media.transmission_torrent_hash === torrent.hashString;
     });
-  }
-
-  public getTorrentHashes() {
-    return this.watchMedia
-      .filter((v) => v.transmission_torrent_hash)
-      .map((v) => v.transmission_torrent_hash);
   }
 
   public blacklistRetry(torrent) {
@@ -92,7 +88,18 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
         }
       );
 
-    })
+    });
+  }
+
+  protected _updateResults() {
+    this.results = this.watchMedia.map((watchMedia) => {
+      return {
+        watchMedia: watchMedia,
+        torrent: _.find(this.torrents, (torrent) => {
+          return torrent.hashString === watchMedia.transmission_torrent_hash;
+        }),
+      };
+    });
   }
 
   protected _fetchTorrents() {
@@ -124,14 +131,7 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
     this.apiService.fetchCurrentTorrents(params).subscribe(
       (data) => {
         this.torrents = data;
-        this.results = this.watchMedia.map((watchMedia) => {
-          return {
-            watchMedia: watchMedia,
-            torrent: _.find(this.torrents, (torrent) => {
-              return torrent.hashString === watchMedia.transmission_torrent_hash;
-            }),
-          };
-        });
+        this._updateResults();
       },
       (error) => {
         console.error(error);

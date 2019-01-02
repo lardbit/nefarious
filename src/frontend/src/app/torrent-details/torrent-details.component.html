@@ -1,15 +1,15 @@
 <div class="position-relative">
-  <ngx-loading [show]="isSaving || !getTorrentHashes().length || !torrents.length"></ngx-loading>
+  <ngx-loading [show]="isSaving"></ngx-loading>
   <table class="table table-striped table-responsive">
     <thead>
     <tr>
       <th>Name</th>
+      <th>Date Requested</th>
+      <th>Last Attempt</th>
       <th>Status</th>
       <th>Progress</th>
       <th>ETA</th>
-      <th>Date Added</th>
-      <th>Date Done</th>
-      <th>Blacklist and Retry</th>
+      <th>Blacklist & Retry</th>
     </tr>
     </thead>
     <tbody>
@@ -19,11 +19,11 @@
           {{ result.watchMedia.name }}
         </button>
       </td>
+      <td>{{ result.watchMedia.date_added | date | date: 'short' }}</td>
+      <td>{{ result.watchMedia.last_attempt_date | date: 'short' }}</td>
       <td><span *ngIf="result.torrent">{{ result.torrent.status }}</span></td>
       <td><span *ngIf="result.torrent">{{ result.torrent.progress }}%</span></td>
       <td><span *ngIf="result.torrent">{{ result.torrent.format_eta }}</span></td>
-      <td><span *ngIf="result.torrent">{{ result.torrent.date_added | date }}</span></td>
-      <td><span *ngIf="result.torrent"><span *ngIf="result.torrent.progress === 100">{{ result.torrent.date_done | date }}</span></span></td>
       <td><span *ngIf="result.torrent"><button class="btn btn-warning btn-sm" (click)="blacklistRetry(result.torrent)"><span class="oi oi-ban"></span></button></span></td>
     </tr>
     </tbody>

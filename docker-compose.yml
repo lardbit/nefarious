@@ -16,6 +16,9 @@ services:
     volumes:
     # persistent named volume for sqlite database
     - nefarious-db:/nefarious-db
+    logging:
+      options:
+        max-size: 10m
     depends_on:
     - redis
     - jackett
@@ -34,6 +37,9 @@ services:
     volumes:
     # persistent named volume for sqlite database
     - nefarious-db:/nefarious-db
+    logging:
+      options:
+        max-size: 10m
     depends_on:
       - redis
 
@@ -51,6 +57,9 @@ services:
     image: linuxserver/jackett
     ports:
       - "9117:9117"
+    logging:
+      options:
+        max-size: 10m
     volumes:
       - jackett-config:/config
 
@@ -59,6 +68,9 @@ services:
   watchtower:
     image: v2tec/watchtower
     command: --label-enable --cleanup
+    logging:
+      options:
+        max-size: 10m
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 

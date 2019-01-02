@@ -1,6 +1,8 @@
-<div class="alert alert-danger col-12 mt-3" *ngIf="alertMessage">{{ alertMessage }}</div>
+<div class="alert alert-success col-12 mt-3" *ngIf="results.length == 0">
+  You're not watching anything yet.
+</div>
 
-<div class="card">
+<div class="card" *ngIf="results.length">
   <div class="card-header">
     <span *ngIf="mediaType == 'tv'">TV Shows</span>
     <span *ngIf="mediaType == 'movie'">Movies</span>

@@ -1,10 +1,12 @@
-<div class="alert alert-success col-12 mt-3" *ngIf="alertMessage">{{ alertMessage }}</div>
+<div class="alert alert-success col-12 mt-3" *ngIf="results.length == 0">
+  You have everything you've ever wanted. Nice
+</div>
 
-<div class="card">
+<div class="card" *ngIf="results.length">
   <div class="card-header">
     <span *ngIf="mediaType == 'tv'">TV Shows</span>
     <span *ngIf="mediaType == 'movie'">Movies</span>
-    you want but haven't arrived yet
+    you want but don't have yet
   </div>
   <div class="card-body">
     <div class="d-flex justify-content-end">

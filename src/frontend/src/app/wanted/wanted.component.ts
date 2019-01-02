@@ -12,7 +12,6 @@ import * as _ from 'lodash';
 export class WantedComponent implements OnInit {
   public results: any[] = [];
   public mediaType: string;
-  public alertMessage = '';
   public search = '';
 
   constructor(

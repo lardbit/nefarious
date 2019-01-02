@@ -10,7 +10,6 @@ import { ApiService } from '../api.service';
 })
 export class WatchingComponent implements OnInit {
   public results: any[];
-  public alertMessage: string;
   public mediaType: string;
   public search: string;
 
@@ -22,16 +21,11 @@ export class WatchingComponent implements OnInit {
   ngOnInit() {
     this.route.params.subscribe(
       (params) => {
-        this.alertMessage = null;
         this.mediaType = params.type;
         if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV) {
           this.results = this.apiService.watchTVShows;
         } else {
           this.results = this.apiService.watchMovies;
-        }
-
-        if (this.results.length <= 0) {
-          this.alertMessage = 'You are not watching anything yet';
         }
       }
     );
