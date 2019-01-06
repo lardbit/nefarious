@@ -1,8 +1,7 @@
 import logging
-from datetime import datetime
-from django.conf import settings
-from django.utils import timezone
 import requests
+from typing import List
+import xml.etree.ElementTree as ET
 from urllib.parse import urlparse
 from transmissionrpc import TransmissionError
 from nefarious.models import NefariousSettings
@@ -58,7 +57,10 @@ def verify_settings_transmission(nefarious_settings: NefariousSettings):
 
 
 def verify_settings_jackett(nefarious_settings: NefariousSettings):
-    # verify jackett
+    """
+    A special "all" indexer is available at /api/v2.0/indexers/all/results/torznab/api. It will query all configured indexers and return the combined results.
+    NOTE: /api/v2.0/indexers/all/results  will return json results vs torznab's xml response
+    """
     try:
         # make an unspecified query to the "all" indexer results endpoint and see if it's successful
         response = requests.get('http://{}:{}/api/v2.0/indexers/all/results'.format(
@@ -67,3 +69,24 @@ def verify_settings_jackett(nefarious_settings: NefariousSettings):
     except Exception as e:
         logging.error(str(e))
         raise Exception('Could not connect to jackett')
+
+
+def fetch_jackett_indexers(nefarious_settings: NefariousSettings) -> List[str]:
+    """
+    To get all Jackett indexers including their capabilities you can use t=indexers on the all indexer.
+    To get only configured/unconfigured indexers you can also add configured=true/false as query parameter.
+    """
+    response = requests.get('http://{}:{}/api/v2.0/indexers/all/results/torznab/api'.format(
+        nefarious_settings.jackett_host, nefarious_settings.jackett_port),
+        params={
+            'apikey': nefarious_settings.jackett_token,
+            't': 'indexers',
+            'configured': 'true',
+        }, timeout=60)
+    response.raise_for_status()
+    root = ET.fromstring(response.content)
+    indexers = []
+    for child in root:
+        indexers.append(child.attrib['id'])
+    return indexers
+
