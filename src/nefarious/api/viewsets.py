@@ -15,14 +15,14 @@ from nefarious.tmdb import get_tmdb_client
 from nefarious.api.serializers import (
     NefariousSettingsSerializer, WatchTVEpisodeSerializer, WatchTVShowSerializer,
     UserSerializer, WatchMovieSerializer, NefariousPartialSettingsSerializer,
-    TransmissionTorrentSerializer, WatchTVSeasonSerializer)
-from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason
+    TransmissionTorrentSerializer, WatchTVSeasonSerializer, JacketIndexerSettingsSerializer)
+from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason, JackettIndexerSettings
 from nefarious.search import MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrents
 from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task
 from nefarious.utils import (
     trace_torrent_url, swap_jackett_host, is_magnet_url,
     verify_settings_jackett, verify_settings_transmission, verify_settings_tmdb,
-)
+    fetch_jackett_indexers)
 
 CACHE_MINUTE = 60
 CACHE_HOUR = CACHE_MINUTE * 60
@@ -124,6 +124,16 @@ class SettingsViewSet(viewsets.ModelViewSet):
         if self.request.user.is_staff:
             return NefariousSettingsSerializer
         return NefariousPartialSettingsSerializer
+
+
+class JackettIndexerSettingsViewSet(viewsets.ModelViewSet):
+    queryset = JackettIndexerSettings.objects.all()
+    serializer_class = JacketIndexerSettingsSerializer
+
+    @action(methods=['get'], detail=False, url_path='configured-indexers')
+    def configured_indexers(self, request):
+        nefarious_settings = NefariousSettings.singleton()
+        return Response(fetch_jackett_indexers(nefarious_settings))
 
 
 class CurrentUserViewSet(viewsets.ModelViewSet):

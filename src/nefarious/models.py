@@ -31,6 +31,17 @@ class NefariousSettings(models.Model):
         return cls.objects.get()
 
 
+class JackettIndexerSettings(models.Model):
+    RATIO_DOWNLOAD_AND_SEED = 'download & seed'
+    RATIO_SEED = 'seed'
+    RATIO_CHOICES = (
+        RATIO_DOWNLOAD_AND_SEED,
+        RATIO_SEED,
+    )
+    indexer = models.CharField(unique=True, max_length=200)
+    ratio_management = models.CharField(max_length=100, choices=zip(RATIO_CHOICES, RATIO_CHOICES))
+
+
 class WatchMediaBase(models.Model):
     """
     Abstract base class for all watchable media classes
