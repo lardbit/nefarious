@@ -14,6 +14,7 @@ export class SettingsComponent implements OnInit {
   public isSaving = false;
   public jackettIndexers: string[];
   public isLoadingJackettIndexers = true;
+  public isVeryingJackettIndexers = false;
 
   constructor(
     private toastr: ToastrService,
@@ -100,5 +101,28 @@ export class SettingsComponent implements OnInit {
 
   public qualityProfiles(): string[] {
     return this.apiService.qualityProfiles;
+  }
+
+  public verifyJackettIndexers() {
+    this.isVeryingJackettIndexers = true;
+    this.apiService.verifyJackettIndexers().subscribe(
+      (data: any[]) => {
+        const failedIndexers = data.filter((indexer: any) => {
+          return indexer.Error;
+        });
+        if (failedIndexers.length) {
+          failedIndexers.forEach((failedIndexer: any) => {
+            this.toastr.error(failedIndexer.Error.substring(0, 200), failedIndexer.Name);
+          });
+        } else {
+          this.toastr.success('All indexers were successful');
+        }
+        this.isVeryingJackettIndexers = false;
+      },
+      (error) => {
+        this.toastr.error('An unknown error occurred verifying jackett indexers');
+        this.isVeryingJackettIndexers = false;
+      },
+    );
   }
 }

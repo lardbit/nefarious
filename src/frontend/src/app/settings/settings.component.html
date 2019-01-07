@@ -17,6 +17,12 @@
             <label>API Token</label>
             <input type="text" class="form-control" placeholder="" formControlName="jackett_token" required>
           </div>
+          <div class="form-group">
+            <button type="button" class="btn btn-sm btn-secondary position-relative" (click)="verifyJackettIndexers()">
+              <ngx-loading [show]="isVeryingJackettIndexers"></ngx-loading>
+              Verify Indexers
+            </button>
+          </div>
           <form class="my-3 position-relative">
             <ngx-loading [show]="isLoadingJackettIndexers"></ngx-loading>
             <div class="card">

@@ -517,6 +517,10 @@ export class ApiService {
     );
   }
 
+  public verifyJackettIndexers() {
+    return this.http.get(`${this.API_URL_SETTINGS}${this.settings.id}/verify-jackett-indexers/`, {headers: this._requestHeaders()});
+  }
+
   protected _fetchGenres(mediaType: string) {
     const url = mediaType === this.SEARCH_MEDIA_TYPE_MOVIE ? this.API_URL_GENRES_MOVIE : this.API_URL_GENRES_TV;
     return this.http.get(url, {headers: this._requestHeaders()});

@@ -121,6 +121,15 @@ class SettingsViewSet(viewsets.ModelViewSet):
             raise ValidationError(str(e))
         return Response()
 
+    @action(methods=['get'], detail=True, url_path='verify-jackett-indexers')
+    def verify_jackett_indexers(self, request, pk):
+        nefarious_settings = self.queryset.get(id=pk)
+        try:
+            results = verify_settings_jackett(nefarious_settings)
+        except Exception as e:
+            raise ValidationError(str(e))
+        return Response(results.get('Indexers'))
+
     def get_serializer_class(self):
         if self.request.user.is_staff:
             return NefariousSettingsSerializer

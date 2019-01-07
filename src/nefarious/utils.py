@@ -66,6 +66,7 @@ def verify_settings_jackett(nefarious_settings: NefariousSettings):
         response = requests.get('http://{}:{}/api/v2.0/indexers/all/results'.format(
             nefarious_settings.jackett_host, nefarious_settings.jackett_port), params={'apikey': nefarious_settings.jackett_token}, timeout=60)
         response.raise_for_status()
+        return response.json()
     except Exception as e:
         logging.error(str(e))
         raise Exception('Could not connect to jackett')
