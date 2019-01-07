@@ -43,6 +43,9 @@ export class MediaMovieComponent implements OnInit {
   }
 
   public submit() {
+    this.isWatchingMovie = !this.isWatchingMovie;
+    this.isSaving = true;
+
     let endpoint;
 
     if (this.isWatchingMovie) {
@@ -63,12 +66,14 @@ export class MediaMovieComponent implements OnInit {
           verb = 'Stop watching';
         }
         const message = `${verb} ${this.result.title}`;
-        console.log(message);
         this.toastr.success(message);
+        this.isSaving = false;
       },
       (error) => {
         console.error(error);
         this.toastr.error('An unknown error occurred');
+        this.isSaving = false;
+        this.isWatchingMovie = !this.isWatchingMovie;
       }
     );
   }
