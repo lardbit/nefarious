@@ -1,4 +1,4 @@
-<form class="was-validated position-relative" [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="form">
+<form class="was-validated position-relative" [formGroup]="settingsForm" (ngSubmit)="onSubmit()" *ngIf="settingsForm">
   <ngx-loading [show]="isSaving"></ngx-loading>
   <div class="row">
     <div class="col-12 col-sm-6 col-md-4">
@@ -17,6 +17,14 @@
             <label>API Token</label>
             <input type="text" class="form-control" placeholder="" formControlName="jackett_token" required>
           </div>
+          <form class="my-3 position-relative">
+            <h4>Ratio Management (optional)</h4>
+            <ngx-loading [show]="isLoadingJackettIndexers"></ngx-loading>
+            <div class="form-check form-check-inline" *ngFor="let control of jackettIndexerSettingsForm.controls; let idx = index">
+              <input class="form-check-input" type="radio">
+              <label class="form-check-label">{{ control.value }}</label>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -75,6 +83,6 @@
   </div>
   <div class="d-flex justify-content-between my-3">
     <button type="button" class="btn btn-warning" (click)="verifySettings()">Verify</button>
-    <button class="btn btn-success" [disabled]="!form.valid">Save</button>
+    <button class="btn btn-success" [disabled]="!settingsForm.valid">Save</button>
   </div>
 </form>

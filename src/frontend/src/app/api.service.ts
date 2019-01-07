@@ -15,6 +15,8 @@ export class ApiService {
   API_URL_USER = '/api/user/';
   API_URL_LOGIN = '/api/auth/';
   API_URL_SETTINGS = '/api/settings/';
+  API_URL_JACKETT_INDEXER_SETTINGS = '/api/jackett-indexer-settings/';
+  API_URL_JACKETT_INDEXERS_CONFIGURED = '/api/jackett-indexer-settings/configured-indexers/';
   API_URL_SEARCH_TORRENTS = '/api/search/torrents/';
   API_URL_DOWNLOAD_TORRENTS = '/api/download/torrents/';
   API_URL_SEARCH_MEDIA = '/api/search/media/';
@@ -35,6 +37,7 @@ export class ApiService {
   public user: any;
   public userToken: string;
   public settings: any;
+  public jackettIndexerSettings: any;
   public qualityProfiles: string[];
   public watchTVSeasons: any[] = [];
   public watchTVEpisodes: any[] = [];
@@ -104,6 +107,7 @@ export class ApiService {
   public fetchCoreData(): Observable<any> {
     return forkJoin(
       this.fetchSettings(),
+      this.fetchJackettIndexerSettings(),
       this.fetchWatchTVShows(),
       this.fetchWatchTVSeasons(),
       this.fetchWatchTVEpisodes(),
@@ -507,6 +511,27 @@ export class ApiService {
 
   public fetchTVGenres() {
     return this._fetchGenres(this.SEARCH_MEDIA_TYPE_TV);
+  }
+
+  public fetchJackettIndexerSettings() {
+    return this.http.get(this.API_URL_JACKETT_INDEXER_SETTINGS, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        if (data.length) {
+          this.jackettIndexerSettings = data[0];
+        } else {
+          console.log('no jackett indexer settings');
+        }
+        return this.jackettIndexerSettings;
+      }),
+    );
+  }
+
+  public fetchJackettIndexers() {
+    return this.http.get(this.API_URL_JACKETT_INDEXERS_CONFIGURED, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        return data;
+      }),
+    );
   }
 
   protected _fetchGenres(mediaType: string) {

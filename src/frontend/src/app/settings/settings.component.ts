@@ -1,6 +1,6 @@
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
-import { FormBuilder, Validators} from '@angular/forms';
+import {FormBuilder, FormControl, Validators} from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -10,8 +10,10 @@ import { Observable } from 'rxjs';
   styleUrls: ['./settings.component.css']
 })
 export class SettingsComponent implements OnInit {
-  public form;
+  public settingsForm;
+  public jackettIndexerSettingsForm;
   public isSaving = false;
+  public isLoadingJackettIndexers = true;
 
   constructor(
     private toastr: ToastrService,
@@ -21,7 +23,7 @@ export class SettingsComponent implements OnInit {
 
   ngOnInit() {
     const settings = this.apiService.settings || {};
-    this.form = this.fb.group({
+    this.settingsForm = this.fb.group({
       'jackett_host': [settings['jackett_host'], Validators.required],
       'jackett_port': [settings['jackett_port'], Validators.required],
       'jackett_token': [settings['jackett_token'], Validators.required],
@@ -34,6 +36,24 @@ export class SettingsComponent implements OnInit {
       'quality_profile_tv': [settings['quality_profile_tv'], Validators.required],
       'quality_profile_movies': [settings['quality_profile_movies'], Validators.required],
     });
+
+    this.apiService.fetchJackettIndexers().subscribe(
+      (data) => {
+        this.isLoadingJackettIndexers = false;
+        const formControls = [];
+        //this.jackettIndexerSettingsForm = this.fb.array([ ]);
+        for (const indexer of data) {
+          formControls.push(new FormControl(indexer));
+        }
+        this.jackettIndexerSettingsForm = this.fb.array(formControls);
+        console.log(this.jackettIndexerSettingsForm);
+      },
+      (error) => {
+        console.error(error);
+        this.toastr.error('An unknown error occurred fetching jackett indexers');
+        this.isLoadingJackettIndexers = false;
+      }
+    );
   }
 
   public onSubmit() {
@@ -41,12 +61,12 @@ export class SettingsComponent implements OnInit {
 
     let observable: Observable<any>;
 
-    console.log('submitting', this.form.value);
+    console.log('submitting', this.settingsForm.value);
 
     if (this.apiService.settings) {
-      observable = this.apiService.updateSettings(this.apiService.settings.id, this.form.value);
+      observable = this.apiService.updateSettings(this.apiService.settings.id, this.settingsForm.value);
     } else {
-      observable = this.apiService.createSettings(this.form.value);
+      observable = this.apiService.createSettings(this.settingsForm.value);
     }
 
     observable.subscribe(
