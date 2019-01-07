@@ -1,6 +1,6 @@
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
-import {FormBuilder, FormControl, Validators} from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -10,9 +10,9 @@ import { Observable } from 'rxjs';
   styleUrls: ['./settings.component.css']
 })
 export class SettingsComponent implements OnInit {
-  public settingsForm;
-  public jackettIndexerSettingsForm;
+  public form;
   public isSaving = false;
+  public jackettIndexers: string[];
   public isLoadingJackettIndexers = true;
 
   constructor(
@@ -23,7 +23,7 @@ export class SettingsComponent implements OnInit {
 
   ngOnInit() {
     const settings = this.apiService.settings || {};
-    this.settingsForm = this.fb.group({
+    this.form = this.fb.group({
       'jackett_host': [settings['jackett_host'], Validators.required],
       'jackett_port': [settings['jackett_port'], Validators.required],
       'jackett_token': [settings['jackett_token'], Validators.required],
@@ -38,15 +38,16 @@ export class SettingsComponent implements OnInit {
     });
 
     this.apiService.fetchJackettIndexers().subscribe(
-      (data) => {
+      (data: string[]) => {
+        this.jackettIndexers = data;
+        const formControls = {};
+        this.jackettIndexers.forEach((indexer) => {
+          formControls[indexer] = this.apiService.settings.jackett_indexer_settings ?
+            this.apiService.settings.jackett_indexer_settings[indexer] || '' :
+            '';
+        });
+        this.form.addControl('jackett_indexer_settings', this.fb.group(formControls));
         this.isLoadingJackettIndexers = false;
-        const formControls = [];
-        //this.jackettIndexerSettingsForm = this.fb.array([ ]);
-        for (const indexer of data) {
-          formControls.push(new FormControl(indexer));
-        }
-        this.jackettIndexerSettingsForm = this.fb.array(formControls);
-        console.log(this.jackettIndexerSettingsForm);
       },
       (error) => {
         console.error(error);
@@ -61,12 +62,12 @@ export class SettingsComponent implements OnInit {
 
     let observable: Observable<any>;
 
-    console.log('submitting', this.settingsForm.value);
+    console.log('submitting', this.form.value);
 
     if (this.apiService.settings) {
-      observable = this.apiService.updateSettings(this.apiService.settings.id, this.settingsForm.value);
+      observable = this.apiService.updateSettings(this.apiService.settings.id, this.form.value);
     } else {
-      observable = this.apiService.createSettings(this.settingsForm.value);
+      observable = this.apiService.createSettings(this.form.value);
     }
 
     observable.subscribe(

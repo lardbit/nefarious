@@ -21,7 +21,7 @@ class WatchProcessorBase:
     transmission_client = None
 
     def __init__(self, watch_media_id: int):
-        self.nefarious_settings = NefariousSettings.singleton()
+        self.nefarious_settings = NefariousSettings.get()
         self.tmdb_client = get_tmdb_client(self.nefarious_settings)
         self.transmission_client = get_transmission_client(self.nefarious_settings)
         self.watch_media = self._get_watch_media(watch_media_id)

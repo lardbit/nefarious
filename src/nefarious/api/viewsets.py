@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAdminUser
 
 from nefarious.api.mixins import UserReferenceViewSetMixin, BlacklistAndRetryMixin
 from nefarious.quality import PROFILES
@@ -15,8 +16,8 @@ from nefarious.tmdb import get_tmdb_client
 from nefarious.api.serializers import (
     NefariousSettingsSerializer, WatchTVEpisodeSerializer, WatchTVShowSerializer,
     UserSerializer, WatchMovieSerializer, NefariousPartialSettingsSerializer,
-    TransmissionTorrentSerializer, WatchTVSeasonSerializer, JacketIndexerSettingsSerializer)
-from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason, JackettIndexerSettings
+    TransmissionTorrentSerializer, WatchTVSeasonSerializer)
+from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason
 from nefarious.search import MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrents
 from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task
 from nefarious.utils import (
@@ -125,14 +126,9 @@ class SettingsViewSet(viewsets.ModelViewSet):
             return NefariousSettingsSerializer
         return NefariousPartialSettingsSerializer
 
-
-class JackettIndexerSettingsViewSet(viewsets.ModelViewSet):
-    queryset = JackettIndexerSettings.objects.all()
-    serializer_class = JacketIndexerSettingsSerializer
-
-    @action(methods=['get'], detail=False, url_path='configured-indexers')
+    @action(methods=['get'], detail=False, url_path='configured-indexers', permission_classes=(IsAdminUser,))
     def configured_indexers(self, request):
-        nefarious_settings = NefariousSettings.singleton()
+        nefarious_settings = NefariousSettings.get()
         return Response(fetch_jackett_indexers(nefarious_settings))
 
 
@@ -148,7 +144,7 @@ class MediaDetailView(views.APIView):
 
     @method_decorator(cache_page(CACHE_DAY))
     def get(self, request, media_type, media_id):
-        nefarious_settings = NefariousSettings.singleton()
+        nefarious_settings = NefariousSettings.get()
         tmdb = get_tmdb_client(nefarious_settings)
 
         if media_type == MEDIA_TYPE_MOVIE:
@@ -172,7 +168,7 @@ class SearchMediaView(views.APIView):
         media_type = request.query_params.get('media_type', MEDIA_TYPE_TV)
         assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
 
-        nefarious_settings = NefariousSettings.singleton()
+        nefarious_settings = NefariousSettings.get()
 
         # prepare query
         tmdb = get_tmdb_client(nefarious_settings)
@@ -208,7 +204,7 @@ class SearchTorrentsView(views.APIView):
 class DownloadTorrentsView(views.APIView):
 
     def post(self, request):
-        nefarious_settings = NefariousSettings.singleton()
+        nefarious_settings = NefariousSettings.get()
         torrent = request.data.get('torrent')
         if not is_magnet_url(torrent):
             torrent = swap_jackett_host(torrent, nefarious_settings)
@@ -233,7 +229,7 @@ class DownloadTorrentsView(views.APIView):
 class CurrentTorrentsView(views.APIView):
 
     def get(self, request):
-        nefarious_settings = NefariousSettings.singleton()
+        nefarious_settings = NefariousSettings.get()
         transmission_client = get_transmission_client(nefarious_settings)
 
         watch_movies = request.query_params.getlist('watch_movies')
@@ -280,7 +276,7 @@ class DiscoverMediaView(views.APIView):
     def get(self, request, media_type):
         assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
 
-        nefarious_settings = NefariousSettings.singleton()
+        nefarious_settings = NefariousSettings.get()
 
         # prepare query
         tmdb = get_tmdb_client(nefarious_settings)
@@ -301,7 +297,7 @@ class GenresView(views.APIView):
     def get(self, request, media_type):
         assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
 
-        nefarious_settings = NefariousSettings.singleton()
+        nefarious_settings = NefariousSettings.get()
 
         # prepare query
         tmdb = get_tmdb_client(nefarious_settings)

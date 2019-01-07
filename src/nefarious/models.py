@@ -9,37 +9,33 @@ PERM_CAN_WATCH_IMMEDIATELY_MOVIE = 'can_immediately_watch_movie'
 
 
 class NefariousSettings(models.Model):
+    JACKETT_RATIO_DOWNLOAD_AND_SEED = 'DOWNLOAD_AND_SEED'
+    JACKETT_RATIO_SEED = 'SEED'
+
     jackett_host = models.CharField(max_length=500, default='localhost')
     jackett_port = models.IntegerField(default=9117)
     jackett_token = models.CharField(max_length=500)
+    jackett_indexer_settings = JSONField(blank=True, null=True)
+
     transmission_host = models.CharField(max_length=500)
     transmission_port = models.IntegerField(default=9091)
     transmission_user = models.CharField(max_length=500)
     transmission_pass = models.CharField(max_length=500)
     transmission_tv_download_dir = models.CharField(max_length=500, default='tv/', help_text='Relative to download path')
     transmission_movie_download_dir = models.CharField(max_length=500, default='movies/', help_text='Relative to download path')
+
     tmdb_token = models.CharField(max_length=500, default=settings.TMDB_API_TOKEN)
     tmdb_configuration = JSONField(blank=True, null=True)
     tmdb_configuration_date = models.DateTimeField(blank=True, null=True, auto_now=True)
+
     quality_profile_tv = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     quality_profile_movies = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
 
     @classmethod
-    def singleton(cls):
+    def get(cls):
         if cls.objects.all().count() > 1:
             raise Exception('Should not have multiple settings records')
         return cls.objects.get()
-
-
-class JackettIndexerSettings(models.Model):
-    RATIO_DOWNLOAD_AND_SEED = 'download & seed'
-    RATIO_SEED = 'seed'
-    RATIO_CHOICES = (
-        RATIO_DOWNLOAD_AND_SEED,
-        RATIO_SEED,
-    )
-    indexer = models.CharField(unique=True, max_length=200)
-    ratio_management = models.CharField(max_length=100, choices=zip(RATIO_CHOICES, RATIO_CHOICES))
 
 
 class WatchMediaBase(models.Model):

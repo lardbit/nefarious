@@ -31,7 +31,7 @@ class BlacklistAndRetryMixin:
     @action(['post'], detail=True, url_path='blacklist-auto-retry')
     def blacklist_auto_retry(self, request, pk):
         watch_media = self.get_object()
-        nefarious_settings = NefariousSettings.singleton()
+        nefarious_settings = NefariousSettings.get()
 
         # add to blacklist
         logging.info('Blacklisting {}'.format(watch_media.transmission_torrent_hash))

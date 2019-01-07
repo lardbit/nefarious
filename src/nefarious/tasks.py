@@ -39,7 +39,7 @@ def watch_tv_show_season_task(watch_tv_season_id: int):
     if not success:
         watch_tv_season = get_object_or_404(WatchTVSeason, pk=watch_tv_season_id)
         logging.info('Failed fetching season {} - falling back to individual episodes'.format(watch_tv_season))
-        nefarious_settings = NefariousSettings.singleton()
+        nefarious_settings = NefariousSettings.get()
         tmdb = get_tmdb_client(nefarious_settings)
         season_request = tmdb.TV_Seasons(watch_tv_season.watch_tv_show.tmdb_show_id, watch_tv_season.season_number)
         season = season_request.info()
@@ -82,7 +82,7 @@ def refresh_tmdb_configuration():
 
     logging.info('Refreshing TMDB Configuration')
 
-    nefarious_settings = NefariousSettings.singleton()
+    nefarious_settings = NefariousSettings.get()
 
     tmdb_client = get_tmdb_client(nefarious_settings)
     configuration = tmdb_client.Configuration()
@@ -95,7 +95,7 @@ def refresh_tmdb_configuration():
 
 @app.task
 def completed_media_task():
-    nefarious_settings = NefariousSettings.singleton()
+    nefarious_settings = NefariousSettings.get()
     transmission_client = get_transmission_client(nefarious_settings)
 
     incomplete_kwargs = dict(collected=False, transmission_torrent_hash__isnull=False)

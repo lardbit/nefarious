@@ -5,7 +5,6 @@ from nefarious.api import views
 
 router = routers.DefaultRouter()
 router.register(r'settings', viewsets.SettingsViewSet)
-router.register(r'jackett-indexer-settings', viewsets.JackettIndexerSettingsViewSet)
 router.register(r'watch-tv-show', viewsets.WatchTVShowViewSet)
 router.register(r'watch-tv-season', viewsets.WatchTVSeasonViewSet)
 router.register(r'watch-tv-episode', viewsets.WatchTVEpisodeViewSet)
