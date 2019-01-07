@@ -20,7 +20,7 @@ class UserReferenceSerializerMixin(serializers.ModelSerializer):
 
 class NefariousSettingsSerializer(serializers.ModelSerializer):
     tmdb_configuration = serializers.JSONField(required=False)
-    jackett_indexer_settings = serializers.JSONField(required=False)
+    jackett_indexers_seed = serializers.JSONField(required=False)
 
     class Meta:
         model = NefariousSettings

@@ -13,6 +13,7 @@ export class SettingsComponent implements OnInit {
   public form;
   public isSaving = false;
   public jackettIndexers: string[];
+  public isJackettIndexersSettingsCollapsed = true;
   public isLoadingJackettIndexers = true;
   public isVeryingJackettIndexers = false;
 
@@ -43,11 +44,11 @@ export class SettingsComponent implements OnInit {
         this.jackettIndexers = data;
         const formControls = {};
         this.jackettIndexers.forEach((indexer) => {
-          formControls[indexer] = this.apiService.settings.jackett_indexer_settings ?
-            this.apiService.settings.jackett_indexer_settings[indexer] || '' :
-            '';
+          formControls[indexer] = (
+            this.apiService.settings.jackett_indexers_seed && this.apiService.settings.jackett_indexers_seed[indexer]
+          ) || false;
         });
-        this.form.addControl('jackett_indexer_settings', this.fb.group(formControls));
+        this.form.addControl('jackett_indexers_seed', this.fb.group(formControls));
         this.isLoadingJackettIndexers = false;
       },
       (error) => {

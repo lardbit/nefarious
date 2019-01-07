@@ -27,19 +27,18 @@
             <ngx-loading [show]="isLoadingJackettIndexers"></ngx-loading>
             <div class="card">
               <div class="card-body" [formGroup]="form">
-                <div class="card-title">
-                  Ratio Management (optional)
-                </div>
-                <div class="card-text" *ngIf="form.controls.jackett_indexer_settings" formGroupName="jackett_indexer_settings">
-                  <div *ngFor="let indexer of jackettIndexers">
-                    <strong class="d-block">{{ indexer }}</strong>
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" value="DOWNLOAD_AND_SEED" [formControlName]="indexer" [id]="indexer + 'DOWNLOAD_AND_SEED'">
-                      <label class="form-check-label" [for]="indexer + 'DOWNLOAD_AND_SEED'">Download & Seed</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" value="SEED" [formControlName]="indexer" [id]="indexer + 'SEED'">
-                      <label class="form-check-label" [for]="indexer + 'SEED'">Seed only</label>
+                <button class="btn btn-outline-secondary card-title" (click)="isJackettIndexersSettingsCollapsed = !isJackettIndexersSettingsCollapsed">Ratio Management</button>
+                <div [ngbCollapse]="isJackettIndexersSettingsCollapsed">
+                  <div class="card-title text-secondary">
+                    <i>Seed Only</i> indexers automatically get torrents seeded to them to help maintain your ratios.
+                  </div>
+                  <div *ngIf="form.controls.jackett_indexers_seed" formGroupName="jackett_indexers_seed">
+                    <strong class="d-block">Seed Only</strong>
+                    <div *ngFor="let indexer of jackettIndexers">
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" [formControlName]="indexer" [id]="indexer">
+                        <label class="form-check-label" [for]="indexer">{{ indexer }}</label>
+                      </div>
                     </div>
                   </div>
                 </div>
