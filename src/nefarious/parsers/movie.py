@@ -1,7 +1,7 @@
 import regex
 from nefarious.parsers.base import ParserBase
 
-# https://github.com/Radarr/Radarr/blob/develop/src/NzbDrone.Core/Parser/Parser.cs
+# https://github.com/Radarr/Radarr/blob/64e8fde0e1881cd8a61e34619c85e4334da291f8/src/NzbDrone.Core/Parser/Parser.cs
 
 
 class MovieParser(ParserBase):

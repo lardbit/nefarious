@@ -1,9 +1,8 @@
 import regex
-
 from nefarious.parsers.base import ParserBase
 
 
-# https://github.com/Sonarr/Sonarr/blob/develop/src/NzbDrone.Core/Parser/Parser.cs
+# https://github.com/Sonarr/Sonarr/blob/baf8f6cca637f76db64957c1871420196630dad3/src/NzbDrone.Core/Parser/Parser.cs
 
 
 class TVParser(ParserBase):

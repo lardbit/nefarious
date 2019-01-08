@@ -3,8 +3,8 @@ from nefarious import quality
 from nefarious.quality import Resolution, Profile
 
 
-# https://github.com/Sonarr/Sonarr/blob/baf8f6cca637f76db64957c1871420196630dad3/src/NzbDrone.Core/Parser/Parser.cs
 # https://github.com/Sonarr/Sonarr/blob/537e4d7c39e839e75e7a7ad84e95cd582ec1d20e/src/NzbDrone.Core/Parser/QualityParser.cs
+# https://github.com/Radarr/Radarr/blob/e01900628f86696469875dcb79f60071278100ba/src/NzbDrone.Core/Parser/QualityParser.cs
 
 
 class ParserBase:
