@@ -9,7 +9,7 @@ from nefarious.quality import Profile
 from nefarious.search import SearchTorrents, MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrentsCombined
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
-from nefarious.utils import trace_torrent_url, swap_jackett_host
+from nefarious.utils import get_best_torrent_result, results_with_valid_urls
 
 
 class WatchProcessorBase:
@@ -75,7 +75,8 @@ class WatchProcessorBase:
                         self._save_torrent_details(torrent)
 
                         # start the torrent
-                        torrent.start()
+                        # TODO
+                        #torrent.start()
                         return True
                     else:
                         # remove the blacklisted/paused torrent and continue to the next result
@@ -106,40 +107,10 @@ class WatchProcessorBase:
         return self._is_match(parser) and parser.is_quality_match(profile)
 
     def _results_with_valid_urls(self, results: list):
-        populated_results = []
-
-        for result in results:
-
-            # try and obtain the torrent url (it can redirect to a magnet url)
-            try:
-                # add a new key to our result object with the traced torrent url
-                result['torrent_url'] = result['MagnetUri'] or trace_torrent_url(
-                    swap_jackett_host(result['Link'], self.nefarious_settings))
-            except Exception as e:
-                logging.info('Exception tracing torrent url: {}'.format(e))
-                continue
-
-            # add torrent to valid search results
-            logging.info('Valid Match: {} with {} Seeders'.format(result['Title'], result['Seeders']))
-            populated_results.append(result)
-
-        return populated_results
+        return results_with_valid_urls(results, self.nefarious_settings)
 
     def _get_best_torrent_result(self, results: list):
-        best_result = None
-
-        if results:
-
-            # find the torrent result with the highest weight (i.e seeds)
-            best_result = results[0]
-            for result in results:
-                if result['Seeders'] > best_result['Seeders']:
-                    best_result = result
-
-        else:
-            logging.info('No valid best search result')
-
-        return best_result
+        return get_best_torrent_result(results)
 
     def _get_quality_profile(self):
         raise NotImplementedError

@@ -17,12 +17,6 @@
             <label>API Token</label>
             <input type="text" class="form-control" placeholder="" formControlName="jackett_token" required>
           </div>
-          <div class="form-group">
-            <button type="button" class="btn btn-sm btn-secondary position-relative" (click)="verifyJackettIndexers()">
-              <ngx-loading [show]="isVeryingJackettIndexers"></ngx-loading>
-              Verify Indexers
-            </button>
-          </div>
           <form class="position-relative">
             <ngx-loading [show]="isLoadingJackettIndexers"></ngx-loading>
             <div class="card" *ngIf="!isLoadingJackettIndexers">
@@ -34,7 +28,7 @@
                 </button>
                 <div [ngbCollapse]="isJackettIndexersSettingsCollapsed">
                   <div class="card-title text-secondary">
-                    <i>Seed Only</i> indexers automatically get torrents seeded to them to help maintain your ratios.
+                    Optionally configure certain indexers to be <i>Seed Only</i> which will automatically cross seed completed torrents and prevent leeching from them altogether.  This is helpful to maintain ratios on private sites.
                   </div>
                   <div *ngIf="form.controls.jackett_indexers_seed" formGroupName="jackett_indexers_seed">
                     <strong class="d-block">Seed Only</strong>
@@ -49,6 +43,12 @@
               </div>
             </div>
           </form>
+          <div class="mt-2">
+            <button type="button" class="btn btn-sm btn-secondary position-relative" (click)="verifyJackettIndexers()">
+              <ngx-loading [show]="isVeryingJackettIndexers"></ngx-loading>
+              Verify Indexers
+            </button>
+          </div>
         </div>
       </div>
     </div>

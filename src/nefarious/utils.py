@@ -91,3 +91,48 @@ def fetch_jackett_indexers(nefarious_settings: NefariousSettings) -> List[str]:
         indexers.append(child.attrib['id'])
     return indexers
 
+
+def get_best_torrent_result(results: list):
+    best_result = None
+
+    if results:
+
+        # find the torrent result with the highest weight (i.e seeds)
+        best_result = results[0]
+        for result in results:
+            if result['Seeders'] > best_result['Seeders']:
+                best_result = result
+
+    else:
+        logging.info('No valid best search result')
+
+    return best_result
+
+
+def results_with_valid_urls(results: list, nefarious_settings: NefariousSettings):
+    populated_results = []
+
+    for result in results:
+
+        # try and obtain the torrent url (it can redirect to a magnet url)
+        try:
+            # add a new key to our result object with the traced torrent url
+            result['torrent_url'] = result['MagnetUri'] or trace_torrent_url(
+                swap_jackett_host(result['Link'], nefarious_settings))
+        except Exception as e:
+            logging.info('Exception tracing torrent url: {}'.format(e))
+            continue
+
+        # add torrent to valid search results
+        logging.info('Valid Match: {} with {} Seeders'.format(result['Title'], result['Seeders']))
+        populated_results.append(result)
+
+    return populated_results
+
+
+def get_seed_only_indexers(nefarious_settings: NefariousSettings):
+    results = []
+    for tracker, seed_only in nefarious_settings.jackett_indexers_seed.items():
+        if seed_only:
+            results.append(tracker)
+    return results
