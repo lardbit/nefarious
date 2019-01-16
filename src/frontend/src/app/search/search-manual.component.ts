@@ -59,6 +59,7 @@ export class SearchManualComponent implements OnInit {
         this.filterChange();
         this.isSearching = false;
       }, (error) => {
+        console.error(error);
         this.isSearching = false;
         this.toastr.error('An unknown error occurred');
       }
