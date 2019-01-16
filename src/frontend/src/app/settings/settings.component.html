@@ -25,7 +25,7 @@
           </div>
           <form class="my-3 position-relative">
             <ngx-loading [show]="isLoadingJackettIndexers"></ngx-loading>
-            <div class="card">
+            <div class="card" *ngIf="!isLoadingJackettIndexers">
               <div class="card-body" [formGroup]="form">
                 <button class="btn btn-outline-secondary card-title" (click)="isJackettIndexersSettingsCollapsed = !isJackettIndexersSettingsCollapsed">Ratio Management</button>
                 <div [ngbCollapse]="isJackettIndexersSettingsCollapsed">
@@ -62,11 +62,11 @@
           </div>
           <div class="form-group">
             <label>User</label>
-            <input type="text" class="form-control" placeholder="" formControlName="transmission_user" required>
+            <input type="text" class="form-control" placeholder="" formControlName="transmission_user">
           </div>
           <div class="form-group">
             <label>Password</label>
-            <input type="password" class="form-control" placeholder="" formControlName="transmission_pass" required>
+            <input type="password" class="form-control" placeholder="" formControlName="transmission_pass">
           </div>
           <div class="form-group">
             <label>TV Download Sub Directory</label>

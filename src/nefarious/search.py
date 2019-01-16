@@ -15,12 +15,12 @@ class SearchTorrents:
     def __init__(self, media_type: str, query: str):
         assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
         nefarious_settings = NefariousSettings.get()
-        category = 2000 if media_type == MEDIA_TYPE_MOVIE else 5000
         params = {
             'apikey': nefarious_settings.jackett_token,
             'Query': query,
-            'Category[0]': category,
         }
+
+        params.update(self._categories_params(media_type))
 
         res = requests.get(get_jackett_search_url(nefarious_settings), params, timeout=120)
 
@@ -30,6 +30,15 @@ class SearchTorrents:
         else:
             self.ok = False
             self.error_content = res.content
+
+    def _categories_params(self, media_type: str) -> dict:
+        cat_movies = [2000, 2010, 2030, 2040, 2050, 2060, 2070]
+        cat_tv = [5000, 5010, 5020, 5030, 5040, 5060, 5070, 5080]
+        if media_type == MEDIA_TYPE_MOVIE:
+            categories = cat_movies
+        else:
+            categories = cat_tv
+        return dict(('Category[{}]'.format(idx), cat) for idx, cat in enumerate(categories))
 
 
 class SearchTorrentsCombined:
