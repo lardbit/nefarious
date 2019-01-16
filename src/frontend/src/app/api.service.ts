@@ -204,8 +204,12 @@ export class ApiService {
     );
   }
 
-  public download(torrent: string) {
-    return this.http.post(this.API_URL_DOWNLOAD_TORRENTS, {torrent: torrent}, {headers: this._requestHeaders()}).pipe(
+  public download(torrent: string, mediaType: string) {
+    const params = {
+      torrent: torrent,
+      media_type: mediaType,
+    };
+    return this.http.post(this.API_URL_DOWNLOAD_TORRENTS, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
         return data;
       }),

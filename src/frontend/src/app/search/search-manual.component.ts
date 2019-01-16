@@ -32,12 +32,12 @@ export class SearchManualComponent implements OnInit {
   public filterChange() {
     let orderByKey: string;
     let reverse = false;
-    if (this.filters.orderBy == 'Name') {
+    if (this.filters.orderBy === 'Name') {
       orderByKey = 'Title';
-    } else if (this.filters.orderBy == 'Seeders') {
+    } else if (this.filters.orderBy === 'Seeders') {
       orderByKey = 'Seeders';
       reverse = true;
-    } else if (this.filters.orderBy == 'Size') {
+    } else if (this.filters.orderBy === 'Size') {
       orderByKey = 'Size';
       reverse = true;
     }
@@ -67,9 +67,9 @@ export class SearchManualComponent implements OnInit {
   }
 
   public downloadTorrent(result: any) {
-    let torrent = SearchManualComponent._getTorrentLinkFromResult(result);
+    const torrent = SearchManualComponent._getTorrentLinkFromResult(result);
     this._downloading[torrent] = true;
-    this.apiService.download(torrent).subscribe(
+    this.apiService.download(torrent, this.apiService.searchQuery.type).subscribe(
       (data) => {
         console.log(data);
         if (!data.success) {

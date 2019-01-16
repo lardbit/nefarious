@@ -1,3 +1,4 @@
+import os
 import logging
 from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
@@ -215,6 +216,7 @@ class DownloadTorrentsView(views.APIView):
     def post(self, request):
         nefarious_settings = NefariousSettings.get()
         torrent = request.data.get('torrent')
+        media_type = request.data.get('media_type', MEDIA_TYPE_TV)
         if not is_magnet_url(torrent):
             torrent = swap_jackett_host(torrent, nefarious_settings)
 
@@ -230,7 +232,20 @@ class DownloadTorrentsView(views.APIView):
 
         # add torrent
         transmission_client = get_transmission_client(nefarious_settings)
-        transmission_client.add_torrent(torrent, paused=True)
+        transmission_session = transmission_client.session_stats()
+
+        if media_type == MEDIA_TYPE_MOVIE:
+            download_dir = os.path.join(
+                transmission_session.download_dir, nefarious_settings.transmission_movie_download_dir.lstrip('/'))
+        else:
+            download_dir = os.path.join(
+                transmission_session.download_dir, nefarious_settings.transmission_tv_download_dir.lstrip('/'))
+
+        transmission_client.add_torrent(
+            torrent,
+            paused=True,
+            download_dir=download_dir,
+        )
         
         return Response({'success': True})
 

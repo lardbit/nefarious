@@ -67,6 +67,14 @@ services:
     volumes:
       - jackett-config:/config
 
+  #transmission:
+  #  image: linuxserver/transmission
+  #  volumes:
+  #    - transmission-config:/config
+  #    - /tmp/transmission/:/downloads
+  #  ports:
+  #    - "9091:9091"
+
   # auto update service
   # https://github.com/v2tec/watchtower
   watchtower:

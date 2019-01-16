@@ -23,11 +23,15 @@
               Verify Indexers
             </button>
           </div>
-          <form class="my-3 position-relative">
+          <form class="position-relative">
             <ngx-loading [show]="isLoadingJackettIndexers"></ngx-loading>
             <div class="card" *ngIf="!isLoadingJackettIndexers">
               <div class="card-body" [formGroup]="form">
-                <button class="btn btn-outline-secondary card-title" (click)="isJackettIndexersSettingsCollapsed = !isJackettIndexersSettingsCollapsed">Ratio Management</button>
+                <button class="btn btn-link" (click)="isJackettIndexersSettingsCollapsed = !isJackettIndexersSettingsCollapsed">
+                  <span *ngIf="isJackettIndexersSettingsCollapsed">+</span>
+                  <span *ngIf="!isJackettIndexersSettingsCollapsed">-</span>
+                  Ratio Management
+                </button>
                 <div [ngbCollapse]="isJackettIndexersSettingsCollapsed">
                   <div class="card-title text-secondary">
                     <i>Seed Only</i> indexers automatically get torrents seeded to them to help maintain your ratios.
