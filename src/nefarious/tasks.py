@@ -1,10 +1,12 @@
 import logging
+import regex
 from celery import chain
 from celery.signals import task_failure
 from datetime import datetime
 from django.shortcuts import get_object_or_404
 from nefarious.celery import app
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, WatchTVSeason
+from nefarious.parsers.base import ParserBase
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.search import SearchTorrents, MEDIA_TYPE_MOVIE
 from nefarious.tmdb import get_tmdb_client
@@ -146,6 +148,8 @@ def wanted_media_task():
 
 @app.task
 def cross_seed_task(torrent_hash: str):
+    # TODO - this isn't used and is a work in progress
+
     nefarious_settings = NefariousSettings.get()
     transmission_client = get_transmission_client(nefarious_settings)
 
@@ -162,8 +166,11 @@ def cross_seed_task(torrent_hash: str):
     search = SearchTorrents(MEDIA_TYPE_MOVIE, torrent.name, search_seed_only=True)
     if search.ok:
         for result in search.results:
-            if result['Title'] == torrent.name:
-                # TODO - need to add to transmission and additionally search the torrent's size/pieces (not just the "Title" returned from jackett)
+            transmission_client.add_torrent()
+            normalized_title = regex.sub(ParserBase.word_delimiter_regex, ' ', torrent.name)
+            if result['Title'].lower() in [torrent.name.lower(), normalized_title.lower()]:
+                # TODO - the sizes won't match due to the inaccuracy of the scraping values
+                # add paused torrent and verify the sizes match
                 valid_results.append(result)
 
     # trace the "torrent url" (sometimes magnet) in each valid result
@@ -176,7 +183,7 @@ def cross_seed_task(torrent_hash: str):
     if valid_results:
         for seed_only_indexer in seed_only_indexers:
 
-            logging.info('SEED ONLY {}'.format(seed_only_indexer))
+            logging.info('Looking for cross seed results for indexer {}'.format(seed_only_indexer))
 
             # filter results to this seed-only indexer
             indexer_results = [r for r in valid_results if r['TrackerId'] == seed_only_indexer]

@@ -49,7 +49,7 @@ services:
   redis:
     image: redis
     restart: always
-    # TODO - don't expose
+    # TODO - don't expose outside of docker network
     ports:
     - "6379:6379"
 
@@ -58,6 +58,7 @@ services:
     labels:
       - com.centurylinklabs.watchtower.enable=true
     image: linuxserver/jackett
+    mem_limit: 200m
     restart: always
     ports:
       - "9117:9117"
