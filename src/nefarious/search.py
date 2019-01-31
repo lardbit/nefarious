@@ -46,13 +46,15 @@ class SearchTorrents:
             return cat_tv
 
     def _trackers(self) -> list:
-        # fetch all active indexers and remove any configured as "seed only"
         trackers = fetch_jackett_indexers(self.nefarious_settings)
         seed_only_trackers = []
-        for tracker, seed_only in self.nefarious_settings.jackett_indexers_seed.items():
-            if seed_only and tracker in trackers:
-                seed_only_trackers.append(tracker)
-                trackers.remove(tracker)
+
+        # fetch all active indexers and remove any configured as "seed only"
+        if self.nefarious_settings.jackett_indexers_seed:
+            for tracker, seed_only in self.nefarious_settings.jackett_indexers_seed.items():
+                if seed_only and tracker in trackers:
+                    seed_only_trackers.append(tracker)
+                    trackers.remove(tracker)
 
         if self.search_seed_only:
             return seed_only_trackers

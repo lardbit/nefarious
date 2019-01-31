@@ -68,13 +68,13 @@ services:
     volumes:
       - jackett-config:/config
 
-  #transmission:
-  #  image: linuxserver/transmission
-  #  volumes:
-  #    - transmission-config:/config
-  #    - /tmp/transmission/:/downloads
-  #  ports:
-  #    - "9091:9091"
+  transmission:
+    image: linuxserver/transmission
+    volumes:
+      - transmission-config:/config
+      - /tmp/transmission/:/downloads
+    ports:
+      - "9091:9091"
 
   # auto update service
   # https://github.com/v2tec/watchtower
@@ -87,14 +87,6 @@ services:
         max-size: 10m
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-
-  #transmission:
-  #  image: linuxserver/transmission
-  #  ports:
-  #    - "9091:9091"
-  #  volumes:
-  #    - transmission-config:/config
-  #    - /media/bucket/torrents:/downloads
 
 volumes:
   nefarious-db:

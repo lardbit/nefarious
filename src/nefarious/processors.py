@@ -1,5 +1,6 @@
 import os
 import logging
+from django.conf import settings
 from datetime import datetime
 from django.utils import dateparse
 from nefarious.models import WatchMovie, NefariousSettings, TorrentBlacklist, WatchTVEpisode, WatchTVSeason
@@ -75,8 +76,8 @@ class WatchProcessorBase:
                         self._save_torrent_details(torrent)
 
                         # start the torrent
-                        # TODO
-                        #torrent.start()
+                        if not settings.DEBUG:
+                            torrent.start()
                         return True
                     else:
                         # remove the blacklisted/paused torrent and continue to the next result
