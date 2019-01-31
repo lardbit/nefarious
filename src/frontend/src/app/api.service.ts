@@ -367,7 +367,7 @@ export class ApiService {
   }
 
   public unWatchTVShow(watchId) {
-    return this.http.delete(`${this.API_URL_WATCH_TV_SHOW}${watchId}`, {headers: this._requestHeaders()}).pipe(
+    return this.http.delete(`${this.API_URL_WATCH_TV_SHOW}${watchId}/`, {headers: this._requestHeaders()}).pipe(
       tap((data: any) => {
         // filter out records
         this.watchTVShows = _.filter(this.watchTVShows, (watch) => {
@@ -384,7 +384,7 @@ export class ApiService {
   }
 
   public unWatchTVEpisode(watchId) {
-    return this.http.delete(`${this.API_URL_WATCH_TV_EPISODE}${watchId}`, {headers: this._requestHeaders()}).pipe(
+    return this.http.delete(`${this.API_URL_WATCH_TV_EPISODE}${watchId}/`, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
         const foundIndex = _.findIndex(this.watchTVEpisodes, (watch) => {
           return watch.id === watchId;
@@ -426,7 +426,7 @@ export class ApiService {
   }
 
   public unWatchMovie(watchId) {
-    return this.http.delete(`${this.API_URL_WATCH_MOVIE}${watchId}`, {headers: this._requestHeaders()}).pipe(
+    return this.http.delete(`${this.API_URL_WATCH_MOVIE}${watchId}/`, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
         const foundIndex = _.findIndex(this.watchMovies, (watch) => {
           return watch.id === watchId;
@@ -440,7 +440,7 @@ export class ApiService {
   }
 
   public unWatchTVSeason(watchId) {
-    return this.http.delete(`${this.API_URL_WATCH_TV_SEASON}${watchId}`, {headers: this._requestHeaders()}).pipe(
+    return this.http.delete(`${this.API_URL_WATCH_TV_SEASON}${watchId}/`, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
         const foundIndex = _.findIndex(this.watchTVSeasons, (watch) => {
           return watch.id === watchId;

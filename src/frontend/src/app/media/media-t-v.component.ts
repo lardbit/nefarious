@@ -151,7 +151,7 @@ export class MediaTVComponent implements OnInit {
           },
           (error) => {
             console.error(error);
-            this.toastr.success('An unknown error occurred');
+            this.toastr.error('An unknown error occurred');
           }
         );
     }
