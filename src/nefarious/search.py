@@ -49,7 +49,7 @@ class SearchTorrents:
         trackers = fetch_jackett_indexers(self.nefarious_settings)
         seed_only_trackers = []
 
-        # fetch all active indexers and remove any configured as "seed only"
+        # fetch all active indexers and separate any configured as "seed only"
         if self.nefarious_settings.jackett_indexers_seed:
             for tracker, seed_only in self.nefarious_settings.jackett_indexers_seed.items():
                 if seed_only and tracker in trackers:
