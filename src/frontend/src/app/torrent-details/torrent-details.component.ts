@@ -48,47 +48,37 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
       });
   }
 
-  public getWatchMediaFromTorrent(torrent) {
-    return _.filter(this.watchMedia, (media) => {
-      return media.transmission_torrent_hash === torrent.hashString;
-    });
-  }
-
-  public blacklistRetry(torrent) {
+  public blacklistRetry(watchMedia) {
     this.isSaving = true;
-    const watchMediaList = this.getWatchMediaFromTorrent(torrent);
 
-    watchMediaList.forEach((watchMedia) => {
-
-      let endpoint;
-      if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_MOVIE) {
-        endpoint = this.apiService.blacklistRetryMovie(watchMedia.id);
+    let endpoint;
+    if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_MOVIE) {
+      endpoint = this.apiService.blacklistRetryMovie(watchMedia.id);
+    } else {
+      if (watchMedia.tmdb_episode_id) {
+        endpoint = this.apiService.blacklistRetryTVEpisode(watchMedia.id);
       } else {
-        if (watchMedia.tmdb_episode_id) {
-          endpoint = this.apiService.blacklistRetryTVEpisode(watchMedia.id);
-        } else {
-          endpoint = this.apiService.blacklistRetryTVSeason(watchMedia.id);
-        }
+        endpoint = this.apiService.blacklistRetryTVSeason(watchMedia.id);
       }
+    }
 
-      endpoint.subscribe(
-        (data) => {
-          this.isSaving = false;
+    endpoint.subscribe(
+      (data) => {
+        this.isSaving = false;
 
-          // filter the watch media/torrent results since it was updated
-          this.results = _.filter(this.results, (result) => {
-            return result.watchMedia.id === watchMedia.id;
-          });
-          this.toastr.success('Successfully blacklisted');
-        },
-        (error) => {
-          console.error(error);
-          this.isSaving = false;
-          this.toastr.error('An unknown error occurred');
-        }
-      );
+        // filter the watch media/torrent results since it was updated
+        this.results = _.filter(this.results, (result) => {
+          return result.watchMedia.id === watchMedia.id;
+        });
+        this.toastr.success('Successfully blacklisted');
+      },
+      (error) => {
+        console.error(error);
+        this.isSaving = false;
+        this.toastr.error('An unknown error occurred');
+      }
+    );
 
-    });
   }
 
   protected _updateResults() {
