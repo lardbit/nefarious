@@ -44,7 +44,7 @@
           <span *ngIf="result.torrent">{{ result.torrent.format_eta }}</span>
         </td>
         <td>
-          <span *ngIf="result.watchMedia.collected"><button class="btn btn-warning btn-sm" (click)="blacklistRetry(result.watchMedia)"><span class="oi oi-ban"></span></button></span>
+          <span *ngIf="result.watchMedia.collected || result.torrent"><button class="btn btn-warning btn-sm" (click)="blacklistRetry(result.watchMedia)"><span class="oi oi-ban"></span></button></span>
         </td>
       </ng-container>
     </tr>
