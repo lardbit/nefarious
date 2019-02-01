@@ -16,19 +16,37 @@
     <tbody>
     <tr *ngFor="let result of results">
       <td>
-        <button type="button" class="btn btn-outline-secondary mr-2" placement="right" [ngbPopover]="result.torrent?.name" popoverTitle="Torrent Name">
+        <button type="button" class="btn btn-outline-success" *ngIf="result.torrent" placement="right" [ngbPopover]="result.torrent.name" popoverTitle="Torrent Name">
           {{ result.watchMedia.name }}
         </button>
+        <button *ngIf="!result.torrent" type="button" class="btn btn-outline-secondary">{{ result.watchMedia.name }}</button>
       </td>
-      <td>{{ result.watchMedia.date_added | date | date: 'short' }}</td>
-      <td>{{ result.watchMedia.last_attempt_date | date: 'short' }}</td>
+      <td>{{ result.watchMedia.date_added | date | date: 'shortDate' }}</td>
+      <td>{{ result.watchMedia.last_attempt_date | amTimeAgo }}</td>
       <td>
-        <button *ngIf="result.watchMedia.collected" class="btn btn-success btn-link" [ngbPopover]="result.watchMedia.collected_date"><span class="oi oi-circle-check"></span> Downloaded</button>
+        <span *ngIf="result.watchMedia.collected">
+            <button class="btn btn-success btn-link" [ngbPopover]="result.watchMedia.collected_date"><span class="oi oi-circle-check"></span></button>
+        </span>
       </td>
-      <td><span *ngIf="result.torrent">{{ result.torrent.status }}</span></td>
-      <td><span *ngIf="result.torrent">{{ result.torrent.progress }}%</span></td>
-      <td><span *ngIf="result.torrent">{{ result.torrent.format_eta }}</span></td>
-      <td><span *ngIf="result.watchMedia.collected"><button class="btn btn-warning btn-sm" (click)="blacklistRetry(result.watchMedia)"><span class="oi oi-ban"></span></button></span></td>
+      <ng-container *ngIf="isFetchingInitialTorrents">
+        <td colspan="4" class="position-relative">
+          <ngx-loading [show]="true"></ngx-loading>
+        </td>
+      </ng-container>
+      <ng-container *ngIf="!isFetchingInitialTorrents">
+        <td class="position-relative">
+          <span *ngIf="result.torrent">{{ result.torrent.status }}</span>
+        </td>
+        <td>
+          <span *ngIf="result.torrent">{{ result.torrent.progress }}%</span>
+        </td>
+        <td>
+          <span *ngIf="result.torrent">{{ result.torrent.format_eta }}</span>
+        </td>
+        <td>
+          <span *ngIf="result.watchMedia.collected"><button class="btn btn-warning btn-sm" (click)="blacklistRetry(result.watchMedia)"><span class="oi oi-ban"></span></button></span>
+        </td>
+      </ng-container>
     </tr>
     </tbody>
   </table>

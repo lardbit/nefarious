@@ -17,6 +17,7 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
   @Input() mediaType: string;
   public torrents: any[] = [];
   public isSaving = false;
+  public isFetchingInitialTorrents = true;
   public results: {
     watchMedia: any,
     torrent: any,
@@ -93,6 +94,8 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
   }
 
   protected _fetchTorrents() {
+    this.isFetchingInitialTorrents = false;
+
     const params = {
       watch_movies: [],
       watch_tv_episodes: [],
@@ -112,7 +115,6 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
           params.watch_tv_seasons.push(watchMedia.id);
         }
       } else {
-        // fetch media if there's no torrent details yet
         this.apiService.fetchWatchMovie(watchMedia.id).subscribe();
         params.watch_movies.push(watchMedia.id);
       }
