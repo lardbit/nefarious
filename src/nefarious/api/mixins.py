@@ -50,7 +50,6 @@ class BlacklistAndRetryMixin:
         # remove torrent and delete data
         logging.info('Removing blacklisted torrent hash: {}'.format(del_transmission_torrent_hash))
         transmission_client = get_transmission_client(nefarious_settings=nefarious_settings)
-        # fails silently if it's not found
-        transmission_client.remove_torrent([del_transmission_torrent_hash], delete_data=True)
+        transmission_client.remove_torrent([del_transmission_torrent_hash], delete_data=True)  # fails silently
 
         return Response(self.serializer_class(watch_media).data)

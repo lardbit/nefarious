@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { ApiService } from '../api.service';
 import { ToastrService } from 'ngx-toastr';
-import { interval } from 'rxjs';
+import { interval, Observable } from 'rxjs';
 import { throttle } from 'rxjs/operators';
 import * as _ from 'lodash';
 
@@ -38,15 +38,32 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // populate the initial results
     this._updateResults();
 
-    // fetch torrent details on an interval
-    this._torrentFetchInterval = interval(POLL_TIME).pipe(
-      throttle(() => interval(POLL_TIME))
-    ).subscribe(
-      () => {
-        this._fetchTorrents();
-      });
+    this._fetchTorrents().subscribe(
+      (data) => {
+        this._fetchTorrentsSuccess(data);
+
+        // fetch torrent details on an interval
+        this._torrentFetchInterval = interval(POLL_TIME).pipe(
+          throttle(() => interval(POLL_TIME))
+        ).subscribe(
+          () => {
+            this._fetchTorrents().subscribe(
+              (data) => {
+                this._fetchTorrentsSuccess(data);
+              },
+              (error) => {
+                this._fetchTorrentsFailure(error);
+              }
+            );
+          });
+      },
+      (error) => {
+        this._fetchTorrentsFailure(error);
+      }
+    );
   }
 
   public blacklistRetry(watchMedia) {
@@ -93,7 +110,7 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected _fetchTorrents() {
+  protected _fetchTorrents(): Observable<any> {
     this.isFetchingInitialTorrents = false;
 
     const params = {
@@ -120,15 +137,15 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
       }
     }
 
-    this.apiService.fetchCurrentTorrents(params).subscribe(
-      (data) => {
-        this.torrents = data;
-        this._updateResults();
-      },
-      (error) => {
-        console.error(error);
-      }
-    );
+    return this.apiService.fetchCurrentTorrents(params);
   }
 
+  protected _fetchTorrentsSuccess(data) {
+    this.torrents = data;
+    this._updateResults();
+  }
+
+  protected _fetchTorrentsFailure(error) {
+    console.error(error);
+  }
 }
