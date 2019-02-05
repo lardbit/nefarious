@@ -4,6 +4,16 @@ from nefarious.models import (
 )
 
 
+@admin.register(NefariousSettings)
+class SettingsAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(TorrentBlacklist)
+class BlacklistAdmin(admin.ModelAdmin):
+    pass
+
+
 class WatchTVEpisodeInline(admin.TabularInline):
     model = WatchTVEpisode
 
@@ -15,12 +25,15 @@ class WatchTVSeasonInline(admin.TabularInline):
 
 @admin.register(WatchTVShow)
 class TVShowAdmin(admin.ModelAdmin):
+    list_filter = ('user',)
+    list_display = ('name', 'user',)
     inlines = (
         WatchTVEpisodeInline,
         WatchTVSeasonInline,
     )
 
 
-@admin.register(NefariousSettings, WatchTVSeason, WatchTVEpisode, WatchMovie, TorrentBlacklist)
-class Admin(admin.ModelAdmin):
-    pass
+@admin.register(WatchMovie, WatchTVSeason, WatchTVEpisode)
+class MediaAdmin(admin.ModelAdmin):
+    list_filter = ('user',)
+    list_display = ('name', 'user',)

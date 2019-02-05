@@ -93,6 +93,10 @@ class WatchTVSeason(WatchMediaBase):
     def __str__(self):
         return '{} - Season {}'.format(self.watch_tv_show, self.season_number)
 
+    @property
+    def name(self):
+        return str(self)
+
 
 class WatchTVEpisode(WatchMediaBase):
     watch_tv_show = models.ForeignKey(WatchTVShow, on_delete=models.CASCADE)
@@ -105,6 +109,10 @@ class WatchTVEpisode(WatchMediaBase):
 
     def __str__(self):
         return '{} {}x{}'.format(self.watch_tv_show, self.season_number, self.episode_number)
+
+    @property
+    def name(self):
+        return str(self)
 
 
 class TorrentBlacklist(models.Model):
