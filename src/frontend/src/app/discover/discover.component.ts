@@ -80,14 +80,8 @@ export class DiscoverComponent implements OnInit {
     );
   }
 
-  public search(appendResults: boolean = false) {
+  public search() {
     this.isLoading = true;
-
-    if (!appendResults) {
-      this.results = [];
-      // reset the page value
-      this.form.controls['page'].setValue(1);
-    }
 
     const currentUrl = this.route.snapshot.url.map((data) => {
       return data.path;
@@ -102,7 +96,7 @@ export class DiscoverComponent implements OnInit {
       () => {
         discoverEndpoint.subscribe(
           (data: any) => {
-            this.results = this.results.concat(data.results);
+            this.results = data.results;
             // increment the "page" input value
             this.form.controls['page'].setValue(data.page + 1);
             this.isLoading = false;
