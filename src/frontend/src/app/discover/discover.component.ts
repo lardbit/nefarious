@@ -48,25 +48,17 @@ export class DiscoverComponent implements OnInit {
 
   ngOnInit() {
 
-    this.form = this.fb.group({
-      'mediaType': [this.apiService.SEARCH_MEDIA_TYPE_MOVIE, Validators.required],
-      'sort_by': [this.DEFAULT_SORT, Validators.required],
-      'primary_release_date.gte': ['', Validators.pattern('\d{4}')],
-      'primary_release_date.lte': ['', Validators.pattern('\d{4}')],
-      'with_genres': ['', Validators.pattern('\d+')],
-      'page': [1, Validators.pattern('\d+')],
-    });
-
-    // auto submit search if there were filters set in the URL
-    if (this.route.snapshot.params) {
-      // set the url param values on the form
-      _.forOwn(this.route.snapshot.params, (value, key) => {
-        if (value) {
-          this.form.controls[key].setValue(value);
-        }
+    this.route.params.subscribe(
+      (params) => {
+        this.form = this._initialForm();
+        // set the url param values on the form
+        _.forOwn(params, (value, key) => {
+          if (value) {
+            this.form.controls[key].setValue(value);
+          }
+        });
+        this.search();
       });
-      this.search();
-    }
 
     this._fetchGenres().subscribe(
       () => {
@@ -108,6 +100,17 @@ export class DiscoverComponent implements OnInit {
         );
       }
     );
+  }
+
+  protected _initialForm() {
+    return this.fb.group({
+      'mediaType': [this.apiService.SEARCH_MEDIA_TYPE_MOVIE, Validators.required],
+      'sort_by': [this.DEFAULT_SORT, Validators.required],
+      'primary_release_date.gte': ['', Validators.pattern('\d{4}')],
+      'primary_release_date.lte': ['', Validators.pattern('\d{4}')],
+      'with_genres': ['', Validators.pattern('\d+')],
+      'page': [1, Validators.pattern('\d+')],
+    });
   }
 
   protected _fetchGenres(): Observable<any> {

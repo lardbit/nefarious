@@ -52,5 +52,7 @@
 
 <div *ngIf="results">
   <app-media-results [results]="results" [mediaType]="form.value.mediaType"></app-media-results>
-  <button class="btn btn-info" type="button" (click)="search()">More</button>
+  <div class="row justify-content-end my-3 mr-2">
+    <button class="btn btn-info" type="button" (click)="search()">Next</button>
+  </div>
 </div>
