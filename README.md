@@ -24,6 +24,35 @@ Features:
 - [x] Monitor transmission data results from within the app
 - [x] Self/auto updating application
 
+
+### Screenshots
+
+##### Login
+![](/screenshots/login.png?raw=true)
+##### Search
+![](/screenshots/search-blank.png?raw=true)
+##### Search Results
+![](/screenshots/search-results.png?raw=true)
+##### Media TV Result
+![](/screenshots/media-tv-result.png?raw=true)
+##### Media Download Status
+![](/screenshots/media-status.png?raw=true)
+##### Media Movie Result
+![](/screenshots/media-movie-result.png?raw=true)
+##### Media Movie Custom Quality Profile
+![](/screenshots/media-movie-custom-quality-profile.png?raw=true)
+##### Discover
+![](/screenshots/discover.png?raw=true)
+##### Wanted
+![](/screenshots/wanted.png?raw=true)
+##### Watching
+![](/screenshots/watching.png?raw=true)
+##### Settings
+![](/screenshots/settings.png?raw=true)
+##### Search Manual
+![](/screenshots/search-manual.png?raw=true)
+
+
 ### Running via docker-compose
 
 The default user/pass is `admin/admin`.
