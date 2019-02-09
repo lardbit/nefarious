@@ -19,11 +19,11 @@ Features:
 - [x] Manually search Jackett results and download
 - [x] Support blacklisting torrent results
 - [X] Support quality profiles
-- [ ] Support multiple user permissions (i.e a user must "request" to watch something)
 - [x] Auto download media once it's released (routinely scan)
 - [x] Monitor transmission data results from within the app
 - [x] Self/auto updating application
-
+- [ ] Support multiple user permissions (i.e a user must "request" to watch something)
+- [ ] Smart Ratio management (auto seed to specified indexers)
 
 ### Screenshots
 
@@ -53,14 +53,20 @@ Features:
 ![](/screenshots/search-manual.png?raw=true)
 
 
-### Running via docker-compose
+### Installing
 
-The default user/pass is `admin/admin`.
+Nefarious is best run via Docker through [Docker Compose](https://docs.docker.com/compose/install/).
+
+Install that and you're all set.
+
+### Running
 
 Run nefarious and dependencies (except transmission):
     
     docker-compose up -d
-    
+
+The default user/pass is `admin/admin`.
+
 **NOTE:** there is an [armv7 image](https://hub.docker.com/r/lardbit/nefarious/tags/) as well.
 
 ### Configure Jackett
