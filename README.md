@@ -18,9 +18,9 @@ Features:
 - [x] Discover TV (by popularity, genres etc)
 - [x] Manually search Jackett results and download
 - [x] Support blacklisting torrent results
-- [X] Support quality profiles
+- [X] Support quality profiles (i.e only download 1080p Movies and *any* quality TV)
 - [x] Auto download media once it's released (routinely scan)
-- [x] Monitor transmission data results from within the app
+- [x] Monitor transmission results from within the app
 - [x] Self/auto updating application
 - [ ] Support multiple user permissions (i.e a user must "request" to watch something)
 - [ ] Smart Ratio management (auto seed to specified indexers)
@@ -33,13 +33,13 @@ Features:
 ![](/screenshots/search-blank.png?raw=true)
 ##### Search Results
 ![](/screenshots/search-results.png?raw=true)
-##### Media TV Result
+##### TV Result
 ![](/screenshots/media-tv-result.png?raw=true)
-##### Media Download Status
+##### Download Status
 ![](/screenshots/media-status.png?raw=true)
-##### Media Movie Result
+##### Movie Result
 ![](/screenshots/media-movie-result.png?raw=true)
-##### Media Movie Custom Quality Profile
+##### Movie Custom Quality Profile
 ![](/screenshots/media-movie-custom-quality-profile.png?raw=true)
 ##### Discover
 ![](/screenshots/discover.png?raw=true)
