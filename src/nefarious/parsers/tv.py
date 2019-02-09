@@ -393,8 +393,9 @@ class TVParser(ParserBase):
         ])
 
     def _is_episode_match(self, title, season_number, episode_number) -> bool:
-        # must match season and episode
-        return self.match and all([
+        # must match title, season and episode
+        return self.match and 'title' in self.match and all([
             season_number in self.match.get('season', []),
             episode_number in self.match.get('episode', []),
+            self.match['title'] == self.normalize_media_title(title),
         ])
