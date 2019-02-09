@@ -163,6 +163,8 @@ class MediaDetailView(views.APIView):
         else:
             tv = tmdb.TV(media_id)
             response = tv.info()
+            # omit season "0" -- special episodes
+            response['seasons'] = [season for season in response['seasons'] if season['season_number'] > 0]
             for season in response['seasons']:
                 seasons_request = tmdb.TV_Seasons(response['id'], season['season_number'])
                 seasons = seasons_request.info()
