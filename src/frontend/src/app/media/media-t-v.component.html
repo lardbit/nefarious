@@ -34,7 +34,7 @@
                           </button>
                         </div>
                         <hr>
-                        <form class="form" *ngIf="watchEpisodesOptions" (submit)="submit()">
+                        <form class="form" *ngIf="watchEpisodesOptions" (submit)="submitForSeason(season.season_number)">
                           <div *ngFor="let episode of season.episodes" class="form-check">
                             <input class="form-check-input" [class.disabled]="isWatchingSeason(season.season_number)" [disabled]="isWatchingSeason(season.season_number)" type="checkbox" [(ngModel)]="watchEpisodesOptions[episode.id]" [name]="episode.id" [id]="episode.id">
                             <label class="form-check-label" [for]="episode.id">#{{ episode.episode_number }} - {{ episode.name }}</label>

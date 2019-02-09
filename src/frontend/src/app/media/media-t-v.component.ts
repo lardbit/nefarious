@@ -41,18 +41,18 @@ export class MediaTVComponent implements OnInit {
     );
   }
 
-  public submit() {
+  public submitForSeason(seasonNumber: number) {
 
     // watch show if not already
     if (!this.isWatchingShow()) {
       console.log('not already watching show %s', this.result.id);
       this._watchShow().subscribe(
         (data) => {
-          this._watchEpisodes();
+          this._watchEpisodesForSeason(seasonNumber);
         },
       );
     } else {
-      this._watchEpisodes();
+      this._watchEpisodesForSeason(seasonNumber);
     }
   }
 
@@ -237,17 +237,18 @@ export class MediaTVComponent implements OnInit {
     });
   }
 
-  protected _watchEpisodes() {
+  protected _watchEpisodesForSeason(seasonNumber: number) {
 
     const observables = [];
 
     _.forOwn(this.watchEpisodesOptions, (shouldWatch: boolean, episodeIdString: string) => {
       const episodeId = Number(episodeIdString);
+      const episode = this._getEpisode(episodeId);
 
-      // start watching
+      // requested to watch
       if (shouldWatch) {
-        if (!this._isWatchingEpisode(episodeId)) {
-          const episode = this._getEpisode(episodeId);
+        // make sure the episode is for the supplied season and they're not already watching it
+        if (seasonNumber === episode.season_number && !this._isWatchingEpisode(episodeId)) {
           const season = this._getSeasonFromEpisodeId(episodeId);
           const watchShow = this._getWatchShow();
           if (episode && season && watchShow) {
