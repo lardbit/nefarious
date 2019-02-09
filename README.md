@@ -2,8 +2,9 @@
 
 [![Build Status](https://travis-ci.org/lardbit/nefarious.svg?branch=master)](https://travis-ci.org/lardbit/nefarious)
 
-Nefarious is a web application that aims to combine *some* of the features of
-[Sonarr](https://github.com/Sonarr/Sonarr/), [Radarr](https://github.com/Radarr/Radarr) and [Ombi](https://github.com/tidusjar/Ombi).
+**Nefarious is a web application that helps you download Movies and TV Shows.**
+
+It aims to combine features of [Sonarr](https://github.com/Sonarr/Sonarr/), [Radarr](https://github.com/Radarr/Radarr) and [Ombi](https://github.com/tidusjar/Ombi).
 
 It uses [Jackett](https://github.com/Jackett/Jackett/) under the hood and expects [Transmission](https://transmissionbt.com/) to be running somewhere.
 
@@ -25,6 +26,7 @@ Features:
 - [ ] Support multiple user permissions (i.e a user must "request" to watch something)
 - [ ] Smart Ratio management (auto seed to specified indexers)
 
+### Contents
 
 [Installing](#installing)
 
