@@ -25,6 +25,13 @@ Features:
 - [ ] Support multiple user permissions (i.e a user must "request" to watch something)
 - [ ] Smart Ratio management (auto seed to specified indexers)
 
+
+[Installing](#installing)
+
+[Running](#running)
+
+[Screenshots](#screenshots)
+
 ### Screenshots
 
 ##### Login
