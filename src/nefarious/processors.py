@@ -211,19 +211,25 @@ class WatchTVEpisodeProcessor(WatchTVProcessorBase):
     """
     Single episode
     """
+    show = None
 
     def _get_watch_media(self, watch_media_id: int):
         watch_episode = WatchTVEpisode.objects.get(pk=watch_media_id)
         return watch_episode
 
     def _is_match(self, parser):
+        # supply show's name vs episode name for title matching
         return parser.is_match(
-            title=self.tmdb_media[self._get_tmdb_title_key()],
+            title=self.show[self._get_tmdb_title_key()],
             season_number=self.tmdb_media['season_number'],
             episode_number=self.tmdb_media['episode_number'],
         )
 
     def _get_tmdb_media(self):
+        # store show on instance
+        show_result = self.tmdb_client.TV(self.watch_media.watch_tv_show.tmdb_show_id)
+        self.show = show_result.info()
+
         episode_result = self.tmdb_client.TV_Episodes(self.watch_media.watch_tv_show.tmdb_show_id, self.watch_media.season_number, self.watch_media.episode_number)
         episode = episode_result.info()
         return episode
