@@ -33,7 +33,13 @@ class TVShowAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(WatchMovie, WatchTVSeason, WatchTVEpisode)
+@admin.register(WatchTVEpisode)
+class TVEpisodeAdmin(admin.ModelAdmin):
+    list_filter = ('user', 'watch_tv_show',)
+    list_display = ('name', 'watch_tv_show', 'user',)
+
+
+@admin.register(WatchMovie, WatchTVSeason)
 class MediaAdmin(admin.ModelAdmin):
     list_filter = ('user',)
     list_display = ('name', 'user',)
