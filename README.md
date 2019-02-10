@@ -77,7 +77,7 @@ Run nefarious and dependencies (except transmission):
     
     docker-compose up -d
 
-The default user/pass is `admin/admin`.
+The default user/pass is `admin/admin`.  You can change this through the backend [admin interface](http://localhost:8000/admin/auth/user/1/password/).
 
 **NOTE:** there is an [armv7 image](https://hub.docker.com/r/lardbit/nefarious/tags/) as well.
 
