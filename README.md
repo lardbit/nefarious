@@ -23,7 +23,8 @@ Features:
 - [x] Auto download media once it's released (routinely scan)
 - [x] Monitor transmission results from within the app
 - [x] Self/auto updating application
-- [ ] Support multiple user permissions (i.e a user must "request" to watch something)
+- [x] Support multiple users (i.e admin users and regular users)
+- [ ] Support user requests (i.e a user must "request" to watch something)
 - [ ] Smart Ratio management (auto seed to specified indexers)
 
 ### Contents
@@ -33,6 +34,8 @@ Features:
 [Running](#running)
 
 [Screenshots](#screenshots)
+
+[Troubleshooting](#troubleshooting)
 
 ### Screenshots
 
@@ -80,7 +83,7 @@ The default user/pass is `admin/admin`.
 
 ### Configure Jackett
 
-Configure your local Jackett instance at [http://localhost:9117](http://localhost:9117).  You'll need to add indexers and copy your api key to add in nefarious.
+Configure your local Jackett instance at [http://localhost:9117](http://localhost:9117).  You'll need to add indexers and copy your api key to enter into nefarious.
 
 ### Configure Nefarious
 
@@ -94,7 +97,7 @@ Since jackett is running in the same docker network, you'll need to set the host
 
 Configure your transmission host, port, username and password, and download directories.  Nefarious will save TV and Movies in individual sub-folders of your configured Transmission download path.
 
-## Debugging
+## Troubleshooting
    
     # logs for main app
     docker-compose logs -f nefarious
