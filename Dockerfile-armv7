@@ -15,6 +15,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-gdbm \
     && python3 -m venv /env \
     && /env/bin/pip install --no-cache-dir -r requirements.txt \
+    && apt-get remove -y \
+        build-essential \
+        python3-venv \
+        python3-dev \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
     && true
 
 RUN ["cross-build-end"]
