@@ -1,6 +1,6 @@
-Django==2.1.1
+Django==2.1.5
 djangorestframework==3.8.2
-requests==2.19.1
+requests==2.21.0
 transmissionrpc==0.11
 tmdbsimple==2.2.0
 jsonfield2==3.0.1
