@@ -36,6 +36,8 @@ Features:
 
 [Troubleshooting](#troubleshooting)
 
+[Development](#development)
+
 ### Screenshots
 
 ##### Login
@@ -107,3 +109,15 @@ If you're using the built-in transmission in the `docker-compose.yml`, then make
 
     # logs for tasks (search results)
     docker-compose logs -f celery
+
+
+## Development
+
+Nefarious is built on:
+
+- Django 2
+- Python 3.7
+- Angular 6
+- Bootstrap 4
+
+Review the `Dockerfile` for dependencies.

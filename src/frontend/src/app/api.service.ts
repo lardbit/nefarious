@@ -1,7 +1,7 @@
 import { LocalStorage } from '@ngx-pwa/local-storage';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, mergeMap, tap } from 'rxjs/operators';
+import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
 import { forkJoin, Observable, of, zip } from 'rxjs';
 
@@ -65,7 +65,17 @@ export class ApiService {
             mergeMap(() => {
               console.log('fetching core data');
               return this.fetchCoreData();
+            }),
+            catchError((error) => {
+              // unauthorized response, remove existing user and token
+              if (error.status === 401) {
+                console.log('Unauthorized - removing user & token');
+                delete this.userToken;
+                delete this.user;
+              }
+              return of(error);
             })
+
           );
         } else {
           console.log('not logged in');
