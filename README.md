@@ -74,7 +74,7 @@ Install that and you're all set.
 
 ### Running
 
-Run nefarious and dependencies (except transmission):
+Run nefarious and dependencies:
     
     docker-compose up -d
 
