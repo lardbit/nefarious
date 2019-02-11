@@ -41,31 +41,31 @@ Features:
 ### Screenshots
 
 ##### Login
-![](/screenshots/login.png?raw=true)
+![](https://github.com/lardbit/nefarious/blob/master/screenshots/login.png?raw=true)
 ##### Search
-![](/screenshots/search-blank.png?raw=true)
+![](https://github.com/lardbit/nefarious/blob/master/screenshots/search-blank.png?raw=true)
 ##### Search Results
-![](/screenshots/search-results.png?raw=true)
+![](https://github.com/lardbit/nefarious/blob/master/screenshots/search-results.png?raw=true)
 ##### TV Result
-![](/screenshots/media-tv-result.png?raw=true)
+![](https://github.com/lardbit/nefarious/blob/master/screenshots/media-tv-result.png?raw=true)
 ##### Download Status
-![](/screenshots/media-status.png?raw=true)
+![](https://github.com/lardbit/nefarious/blob/master/screenshots/media-status.png?raw=true)
 ##### Movie Result
-![](/screenshots/media-movie-result.png?raw=true)
+![](https://github.com/lardbit/nefarious/blob/master/screenshots/media-movie-result.png?raw=true)
 ##### Movie Custom Quality Profile
-![](/screenshots/media-movie-custom-quality-profile.png?raw=true)
+![](https://github.com/lardbit/nefarious/blob/master/screenshots/media-movie-custom-quality-profile.png?raw=true)
 ##### Discover
-![](/screenshots/discover.png?raw=true)
+![](https://github.com/lardbit/nefarious/blob/master/screenshots/discover.png?raw=true)
 ##### Wanted
-![](/screenshots/wanted.png?raw=true)
+![](https://github.com/lardbit/nefarious/blob/master/screenshots/wanted.png?raw=true)
 ##### Watching
-![](/screenshots/watching.png?raw=true)
+![](https://github.com/lardbit/nefarious/blob/master/screenshots/watching.png?raw=true)
 ##### Settings
-![](/screenshots/settings.png?raw=true)
+![](https://github.com/lardbit/nefarious/blob/master/screenshots/settings.png?raw=true)
 ##### Search Manual
-![](/screenshots/search-manual.png?raw=true)
+![](https://github.com/lardbit/nefarious/blob/master/screenshots/search-manual.png?raw=true)
 ##### Mobile Friendly
-![](/screenshots/search-mobile.png?raw=true)
+![](https://github.com/lardbit/nefarious/blob/master/screenshots/search-mobile.png?raw=true)
 
 
 ### Installing
