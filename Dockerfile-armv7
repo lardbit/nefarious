@@ -5,6 +5,8 @@ WORKDIR /app
 # copy pre-built app from base image
 COPY --from=lardbit/nefarious /app .
 
+RUN ['cross-build-start']
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     python3 \
@@ -14,6 +16,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && python3 -m venv /env \
     && /env/bin/pip install --no-cache-dir -r requirements.txt \
     && true
+
+RUN ['cross-build-end']
 
 EXPOSE 80
 
