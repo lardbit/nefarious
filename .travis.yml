@@ -12,12 +12,11 @@ jobs:
   include:
     - stage: build docker arm image
       script:
-        # authenticate with docker
-      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-      # generate Dockerfile for armv7
-      - ./create-dockerfile-arm.sh
-      # build armv7 image
+      - # build base image
+      - docker build -t lardbit/nefarious .
+      # build armv7 image copying the app from the previously built base image
       - docker build -f Dockerfile-armv7 -t lardbit/nefarious:armv7 .
-      - docker images
+      # authenticate with docker
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       # push to docker hub
       - docker push $DOCKER_USERNAME/nefarious:armv7

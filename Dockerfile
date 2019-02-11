@@ -10,9 +10,6 @@ ADD docker-entrypoint.sh /app
 
 WORKDIR /app
 
-# NOTE: pattern to sed replace for architecture emulation
-#@@cross-build-start@@
-
 # install app dependencies, build app and remove dev dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -41,8 +38,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
     && true
-
-# NOTE: pattern to sed replace for architecture emulation
-#@@cross-build-end@@
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
