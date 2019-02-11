@@ -5,7 +5,7 @@ WORKDIR /app
 # copy pre-built app from base image
 COPY --from=lardbit/nefarious /app .
 
-RUN ['cross-build-start']
+RUN ["cross-build-start"]
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && /env/bin/pip install --no-cache-dir -r requirements.txt \
     && true
 
-RUN ['cross-build-end']
+RUN ["cross-build-end"]
 
 EXPOSE 80
 
