@@ -142,6 +142,12 @@ class SettingsViewSet(viewsets.ModelViewSet):
         return Response(fetch_jackett_indexers(nefarious_settings))
 
 
+class UserViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAdminUser,)
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
 class CurrentUserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
