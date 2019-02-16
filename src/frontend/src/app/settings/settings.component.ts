@@ -77,21 +77,10 @@ export class SettingsComponent implements OnInit {
     )
   }
 
-  public addUser() {
-    this.form.controls['users'].push(this.fb.group({
-      username: ['', Validators.required],
-      password: ['', Validators.required],
-      can_immediately_watch_movies: [false],
-      can_immediately_watch_tv_shows: [false],
-    }));
-  }
-
   public submit() {
     this.isSaving = true;
 
     let observable: Observable<any>;
-
-    console.log('submitting', this.form);
 
     // settings
     if (this.apiService.settings) {
@@ -155,38 +144,61 @@ export class SettingsComponent implements OnInit {
     );
   }
 
-  public saveUser(index: number) {
-    console.log(this.form.controls['users'].controls[index]);
+  public addUser() {
+    this.form.controls['users'].push(this.fb.group({
+      username: ['', Validators.required],
+      password: ['', Validators.required],
+      can_immediately_watch_movies: [false],
+      can_immediately_watch_tv_shows: [false],
+    }));
+  }
 
-    // TODO
-    /*
-    // users
-    if (this.form.controls['users'].dirty) {
-      this.form.controls['users'].controls.forEach((control) => {
-        if (control.dirty) {
-          // existing user update
-          if (control.value.id) {
-            // TODO
-            console.log('updated', control);
-          } else {  // new user
-            console.log('new', control);
-            this.apiService.createUser(control.value.username, control.value.password).subscribe(
-              (data) => {
-                this.toastr.success(`Added ${control.value.username}`);
-              },
-              (error) => {
-                this.toastr.error(`An unknown error occurred adding user ${control.value.username}`);
-                console.log(error);
-              }
-            )
-          }
-        }
-      });
+  public saveUser(index: number) {
+
+    const userControl = this.form.controls['users'].controls[index];
+    if (!userControl.valid) {
+      this.toastr.error('Please supply all required fields for this user');
+      return;
     }
-    */
+
+    // existing user
+    if (userControl.value.id) {
+      this.apiService.updateUser(userControl.value.id, userControl.value).subscribe(
+        (data) => {
+          this.toastr.success(`Successfully updated user ${userControl.value.username}`);
+          data.password = '';
+          this.form.get('users').at(index).setValue(data);
+        },
+        (error) => {
+          this.toastr.error(`An unknown error occurred updating user ${userControl.value.username}`);
+          console.log(error);
+        }
+      )
+    } else {  // new user
+      this.apiService.createUser(userControl.value.username, userControl.value.password).subscribe(
+        (data) => {
+          this.toastr.success(`Added ${userControl.value.username}`);
+          this.form.get('users').at(index).addControl('id', new FormControl(data.id));
+        },
+        (error) => {
+          this.toastr.error(`An unknown error occurred adding user ${userControl.value.username}`);
+          console.log(error);
+        }
+      )
+    }
   }
 
   public removeUser(index: number) {
-    console.log(this.form.controls['users'].controls[index]);
+    const userControl = this.form.controls['users'].controls[index];
+    this.apiService.deleteUser(userControl.value.id).subscribe(
+      (data) => {
+        this.toastr.success(`Successfully deleted ${userControl.value.username}`);
+        this.form.get('users').removeAt(index);
+      },
+      (error) => {
+        this.toastr.error(`An unknown error occurred deleting user ${userControl.value.username}`);
+        console.log(error);
+      }
+    )
   }
 }

@@ -152,6 +152,7 @@ export class ApiService {
   }
 
   public fetchUser(): Observable<any> {
+    // fetches current user
     return this.http.get(this.API_URL_USER, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
         if (data.length) {
@@ -166,12 +167,30 @@ export class ApiService {
     );
   }
 
+  public updateUser(id: number, params: any): Observable<any> {
+    return this.http.put(`${this.API_URL_USERS}${id}/`, params, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        return data;
+      }),
+    );
+  }
+
   public createUser(username: string, password: string): Observable<any> {
     const params = {username: username, password: password};
     return this.http.post(this.API_URL_USERS, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
         this.users.push(data);
         return data;
+      }),
+    );
+  }
+
+  public deleteUser(id: number): Observable<any> {
+    return this.http.delete(`${this.API_URL_USERS}${id}/`, {headers: this._requestHeaders()}).pipe(
+      tap((data: any) => {
+        this.users.filter((user) => {
+          return user.id !== id;
+        })
       }),
     );
   }
