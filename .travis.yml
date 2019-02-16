@@ -14,9 +14,13 @@ jobs:
       script:
       - # build base image
       - docker build -t lardbit/nefarious .
+      # derive the docker image tag name from the git branch name
+      - echo $TRAVIS_BRANCH
+      - if [[ $TRAVIS_BRANCH == 'master' ]]; then tag='armv7'; else tag="armv7-$branch"; fi
+      - echo $tag
       # build armv7 image copying the app from the previously built base image
-      - docker build -f Dockerfile-armv7 -t lardbit/nefarious:armv7 .
+      - docker build -f Dockerfile-armv7 -t lardbit/nefarious:$tag .
       # authenticate with docker
       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       # push to docker hub
-      - docker push $DOCKER_USERNAME/nefarious:armv7
+      - docker push $DOCKER_USERNAME/nefarious:$tag

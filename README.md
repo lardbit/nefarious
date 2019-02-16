@@ -92,6 +92,11 @@ Configure your local Jackett instance at [http://localhost:9117](http://localhos
 
 Open nefarious at [http://localhost:8000](http://localhost:8000).  You'll be redirected to the settings page.
 
+
+### Configure Transmission
+
+There's nothing to actually configure, but you can view its web ui at [http://localhost:9091](http://localhost:9091) to see what's actually being downloaded by nefarious.
+
 ##### Jackett settings
 
 Since jackett is running in the same docker network, you'll need to set the host as `jackett`.  The default port is `9117`.  Enter your api token.

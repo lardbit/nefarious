@@ -130,10 +130,18 @@ class UserSerializer(serializers.ModelSerializer):
     def get_can_immediately_watch_tv_shows(self, user: User):
         return user.is_staff or user.has_perm('app.{}'.format(PERM_CAN_WATCH_IMMEDIATELY_TV))
 
+    def create(self, validated_data):
+        if 'password' not in self.initial_data:
+            raise ValidationError({'password': ['Please supply a new password for this user']})
+        user = super().create(validated_data)
+        user.set_password(self.initial_data.get('password'))
+        user.save()
+        return user
+
     class Meta:
         model = User
         fields = (
-            'username', 'is_staff', 'email',
+            'id', 'username', 'is_staff',
             'can_immediately_watch_tv_shows', 'can_immediately_watch_movies',
         )
 

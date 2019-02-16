@@ -13,6 +13,7 @@ export class ApiService {
   STORAGE_KEY_API_TOKEN = 'NEFARIOUS-API-TOKEN';
   STORAGE_KEY_USER = 'NEFARIOUS-USER';
   API_URL_USER = '/api/user/';
+  API_URL_USERS = '/api/users/';
   API_URL_LOGIN = '/api/auth/';
   API_URL_SETTINGS = '/api/settings/';
   API_URL_JACKETT_INDEXERS_CONFIGURED = '/api/settings/configured-indexers/';
@@ -35,6 +36,7 @@ export class ApiService {
 
   public user: any;
   public userToken: string;
+  public users: any; // staff only list of all users
   public settings: any;
   public qualityProfiles: string[];
   public watchTVSeasons: any[] = [];
@@ -160,6 +162,25 @@ export class ApiService {
           console.log('no user');
           return null;
         }
+      }),
+    );
+  }
+
+  public createUser(username: string, password: string): Observable<any> {
+    const params = {username: username, password: password};
+    return this.http.post(this.API_URL_USERS, params, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        this.users.push(data);
+        return data;
+      }),
+    );
+  }
+
+  public fetchUsers(): Observable<any> {
+    return this.http.get(this.API_URL_USERS, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        this.users = data;
+        return this.users;
       }),
     );
   }

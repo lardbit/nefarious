@@ -1,8 +1,9 @@
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-settings',
@@ -10,6 +11,7 @@ import { Observable } from 'rxjs';
   styleUrls: ['./settings.component.css']
 })
 export class SettingsComponent implements OnInit {
+  public users: any[];
   public form;
   public isSaving = false;
   public jackettIndexers: string[];
@@ -37,6 +39,7 @@ export class SettingsComponent implements OnInit {
       'transmission_movie_download_dir': [settings['transmission_movie_download_dir'], Validators.required],
       'quality_profile_tv': [settings['quality_profile_tv'], Validators.required],
       'quality_profile_movies': [settings['quality_profile_movies'], Validators.required],
+      'users': new FormArray([]),
     });
 
     this.apiService.fetchJackettIndexers().subscribe(
@@ -57,15 +60,40 @@ export class SettingsComponent implements OnInit {
         this.isLoadingJackettIndexers = false;
       }
     );
+
+    this.apiService.fetchUsers().subscribe(
+      (users) => {
+        this.users = users;
+        this.users.forEach((user) => {
+          const controls = {
+            password: '',
+          };
+          _.forOwn(user, (value, key) => {
+            controls[key] = new FormControl(value);
+          });
+          this.form.controls['users'].insert(0, this.fb.group(controls));
+        });
+      }
+    )
   }
 
-  public onSubmit() {
+  public addUser() {
+    this.form.controls['users'].push(this.fb.group({
+      username: ['', Validators.required],
+      password: ['', Validators.required],
+      can_immediately_watch_movies: [false],
+      can_immediately_watch_tv_shows: [false],
+    }));
+  }
+
+  public submit() {
     this.isSaving = true;
 
     let observable: Observable<any>;
 
-    console.log('submitting', this.form.value);
+    console.log('submitting', this.form);
 
+    // settings
     if (this.apiService.settings) {
       observable = this.apiService.updateSettings(this.apiService.settings.id, this.form.value);
     } else {
@@ -125,5 +153,40 @@ export class SettingsComponent implements OnInit {
         this.isVeryingJackettIndexers = false;
       },
     );
+  }
+
+  public saveUser(index: number) {
+    console.log(this.form.controls['users'].controls[index]);
+
+    // TODO
+    /*
+    // users
+    if (this.form.controls['users'].dirty) {
+      this.form.controls['users'].controls.forEach((control) => {
+        if (control.dirty) {
+          // existing user update
+          if (control.value.id) {
+            // TODO
+            console.log('updated', control);
+          } else {  // new user
+            console.log('new', control);
+            this.apiService.createUser(control.value.username, control.value.password).subscribe(
+              (data) => {
+                this.toastr.success(`Added ${control.value.username}`);
+              },
+              (error) => {
+                this.toastr.error(`An unknown error occurred adding user ${control.value.username}`);
+                console.log(error);
+              }
+            )
+          }
+        }
+      });
+    }
+    */
+  }
+
+  public removeUser(index: number) {
+    console.log(this.form.controls['users'].controls[index]);
   }
 }
