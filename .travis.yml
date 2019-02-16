@@ -16,7 +16,7 @@ jobs:
       - docker build -t lardbit/nefarious .
       # derive the docker image tag name from the git branch name
       - echo $TRAVIS_BRANCH
-      - if [[ $TRAVIS_BRANCH == 'master' ]]; then tag='armv7'; else tag="armv7-$branch"; fi
+      - if [[ $TRAVIS_BRANCH == 'master' ]]; then tag='armv7'; else tag="armv7-$TRAVIS_BRANCH"; fi
       - echo $tag
       # build armv7 image copying the app from the previously built base image
       - docker build -f Dockerfile-armv7 -t lardbit/nefarious:$tag .
