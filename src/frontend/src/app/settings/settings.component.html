@@ -115,10 +115,10 @@
         <div class="card-body" formArrayName="users">
           <div *ngFor="let control of form.controls.users.controls; let i=index" [formGroupName]="i">
             <div class="d-flex justify-content-around">
-              <div class="form-group">
+              <div class="form-group mr-1">
                 <input type="text" class="form-control" [id]="i+'username'" formControlName="username" required placeholder="username">
               </div>
-              <div class="form-group">
+              <div class="form-group mr-1">
                 <ng-container *ngIf="control.value.id">
                   <input type="password" class="form-control" [id]="i+'password'" formControlName="password" placeholder="new password">
                   <small class="form-text text-muted">Leave blank to keep existing password</small>
@@ -127,7 +127,7 @@
                   <input type="password" class="form-control" [id]="i+'password'" formControlName="password" placeholder="password" required>
                 </ng-container>
               </div>
-              <div class="form-group">
+              <div class="form-group mr-1">
                 <button type="button" class="btn btn-sm btn-success" (click)="saveUser(i)"><span class="oi oi-check"></span></button>
               </div>
               <div class="form-group">
