@@ -26,39 +26,6 @@ class NefariousSettingsSerializer(serializers.ModelSerializer):
         model = NefariousSettings
         fields = '__all__'
 
-    def update(self, instance, validated_data):
-        test_settings = NefariousSettings(**validated_data)
-
-        # verify settings
-        try:
-            verify_settings_jackett(test_settings)
-            verify_settings_tmdb(test_settings)
-            verify_settings_transmission(test_settings)
-        except Exception as e:
-            raise ValidationError(str(e))
-        return super().update(instance, validated_data)
-
-    def create(self, validated_data):
-        test_settings = NefariousSettings(**validated_data)
-
-        # verify/fetch tmdb configuration settings and include in serializer data
-        try:
-            tmdb_client = get_tmdb_client(test_settings)
-            configuration = tmdb_client.Configuration()
-            validated_data['tmdb_configuration'] = configuration.info()
-        except Exception as e:
-            logging.error(str(e))
-            raise ValidationError('Could not fetch TMDB configuration')
-
-        # verify settings
-        try:
-            verify_settings_jackett(test_settings)
-            verify_settings_transmission(test_settings)
-        except Exception as e:
-            raise ValidationError(str(e))
-
-        return super().create(validated_data)
-
 
 class NefariousPartialSettingsSerializer(serializers.ModelSerializer):
     tmdb_configuration = serializers.JSONField(required=False, read_only=True)
@@ -130,11 +97,20 @@ class UserSerializer(serializers.ModelSerializer):
     def get_can_immediately_watch_tv_shows(self, user: User):
         return user.is_staff or user.has_perm('app.{}'.format(PERM_CAN_WATCH_IMMEDIATELY_TV))
 
+    def update(self, instance, validated_data):
+        # update password if a new one was supplied
+        user = super().update(instance, validated_data)  # type: User
+        if 'password' in self.initial_data:
+            user.set_password(self.initial_data['password'])
+            user.save()
+        return user
+
     def create(self, validated_data):
+        # a password must exist when creating a new user
         if 'password' not in self.initial_data:
             raise ValidationError({'password': ['Please supply a new password for this user']})
-        user = super().create(validated_data)
-        user.set_password(self.initial_data.get('password'))
+        user = super().create(validated_data)  # type: User
+        user.set_password(self.initial_data['password'])
         user.save()
         return user
 

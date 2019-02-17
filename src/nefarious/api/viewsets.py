@@ -111,7 +111,7 @@ class WatchTVEpisodeViewSet(BlacklistAndRetryMixin, UserReferenceViewSetMixin, v
 class SettingsViewSet(viewsets.ModelViewSet):
     queryset = NefariousSettings.objects.all()
 
-    @action(methods=['get'], detail=True)
+    @action(methods=['get'], detail=True, permission_classes=(IsAdminUser,))
     def verify(self, request, pk):
         nefarious_settings = self.queryset.get(id=pk)
         try:
@@ -122,7 +122,7 @@ class SettingsViewSet(viewsets.ModelViewSet):
             raise ValidationError(str(e))
         return Response()
 
-    @action(methods=['get'], detail=True, url_path='verify-jackett-indexers')
+    @action(methods=['get'], detail=True, url_path='verify-jackett-indexers', permission_classes=(IsAdminUser,))
     def verify_jackett_indexers(self, request, pk):
         nefarious_settings = self.queryset.get(id=pk)
         try:
@@ -220,6 +220,7 @@ class SearchTorrentsView(views.APIView):
 
 
 class DownloadTorrentsView(views.APIView):
+    permission_classes = (IsAdminUser,)
 
     def post(self, request):
         nefarious_settings = NefariousSettings.get()

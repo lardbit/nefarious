@@ -237,7 +237,7 @@ export class ApiService {
   }
 
   public updateSettings(id: number, params: any) {
-    return this.http.put(`${this.API_URL_SETTINGS}${id}/`, params, {headers: this._requestHeaders()}).pipe(
+    return this.http.patch(`${this.API_URL_SETTINGS}${id}/`, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
         console.log(data);
         this.settings = data;

@@ -28,17 +28,24 @@ export class SettingsComponent implements OnInit {
   ngOnInit() {
     const settings = this.apiService.settings || {};
     this.form = this.fb.group({
-      'jackett_host': [settings['jackett_host'], Validators.required],
-      'jackett_port': [settings['jackett_port'], Validators.required],
-      'jackett_token': [settings['jackett_token'], Validators.required],
-      'transmission_host': [settings['transmission_host'], Validators.required],
-      'transmission_port': [settings['transmission_port'], Validators.required],
-      'transmission_user': [settings['transmission_user']],
-      'transmission_pass': [settings['transmission_pass']],
-      'transmission_tv_download_dir': [settings['transmission_tv_download_dir'], Validators.required],
-      'transmission_movie_download_dir': [settings['transmission_movie_download_dir'], Validators.required],
-      'quality_profile_tv': [settings['quality_profile_tv'], Validators.required],
-      'quality_profile_movies': [settings['quality_profile_movies'], Validators.required],
+      'jackett': this.fb.group({
+          'jackett_host': [settings['jackett_host'], Validators.required],
+          'jackett_port': [settings['jackett_port'], Validators.required],
+          'jackett_token': [settings['jackett_token'], Validators.required],
+        }
+      ),
+      'transmission': this.fb.group({
+        'transmission_host': [settings['transmission_host'], Validators.required],
+        'transmission_port': [settings['transmission_port'], Validators.required],
+        'transmission_user': [settings['transmission_user']],
+        'transmission_pass': [settings['transmission_pass']],
+        'transmission_tv_download_dir': [settings['transmission_tv_download_dir'], Validators.required],
+        'transmission_movie_download_dir': [settings['transmission_movie_download_dir'], Validators.required],
+      }),
+      'quality': this.fb.group({
+          'quality_profile_tv': [settings['quality_profile_tv'], Validators.required],
+          'quality_profile_movies': [settings['quality_profile_movies'], Validators.required],
+      }),
       'users': new FormArray([]),
     });
 
@@ -51,7 +58,7 @@ export class SettingsComponent implements OnInit {
             this.apiService.settings.jackett_indexers_seed && this.apiService.settings.jackett_indexers_seed[indexer]
           ) || false;
         });
-        this.form.addControl('jackett_indexers_seed', this.fb.group(formControls));
+        this.form.get('jackett').addControl('jackett_indexers_seed', this.fb.group(formControls));
         this.isLoadingJackettIndexers = false;
       },
       (error) => {
@@ -71,22 +78,22 @@ export class SettingsComponent implements OnInit {
           _.forOwn(user, (value, key) => {
             controls[key] = new FormControl(value);
           });
-          this.form.controls['users'].insert(0, this.fb.group(controls));
+          this.form.get('users').insert(0, this.fb.group(controls));
         });
       }
     )
   }
 
-  public submit() {
+  public submit(group: string) {
     this.isSaving = true;
 
     let observable: Observable<any>;
 
     // settings
     if (this.apiService.settings) {
-      observable = this.apiService.updateSettings(this.apiService.settings.id, this.form.value);
+      observable = this.apiService.updateSettings(this.apiService.settings.id, this.form.get(group).value);
     } else {
-      observable = this.apiService.createSettings(this.form.value);
+      observable = this.apiService.createSettings(this.form.get(group).value);
     }
 
     observable.subscribe(
@@ -106,7 +113,7 @@ export class SettingsComponent implements OnInit {
     this.isSaving = true;
     this.apiService.verifySettings().subscribe(
       (data) => {
-        this.toastr.success('Settings appear valid');
+        this.toastr.success('Settings are valid');
         this.isSaving = false;
       },
       (error) => {
@@ -145,7 +152,7 @@ export class SettingsComponent implements OnInit {
   }
 
   public addUser() {
-    this.form.controls['users'].push(this.fb.group({
+    this.form.get('users').push(this.fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required],
       can_immediately_watch_movies: [false],
@@ -155,7 +162,7 @@ export class SettingsComponent implements OnInit {
 
   public saveUser(index: number) {
 
-    const userControl = this.form.controls['users'].controls[index];
+    const userControl = this.form.get('users').controls[index];
     if (!userControl.valid) {
       this.toastr.error('Please supply all required fields for this user');
       return;
@@ -189,7 +196,7 @@ export class SettingsComponent implements OnInit {
   }
 
   public removeUser(index: number) {
-    const userControl = this.form.controls['users'].controls[index];
+    const userControl = this.form.get('users').controls[index];
     this.apiService.deleteUser(userControl.value.id).subscribe(
       (data) => {
         this.toastr.success(`Successfully deleted ${userControl.value.username}`);
@@ -200,5 +207,10 @@ export class SettingsComponent implements OnInit {
         console.log(error);
       }
     )
+  }
+
+  public canDeleteUser(index: number) {
+    const userControl = this.form.get('users').controls[index];
+    return userControl.get('id') && this.apiService.user.id !== userControl.get('id').value;
   }
 }
