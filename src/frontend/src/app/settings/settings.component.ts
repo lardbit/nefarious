@@ -173,8 +173,6 @@ export class SettingsComponent implements OnInit {
       this.apiService.updateUser(userControl.value.id, userControl.value).subscribe(
         (data) => {
           this.toastr.success(`Successfully updated user ${userControl.value.username}`);
-          data.password = '';
-          this.form.get('users').at(index).setValue(data);
         },
         (error) => {
           this.toastr.error(`An unknown error occurred updating user ${userControl.value.username}`);
