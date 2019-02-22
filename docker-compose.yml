@@ -72,7 +72,8 @@ services:
     image: linuxserver/transmission
     volumes:
       - transmission-config:/config
-      - /tmp/transmission/:/downloads
+      # update this path to point to where you want things downloaded
+      - .:/downloads
     ports:
       - "9091:9091"
 

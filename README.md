@@ -38,6 +38,8 @@ Features:
 
 [Development](#development)
 
+[Contributing](#contributing)
+
 ### Screenshots
 
 ##### Login
@@ -88,14 +90,13 @@ The default user/pass is `admin/admin`.  You can change this through the backend
 
 Configure your local Jackett instance at [http://localhost:9117](http://localhost:9117).  You'll need to add indexers and copy your api key to enter into nefarious.
 
+### Configure Transmission
+
+If you're using the built-in transmission, then there's nothing to actually configure, but you can view its web ui at [http://localhost:9091](http://localhost:9091) to see what's actually being downloaded by nefarious.
+
 ### Configure Nefarious
 
 Open nefarious at [http://localhost:8000](http://localhost:8000).  You'll be redirected to the settings page.
-
-
-### Configure Transmission
-
-There's nothing to actually configure, but you can view its web ui at [http://localhost:9091](http://localhost:9091) to see what's actually being downloaded by nefarious.
 
 ##### Jackett settings
 
@@ -120,9 +121,14 @@ If you're using the built-in transmission in the `docker-compose.yml`, then make
 
 Nefarious is built on:
 
+- Python 3.6
 - Django 2
-- Python 3.7
 - Angular 6
 - Bootstrap 4
 
-Review the `Dockerfile` for dependencies.
+Review the `Dockerfile` for dependencies and building.
+
+
+## Contributing
+
+Sure.
