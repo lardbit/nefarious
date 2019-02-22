@@ -22,7 +22,7 @@
         <button *ngIf="!result.torrent" type="button" class="btn btn-outline-secondary">{{ result.watchMedia.name }}</button>
       </td>
       <td>{{ result.watchMedia.date_added | date | date: 'shortDate' }}</td>
-      <td>{{ result.watchMedia.last_attempt_date | amTimeAgo }}</td>
+      <td><span *ngIf="result.watchMedia.last_attempt_date">{{ result.watchMedia.last_attempt_date | amTimeAgo }}</span></td>
       <td>
         <span *ngIf="result.watchMedia.collected">
             <button class="btn btn-success btn-link" [ngbPopover]="result.watchMedia.collected_date"><span class="oi oi-circle-check"></span></button>
