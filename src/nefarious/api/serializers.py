@@ -1,4 +1,3 @@
-import logging
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -9,7 +8,6 @@ from nefarious.models import (
     WatchTVSeason,
 )
 from nefarious.tmdb import get_tmdb_client
-from nefarious.utils import verify_settings_jackett, verify_settings_transmission, verify_settings_tmdb
 
 
 class UserReferenceSerializerMixin(serializers.ModelSerializer):
@@ -25,6 +23,16 @@ class NefariousSettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = NefariousSettings
         fields = '__all__'
+
+    def create(self, validated_data):
+
+        # save tmdb configuration settings on creation
+        nefarious_settings = NefariousSettings(**validated_data)
+        tmdb_client = get_tmdb_client(nefarious_settings)
+        configuration = tmdb_client.Configuration()
+        validated_data['tmdb_configuration'] = configuration.info()
+
+        return super().create(validated_data)
 
 
 class NefariousPartialSettingsSerializer(serializers.ModelSerializer):
