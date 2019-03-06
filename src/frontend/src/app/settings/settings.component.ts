@@ -111,6 +111,10 @@ export class SettingsComponent implements OnInit {
     );
   }
 
+  public hasSettings() {
+    return !!this.apiService.settings;
+  }
+
   public verifySettings() {
     this.isSaving = true;
     this.apiService.verifySettings().subscribe(

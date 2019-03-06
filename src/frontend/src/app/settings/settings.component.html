@@ -1,6 +1,6 @@
 <div class="position-relative">
   <ngx-loading [show]="isSaving"></ngx-loading>
-  <div class="d-flex justify-content-end my-3">
+  <div class="d-flex justify-content-end my-3" *ngIf="hasSettings()">
     <button type="button" class="btn btn-sm btn-info" (click)="verifySettings()">Verify Settings</button>
   </div>
   <div class="row" *ngIf="form">
