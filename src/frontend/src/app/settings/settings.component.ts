@@ -49,24 +49,26 @@ export class SettingsComponent implements OnInit {
       'users': new FormArray([]),
     });
 
-    this.apiService.fetchJackettIndexers().subscribe(
-      (data: string[]) => {
-        this.jackettIndexers = data;
-        const formControls = {};
-        this.jackettIndexers.forEach((indexer) => {
-          formControls[indexer] = (
-            this.apiService.settings.jackett_indexers_seed && this.apiService.settings.jackett_indexers_seed[indexer]
-          ) || false;
-        });
-        this.form.get('jackett').addControl('jackett_indexers_seed', this.fb.group(formControls));
-        this.isLoadingJackettIndexers = false;
-      },
-      (error) => {
-        console.error(error);
-        this.toastr.error('An unknown error occurred fetching jackett indexers');
-        this.isLoadingJackettIndexers = false;
-      }
-    );
+    if (this.apiService.settings) {
+      this.apiService.fetchJackettIndexers().subscribe(
+        (data: string[]) => {
+          this.jackettIndexers = data;
+          const formControls = {};
+          this.jackettIndexers.forEach((indexer) => {
+            formControls[indexer] = (
+              this.apiService.settings.jackett_indexers_seed && this.apiService.settings.jackett_indexers_seed[indexer]
+            ) || false;
+          });
+          this.form.get('jackett').addControl('jackett_indexers_seed', this.fb.group(formControls));
+          this.isLoadingJackettIndexers = false;
+        },
+        (error) => {
+          console.error(error);
+          this.toastr.error('An unknown error occurred fetching jackett indexers');
+          this.isLoadingJackettIndexers = false;
+        }
+      );
+    }
 
     this.apiService.fetchUsers().subscribe(
       (users) => {

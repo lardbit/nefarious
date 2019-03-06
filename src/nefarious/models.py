@@ -10,12 +10,12 @@ PERM_CAN_WATCH_IMMEDIATELY_MOVIE = 'can_immediately_watch_movie'
 
 class NefariousSettings(models.Model):
     jackett_host = models.CharField(max_length=500, default='localhost')
-    jackett_port = models.IntegerField(default=9117)
-    jackett_token = models.CharField(max_length=500)
-    jackett_indexers_seed = JSONField(blank=True, null=True)  # seed only
+    jackett_port = models.IntegerField(default=9117, blank=True)
+    jackett_token = models.CharField(max_length=500, blank=True)
+    jackett_indexers_seed = JSONField(blank=True, null=True)  # seed only indexers
 
-    transmission_host = models.CharField(max_length=500)
-    transmission_port = models.IntegerField(default=9091)
+    transmission_host = models.CharField(max_length=500, blank=True)
+    transmission_port = models.IntegerField(default=9091, blank=True)
     transmission_user = models.CharField(max_length=500, blank=True)
     transmission_pass = models.CharField(max_length=500, blank=True)
     transmission_tv_download_dir = models.CharField(max_length=500, default='tv/', help_text='Relative to download path')
