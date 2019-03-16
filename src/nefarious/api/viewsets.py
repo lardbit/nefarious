@@ -207,6 +207,31 @@ class SearchMediaView(views.APIView):
         return Response(results)
 
 
+class SearchSimilarMediaView(views.APIView):
+
+    @method_decorator(cache_page(CACHE_DAY))
+    def get(self, request):
+        media_type = request.query_params.get('media_type', MEDIA_TYPE_TV)
+        assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
+
+        if 'tmdb_media_id' not in request.query_params:
+            raise ValidationError({'tmdb_media_id': ['required parameter']})
+
+        nefarious_settings = NefariousSettings.get()
+
+        # prepare query
+        tmdb = get_tmdb_client(nefarious_settings)
+        tmdb_media_id = request.query_params.get('tmdb_media_id')
+
+        # search for media
+        if media_type == MEDIA_TYPE_MOVIE:
+            similar_results = tmdb.Movies(id=tmdb_media_id).similar_movies()
+        else:
+            similar_results = tmdb.TV(id=tmdb_media_id).similar()
+
+        return Response(similar_results)
+
+
 class SearchTorrentsView(views.APIView):
 
     @method_decorator(cache_page(CACHE_HALF_DAY))

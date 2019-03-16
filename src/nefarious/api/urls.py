@@ -18,6 +18,7 @@ urlpatterns = [
     path('download/torrents/', viewsets.DownloadTorrentsView.as_view()),
     path('current/torrents/', viewsets.CurrentTorrentsView.as_view()),
     path('search/media/', viewsets.SearchMediaView.as_view()),
+    path('search/similar/media/', viewsets.SearchSimilarMediaView.as_view()),
     path('search/media/<str:media_type>/<int:media_id>/', viewsets.MediaDetailView.as_view()),
     path('discover/media/<str:media_type>/', viewsets.DiscoverMediaView.as_view()),
     path('genres/<str:media_type>/', viewsets.GenresView.as_view()),
