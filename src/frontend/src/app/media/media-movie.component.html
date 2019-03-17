@@ -6,7 +6,6 @@
     <div *ngIf="!isLoading">
       <div class="card-header d-flex justify-content-between">
         <div>{{ result.title }}</div>
-        <a [routerLink]="['/search/auto']" [queryParams]="{type: 'movie', q: 'similar-to:' + result.id}" class="btn btn-link"><span class="oi oi-magnifying-glass"></span> Similar</a>
         <button *ngIf="watchMovie?.collected" class="btn btn-success btn-link" [ngbPopover]="watchMovie.collected_date"><span class="oi oi-circle-check"></span> Downloaded</button>
       </div>
       <div class="card-body">
@@ -14,7 +13,10 @@
           <ngb-tab title="Details">
             <ng-template ngbTabContent>
               <div class="mt-3">
-                <h6 class="card-title">{{ result.release_date | date:'y' }}</h6>
+                <div class="d-flex justify-content-between">
+                  <h6 class="card-title">{{ result.release_date | date:'y' }}</h6>
+                  <a [routerLink]="['/search/auto']" [queryParams]="{type: 'movie', q: 'similar-to:' + result.id}" class="btn btn-link"><span class="oi oi-magnifying-glass"></span> Similar</a>
+                </div>
                 <p class="card-text">{{ result.overview }}</p>
                 <div class="row">
                   <div class="col">
