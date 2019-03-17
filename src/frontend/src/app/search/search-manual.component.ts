@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from "../api.service";
 import { ToastrService } from 'ngx-toastr';
 import * as _ from 'lodash';
@@ -18,15 +19,49 @@ export class SearchManualComponent implements OnInit {
   } = {
     orderBy: "Name",
   };
+  public type: string;
   protected _downloading: any = {};
 
   constructor(
     private apiService: ApiService,
+    private route: ActivatedRoute,
     private toastr: ToastrService,
+    private router: Router,
     ) {
   }
 
   ngOnInit() {
+    // auto search on load if query params exist
+    if (this.route.snapshot.queryParams['q'] && this.route.snapshot.queryParams['type']) {
+      this.searchTorrents(this.route.snapshot.queryParams);
+    }
+  }
+
+  public searchTorrents(queryParams: any) {
+    this.type = queryParams.type;
+
+    // add the search query to the route parameters
+    this.router.navigate(
+      [],
+      {
+        relativeTo: this.route,
+        queryParams: queryParams,
+      },
+    );
+
+    this.results = [];
+    this.isSearching = true;
+    this.apiService.searchTorrents(queryParams.q, queryParams.type).subscribe(
+      (results) => {
+        this.results = results;
+        this.filterChange();
+        this.isSearching = false;
+      }, (error) => {
+        console.error(error);
+        this.isSearching = false;
+        this.toastr.error('An unknown error occurred');
+      }
+    )
   }
 
   public filterChange() {
@@ -49,27 +84,10 @@ export class SearchManualComponent implements OnInit {
     }
   }
 
-  public searchTorrents() {
-    this.results = [];
-    this.isSearching = true;
-    this.apiService.searchTorrents(this.apiService.searchQuery.query, this.apiService.searchQuery.type).subscribe(
-      (results) => {
-        console.log(results);
-        this.results = results;
-        this.filterChange();
-        this.isSearching = false;
-      }, (error) => {
-        console.error(error);
-        this.isSearching = false;
-        this.toastr.error('An unknown error occurred');
-      }
-    )
-  }
-
   public downloadTorrent(result: any) {
     const torrent = SearchManualComponent._getTorrentLinkFromResult(result);
     this._downloading[torrent] = true;
-    this.apiService.download(torrent, this.apiService.searchQuery.type).subscribe(
+    this.apiService.download(torrent, this.type).subscribe(
       (data) => {
         console.log(data);
         if (!data.success) {

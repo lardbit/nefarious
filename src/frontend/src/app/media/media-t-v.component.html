@@ -1,8 +1,11 @@
 <div class="card position-relative">
   <ngx-loading [show]="isLoading"></ngx-loading>
   <div *ngIf="!isLoading">
+    <div class="card-header d-flex justify-content-between">
+      <div>{{ result.name }}</div>
+      <a [routerLink]="['/search/auto']" [queryParams]="{type: 'tv', q: 'similar-to:' + result.id}" class="btn btn-link"><span class="oi oi-magnifying-glass"></span> Similar</a>
+    </div>
     <div class="card-body">
-      <h5 class="card-title">{{ result.name }}</h5>
       <p class="card-text">{{ result.overview }}</p>
       <div class="d-flex justify-content-end">
         <button type="button" class="btn btn-success" (click)="watchAllSeasons()">

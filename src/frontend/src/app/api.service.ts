@@ -20,6 +20,7 @@ export class ApiService {
   API_URL_SEARCH_TORRENTS = '/api/search/torrents/';
   API_URL_DOWNLOAD_TORRENTS = '/api/download/torrents/';
   API_URL_SEARCH_MEDIA = '/api/search/media/';
+  API_URL_SEARCH_SIMILAR_MEDIA = '/api/search/similar/media/';
   API_URL_WATCH_TV_EPISODE = '/api/watch-tv-episode/';
   API_URL_WATCH_TV_SHOW = '/api/watch-tv-show/';
   API_URL_WATCH_TV_SEASON = '/api/watch-tv-season/';
@@ -43,13 +44,6 @@ export class ApiService {
   public watchTVEpisodes: any[] = [];
   public watchTVShows: any[] = [];
   public watchMovies: any[] = [];
-  public searchQuery: {
-    query: string,
-    type: string,
-  } = {
-    query: '',
-    type: this.SEARCH_MEDIA_TYPE_MOVIE,
-  };
 
   constructor(
     private http: HttpClient,
@@ -272,6 +266,18 @@ export class ApiService {
         media_type: mediaType,
       }});
     return this.http.get(this.API_URL_SEARCH_MEDIA, {headers: this._requestHeaders(), params: httpParams}).pipe(
+      map((data: any) => {
+        return data;
+      }),
+    );
+  }
+
+  public searchSimilarMedia(tmdbMediaId: string, mediaType: string) {
+    const httpParams = new HttpParams({fromObject: {
+        tmdb_media_id: tmdbMediaId,
+        media_type: mediaType,
+      }});
+    return this.http.get(this.API_URL_SEARCH_SIMILAR_MEDIA, {headers: this._requestHeaders(), params: httpParams}).pipe(
       map((data: any) => {
         return data;
       }),

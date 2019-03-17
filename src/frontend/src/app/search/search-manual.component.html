@@ -1,11 +1,9 @@
 <app-search-tabs></app-search-tabs>
-<app-search-input (query)="searchTorrents()" [isSearching]="isSearching"></app-search-input>
+<app-search-input (query)="searchTorrents($event)"></app-search-input>
 
 <div class="position-relative">
 
   <ngx-loading [show]="isSearching"></ngx-loading>
-
-  <!--<div class="alert alert-info" *ngIf="!isSearching && results.length == 0">No results</div>-->
 
   <form class="form-inline" *ngIf="results.length">
     <div class="form-group">

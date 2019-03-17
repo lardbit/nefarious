@@ -1,5 +1,5 @@
-import { ActivatedRoute, Router } from '@angular/router';
-import { Component, EventEmitter, OnInit, Output, Input } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { ApiService } from '../api.service';
 import { ToastrService } from 'ngx-toastr';
 
@@ -10,50 +10,29 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class SearchInputComponent implements OnInit {
   @Output() query = new EventEmitter<any>();
-  @Input() isSearching: boolean;
-
-  public searchQuery: {
-    query: string,
-    type: string,
-  };
+  public q: string;
+  public type: string;
 
   constructor(
     private toastr: ToastrService,
     private apiService: ApiService,
     private route: ActivatedRoute,
-    private router: Router,
     ) {
   }
 
   ngOnInit() {
-    // link component instance value to service value
-    this.searchQuery = this.apiService.searchQuery;
+    this.type = this.apiService.SEARCH_MEDIA_TYPE_MOVIE;
 
-    // see if there were router params already set
-    if (this.route.snapshot.params['q'] && this.route.snapshot.params['type']) {
-      this.apiService.searchQuery.query = this.route.snapshot.params['q'];
-      this.apiService.searchQuery.type = this.route.snapshot.params['type'];
-      this.submitSearch();
+    const queryParams = this.route.snapshot.queryParams;
+
+    // populate query params if already set
+    if (queryParams['q'] && queryParams['type']) {
+      this.type = queryParams['type'];
+      this.q = queryParams['q'];
     }
   }
 
   public submitSearch() {
-    const params = {
-      q: this.searchQuery.query,
-      type: this.searchQuery.type,
-    };
-    const currentUrl = this.route.snapshot.url.map((data) => {
-      return data.path;
-    });
-    // navigate to the search component with the search query as parameters
-    this.router.navigate([`/${currentUrl.join('/')}/`, params]).then(
-      () => {
-        // communicate a query was submitted
-        this.query.emit();
-      },
-      () => {
-        this.toastr.error('An unknown error occurred');
-      }
-    );
+    this.query.emit({q: this.q, type: this.type});
   }
 }
