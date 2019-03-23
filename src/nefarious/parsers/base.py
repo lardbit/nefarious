@@ -41,7 +41,7 @@ class ParserBase:
         r"(?<dsr>WS[-_. ]DSR|DSR)|"
         r"(?<regional>R[0-9]{1}|REGIONAL)|"
         r"(?<scr>SCR|SCREENER|DVDSCR|DVDSCREENER)|"
-        r"(?<ts>TS|TELESYNC|HD-TS|HDTS|PDVD|TSRip|HDTSRip)|"
+        r"(?<ts>TS|TELESYNC|HD-TS|HDTS|PDVD|TSRip|HDTSRip|HQ-TS)|"
         r"(?<tc>TC|TELECINE|HD-TC|HDTC)|"
         r"(?<cam>CAMRIP|CAM|HDCAM|HDCAMRip|HD-CAM)|"
         r"(?<wp>WORKPRINT|WP)|"
