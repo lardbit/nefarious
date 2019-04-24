@@ -6,7 +6,7 @@
 
 It aims to combine features of [Sonarr](https://github.com/Sonarr/Sonarr/), [Radarr](https://github.com/Radarr/Radarr) and [Ombi](https://github.com/tidusjar/Ombi).
 
-It uses [Jackett](https://github.com/Jackett/Jackett/) under the hood and expects [Transmission](https://transmissionbt.com/) to be running somewhere.  It actually includes transmission but I suggest using [docker-transmission-openvpn](https://github.com/haugene/docker-transmission-openvpn) for a version built to run behind a VPN.
+It uses [Jackett](https://github.com/Jackett/Jackett/) and [Transmission](https://transmissionbt.com/) under the hood.  Jackett searches for torrents and Transmission does the downloading.
 
 Features:
 - [x] Search TV
@@ -16,14 +16,14 @@ Features:
 - [x] Discover Movies (by popularity, genres etc)
 - [x] Discover TV (by popularity, genres etc)
 - [x] Manually search Jackett results and download
-- [x] Support blacklisting torrent results
-- [X] Support quality profiles (i.e only download 1080p Movies and *any* quality TV)
+- [x] Support blacklisting torrent results (a bad torrent that should be avoided)
+- [X] Support quality profiles (i.e only download *1080p* Movies and *any* quality TV)
 - [x] Auto download media once it's released (routinely scan)
 - [x] Monitor transmission results from within the app
 - [x] Self/auto updating application
 - [x] Support multiple users (i.e admin users and regular users)
 - [x] Mobile Friendly (looks good on small devices like phones)
-- [ ] Support user requests (i.e a user must "request" to watch something)
+- [ ] Support user requests (i.e an unprivileged user must "request" to watch something)
 - [ ] Smart Ratio management (auto seed to specified indexers)
 
 ### Contents
@@ -37,8 +37,6 @@ Features:
 [Troubleshooting](#troubleshooting)
 
 [Development](#development)
-
-[Contributing](#contributing)
 
 ### Screenshots
 
@@ -119,6 +117,8 @@ If you're using the built-in transmission in the `docker-compose.yml`, then make
 
 ## Development
 
+If you're interested in contributing or simply want to run nefarious without *docker* then follow these instructions.
+
 Nefarious is built on:
 
 - Python 3.6
@@ -126,9 +126,41 @@ Nefarious is built on:
 - Angular 6
 - Bootstrap 4
 
-Review the `Dockerfile` for dependencies and building.
+*Note*: Review the `Dockerfile` for all necessary dependencies.
 
+#### Build front-end resources
 
-## Contributing
+First build the frontend html/css stuff (angular):
+    
+    npm --prefix src/frontend run build
+   
+Note: run `npm --prefix src/frontend run watch` to automatically rebuild while you're developing the frontend stuff.
+   
+#### Run nefarious
 
-Sure.
+Run the python application using django's *development* `runserver` management command: 
+
+    python src/manage.py runserver 8000
+   
+It'll be now running at [http://127.0.0.1:8000](http://127.0.0.1:8000)
+
+   
+#### Run celery (task queue)
+
+[Celery](http://celeryproject.org) is a task queue and is used by nefarious to queue downloads, monitor for things, etc.
+
+Run the celery server:
+
+    celery -A nefarious worker --loglevel=INFO
+    
+You'll see all download logs/activity come out of here.
+
+#### Dependencies
+
+Jackett, Redis and Transmission are expected to be running somewhere.  
+
+You can download and run them manually, or, for simplicity, I'd just run them via docker using the `docker-compose.yml` file.
+
+Run redis, jackett and transmission from the `docker-compose.yml` file:
+
+    docker-compose up -d redis jackett transmission

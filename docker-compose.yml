@@ -73,7 +73,7 @@ services:
     volumes:
       - transmission-config:/config
       # update this path to point to where you want things downloaded
-      - .:/downloads
+      - /tmp:/downloads
     ports:
       - "9091:9091"
 
