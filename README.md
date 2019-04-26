@@ -128,6 +128,17 @@ Nefarious is built on:
 
 *Note*: Review the `Dockerfile` for all necessary dependencies.
 
+#### Build database
+  
+    python src/manage.py migrate
+
+#### Run init
+
+This creates a default user with default user/pass (admin/admin).
+
+    python src/manage.py nefarious-init admin admin@localhost admin
+
+
 #### Build front-end resources
 
 First build the frontend html/css stuff (angular):
