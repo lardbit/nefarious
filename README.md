@@ -128,13 +128,19 @@ Nefarious is built on:
 
 *Note*: Review the `Dockerfile` for all necessary dependencies.
 
+#### Install python dependencies
+
+This assumes you're either installing these packages in your global python environment (in which case you probably need to use `sudo`) or, even better, install a [virtual environment](https://docs.python.org/3/library/venv.html) first.
+  
+    pip install -r src/requirements.txt
+
 #### Build database
   
     python src/manage.py migrate
 
-#### Run init
+#### Run nefarious init script
 
-This creates a default user with default user/pass (admin/admin).
+This creates a default user and pass (admin/admin).
 
     python src/manage.py nefarious-init admin admin@localhost admin
 
