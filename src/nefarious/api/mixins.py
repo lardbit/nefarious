@@ -2,7 +2,7 @@ import logging
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from nefarious.models import NefariousSettings, TorrentBlacklist
+from nefarious.models import NefariousSettings, TorrentBlacklist, WatchMediaBase
 from nefarious.transmission import get_transmission_client
 
 
@@ -53,3 +53,16 @@ class BlacklistAndRetryMixin:
         transmission_client.remove_torrent([del_transmission_torrent_hash], delete_data=True)  # fails silently
 
         return Response(self.serializer_class(watch_media).data)
+
+
+class DestroyTransmissionResultMixin:
+    """
+    Deletes transmission result, including data, for any media that's been requested to be deleted
+    """
+
+    def perform_destroy(self, instance: WatchMediaBase):
+        # delete transmission result, including data, if it still exists
+        nefarious_settings = NefariousSettings.get()
+        transmission_client = get_transmission_client(nefarious_settings)
+        transmission_client.remove_torrent([instance.transmission_torrent_hash], delete_data=True)  # fails silently
+        super().perform_destroy(instance)

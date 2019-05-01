@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAdminUser
 
-from nefarious.api.mixins import UserReferenceViewSetMixin, BlacklistAndRetryMixin
+from nefarious.api.mixins import UserReferenceViewSetMixin, BlacklistAndRetryMixin, DestroyTransmissionResultMixin
 from nefarious.quality import PROFILES
 from nefarious.transmission import get_transmission_client
 from nefarious.tmdb import get_tmdb_client
@@ -33,7 +33,7 @@ CACHE_DAY = CACHE_HALF_DAY * 2
 CACHE_WEEK = CACHE_DAY * 7
 
 
-class WatchMovieViewSet(BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
+class WatchMovieViewSet(DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchMovie.objects.all()
     serializer_class = WatchMovieSerializer
     filter_fields = ('collected',)
@@ -80,7 +80,7 @@ class WatchTVShowViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
             WatchTVSeasonSerializer(watch_tv_season).data)
 
 
-class WatchTVSeasonViewSet(BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
+class WatchTVSeasonViewSet(DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVSeason.objects.all()
     serializer_class = WatchTVSeasonSerializer
     filter_fields = ('collected',)
@@ -94,7 +94,7 @@ class WatchTVSeasonViewSet(BlacklistAndRetryMixin, UserReferenceViewSetMixin, vi
         watch_tv_show_season_task.delay(serializer.instance.id)
 
 
-class WatchTVEpisodeViewSet(BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
+class WatchTVEpisodeViewSet(DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVEpisode.objects.all()
     serializer_class = WatchTVEpisodeSerializer
     filter_fields = ('collected',)
