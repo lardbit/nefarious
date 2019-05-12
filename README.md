@@ -15,7 +15,7 @@ Features:
 - [x] Auto download Movies
 - [x] Discover Movies (by popularity, genres etc)
 - [x] Discover TV (by popularity, genres etc)
-- [x] Manually search Jackett results and download
+- [x] Manually search jackett's torrent results and download
 - [x] Support blacklisting torrent results (a bad torrent that should be avoided)
 - [X] Support quality profiles (i.e only download *1080p* Movies and *any* quality TV)
 - [x] Auto download media once it's released (routinely scan)
@@ -70,7 +70,7 @@ Features:
 
 ### Installing
 
-Nefarious is best run via Docker through [Docker Compose](https://docs.docker.com/compose/install/).
+Nefarious is best run via [Docker](https://hub.docker.com/search/?type=edition&offering=community) through [Docker Compose](https://docs.docker.com/compose/install/).
 
 Install that and you're all set.
 
@@ -82,7 +82,7 @@ Run nefarious and dependencies:
 
 The default user/pass is `admin/admin`.  You can change this through the backend [admin interface](http://localhost:8000/admin/auth/user/1/password/).
 
-**NOTE:** there is an [armv7 image](https://hub.docker.com/r/lardbit/nefarious/tags/) as well.
+**NOTE:** there is an [armv7 image](https://hub.docker.com/r/lardbit/nefarious/tags/) that is automatically built as well.  This image allows you to run nefarious on hardware like the raspberry pi.  You'll have to edit the `docker-compose.yml` file to use the proper armv7 images for all services (ie. nefarious, transmission, redis etc).
 
 ### Configure Jackett
 
@@ -168,6 +168,7 @@ It'll be now running at [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 Run the celery server:
 
+    cd src
     celery -A nefarious worker --loglevel=INFO
     
 You'll see all download logs/activity come out of here.
