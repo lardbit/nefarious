@@ -63,6 +63,9 @@ class DestroyTransmissionResultMixin:
     def perform_destroy(self, instance: WatchMediaBase):
         # delete transmission result, including data, if it still exists
         nefarious_settings = NefariousSettings.get()
-        transmission_client = get_transmission_client(nefarious_settings)
-        transmission_client.remove_torrent([instance.transmission_torrent_hash], delete_data=True)  # fails silently
+        try:
+            transmission_client = get_transmission_client(nefarious_settings)
+            transmission_client.remove_torrent([instance.transmission_torrent_hash], delete_data=True)  # fails silently
+        except:
+            logging.warn('could not connect to transmission to delete the torrent')
         super().perform_destroy(instance)
