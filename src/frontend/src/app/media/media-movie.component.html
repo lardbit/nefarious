@@ -37,6 +37,9 @@
 													<span *ngIf="!isWatchingMovie">Watch</span>
 													<span *ngIf="isWatchingMovie">Stop Watching</span>
                         </button>
+                        <div class="text-muted mt-1" *ngIf="isWatchingMovie">
+                          Requested by: {{ watchMovie.requested_by }}
+                        </div>
                       </div>
                     </form>
                   </div>

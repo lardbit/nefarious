@@ -11,6 +11,7 @@ from nefarious.tmdb import get_tmdb_client
 
 
 class UserReferenceSerializerMixin(serializers.ModelSerializer):
+    # this automatically includes the current user in the serializer so the request doesn't have to send it along
     user = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
@@ -44,6 +45,11 @@ class NefariousPartialSettingsSerializer(serializers.ModelSerializer):
 
 
 class WatchMovieSerializer(UserReferenceSerializerMixin, serializers.ModelSerializer):
+    # necessary for outputting the user since UserReferenceSerializerMixin automatically includes "user" as an input/hidden field for convenience
+    requested_by = serializers.SerializerMethodField()
+
+    def get_requested_by(self, watch_movie: WatchMovie):
+        return watch_movie.user.username
 
     class Meta:
         model = WatchMovie
