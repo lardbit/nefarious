@@ -25,7 +25,7 @@ services:
     - jackett
     - celery
 
-  # background task service
+  # background task queue
   celery:
     labels:
       - com.centurylinklabs.watchtower.enable=true
@@ -45,7 +45,7 @@ services:
     depends_on:
       - redis
 
-  # in-memory database
+  # in-memory database for task queue
   redis:
     image: redis
     restart: always
@@ -69,11 +69,13 @@ services:
       - jackett-config:/config
 
   transmission:
-    image: linuxserver/transmission
+    image: jaymoulin/transmission
+    environment:
+      USERNAME: "admin"
+      PASSWORD: "admin"
     volumes:
-      - transmission-config:/config
       # update this path to point to where you want things downloaded
-      - /tmp:/downloads
+      - /tmp/transmission:/output
     ports:
       - "9091:9091"
 
@@ -91,5 +93,6 @@ services:
 
 volumes:
   nefarious-db:
+    driver: local
   jackett-config:
-  transmission-config:
+    driver: local
