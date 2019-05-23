@@ -3,6 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
 import { ToastrService } from 'ngx-toastr';
 import * as _ from 'lodash';
+import { Observable } from 'rxjs';
+import { map, share } from 'rxjs/operators';
 
 
 @Component({
@@ -15,10 +17,9 @@ export class MediaMovieComponent implements OnInit {
   public watchMovie: any;
   public qualityProfileCustom: string;
   public isLoading = true;
-  public isLoadingTrailers = true;
   public isSaving = false;
   public isWatchingMovie = false;
-  public trailerUrls: string[];
+  public trailerUrls$: Observable<any>;
 
   constructor(
     private route: ActivatedRoute,
@@ -44,16 +45,16 @@ export class MediaMovieComponent implements OnInit {
     );
 
     // fetch trailers
-    this.apiService.fetchMediaVideos(this.apiService.SEARCH_MEDIA_TYPE_MOVIE, routeParams.id).subscribe(
-      (data) => {
+    this.trailerUrls$ = this.apiService.fetchMediaVideos(this.apiService.SEARCH_MEDIA_TYPE_MOVIE, routeParams.id).pipe(
+      share(),
+      map((data) => {
         const trailerVideos = _.filter(data.results, (video) => {
           return video.type === 'Trailer' && video.site === 'YouTube';
         });
-        this.trailerUrls = trailerVideos.map((video) => {
+        return trailerVideos.map((video) => {
           return `https://www.youtube.com/watch?v=${video.key}`;
         });
-        this.isLoadingTrailers = false;
-      }
+      })
     );
   }
 
