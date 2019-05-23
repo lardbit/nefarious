@@ -18,7 +18,7 @@ export class MediaMovieComponent implements OnInit {
   public isLoadingTrailers = true;
   public isSaving = false;
   public isWatchingMovie = false;
-  public trailerUrls: string[] = [];
+  public trailerUrls: string[];
 
   constructor(
     private route: ActivatedRoute,
