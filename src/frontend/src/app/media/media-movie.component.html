@@ -18,6 +18,11 @@
                   <a [routerLink]="['/search/auto']" [queryParams]="{type: 'movie', q: 'similar-to:' + result.id}" class="btn btn-link"><span class="oi oi-magnifying-glass"></span> Similar</a>
                 </div>
                 <p class="card-text">{{ result.overview }}</p>
+                <p class="card-text position-relative">
+                  <ngx-loading [show]="isLoadingTrailers"></ngx-loading>
+                  <strong>Trailers</strong>:
+                  <a class="btn btn-default btn-link btn-sm" *ngFor="let trailerUrl of trailerUrls; let i = index; let last = last" [href]="trailerUrl" target="_blank">{{ i+1 }}<span *ngIf="!last">, </span></a>
+                </p>
                 <div class="row">
                   <div class="col">
                     <img [src]="mediaPosterURL(result)"  class="img-fluid">

@@ -15,8 +15,10 @@ export class MediaMovieComponent implements OnInit {
   public watchMovie: any;
   public qualityProfileCustom: string;
   public isLoading = true;
+  public isLoadingTrailers = true;
   public isSaving = false;
   public isWatchingMovie = false;
+  public trailerUrls: string[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -38,6 +40,19 @@ export class MediaMovieComponent implements OnInit {
       (error) => {
         this.isLoading = false;
         this.toastr.error('An unknown error occurred');
+      }
+    );
+
+    // fetch trailers
+    this.apiService.fetchMediaVideos(this.apiService.SEARCH_MEDIA_TYPE_MOVIE, routeParams.id).subscribe(
+      (data) => {
+        const trailerVideos = _.filter(data.results, (video) => {
+          return video.type === 'Trailer' && video.site === 'YouTube';
+        });
+        this.trailerUrls = trailerVideos.map((video) => {
+          return `https://www.youtube.com/watch?v=${video.key}`;
+        });
+        this.isLoadingTrailers = false;
       }
     );
   }

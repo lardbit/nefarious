@@ -292,6 +292,14 @@ export class ApiService {
     );
   }
 
+  public fetchMediaVideos(mediaType: string, id: string) {
+    return this.http.get(`${this.API_URL_SEARCH_MEDIA}${mediaType}/${id}/videos/`, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        return data;
+      }),
+    );
+  }
+
   public fetchWatchTVShows(params?: any) {
     params = params || {};
     const httpParams = new HttpParams({fromObject: params});

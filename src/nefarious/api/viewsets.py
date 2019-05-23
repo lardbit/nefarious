@@ -370,6 +370,25 @@ class GenresView(views.APIView):
         return Response(results)
 
 
+class VideosView(views.APIView):
+
+    @method_decorator(cache_page(CACHE_DAY))
+    def get(self, request, media_type, media_id):
+        assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
+
+        nefarious_settings = NefariousSettings.get()
+
+        # prepare query
+        tmdb = get_tmdb_client(nefarious_settings)
+
+        if media_type == MEDIA_TYPE_MOVIE:
+            result = tmdb.Movies(media_id)
+        else:
+            result = tmdb.TV(media_id)
+
+        return Response(result.videos())
+
+
 class QualityProfilesView(views.APIView):
 
     def get(self, request):
