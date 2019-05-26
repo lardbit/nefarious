@@ -9,20 +9,20 @@ It aims to combine features of [Sonarr](https://github.com/Sonarr/Sonarr/), [Rad
 It uses [Jackett](https://github.com/Jackett/Jackett/) and [Transmission](https://transmissionbt.com/) under the hood.  Jackett searches for torrents and Transmission does the downloading.
 
 Features:
-- [x] Search TV
-- [x] Search Movies
-- [x] Auto download TV (individual or full season)
+- [x] Search TV & Movies
+- [x] Auto download TV (individual episodes or full season)
 - [x] Auto download Movies
-- [x] Discover Movies (by popularity, genres etc)
-- [x] Discover TV (by popularity, genres etc)
+- [x] Discover TV & Movies (by popularity, genres, year etc)
+- [x] Discover similar TV & Movies
 - [x] Manually search jackett's torrent results and download
-- [x] Support blacklisting torrent results (a bad torrent that should be avoided)
-- [X] Support quality profiles (i.e only download *1080p* Movies and *any* quality TV)
-- [x] Auto download media once it's released (routinely scan)
-- [x] Monitor transmission results from within the app
+- [x] Supports blacklisting torrent results (i.e avoid a bad torrent that should be avoided)
+- [X] Supports quality profiles (i.e only download *1080p* Movies and *any* quality TV)
+- [x] Auto download TV & Movies once it's released (routinely scan)
+- [x] Monitor transmission results & status from within the app
 - [x] Self/auto updating application
-- [x] Support multiple users (i.e admin users and regular users)
-- [x] Mobile Friendly (looks good on small devices like phones)
+- [x] Supports multiple users (i.e admin users and regular users)
+- [x] Responsive Design (looks great on desktops, tablets and small devices like phones)
+- [x] Movie trailers
 - [ ] Support user requests (i.e an unprivileged user must "request" to watch something)
 - [ ] Smart Ratio management (auto seed to specified indexers)
 
@@ -86,7 +86,7 @@ The default user/pass is `admin/admin`.  You can change this through the backend
 
 ### Configure Jackett
 
-Configure your local Jackett instance at [http://localhost:9117](http://localhost:9117).  You'll need to add indexers and copy your api key to enter into nefarious.
+Configure your local Jackett instance at [http://localhost:9117](http://localhost:9117).  You'll need to add indexers and copy your api key to enter into nefarious.  Some popular examples are *The Pirate Bay*, *1337x*, *RARBG*.
 
 ### Configure Transmission
 
