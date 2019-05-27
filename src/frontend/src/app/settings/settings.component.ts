@@ -46,6 +46,9 @@ export class SettingsComponent implements OnInit {
           'quality_profile_tv': [settings['quality_profile_tv'], Validators.required],
           'quality_profile_movies': [settings['quality_profile_movies'], Validators.required],
       }),
+      'subs': this.fb.group({
+        'allow_hardcoded_subs': [settings['allow_hardcoded_subs'], Validators.required],
+      }),
       'users': new FormArray([]),
     });
 
@@ -83,7 +86,7 @@ export class SettingsComponent implements OnInit {
           this.form.get('users').insert(0, this.fb.group(controls));
         });
       }
-    )
+    );
   }
 
   public submit(group: string) {

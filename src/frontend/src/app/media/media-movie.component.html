@@ -18,7 +18,7 @@
                   <a [routerLink]="['/search/auto']" [queryParams]="{type: 'movie', q: 'similar-to:' + result.id}" class="btn btn-link"><span class="oi oi-magnifying-glass"></span> Similar</a>
                 </div>
                 <p class="card-text">{{ result.overview }}</p>
-                <div class="card-text position-relative my-3">
+                <div class="card-text position-relative my-3 w-25">
                   <strong>Trailers</strong>:
                   <span *ngIf="trailerUrls$ | async; let trailerUrls; else loading">
                     <span *ngIf="trailerUrls.length === 0" class="text-danger">No trailers found</span>
@@ -45,7 +45,7 @@
 													<span *ngIf="!isWatchingMovie">Watch</span>
 													<span *ngIf="isWatchingMovie">Stop Watching</span>
                         </button>
-                        <div class="text-muted mt-1" *ngIf="isWatchingMovie">
+                        <div class="text-muted mt-1" *ngIf="isWatchingMovie && watchMovie">
                           Requested by: {{ watchMovie.requested_by }}
                         </div>
                       </div>

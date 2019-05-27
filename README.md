@@ -17,6 +17,7 @@ Features:
 - [x] Manually search jackett's torrent results and download
 - [x] Supports blacklisting torrent results (i.e avoid a bad torrent that should be avoided)
 - [X] Supports quality profiles (i.e only download *1080p* Movies and *any* quality TV)
+- [x] Supports whether to download media with hardcoded subtitles or not
 - [x] Auto download TV & Movies once it's released (routinely scan)
 - [x] Monitor transmission results & status from within the app
 - [x] Self/auto updating application

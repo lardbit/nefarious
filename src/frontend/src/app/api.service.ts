@@ -223,7 +223,6 @@ export class ApiService {
   public createSettings(params: any) {
     return this.http.post(this.API_URL_SETTINGS, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        console.log(data);
         this.settings = data;
         return this.settings;
       }),
@@ -233,7 +232,6 @@ export class ApiService {
   public updateSettings(id: number, params: any) {
     return this.http.patch(`${this.API_URL_SETTINGS}${id}/`, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        console.log(data);
         this.settings = data;
         return this.settings;
       }),

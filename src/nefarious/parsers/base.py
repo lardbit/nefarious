@@ -52,6 +52,7 @@ class ParserBase:
     anime_bluray_regex = regex.compile(r"bd(?:720|1080)|(?<=[-_. (\[])bd(?=[-_. )\]])", regex.I)
     high_def_pdtv_regex = regex.compile(r"hr[-_. ]ws", regex.I)
     raw_hd_regex = regex.compile(r"\b(?<rawhd>RawHD|1080i[-_. ]HDTV|Raw[-_. ]HD|MPEG[-_. ]?2)\b", regex.I)
+    hardcoded_subs_regex = regex.compile(r"\b(?<hc>hc)\b", regex.I)
 
     def __init__(self, title):
         self.title_query = title
@@ -73,6 +74,13 @@ class ParserBase:
             title_quality = self.parse_quality(self.title_query)
             self.match['quality'] = title_quality.name
             self.match['resolution'] = self.parse_resolution(self.title_query)
+
+            # hardcoded subs
+            self.match['hc'] = self.parse_hardcoded_subs()
+
+    def parse_hardcoded_subs(self):
+        match = self.hardcoded_subs_regex.search(self.title_query)
+        return True if match else False
 
     def parse_quality(self, name: str):
         name = name.strip().lower()
@@ -252,6 +260,11 @@ class ParserBase:
 
     def is_quality_match(self, profile: Profile) -> bool:
         return self.match['quality'] in profile.qualities
+
+    def is_hardcoded_subs_match(self, allows: bool) -> bool:
+        if not allows and self.match['hc']:
+            return False
+        return True
 
     def _is_match(self, **kwargs) -> bool:
         raise NotImplementedError

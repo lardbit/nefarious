@@ -28,6 +28,8 @@ class NefariousSettings(models.Model):
     quality_profile_tv = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     quality_profile_movies = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
 
+    allow_hardcoded_subs = models.BooleanField(default=False)
+
     @classmethod
     def get(cls):
         if cls.objects.all().count() > 1:
