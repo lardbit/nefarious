@@ -105,10 +105,8 @@ class WatchProcessorBase:
 
         profile = Profile.get_from_name(quality_profile)
 
-        # hardcoded subs validation
-        hardcoded_sub_validation = parser.is_hardcoded_subs_match(self.nefarious_settings.allow_hardcoded_subs)
-
-        return self._is_match(parser) and parser.is_quality_match(profile) and hardcoded_sub_validation
+        return self._is_match(parser) and parser.is_quality_match(profile) and parser.is_hardcoded_subs_match(
+            self.nefarious_settings.allow_hardcoded_subs)
 
     def _results_with_valid_urls(self, results: list):
         return results_with_valid_urls(results, self.nefarious_settings)
