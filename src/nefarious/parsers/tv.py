@@ -376,6 +376,9 @@ class TVParser(ParserBase):
         self.match['quality'] = title_quality.name
         self.match['resolution'] = self.parse_resolution(self.title_query)
 
+        # hardcoded subs
+        self.match['hc'] = self.parse_hardcoded_subs()
+
         return self.match
 
     def _is_match(self, title, season_number, episode_number=None):
