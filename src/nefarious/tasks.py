@@ -35,7 +35,7 @@ def watch_tv_show_season_task(watch_tv_season_id: int):
     processor = WatchTVSeasonProcessor(watch_media_id=watch_tv_season_id)
     success = processor.fetch()
 
-    # delete watch_tv_season and fallback to individual episodes
+    # failed so delete season instance and fallback to trying individual episodes
     if not success:
         watch_tv_season = get_object_or_404(WatchTVSeason, pk=watch_tv_season_id)
         logging.info('Failed fetching season {} - falling back to individual episodes'.format(watch_tv_season))
@@ -126,6 +126,7 @@ def wanted_media_task():
     wanted_kwargs = dict(collected=False, transmission_torrent_hash__isnull=True)
 
     wanted_movies = WatchMovie.objects.filter(**wanted_kwargs)
+    wanted_tv_seasons = WatchTVSeason.objects.filter(**wanted_kwargs)
     wanted_tv_episodes = WatchTVEpisode.objects.filter(**wanted_kwargs)
 
     tasks = []
@@ -133,6 +134,10 @@ def wanted_media_task():
     for media in wanted_movies:
         logging.info('Wanted movie: {}'.format(media))
         tasks.append(watch_movie_task.si(media.id))
+
+    for media in wanted_tv_seasons:
+        logging.info('Wanted tv season: {}'.format(media))
+        tasks.append(watch_tv_show_season_task.si(media.id))
 
     for media in wanted_tv_episodes:
         logging.info('Wanted tv episode: {}'.format(media))
