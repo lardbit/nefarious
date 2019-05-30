@@ -49,7 +49,7 @@ services:
   redis:
     image: redis
     restart: always
-    # TODO - don't expose outside of docker network
+    # TODO - use "expose" vs "ports" to limit external access
     ports:
     - "6379:6379"
 
@@ -69,13 +69,10 @@ services:
       - jackett-config:/config
 
   transmission:
-    image: jaymoulin/transmission
-    environment:
-      USERNAME: "admin"
-      PASSWORD: "admin"
+    image: linuxserver/transmission
     volumes:
       # update this path to point to where you want things downloaded
-      - /tmp/transmission:/output
+      - /tmp/transmission:/downloads
     ports:
       - "9091:9091"
 
