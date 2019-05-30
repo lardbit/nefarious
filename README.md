@@ -83,7 +83,11 @@ Run nefarious and dependencies:
 
 The default user/pass is `admin/admin`.  You can change this through the backend [admin interface](http://localhost:8000/admin/auth/user/1/password/).
 
-**NOTE:** there is an [armv7 image](https://hub.docker.com/r/lardbit/nefarious/tags/) that is automatically built as well.  This image allows you to run nefarious on hardware like the raspberry pi.  You'll have to edit the `docker-compose.yml` file to use the proper armv7 images for all services (ie. nefarious, transmission, redis etc).
+**NOTE:** There is an *ARM* compatible version (`docker-compose.arm.yml`) as well which allows you to run nefarious on hardware like the raspberry pi, odroid etc.
+
+Run nefarious on ARM architectures:
+    
+    docker-compose -f docker-compose.arm.yml up -d
 
 ### Configure Jackett
 
