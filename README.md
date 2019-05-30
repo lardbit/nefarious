@@ -80,32 +80,36 @@ Install that and you're all set.
 Run nefarious and dependencies:
     
     docker-compose up -d
-
-The default user/pass is `admin/admin`.  You can change this through the backend [admin interface](http://localhost:8000/admin/auth/user/1/password/).
+    
+Nefarious and all dependencies are now running.  See below for configuration details.
 
 **NOTE:** There is an *ARM* compatible version (`docker-compose.arm.yml`) as well which allows you to run nefarious on hardware like the raspberry pi, odroid etc.
 
 Run nefarious on ARM architectures:
     
     docker-compose -f docker-compose.arm.yml up -d
+    
+You'll always have to include `-f docker-compose.arm.yml` in the command unless you rename the file to `docker-compose.yml`.
 
-### Configure Jackett
+#### Configure Jackett
 
 Configure your local Jackett instance at [http://localhost:9117](http://localhost:9117).  You'll need to add indexers and copy your api key to enter into nefarious.  Some popular examples are *The Pirate Bay*, *1337x*, *RARBG*.
 
-### Configure Transmission
+#### Configure Transmission
 
 If you're using the built-in transmission, then there's nothing to actually configure, but you can view its web ui at [http://localhost:9091](http://localhost:9091) to see what's actually being downloaded by nefarious.
 
-### Configure Nefarious
+#### Configure Nefarious
+    
+The default user/pass is `admin/admin`.  You can change this on settings page.
 
 Open nefarious at [http://localhost:8000](http://localhost:8000).  You'll be redirected to the settings page.
 
-##### Jackett settings
+###### Jackett settings
 
 Since jackett is running in the same docker network, you'll need to set the host as `jackett`.  The default port is `9117`.  Enter your api token.
 
-##### Transmission settings
+###### Transmission settings
 
 Configure your transmission host, port, username and password, and download directories.  Nefarious will save TV and Movies in individual sub-folders of your configured Transmission download path.
 
