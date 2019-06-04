@@ -115,6 +115,8 @@ Configure your transmission host, port, username and password, and download dire
 
 If you're using the built-in transmission in the `docker-compose.yml`, then make sure to enter `transmission` as the host since it's in the same docker network stack.
 
+Also, there is no default transmission user/pass, so leave those blank.  Feel free to edit the `transmission-settings.json` beforehand following the [official settings](https://github.com/transmission/transmission/wiki/Editing-Configuration-Files).
+
 ## Troubleshooting
    
     # logs for main app

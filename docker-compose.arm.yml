@@ -71,7 +71,9 @@ services:
   transmission:
     image: linuxserver/transmission:arm32v7-latest
     volumes:
-      # update this path to point to where you want things downloaded
+      # NOTE: the settings in this included file allow any IP to connect
+      - ./transmission-settings.json:/config/settings.json:ro
+      # NOTE: update this path to point to where you want things downloaded to
       - /tmp/transmission:/downloads
     ports:
       - "9091:9091"

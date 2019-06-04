@@ -1,0 +1,4 @@
+{
+    "rpc-whitelist": "*",
+    "rpc-host-whitelist-enabled": "false"
+}
