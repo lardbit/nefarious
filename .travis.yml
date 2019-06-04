@@ -10,17 +10,19 @@ script:
 
 jobs:
   include:
-    - stage: build docker arm image
+    - stage: build docker image
       script:
-      - # build base image
+      # build image
       - docker build -t lardbit/nefarious .
-      # derive the docker image tag name from the git branch name
-      - echo $TRAVIS_BRANCH
-      - if [[ $TRAVIS_BRANCH == 'master' ]]; then tag='armv7'; else tag="armv7-$TRAVIS_BRANCH"; fi
-      - echo $tag
-      # build armv7 image copying the app from the previously built base image
-      - docker build -f Dockerfile-armv7 -t lardbit/nefarious:$tag .
       # authenticate with docker
-      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - echo "$DOCKER_PASSWORD" | docker login -u "lardbit" --password-stdin
       # push to docker hub
-      - docker push $DOCKER_USERNAME/nefarious:$tag
+      - docker push lardbit/nefarious
+    - stage: build docker ARM image
+      script:
+      # derive the docker image tag name from the git branch name
+      - if [[ $TRAVIS_BRANCH == 'master' ]]; then tag='armv7'; else tag="armv7-$TRAVIS_BRANCH"; fi
+      # build ARM image copying the app from the previously built base image
+      - docker build -f Dockerfile-armv7 -t lardbit/nefarious:$tag .
+      # push to docker hub
+      - docker push lardbit/nefarious:$tag
