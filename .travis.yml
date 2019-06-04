@@ -24,5 +24,7 @@ jobs:
       - if [[ $TRAVIS_BRANCH == 'master' ]]; then tag='armv7'; else tag="armv7-$TRAVIS_BRANCH"; fi
       # build ARM image copying the app from the previously built base image
       - docker build -f Dockerfile-armv7 -t lardbit/nefarious:$tag .
+      # authenticate with docker
+      - echo "$DOCKER_PASSWORD" | docker login -u "lardbit" --password-stdin
       # push to docker hub
       - docker push lardbit/nefarious:$tag
