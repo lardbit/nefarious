@@ -69,7 +69,7 @@ services:
       - jackett-config:/config
 
   transmission:
-    image: linuxserver/transmission:arm32v7-latest
+    image: linuxserver/transmission:armhf
     volumes:
       # NOTE: the settings in this included file allow any IP to connect
       - ./transmission-settings.json:/config/settings.json:ro
