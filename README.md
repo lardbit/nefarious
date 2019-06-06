@@ -98,7 +98,15 @@ Configure your local Jackett instance at [http://localhost:9117](http://localhos
 
 #### Configure Transmission
 
-If you're using the built-in transmission, then there's nothing to actually configure, but you can view its web ui at [http://localhost:9091](http://localhost:9091) to see what's actually being downloaded by nefarious.
+The default download path is `/tmp/transmission`, so make sure to edit the `docker-compose.yml` to change that.
+
+There is no default transmission user/pass, but feel free to edit the `transmission-settings.json` beforehand following the [official settings](https://github.com/transmission/transmission/wiki/Editing-Configuration-Files) to make any changes you'd like.
+
+**NOTE** if you make any changes to `transmission-settings.json` you'll have to recreate the transmission container for the changes to take place:
+
+    docker-compose up -d --force-recreate transmission
+
+You can view transmission's web ui at [http://localhost:9091](http://localhost:9091) to see what's actually being downloaded by nefarious.
 
 #### Configure Nefarious
     
@@ -112,11 +120,11 @@ Since jackett is running in the same docker network, you'll need to set the host
 
 ###### Transmission settings
 
-Configure your transmission host, port, username and password, and download directories.  Nefarious will save TV and Movies in individual sub-folders of your configured Transmission download path.
+Configure your transmission host, port, username and password, and download sub-directories.  Nefarious will save TV and Movies in individual sub-folders of your configured Transmission download path.
 
 If you're using the built-in transmission in the `docker-compose.yml`, then make sure to enter `transmission` as the host since it's in the same docker network stack.
 
-Also, there is no default transmission user/pass, so leave those blank.  Feel free to edit the `transmission-settings.json` beforehand following the [official settings](https://github.com/transmission/transmission/wiki/Editing-Configuration-Files).
+There is no default transmission user/pass, so leave those blank if you didn't manually set those.
 
 ## Troubleshooting
    
