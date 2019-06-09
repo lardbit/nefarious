@@ -100,6 +100,26 @@ class WatchTVSeason(WatchMediaBase):
         return str(self)
 
 
+class WatchTVSeasonRequest(models.Model):
+    """
+    This is a special model for keeping track of a user's request to watch a TV Season that's not been fully released yet.
+    Nefarious is at the mercy of the data provider (TMDB) which doesn't always have the full episode list at the time of the request.
+    TMDB sometimes only adds listings for episodes as they are published.
+    The task queue will routinely scan for new episodes for a season that didn't have it's full episode list at the time of
+    the request to watch the entire season.  Essentially, nefarious will re-request a season's episode list to see if it needs to download any new episodes.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    watch_tv_show = models.ForeignKey(WatchTVShow, on_delete=models.CASCADE)
+    season_number = models.IntegerField()
+    quality_profile_custom = models.CharField(max_length=500, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+
+    class Meta:
+        unique_together = ('watch_tv_show', 'season_number',)
+
+    def __str__(self):
+        return '{} - Season {}'.format(self.watch_tv_show, self.season_number)
+
+
 class WatchTVEpisode(WatchMediaBase):
     watch_tv_show = models.ForeignKey(WatchTVShow, on_delete=models.CASCADE)
     tmdb_episode_id = models.IntegerField(unique=True)

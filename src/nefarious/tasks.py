@@ -3,8 +3,9 @@ from celery import chain
 from celery.signals import task_failure
 from datetime import datetime
 from django.shortcuts import get_object_or_404
+from django.utils.dateparse import parse_date
 from nefarious.celery import app
-from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, WatchTVSeason
+from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, WatchTVSeason, WatchTVSeasonRequest
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
@@ -122,8 +123,13 @@ def completed_media_task():
 
 @app.task
 def wanted_media_task():
+    nefarious_settings = NefariousSettings.get()
 
     wanted_kwargs = dict(collected=False, transmission_torrent_hash__isnull=True)
+
+    #
+    # individual watch media
+    #
 
     wanted_movies = WatchMovie.objects.filter(**wanted_kwargs)
     wanted_tv_seasons = WatchTVSeason.objects.filter(**wanted_kwargs)
@@ -142,6 +148,34 @@ def wanted_media_task():
     for media in wanted_tv_episodes:
         logging.info('Wanted tv episode: {}'.format(media))
         tasks.append(watch_tv_episode_task.si(media.id))
+
+    #
+    # re-check for requested tv seasons that have had new episodes released from TMDB (which was stale previously)
+    #
+
+    for tv_season_request in WatchTVSeasonRequest.objects.all():
+        tmdb = get_tmdb_client(nefarious_settings)
+        season_request = tmdb.TV_Seasons(tv_season_request.watch_tv_show.tmdb_show_id, tv_season_request.season_number)
+        season = season_request.info()
+        air_date = parse_date(season['air_date'])
+        now = datetime.utcnow()
+        days_since_aired = (now.date() - air_date).days
+        # assume there's no new episodes for anything that's aired this long ago
+        if days_since_aired > 60:
+            logging.warn('deleting old tv season request {}'.format(tv_season_request))
+            tv_season_request.delete()
+        # otherwise add any new episodes to our watch list
+        for episode in season['episodes']:
+            watch_tv_episode, was_created = WatchTVEpisode.objects.get_or_create(
+                user=tv_season_request.user,
+                tmdb_episode_id=episode['id'],
+                watch_tv_show=tv_season_request.watch_tv_show,
+                season_number=tv_season_request.season_number,
+                episode_number=episode['episode_number'],
+            )
+            if was_created:
+                logging.info('adding newly found episode {} for {}'.format(episode['episode_number'], tv_season_request))
+                tasks.append(watch_tv_episode_task.si(watch_tv_episode.id))
 
     # execute tasks sequentially
     chain(*tasks)()

@@ -18,7 +18,7 @@ from nefarious.api.serializers import (
     NefariousSettingsSerializer, WatchTVEpisodeSerializer, WatchTVShowSerializer,
     UserSerializer, WatchMovieSerializer, NefariousPartialSettingsSerializer,
     TransmissionTorrentSerializer, WatchTVSeasonSerializer)
-from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason
+from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason, WatchTVSeasonRequest
 from nefarious.search import MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrents
 from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task
 from nefarious.utils import (
@@ -70,8 +70,13 @@ class WatchTVShowViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
             season_number=data['season_number'],
         )
 
-        if was_created:
-            watch_tv_season.save()
+        # remember that the user wants to watch this entire season (in case it's not fully released yet and TMDB has stale data)
+        if not WatchTVSeasonRequest.objects.filter(watch_tv_show=watch_tv_show, season_number=data['season_number']).exists():
+            watch_tv_show.watchtvseasonrequest_set.create(
+                user=request.user,
+                season_number=data['season_number'],
+                quality_profile_custom=watch_tv_season.quality_profile_custom,
+            )
 
         # create a task to download the whole season
         watch_tv_show_season_task.delay(watch_tv_season.id)
@@ -92,6 +97,11 @@ class WatchTVSeasonViewSet(DestroyTransmissionResultMixin, BlacklistAndRetryMixi
         super().perform_create(serializer)
         # create a task to download the episode
         watch_tv_show_season_task.delay(serializer.instance.id)
+
+    def perform_destroy(self, watch_tv_season: WatchTVSeason):
+        for tv_season_request in WatchTVSeasonRequest.objects.filter(watch_tv_show=watch_tv_season.watch_tv_show, season_number=watch_tv_season.season_number):
+            tv_season_request.delete()
+        return super().perform_destroy(watch_tv_season)
 
 
 class WatchTVEpisodeViewSet(DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):

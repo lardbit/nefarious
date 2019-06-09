@@ -1,6 +1,6 @@
 from django.contrib import admin
 from nefarious.models import (
-    NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, TorrentBlacklist, WatchTVSeason
+    NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, TorrentBlacklist, WatchTVSeason, WatchTVSeasonRequest,
 )
 
 
@@ -43,3 +43,8 @@ class TVEpisodeAdmin(admin.ModelAdmin):
 class MediaAdmin(admin.ModelAdmin):
     list_filter = ('user',)
     list_display = ('name', 'user',)
+
+
+@admin.register(WatchTVSeasonRequest)
+class TVSeasonRequestAdmin(admin.ModelAdmin):
+    pass
