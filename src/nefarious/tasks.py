@@ -19,6 +19,10 @@ app.conf.beat_schedule = {
         'task': 'nefarious.tasks.wanted_media_task',
         'schedule': 60 * 60 * 3,
     },
+    'Wanted TV Seasons Task': {
+        'task': 'nefarious.tasks.wanted_tv_season_task',
+        'schedule': 60 * 60 * 24 * 1,
+    },
     'Refresh TMDB Settings': {
         'task': 'nefarious.tasks.refresh_tmdb_configuration',
         'schedule': 60 * 60 * 24 * 1,
@@ -157,12 +161,59 @@ def wanted_media_task():
         tmdb = get_tmdb_client(nefarious_settings)
         season_request = tmdb.TV_Seasons(tv_season_request.watch_tv_show.tmdb_show_id, tv_season_request.season_number)
         season = season_request.info()
+
         air_date = parse_date(season['air_date'])
         now = datetime.utcnow()
         days_since_aired = (now.date() - air_date).days
+
         # assume there's no new episodes for anything that's aired this long ago
         if days_since_aired > 60:
-            logging.warn('deleting old tv season request {}'.format(tv_season_request))
+            logging.warning('deleting old tv season request {}'.format(tv_season_request))
+            tv_season_request.delete()
+        # otherwise add any new episodes to our watch list
+        for episode in season['episodes']:
+            watch_tv_episode, was_created = WatchTVEpisode.objects.get_or_create(
+                watch_tv_show=tv_season_request.watch_tv_show,
+                season_number=tv_season_request.season_number,
+                episode_number=episode['episode_number'],
+            )
+
+            if was_created:
+                # add the non-unique constraint fields
+                watch_tv_episode.user = tv_season_request.user
+                watch_tv_episode.tmdb_episode_id = episode['id']
+                watch_tv_episode.save()
+
+                logging.info('adding newly found episode {} for {}'.format(episode['episode_number'], tv_season_request))
+
+                # add episode to task queue
+                tasks.append(watch_tv_episode_task.si(watch_tv_episode.id))
+
+    # execute tasks sequentially
+    chain(*tasks)()
+
+
+@app.task
+def wanted_tv_season_task():
+    tasks = []
+    nefarious_settings = NefariousSettings.get()
+
+    #
+    # re-check for requested tv seasons that have had new episodes released from TMDB (which was stale previously)
+    #
+
+    for tv_season_request in WatchTVSeasonRequest.objects.all():
+        tmdb = get_tmdb_client(nefarious_settings)
+        season_request = tmdb.TV_Seasons(tv_season_request.watch_tv_show.tmdb_show_id, tv_season_request.season_number)
+        season = season_request.info()
+
+        air_date = parse_date(season['air_date'])
+        now = datetime.utcnow()
+        days_since_aired = (now.date() - air_date).days
+
+        # assume there's no new episodes for anything that's aired this long ago
+        if days_since_aired > 30:
+            logging.warning('deleting old tv season request {}'.format(tv_season_request))
             tv_season_request.delete()
         # otherwise add any new episodes to our watch list
         for episode in season['episodes']:
