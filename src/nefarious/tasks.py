@@ -53,11 +53,14 @@ def watch_tv_show_season_task(watch_tv_season_id: int):
         watch_tv_episodes_tasks = []
         for episode in season['episodes']:
             watch_tv_episode, was_created = WatchTVEpisode.objects.get_or_create(
-                user=watch_tv_season.user,
-                watch_tv_show=watch_tv_season.watch_tv_show,
                 tmdb_episode_id=episode['id'],
-                season_number=watch_tv_season.season_number,
-                episode_number=episode['episode_number'],
+                # add non-unique constraint fields for the default values
+                defaults=dict(
+                    user=watch_tv_season.user,
+                    watch_tv_show=watch_tv_season.watch_tv_show,
+                    season_number=watch_tv_season.season_number,
+                    episode_number=episode['episode_number'],
+                )
             )
 
             # build list of tasks to execute
