@@ -167,14 +167,20 @@ def wanted_media_task():
         # otherwise add any new episodes to our watch list
         for episode in season['episodes']:
             watch_tv_episode, was_created = WatchTVEpisode.objects.get_or_create(
-                user=tv_season_request.user,
-                tmdb_episode_id=episode['id'],
                 watch_tv_show=tv_season_request.watch_tv_show,
                 season_number=tv_season_request.season_number,
                 episode_number=episode['episode_number'],
             )
+
             if was_created:
+                # add the non-unique constraint fields
+                watch_tv_episode.user = tv_season_request.user
+                watch_tv_episode.tmdb_episode_id = episode['id']
+                watch_tv_episode.save()
+
                 logging.info('adding newly found episode {} for {}'.format(episode['episode_number'], tv_season_request))
+
+                # add episode to task queue
                 tasks.append(watch_tv_episode_task.si(watch_tv_episode.id))
 
     # execute tasks sequentially
