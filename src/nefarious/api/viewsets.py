@@ -65,10 +65,13 @@ class WatchTVShowViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
             raise ValidationError({'season_number': ['This field is required']})
 
         watch_tv_season, was_created = WatchTVSeason.objects.get_or_create(
-            user=request.user,
             watch_tv_show=watch_tv_show,
             season_number=data['season_number'],
         )
+        # update non-unique constraint fields
+        if was_created:
+            watch_tv_season.user = request.user
+            watch_tv_season.save()
 
         # remember that the user wants to watch this entire season (in case it's not fully released yet and TMDB has stale data)
         if not WatchTVSeasonRequest.objects.filter(watch_tv_show=watch_tv_show, season_number=data['season_number']).exists():
