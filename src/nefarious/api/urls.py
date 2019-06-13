@@ -7,6 +7,7 @@ router = routers.DefaultRouter()
 router.register(r'settings', viewsets.SettingsViewSet)
 router.register(r'watch-tv-show', viewsets.WatchTVShowViewSet)
 router.register(r'watch-tv-season', viewsets.WatchTVSeasonViewSet)
+router.register(r'watch-tv-season-request', viewsets.WatchTVSeasonRequestViewSet)
 router.register(r'watch-tv-episode', viewsets.WatchTVEpisodeViewSet)
 router.register(r'users', viewsets.UserViewSet, base_name='users')  # specify base_name since it shares a queryset
 router.register(r'user', viewsets.CurrentUserViewSet)

@@ -169,7 +169,7 @@ def wanted_tv_season_task():
     # re-check for requested tv seasons that have had new episodes released from TMDB (which was stale previously)
     #
 
-    for tv_season_request in WatchTVSeasonRequest.objects.all():
+    for tv_season_request in WatchTVSeasonRequest.objects.filter(collected=False):
         tmdb = get_tmdb_client(nefarious_settings)
         season_request = tmdb.TV_Seasons(tv_season_request.watch_tv_show.tmdb_show_id, tv_season_request.season_number)
         season = season_request.info()
@@ -180,8 +180,9 @@ def wanted_tv_season_task():
 
         # assume there's no new episodes for anything that's aired this long ago
         if days_since_aired > 30:
-            logging.warning('deleting old tv season request {}'.format(tv_season_request))
-            tv_season_request.delete()
+            logging.warning('completing old tv season request {}'.format(tv_season_request))
+            tv_season_request.collected = True
+            tv_season_request.save()
         # otherwise add any new episodes to our watch list
         for episode in season['episodes']:
             watch_tv_episode, was_created = WatchTVEpisode.objects.get_or_create(

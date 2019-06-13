@@ -112,6 +112,7 @@ class WatchTVSeasonRequest(models.Model):
     watch_tv_show = models.ForeignKey(WatchTVShow, on_delete=models.CASCADE)
     season_number = models.IntegerField()
     quality_profile_custom = models.CharField(max_length=500, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+    collected = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('watch_tv_show', 'season_number',)

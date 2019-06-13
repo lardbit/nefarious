@@ -139,10 +139,12 @@ export class MediaTVComponent implements OnInit {
 
   public isWatchingSeason(seasonNumber: number) {
     const watchSeason = this._getWatchSeason(seasonNumber);
-    return Boolean(watchSeason);
+    const watchSeasonRequest = this._getWatchSeasonRequest(seasonNumber);
+    return Boolean(watchSeason || watchSeasonRequest);
   }
 
   public stopWatchingEntireSeason(season: any) {
+    // TODO - need to stop watching TV Season Request
     const watchSeason = this._getWatchSeason(season.season_number);
     if (watchSeason) {
         this.apiService.unWatchTVSeason(watchSeason.id).subscribe(
@@ -171,6 +173,16 @@ export class MediaTVComponent implements OnInit {
         throw error;
       }),
     );
+  }
+
+  protected _getWatchSeasonRequest(seasonNumber: number) {
+    const watchShow = this._getWatchShow();
+    if (watchShow) {
+      return _.find(this.apiService.watchTVSeasonRequests, (watchSeasonRequest) => {
+        return watchSeasonRequest.watch_tv_show === watchShow.id && watchSeasonRequest.season_number === seasonNumber;
+      });
+    }
+    return null;
   }
 
   protected _getWatchSeason(seasonNumber: number) {

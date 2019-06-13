@@ -17,7 +17,7 @@ from nefarious.tmdb import get_tmdb_client
 from nefarious.api.serializers import (
     NefariousSettingsSerializer, WatchTVEpisodeSerializer, WatchTVShowSerializer,
     UserSerializer, WatchMovieSerializer, NefariousPartialSettingsSerializer,
-    TransmissionTorrentSerializer, WatchTVSeasonSerializer)
+    TransmissionTorrentSerializer, WatchTVSeasonSerializer, WatchTVSeasonRequestSerializer)
 from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason, WatchTVSeasonRequest
 from nefarious.search import MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrents
 from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task
@@ -105,6 +105,15 @@ class WatchTVSeasonViewSet(DestroyTransmissionResultMixin, BlacklistAndRetryMixi
         for tv_season_request in WatchTVSeasonRequest.objects.filter(watch_tv_show=watch_tv_season.watch_tv_show, season_number=watch_tv_season.season_number):
             tv_season_request.delete()
         return super().perform_destroy(watch_tv_season)
+
+
+class WatchTVSeasonRequestViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
+    """
+    Special viewset to monitor the request of a season, not collection the season/media itself
+    """
+    queryset = WatchTVSeasonRequest.objects.all()
+    serializer_class = WatchTVSeasonRequestSerializer
+    filter_fields = ('collected',)
 
 
 class WatchTVEpisodeViewSet(DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
