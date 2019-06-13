@@ -67,11 +67,11 @@ class WatchTVShowViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
         watch_tv_season, was_created = WatchTVSeason.objects.get_or_create(
             watch_tv_show=watch_tv_show,
             season_number=data['season_number'],
+            defaults=dict(
+                # add non-unique constraint fields for the default values
+                user=request.user,
+            ),
         )
-        # update non-unique constraint fields
-        if was_created:
-            watch_tv_season.user = request.user
-            watch_tv_season.save()
 
         # remember that the user wants to watch this entire season (in case it's not fully released yet and TMDB has stale data)
         if not WatchTVSeasonRequest.objects.filter(watch_tv_show=watch_tv_show, season_number=data['season_number']).exists():

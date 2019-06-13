@@ -128,7 +128,7 @@ STATIC_ROOT = "staticfiles"
 
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": True,
+    "disable_existing_loggers": False,
     "formatters": {
         'verbose': {
             'format': '%(levelname)s  %(asctime)s  %(module)s '
@@ -149,7 +149,7 @@ LOGGING = {
     'loggers': {
         "": {
             "handlers": ["console"],
-            "level": "DEBUG"
+            "level": "INFO"
         },
     }
 }
