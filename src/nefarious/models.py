@@ -85,21 +85,6 @@ class WatchTVShow(models.Model):
         return self.name
 
 
-class WatchTVSeason(WatchMediaBase):
-    watch_tv_show = models.ForeignKey(WatchTVShow, on_delete=models.CASCADE)
-    season_number = models.IntegerField()
-
-    class Meta:
-        unique_together = ('watch_tv_show', 'season_number',)
-
-    def __str__(self):
-        return '{} - Season {}'.format(self.watch_tv_show, self.season_number)
-
-    @property
-    def name(self):
-        return str(self)
-
-
 class WatchTVSeasonRequest(models.Model):
     """
     This is a special model for keeping track of a user's request to watch a TV Season that's not been fully released yet.
@@ -119,6 +104,21 @@ class WatchTVSeasonRequest(models.Model):
 
     def __str__(self):
         return '{} - Season {}'.format(self.watch_tv_show, self.season_number)
+
+
+class WatchTVSeason(WatchMediaBase):
+    watch_tv_show = models.ForeignKey(WatchTVShow, on_delete=models.CASCADE)
+    season_number = models.IntegerField()
+
+    class Meta:
+        unique_together = ('watch_tv_show', 'season_number',)
+
+    def __str__(self):
+        return '{} - Season {}'.format(self.watch_tv_show, self.season_number)
+
+    @property
+    def name(self):
+        return str(self)
 
 
 class WatchTVEpisode(WatchMediaBase):

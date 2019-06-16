@@ -138,18 +138,17 @@ export class MediaTVComponent implements OnInit {
   }
 
   public isWatchingSeason(seasonNumber: number) {
-    const watchSeason = this._getWatchSeason(seasonNumber);
     const watchSeasonRequest = this._getWatchSeasonRequest(seasonNumber);
-    return Boolean(watchSeason || watchSeasonRequest);
+    return Boolean(watchSeasonRequest);
   }
 
   public stopWatchingEntireSeason(season: any) {
-    // TODO - need to stop watching TV Season Request
-    const watchSeason = this._getWatchSeason(season.season_number);
-    if (watchSeason) {
-        this.apiService.unWatchTVSeason(watchSeason.id).subscribe(
+    const watchSeasonRequest = this._getWatchSeasonRequest(season.season_number);
+    if (watchSeasonRequest) {
+        this.apiService.unWatchTVSeason(watchSeasonRequest.id).subscribe(
           (data) => {
-            this.toastr.success(`Stop watching ${this.result.name} - Season ${watchSeason.season_number}`)
+            this.toastr.success(`Stop watching ${this.result.name} - Season ${watchSeasonRequest.season_number}`)
+            this._buildWatchOptions();
           },
           (error) => {
             console.error(error);

@@ -56,37 +56,6 @@ class WatchTVShowViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVShow.objects.all()
     serializer_class = WatchTVShowSerializer
 
-    @action(methods=['post'], detail=True, url_path='entire-season')
-    def watch_entire_season(self, request, pk):
-        watch_tv_show = self.get_object()  # type: WatchTVShow
-        data = request.query_params or request.data
-
-        if 'season_number' not in data:
-            raise ValidationError({'season_number': ['This field is required']})
-
-        watch_tv_season, was_created = WatchTVSeason.objects.get_or_create(
-            watch_tv_show=watch_tv_show,
-            season_number=data['season_number'],
-            defaults=dict(
-                # add non-unique constraint fields for the default values
-                user=request.user,
-            ),
-        )
-
-        # remember that the user wants to watch this entire season (in case it's not fully released yet and TMDB has stale data)
-        if not WatchTVSeasonRequest.objects.filter(watch_tv_show=watch_tv_show, season_number=data['season_number']).exists():
-            watch_tv_show.watchtvseasonrequest_set.create(
-                user=request.user,
-                season_number=data['season_number'],
-                quality_profile_custom=watch_tv_season.quality_profile_custom,
-            )
-
-        # create a task to download the whole season
-        watch_tv_show_season_task.delay(watch_tv_season.id)
-
-        return Response(
-            WatchTVSeasonSerializer(watch_tv_season).data)
-
 
 class WatchTVSeasonViewSet(DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVSeason.objects.all()
@@ -94,26 +63,49 @@ class WatchTVSeasonViewSet(DestroyTransmissionResultMixin, BlacklistAndRetryMixi
     filter_fields = ('collected',)
 
     def _watch_media_task(self, watch_media_id: int):
+        """
+        blacklist & retry function to queue the new task
+        """
         watch_tv_show_season_task.delay(watch_media_id)
-
-    def perform_create(self, serializer):
-        super().perform_create(serializer)
-        # create a task to download the episode
-        watch_tv_show_season_task.delay(serializer.instance.id)
-
-    def perform_destroy(self, watch_tv_season: WatchTVSeason):
-        for tv_season_request in WatchTVSeasonRequest.objects.filter(watch_tv_show=watch_tv_season.watch_tv_show, season_number=watch_tv_season.season_number):
-            tv_season_request.delete()
-        return super().perform_destroy(watch_tv_season)
 
 
 class WatchTVSeasonRequestViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
     """
-    Special viewset to monitor the request of a season, not collection the season/media itself
+    Special viewset to monitor the request of a season, not collection of the season/media itself
     """
     queryset = WatchTVSeasonRequest.objects.all()
     serializer_class = WatchTVSeasonRequestSerializer
     filter_fields = ('collected',)
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+
+        # save a watch tv season instance to try and download the whole season immediately
+        watch_tv_season, was_created = WatchTVSeason.objects.get_or_create(
+            watch_tv_show=WatchTVShow.objects.get(id=serializer.data['watch_tv_show']),
+            season_number=serializer.data['season_number'],
+            defaults=dict(
+                # add non-unique constraint fields for the default values
+                user=self.request.user,
+            ),
+        )
+
+        # create a task to download the whole season (fallback to individual episodes if it fails)
+        watch_tv_show_season_task.delay(watch_tv_season.id)
+
+        return Response(serializer.data)
+
+    def perform_destroy(self, watch_tv_season_request: WatchTVSeasonRequest):
+        # destroy all watch tv season & episode instances as well
+        query_args = dict(
+            watch_tv_show=watch_tv_season_request.watch_tv_show,
+            season_number=watch_tv_season_request.season_number,
+        )
+        for season in WatchTVSeason.objects.filter(**query_args):
+            season.delete()
+        for episode in WatchTVEpisode.objects.filter(**query_args):
+            episode.delete()
+        return super().perform_destroy(watch_tv_season_request)
 
 
 class WatchTVEpisodeViewSet(DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
