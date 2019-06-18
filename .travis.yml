@@ -12,14 +12,20 @@ jobs:
   include:
     - stage: build docker image
       script:
+      # store commit in image for version identification
+      - echo "$TRAVIS_COMMIT" > src/.commit
+      # derive the docker image tag name from the git branch name
+      - if [[ $TRAVIS_BRANCH == 'master' ]]; then tag='latest'; else tag="$TRAVIS_BRANCH"; fi
       # build image
-      - docker build -t lardbit/nefarious .
+      - docker build -t lardbit/nefarious:$tag .
       # authenticate with docker
       - echo "$DOCKER_PASSWORD" | docker login -u "lardbit" --password-stdin
       # push to docker hub
-      - docker push lardbit/nefarious
+      - docker push lardbit/nefarious:$tag
     - stage: build docker ARM image
       script:
+      # store commit in image for version identification
+      - echo "$TRAVIS_COMMIT" > src/.commit
       # derive the docker image tag name from the git branch name
       - if [[ $TRAVIS_BRANCH == 'master' ]]; then tag='armv7'; else tag="armv7-$TRAVIS_BRANCH"; fi
       # build ARM image copying the app from the previously built base image
