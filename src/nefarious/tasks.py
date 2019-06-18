@@ -130,7 +130,6 @@ def completed_media_task():
 
 @app.task
 def wanted_media_task():
-    nefarious_settings = NefariousSettings.get()
 
     wanted_kwargs = dict(collected=False, transmission_torrent_hash__isnull=True)
 
