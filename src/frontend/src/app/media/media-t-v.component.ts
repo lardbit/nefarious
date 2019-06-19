@@ -111,7 +111,8 @@ export class MediaTVComponent implements OnInit {
     if (watchShow) {
       this.apiService.unWatchTVShow(watchShow.id).subscribe(
         (data) => {
-          this.toastr.success('Stop watching show');
+          this.toastr.success('Stopped watching show');
+          this._buildWatchOptions();
         },
         (error) => {
           this.toastr.error('An unknown error occurred');
@@ -121,20 +122,7 @@ export class MediaTVComponent implements OnInit {
   }
 
   public getWatchMedia() {
-    const watching = [];
-    for (const season of this.result.seasons) {
-      const watchSeason = this._getWatchSeason(season.season_number);
-      if (watchSeason) {
-        watching.push(watchSeason);
-      }
-      for (const episode of season.episodes) {
-        const watchEpisode = this._getEpisodeWatch(episode.id);
-        if (watchEpisode) {
-          watching.push(watchEpisode);
-        }
-      }
-    }
-    return watching;
+    return this._getWatchShow();
   }
 
   public isWatchingSeason(seasonNumber: number) {
@@ -147,7 +135,7 @@ export class MediaTVComponent implements OnInit {
     if (watchSeasonRequest) {
         this.apiService.unWatchTVSeason(watchSeasonRequest.id).subscribe(
           (data) => {
-            this.toastr.success(`Stop watching ${this.result.name} - Season ${watchSeasonRequest.season_number}`)
+            this.toastr.success(`Stopped watching ${this.result.name} - Season ${watchSeasonRequest.season_number}`);
             this._buildWatchOptions();
           },
           (error) => {

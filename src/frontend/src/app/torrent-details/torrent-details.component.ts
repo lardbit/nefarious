@@ -13,9 +13,8 @@ const POLL_TIME = 5000;
   styleUrls: ['./torrent-details.component.css']
 })
 export class TorrentDetailsComponent implements OnInit, OnDestroy {
-  @Input() watchMedia: any[];
+  @Input() watchMedia: any;
   @Input() mediaType: string;
-  public torrents: any[] = [];
   public isSaving = false;
   public isFetchingInitialTorrents = true;
   public results: {
@@ -38,8 +37,6 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // populate the initial results
-    this._updateResults();
 
     this._fetchTorrents().subscribe(
       (data) => {
@@ -51,8 +48,8 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
         ).subscribe(
           () => {
             this._fetchTorrents().subscribe(
-              (data) => {
-                this._fetchTorrentsSuccess(data);
+              (data_) => {
+                this._fetchTorrentsSuccess(data_);
               },
               (error) => {
                 this._fetchTorrentsFailure(error);
@@ -80,10 +77,14 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
       }
     }
 
+    // remove blacklisted watch media
+    this.results = this.results.filter((result) => {
+      return result.watchMedia.id !== watchMedia.id;
+    });
+
     endpoint.subscribe(
       (data) => {
         this.isSaving = false;
-        this._updateResults();
         this.toastr.success('Successfully blacklisted');
       },
       (error) => {
@@ -95,17 +96,6 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
 
   }
 
-  protected _updateResults() {
-    this.results = this.watchMedia.map((watchMedia) => {
-      return {
-        watchMedia: watchMedia,
-        torrent: _.find(this.torrents, (torrent) => {
-          return torrent.hashString === watchMedia.transmission_torrent_hash;
-        }),
-      };
-    });
-  }
-
   protected _fetchTorrents(): Observable<any> {
     this.isFetchingInitialTorrents = false;
 
@@ -115,28 +105,21 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
     };
 
     // update media instances and build torrent params
-    for (const watchMedia of this.watchMedia) {
-      // tv
-      if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV) {
-        params.watch_tv_shows.push(watchMedia.watch_tv_show);
-        // episode
-        if (watchMedia.tmdb_episode_id) {
-          this.apiService.fetchWatchTVEpisode(watchMedia.id).subscribe();
-        } else {  // season
-          this.apiService.fetchWatchTVSeason(watchMedia.id).subscribe();
-        }
-      } else {  // movie
-        this.apiService.fetchWatchMovie(watchMedia.id).subscribe();
-        params.watch_movies.push(watchMedia.id);
-      }
+    // tv
+    if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV) {
+      params.watch_tv_shows.push(this.watchMedia.id);
+    } else {  // movie
+      params.watch_movies.push(this.watchMedia.id);
     }
+
+    params.watch_movies = _.uniq(params.watch_movies);
+    params.watch_tv_shows = _.uniq(params.watch_tv_shows);
 
     return this.apiService.fetchCurrentTorrents(params);
   }
 
   protected _fetchTorrentsSuccess(data) {
-    this.torrents = data;
-    this._updateResults();
+    this.results = data;
   }
 
   protected _fetchTorrentsFailure(error) {

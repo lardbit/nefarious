@@ -304,12 +304,11 @@ class CurrentTorrentsView(views.APIView):
         nefarious_settings = NefariousSettings.get()
         transmission_client = get_transmission_client(nefarious_settings)
 
-        watch_movies = request.query_params.getlist('watch_movies')
-        watch_tv_shows = request.query_params.getlist('watch_tv_shows')
+        watch_movies = request.query_params.getlist('watch_movies', [])
+        watch_tv_shows = request.query_params.getlist('watch_tv_shows', [])
 
+        results = []
         querysets = []
-        torrents = []
-        torrent_hashes = []
 
         # movies
         if watch_movies:
@@ -322,21 +321,32 @@ class CurrentTorrentsView(views.APIView):
             querysets.append(
                 WatchTVSeason.objects.filter(watch_tv_show__id__in=watch_tv_shows))
 
-        for query in querysets:
-            torrent_hashes += [media.transmission_torrent_hash for media in query if media.transmission_torrent_hash]
+        for qs in querysets:
+            for media in qs:
+                if not media.transmission_torrent_hash:
+                    continue
 
-        for torrent_hash in torrent_hashes:
+                try:
+                    torrent = transmission_client.get_torrent(media.transmission_torrent_hash)
+                except (KeyError, ValueError):  # torrent no longer exists or was invalid
+                    continue
+                except Exception as e:
+                    logging.error(str(e))
+                    raise e
 
-            try:
-                torrent = transmission_client.get_torrent(torrent_hash)
-                torrents.append(torrent)
-            except (KeyError, ValueError):  # torrent no longer exists or was invalid
-                continue
-            except Exception as e:
-                logging.error(str(e))
-                raise e
+                if isinstance(media, WatchTVSeason):
+                    media_serializer = WatchTVSeasonSerializer
+                elif isinstance(media, WatchTVEpisode):
+                    media_serializer = WatchTVEpisodeSerializer
+                else:
+                    media_serializer = WatchMovieSerializer
 
-        return Response(TransmissionTorrentSerializer(torrents, many=True).data)
+                results.append({
+                    'torrent': TransmissionTorrentSerializer(torrent).data,
+                    'watchMedia': media_serializer(media).data,
+                })
+
+        return Response(results)
 
 
 class DiscoverMediaView(views.APIView):
