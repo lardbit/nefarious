@@ -436,7 +436,7 @@ export class ApiService {
     };
     return this.http.post(this.API_URL_WATCH_TV_SEASON_REQUEST, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        this.watchTVSeasons.push(data);
+        this.watchTVSeasonRequests.push(data);
         return data;
       }),
     );

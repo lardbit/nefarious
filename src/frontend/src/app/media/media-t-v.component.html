@@ -12,7 +12,7 @@
           <span class="oi oi-video"></span> Watch all seasons
         </button>
         <button type="button" class="btn btn-danger btn-sm ml-3" *ngIf="isWatchingShow()" (click)="stopWatchingShow()">
-          <span class="oi oi-trash"></span> Stop Watching
+          <span class="oi oi-trash"></span> Stop watching show
         </button>
       </div>
     </div>
@@ -33,7 +33,7 @@
                             <span class="oi oi-video"></span> Watch entire season
                           </button>
                           <button *ngIf="isWatchingSeason(season.season_number)" type="button" class="btn btn-warning" (click)="stopWatchingEntireSeason(season)">
-                            Stop Watching entire season
+                            <span class="oi oi-trash"></span> Stop watching season
                           </button>
                         </div>
                         <hr>
