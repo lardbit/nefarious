@@ -305,8 +305,7 @@ class CurrentTorrentsView(views.APIView):
         transmission_client = get_transmission_client(nefarious_settings)
 
         watch_movies = request.query_params.getlist('watch_movies')
-        watch_tv_episodes = request.query_params.getlist('watch_tv_episodes')
-        watch_tv_seasons = request.query_params.getlist('watch_tv_seasons')
+        watch_tv_shows = request.query_params.getlist('watch_tv_shows')
 
         querysets = []
         torrents = []
@@ -316,14 +315,12 @@ class CurrentTorrentsView(views.APIView):
         if watch_movies:
             querysets.append(
                 WatchMovie.objects.filter(id__in=watch_movies))
-        # tv episodes
-        if watch_tv_episodes:
+        # tv shows
+        if watch_tv_shows:
             querysets.append(
-                WatchTVEpisode.objects.filter(id__in=watch_tv_episodes))
-        # tv seasons
-        if watch_tv_seasons:
+                WatchTVEpisode.objects.filter(watch_tv_show__id__in=watch_tv_shows))
             querysets.append(
-                WatchTVSeason.objects.filter(id__in=watch_tv_seasons))
+                WatchTVSeason.objects.filter(watch_tv_show__id__in=watch_tv_shows))
 
         for query in querysets:
             torrent_hashes += [media.transmission_torrent_hash for media in query if media.transmission_torrent_hash]

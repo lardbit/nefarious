@@ -46,5 +46,5 @@ class MediaAdmin(admin.ModelAdmin):
 
 
 @admin.register(WatchTVSeasonRequest)
-class TVSeasonRequestAdmin(admin.ModelAdmin):
+class WatchTVSeasonRequestAdmin(admin.ModelAdmin):
     pass

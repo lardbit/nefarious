@@ -8,22 +8,26 @@
     </div>
     <div class="row">
       <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let result of results | filter: search">
-        <a [routerLink]="['/media', mediaType, result.id]">
-          <div class="card" [ngClass]="{'border border-success rounded': isWatchingResult(result)}">
-            <div *ngIf="isWatchingResult(result)" class="result-watching text-success"><span class="oi oi-check"></span></div>
+        <div class="card" [ngClass]="{'border border-success rounded': isWatchingResult(result)}">
+          <div *ngIf="isWatchingResult(result)" class="result-watching text-success"><span class="oi oi-check"></span></div>
+          <a [routerLink]="['/media', mediaType, result.id]">
             <img class="card-img-top" [src]="mediaPosterURL(result)" alt="">
-            <div class="card-body">
-              <ng-container *ngIf="isSearchingMovies()">
+          </a>
+          <div class="card-body">
+            <ng-container *ngIf="isSearchingMovies()">
+              <a [routerLink]="['/media', mediaType, result.id]">
                 <h4 class="card-title">{{ result.title }}</h4>
-                <h6 class="card-title">{{ result.release_date | date: 'y' }}</h6>
-              </ng-container>
-              <ng-container *ngIf="isSearchingTV()">
+              </a>
+              <h6 class="card-title">{{ result.release_date | date: 'y' }}</h6>
+            </ng-container>
+            <ng-container *ngIf="isSearchingTV()">
+              <a [routerLink]="['/media', mediaType, result.id]">
                 <h4 class="card-title">{{ result.name }}</h4>
-              </ng-container>
-              <p class="card-text">{{ result.overview }}</p>
-            </div>
+              </a>
+            </ng-container>
+            <p class="card-text">{{ result.overview }}</p>
           </div>
-        </a>
+        </div>
       </div>
     </div>
   </div>

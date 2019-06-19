@@ -83,11 +83,7 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
     endpoint.subscribe(
       (data) => {
         this.isSaving = false;
-
-        // filter the watch media/torrent results since it was updated
-        this.results = _.filter(this.results, (result) => {
-          return result.watchMedia.id === watchMedia.id;
-        });
+        this._updateResults();
         this.toastr.success('Successfully blacklisted');
       },
       (error) => {
@@ -115,23 +111,21 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
 
     const params = {
       watch_movies: [],
-      watch_tv_episodes: [],
-      watch_tv_seasons: [],
+      watch_tv_shows: [],
     };
 
     // update media instances and build torrent params
     for (const watchMedia of this.watchMedia) {
-      // type tv
+      // tv
       if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV) {
-        // type tv episode
+        params.watch_tv_shows.push(watchMedia.watch_tv_show);
+        // episode
         if (watchMedia.tmdb_episode_id) {
           this.apiService.fetchWatchTVEpisode(watchMedia.id).subscribe();
-          params.watch_tv_episodes.push(watchMedia.id);
-        } else {  // type tv season
+        } else {  // season
           this.apiService.fetchWatchTVSeason(watchMedia.id).subscribe();
-          params.watch_tv_seasons.push(watchMedia.id);
         }
-      } else {
+      } else {  // movie
         this.apiService.fetchWatchMovie(watchMedia.id).subscribe();
         params.watch_movies.push(watchMedia.id);
       }
