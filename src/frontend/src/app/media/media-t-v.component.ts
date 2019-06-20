@@ -111,7 +111,8 @@ export class MediaTVComponent implements OnInit {
     if (watchShow) {
       this.apiService.unWatchTVShow(watchShow.id).subscribe(
         (data) => {
-          this.toastr.success('Stop watching show');
+          this.toastr.success('Stopped watching show');
+          this._buildWatchOptions();
         },
         (error) => {
           this.toastr.error('An unknown error occurred');
@@ -121,33 +122,21 @@ export class MediaTVComponent implements OnInit {
   }
 
   public getWatchMedia() {
-    const watching = [];
-    for (const season of this.result.seasons) {
-      const watchSeason = this._getWatchSeason(season.season_number);
-      if (watchSeason) {
-        watching.push(watchSeason);
-      }
-      for (const episode of season.episodes) {
-        const watchEpisode = this._getEpisodeWatch(episode.id);
-        if (watchEpisode) {
-          watching.push(watchEpisode);
-        }
-      }
-    }
-    return watching;
+    return this._getWatchShow();
   }
 
   public isWatchingSeason(seasonNumber: number) {
-    const watchSeason = this._getWatchSeason(seasonNumber);
-    return Boolean(watchSeason);
+    const watchSeasonRequest = this._getWatchSeasonRequest(seasonNumber);
+    return Boolean(watchSeasonRequest);
   }
 
   public stopWatchingEntireSeason(season: any) {
-    const watchSeason = this._getWatchSeason(season.season_number);
-    if (watchSeason) {
-        this.apiService.unWatchTVSeason(watchSeason.id).subscribe(
+    const watchSeasonRequest = this._getWatchSeasonRequest(season.season_number);
+    if (watchSeasonRequest) {
+        this.apiService.unWatchTVSeason(watchSeasonRequest.id).subscribe(
           (data) => {
-            this.toastr.success(`Stop watching ${this.result.name} - Season ${watchSeason.season_number}`)
+            this.toastr.success(`Stopped watching ${this.result.name} - Season ${watchSeasonRequest.season_number}`);
+            this._buildWatchOptions();
           },
           (error) => {
             console.error(error);
@@ -171,6 +160,16 @@ export class MediaTVComponent implements OnInit {
         throw error;
       }),
     );
+  }
+
+  protected _getWatchSeasonRequest(seasonNumber: number) {
+    const watchShow = this._getWatchShow();
+    if (watchShow) {
+      return _.find(this.apiService.watchTVSeasonRequests, (watchSeasonRequest) => {
+        return watchSeasonRequest.watch_tv_show === watchShow.id && watchSeasonRequest.season_number === seasonNumber;
+      });
+    }
+    return null;
   }
 
   protected _getWatchSeason(seasonNumber: number) {

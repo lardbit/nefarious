@@ -10,14 +10,20 @@
       <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let result of results | filter: search">
         <div class="card" [ngClass]="{'border border-success rounded': isWatchingResult(result)}">
           <div *ngIf="isWatchingResult(result)" class="result-watching text-success"><span class="oi oi-check"></span></div>
-          <a [routerLink]="['/media', mediaType, result.id]"><img class="card-img-top" [src]="mediaPosterURL(result)" alt=""></a>
+          <a [routerLink]="['/media', mediaType, result.id]">
+            <img class="card-img-top" [src]="mediaPosterURL(result)" alt="">
+          </a>
           <div class="card-body">
             <ng-container *ngIf="isSearchingMovies()">
-              <h4 class="card-title">{{ result.title }}</h4>
+              <a [routerLink]="['/media', mediaType, result.id]">
+                <h4 class="card-title">{{ result.title }}</h4>
+              </a>
               <h6 class="card-title">{{ result.release_date | date: 'y' }}</h6>
             </ng-container>
             <ng-container *ngIf="isSearchingTV()">
-              <h4 class="card-title">{{ result.name }}</h4>
+              <a [routerLink]="['/media', mediaType, result.id]">
+                <h4 class="card-title">{{ result.name }}</h4>
+              </a>
             </ng-container>
             <p class="card-text">{{ result.overview }}</p>
           </div>

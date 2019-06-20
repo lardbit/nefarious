@@ -40,9 +40,18 @@ def watch_tv_show_season_task(watch_tv_season_id: int):
     processor = WatchTVSeasonProcessor(watch_media_id=watch_tv_season_id)
     success = processor.fetch()
 
+    watch_tv_season = get_object_or_404(WatchTVSeason, pk=watch_tv_season_id)
+
+    # success so update the season request instance as "collected"
+    if success:
+        season_request = WatchTVSeasonRequest.objects.filter(
+            watch_tv_show=watch_tv_season.watch_tv_show, season_number=watch_tv_season.season_number)
+        if season_request.exists():
+            season_request = season_request.first()
+            season_request.collected = True
+            season_request.save()
     # failed so delete season instance and fallback to trying individual episodes
-    if not success:
-        watch_tv_season = get_object_or_404(WatchTVSeason, pk=watch_tv_season_id)
+    else:
         logging.info('Failed fetching season {} - falling back to individual episodes'.format(watch_tv_season))
         nefarious_settings = NefariousSettings.get()
         tmdb = get_tmdb_client(nefarious_settings)
@@ -168,21 +177,18 @@ def wanted_tv_season_task():
     # re-check for requested tv seasons that have had new episodes released from TMDB (which was stale previously)
     #
 
-    for tv_season_request in WatchTVSeasonRequest.objects.all():
+    for tv_season_request in WatchTVSeasonRequest.objects.filter(collected=False):
         tmdb = get_tmdb_client(nefarious_settings)
         season_request = tmdb.TV_Seasons(tv_season_request.watch_tv_show.tmdb_show_id, tv_season_request.season_number)
         season = season_request.info()
 
-        air_date = parse_date(season['air_date'])
         now = datetime.utcnow()
-        days_since_aired = (now.date() - air_date).days
+        last_air_date = parse_date(season['air_date'])  # season air date
 
-        # assume there's no new episodes for anything that's aired this long ago
-        if days_since_aired > 30:
-            logging.warning('deleting old tv season request {}'.format(tv_season_request))
-            tv_season_request.delete()
         # otherwise add any new episodes to our watch list
         for episode in season['episodes']:
+            episode_air_date = parse_date(episode['air_date'])
+            last_air_date = episode_air_date if episode_air_date > last_air_date else last_air_date
             watch_tv_episode, was_created = WatchTVEpisode.objects.get_or_create(
                 tmdb_episode_id=episode['id'],
                 defaults=dict(
@@ -199,6 +205,13 @@ def wanted_tv_season_task():
 
                 # add episode to task queue
                 tasks.append(watch_tv_episode_task.si(watch_tv_episode.id))
+
+        # assume there's no new episodes for anything that's aired this long ago
+        days_since_aired = (now.date() - last_air_date).days
+        if days_since_aired > 30:
+            logging.warning('completing old tv season request {}'.format(tv_season_request))
+            tv_season_request.collected = True
+            tv_season_request.save()
 
     # execute tasks sequentially
     chain(*tasks)()

@@ -24,6 +24,7 @@ export class ApiService {
   API_URL_WATCH_TV_EPISODE = '/api/watch-tv-episode/';
   API_URL_WATCH_TV_SHOW = '/api/watch-tv-show/';
   API_URL_WATCH_TV_SEASON = '/api/watch-tv-season/';
+  API_URL_WATCH_TV_SEASON_REQUEST = '/api/watch-tv-season-request/';
   API_URL_WATCH_MOVIE = '/api/watch-movie/';
   API_URL_CURRENT_TORRENTS = '/api/current/torrents/';
   API_URL_DISCOVER_MOVIES = '/api/discover/media/movie/';
@@ -41,6 +42,7 @@ export class ApiService {
   public settings: any;
   public qualityProfiles: string[];
   public watchTVSeasons: any[] = [];
+  public watchTVSeasonRequests: any[] = [];
   public watchTVEpisodes: any[] = [];
   public watchTVShows: any[] = [];
   public watchMovies: any[] = [];
@@ -113,6 +115,7 @@ export class ApiService {
       this.fetchSettings(),
       this.fetchWatchTVShows(),
       this.fetchWatchTVSeasons(),
+      this.fetchWatchTVSeasonRequests(),
       this.fetchWatchTVEpisodes(),
       this.fetchWatchMovies(),
       this.fetchQualityProfiles(),
@@ -320,6 +323,17 @@ export class ApiService {
     );
   }
 
+  public fetchWatchTVSeasonRequests(params?: any) {
+    params = params || {};
+    const httpParams = new HttpParams({fromObject: params});
+    return this.http.get(this.API_URL_WATCH_TV_SEASON_REQUEST, {params: httpParams, headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        this.watchTVSeasonRequests = data;
+        return this.watchTVSeasonRequests;
+      }),
+    );
+  }
+
   public fetchWatchMovie(id: number) {
     return this.http.get(`${this.API_URL_WATCH_MOVIE}${id}/`, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
@@ -420,9 +434,9 @@ export class ApiService {
       watch_tv_show: watchShowId,
       season_number: seasonNumber,
     };
-    return this.http.post(`${this.API_URL_WATCH_TV_SHOW}${watchShowId}/entire-season/`, params, {headers: this._requestHeaders()}).pipe(
+    return this.http.post(this.API_URL_WATCH_TV_SEASON_REQUEST, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        this.watchTVSeasons.push(data);
+        this.watchTVSeasonRequests.push(data);
         return data;
       }),
     );
@@ -436,6 +450,9 @@ export class ApiService {
           return watch.id !== watchId;
         });
         this.watchTVSeasons = _.filter(this.watchTVSeasons, (watch) => {
+          return watch.watch_tv_show !== watchId;
+        });
+        this.watchTVSeasonRequests = _.filter(this.watchTVSeasonRequests, (watch) => {
           return watch.watch_tv_show !== watchId;
         });
         this.watchTVEpisodes = _.filter(this.watchTVEpisodes, (watch) => {
@@ -501,15 +518,30 @@ export class ApiService {
     );
   }
 
-  public unWatchTVSeason(watchId) {
-    return this.http.delete(`${this.API_URL_WATCH_TV_SEASON}${watchId}/`, {headers: this._requestHeaders()}).pipe(
+  public unWatchTVSeason(watchTVSeasonRequestId) {
+    return this.http.delete(`${this.API_URL_WATCH_TV_SEASON_REQUEST}${watchTVSeasonRequestId}/`, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        const foundIndex = _.findIndex(this.watchTVSeasons, (watch) => {
-          return watch.id === watchId;
+
+        // find the season request instance
+        const foundWatchRequestIndex = _.findIndex(this.watchTVSeasonRequests, (watch) => {
+          return watch.id === watchTVSeasonRequestId;
         });
-        if (foundIndex >= 0) {
-          this.watchTVSeasons.splice(foundIndex, 1);
+        if (foundWatchRequestIndex === -1) {
+          return;
         }
+
+        // remove the season request
+        const foundWatchRequest = this.watchTVSeasonRequests[foundWatchRequestIndex];
+        this.watchTVSeasonRequests.splice(foundWatchRequestIndex, 1);
+
+        // find and remove the watch seasons
+        const foundWatchIndex = _.findIndex(this.watchTVSeasons, (watch) => {
+          return foundWatchRequest.tmdb_show_id === watch.tmdb_show_id && foundWatchRequest.season_number === watch.season_number;
+        });
+        if (foundWatchIndex >= 0) {
+          this.watchTVSeasons.splice(foundWatchIndex, 1);
+        }
+
         return data;
       })
     );
