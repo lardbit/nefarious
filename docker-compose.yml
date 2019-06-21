@@ -1,4 +1,4 @@
-version: '2'
+version: '2.4'
 
 services:
 
@@ -72,7 +72,10 @@ services:
     image: linuxserver/transmission
     volumes:
       # NOTE: the settings in this included file allow any IP to connect
-      - ./transmission-settings.json:/config/settings.json:ro
+      - type: bind
+        source: ./transmission-settings.json
+        target: /config/settings.json
+        read_only: true
       # NOTE: update this path to point to where you want things downloaded to
       - /tmp/transmission:/downloads
     ports:

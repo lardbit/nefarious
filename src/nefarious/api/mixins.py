@@ -67,5 +67,5 @@ class DestroyTransmissionResultMixin:
             transmission_client = get_transmission_client(nefarious_settings)
             transmission_client.remove_torrent([instance.transmission_torrent_hash], delete_data=True)
         except:
-            logging.warn('could not connect to transmission to delete the torrent')
+            logging.warning('could not connect to transmission to delete the torrent')
         super().perform_destroy(instance)
