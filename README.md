@@ -98,7 +98,11 @@ Configure your local Jackett instance at [http://localhost:9117](http://localhos
 
 #### Configure Transmission
 
-The default download path is `/tmp/transmission`, so make sure to edit the `docker-compose.yml` to change that.
+The default download path is `/tmp/transmission`, so make sure to edit the `docker-compose.yml` to change that to something like:
+  
+    /home/bob/Downloads:/downloads
+    
+Where the new download path would be `/home/bob/Downloads`.  Leave the right side alone, i.e `/downloads` as that maps to an internal container path.
 
 There is no default transmission user/pass, but feel free to edit the `transmission-settings.json` beforehand following the [official settings](https://github.com/transmission/transmission/wiki/Editing-Configuration-Files) to make any changes you'd like.
 
