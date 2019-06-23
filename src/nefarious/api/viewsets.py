@@ -322,17 +322,8 @@ class CurrentTorrentsView(views.APIView):
                 WatchTVSeason.objects.filter(watch_tv_show__id__in=watch_tv_shows))
 
         for qs in querysets:
-            for media in qs:
-                if not media.transmission_torrent_hash:
-                    continue
 
-                try:
-                    torrent = transmission_client.get_torrent(media.transmission_torrent_hash)
-                except (KeyError, ValueError):  # torrent no longer exists or was invalid
-                    continue
-                except Exception as e:
-                    logging.error(str(e))
-                    raise e
+            for media in qs:
 
                 if isinstance(media, WatchTVSeason):
                     media_serializer = WatchTVSeasonSerializer
@@ -341,10 +332,23 @@ class CurrentTorrentsView(views.APIView):
                 else:
                     media_serializer = WatchMovieSerializer
 
-                results.append({
-                    'torrent': TransmissionTorrentSerializer(torrent).data,
+                result = {
                     'watchMedia': media_serializer(media).data,
-                })
+                }
+
+                if media.transmission_torrent_hash:
+
+                    try:
+                        torrent = transmission_client.get_torrent(media.transmission_torrent_hash)
+                    except (KeyError, ValueError):  # torrent no longer exists or was invalid
+                        continue
+                    except Exception as e:
+                        logging.error(str(e))
+                        raise e
+
+                    result['torrent'] = TransmissionTorrentSerializer(torrent).data
+
+                results.append(result)
 
         return Response(results)
 
