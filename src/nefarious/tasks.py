@@ -126,15 +126,22 @@ def completed_media_task():
     for media in incomplete_media:
         try:
             torrent = transmission_client.get_torrent(media.transmission_torrent_hash)
+        except KeyError:
+            logging.info("Media's torrent no longer present, removing reference: {}".format(media))
+            media.transmission_torrent_hash = None
+            media.save()
+        else:
             if torrent.progress == 100:
                 logging.info('Media completed: {}'.format(media))
                 media.collected = True
                 media.collected_date = datetime.utcnow()
                 media.save()
-        except KeyError:
-            logging.info("Media's torrent no longer present, removing reference: {}".format(media))
-            media.transmission_torrent_hash = None
-            media.save()
+
+                # if season is complete, mark season request complete
+                if isinstance(media, WatchTVSeason):
+                    for season_request in WatchTVSeasonRequest.objects.filter(watch_tv_show=media.watch_tv_show, season_number=media.season_number):
+                        season_request.collected = True
+                        season_request.save()
 
 
 @app.task
