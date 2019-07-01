@@ -183,7 +183,7 @@ Note: run `npm --prefix src/frontend run watch` to automatically rebuild while y
 
 Run the python application using django's *development* `runserver` management command: 
 
-    python src/manage.py runserver 8000
+    DEBUG=1 python src/manage.py runserver 8000
    
 It'll be now running at [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
