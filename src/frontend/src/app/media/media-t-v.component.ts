@@ -106,6 +106,10 @@ export class MediaTVComponent implements OnInit {
     }
   }
 
+  public userIsStaff(): boolean {
+    return this.apiService.userIsStaff();
+  }
+
   public stopWatchingShow() {
     const watchShow = this._getWatchShow();
     if (watchShow) {

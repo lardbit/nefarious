@@ -1,18 +1,21 @@
-<app-search-tabs></app-search-tabs>
-<app-search-input (query)="searchTorrents($event)"></app-search-input>
-
 <div class="position-relative">
 
   <ngx-loading [show]="isSearching"></ngx-loading>
 
-  <form class="form-inline" *ngIf="results.length">
-    <div class="form-group">
-      <label class="m-2">Sort</label>
-      <select name="orderBy" [(ngModel)]="filters.orderBy" (change)="filterChange()" class="form-control form-control-sm">
-        <option *ngFor="let option of orderByOptions">{{ option }}</option>
-      </select>
-    </div>
-  </form>
+  <div class="d-flex m-3 justify-content-end">
+    <form class="form-inline" *ngIf="results.length">
+      <div class="form-group">
+        <label class="m-2">Sort</label>
+        <select name="orderBy" [(ngModel)]="filters.orderBy" (change)="filterChange()" class="form-control form-control-sm">
+          <option *ngFor="let option of orderByOptions">{{ option }}</option>
+        </select>
+      </div>
+    </form>
+  </div>
+
+  <div class="d-flex justify-content-end">
+    <input class="form-control form-control-sm mb-3 w-25" [(ngModel)]="filter" required minlength="2" name="search" type="text" placeholder="Filter..." autocomplete="off">
+  </div>
 
   <div class="table-responsive">
     <table class="table table-striped" *ngIf="results.length">
@@ -26,7 +29,7 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let result of results">
+      <tr *ngFor="let result of results | filter: filter">
         <td>{{ result.Title }}</td>
         <td>{{ result.Tracker }}</td>
         <td>{{ result.Seeders }}</td>

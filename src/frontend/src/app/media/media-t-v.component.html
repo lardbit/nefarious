@@ -62,6 +62,11 @@
             <app-torrent-details mediaType="tv" [watchMedia]="getWatchMedia()"></app-torrent-details>
           </ng-template>
         </ngb-tab>
+        <ngb-tab title="Manual Search" *ngIf="userIsStaff()">
+          <ng-template ngbTabContent>
+            <app-search-manual [mediaType]="'tv'" [query]="result.name"></app-search-manual>
+          </ng-template>
+        </ngb-tab>
       </ngb-tabset>
     </div>
   </div>

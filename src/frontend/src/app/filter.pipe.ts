@@ -14,6 +14,8 @@ export class FilterPipe implements PipeTransform {
     for (const item of items) {
       if (item.title && item.title.match(RegExp(search, 'i'))) {
         results.push(item);
+      } else if (item.Title && item.Title.match(RegExp(search, 'i'))) {
+        results.push(item);
       } else if (item.name && item.name.match(RegExp(search, 'i'))) {
         results.push(item);
       }

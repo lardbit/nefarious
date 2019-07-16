@@ -1,25 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ApiService } from "../api.service";
+import { ApiService } from '../api.service';
 import { ToastrService } from 'ngx-toastr';
 import * as _ from 'lodash';
 
 
 @Component({
-  selector: 'app-search',
+  selector: 'app-search-manual',
   templateUrl: './search-manual.component.html',
   styleUrls: ['./search-manual.component.css']
 })
 export class SearchManualComponent implements OnInit {
+  @Input('query') query = '';
+  @Input('mediaType') mediaType = '';
   public orderByOptions = ['Name', 'Seeders', 'Size'];
   public results: any[] = [];
-  public isSearching: boolean = false;
+  public isSearching = false;
+  public filter = '';
   public filters: {
     orderBy: string,
   } = {
-    orderBy: "Name",
+    orderBy: 'Name',
   };
-  public type: string;
   protected _downloading: any = {};
 
   constructor(
@@ -31,27 +33,14 @@ export class SearchManualComponent implements OnInit {
   }
 
   ngOnInit() {
-    // auto search on load if query params exist
-    if (this.route.snapshot.queryParams['q'] && this.route.snapshot.queryParams['type']) {
-      this.searchTorrents(this.route.snapshot.queryParams);
-    }
+    this.searchTorrents();
   }
 
-  public searchTorrents(queryParams: any) {
-    this.type = queryParams.type;
-
-    // add the search query to the route parameters
-    this.router.navigate(
-      [],
-      {
-        relativeTo: this.route,
-        queryParams: queryParams,
-      },
-    );
+  public searchTorrents() {
 
     this.results = [];
     this.isSearching = true;
-    this.apiService.searchTorrents(queryParams.q, queryParams.type).subscribe(
+    this.apiService.searchTorrents(this.query, this.mediaType).subscribe(
       (results) => {
         this.results = results;
         this.filterChange();
@@ -61,7 +50,7 @@ export class SearchManualComponent implements OnInit {
         this.isSearching = false;
         this.toastr.error('An unknown error occurred');
       }
-    )
+    );
   }
 
   public filterChange() {
@@ -87,7 +76,7 @@ export class SearchManualComponent implements OnInit {
   public downloadTorrent(result: any) {
     const torrent = SearchManualComponent._getTorrentLinkFromResult(result);
     this._downloading[torrent] = true;
-    this.apiService.download(torrent, this.type).subscribe(
+    this.apiService.download(torrent, this.mediaType).subscribe(
       (data) => {
         console.log(data);
         if (!data.success) {
@@ -105,7 +94,7 @@ export class SearchManualComponent implements OnInit {
   }
 
   public isDownloading(result) {
-    let torrent = SearchManualComponent._getTorrentLinkFromResult(result);
+    const torrent = SearchManualComponent._getTorrentLinkFromResult(result);
     return this._downloading.hasOwnProperty(torrent);
   }
 

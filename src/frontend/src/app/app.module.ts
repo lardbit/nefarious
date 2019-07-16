@@ -16,7 +16,6 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
 import { SearchManualComponent } from './search/search-manual.component';
 import { SearchInputComponent } from './search/search-input.component';
 import { SearchAutoComponent } from './search/search-auto.component';
-import { SearchTabsComponent } from './search/search-tabs.component';
 import { SettingsComponent } from './settings/settings.component';
 import { MediaTVComponent } from './media/media-t-v.component';
 import { MediaMovieComponent } from './media/media-movie.component';
@@ -66,7 +65,6 @@ export function init(apiService: ApiService) {
     SearchManualComponent,
     SearchInputComponent,
     SearchAutoComponent,
-    SearchTabsComponent,
     SettingsComponent,
     LoginComponent,
     MediaTVComponent,
