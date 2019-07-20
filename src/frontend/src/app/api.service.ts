@@ -249,10 +249,11 @@ export class ApiService {
     );
   }
 
-  public download(torrent: string, mediaType: string) {
+  public download(torrentResult: any, mediaType: string, tmdbMedia: any) {
     const params = {
-      torrent: torrent,
+      torrent: torrentResult,
       media_type: mediaType,
+      tmdb_media: tmdbMedia,
     };
     return this.http.post(this.API_URL_DOWNLOAD_TORRENTS, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {

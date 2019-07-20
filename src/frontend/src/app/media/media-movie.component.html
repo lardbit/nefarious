@@ -64,7 +64,7 @@
           </ngb-tab>
           <ngb-tab title="Manual Search" *ngIf="userIsStaff()">
             <ng-template ngbTabContent>
-              <app-search-manual [mediaType]="'movie'" [query]="result.title"></app-search-manual>
+              <app-search-manual [mediaType]="'movie'" [tmdbMedia]="result"></app-search-manual>
             </ng-template>
           </ngb-tab>
         </ngb-tabset>

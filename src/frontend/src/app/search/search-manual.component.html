@@ -35,7 +35,7 @@
         <td>{{ result.Seeders }}</td>
         <td>{{ result.Size | filesize }}</td>
         <td>
-          <button class="btn btn-sm btn-default position-relative" (click)="downloadTorrent(result)" [disabled]="isDownloading(result)">
+          <button class="btn btn-sm btn-default position-relative" (click)="downloadTorrent(result, tmdbMedia)" [disabled]="isDownloading(result)">
             <ngx-loading [show]="isDownloading(result)"></ngx-loading>
             <span class="oi oi-cloud-upload"></span>
           </button>

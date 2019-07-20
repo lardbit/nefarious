@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
 import { ToastrService } from 'ngx-toastr';
 import * as _ from 'lodash';
@@ -11,8 +11,8 @@ import * as _ from 'lodash';
   styleUrls: ['./search-manual.component.css']
 })
 export class SearchManualComponent implements OnInit {
-  @Input('query') query = '';
-  @Input('mediaType') mediaType = '';
+  @Input('tmdbMedia') tmdbMedia: any;
+  @Input('mediaType') mediaType: string;
   public orderByOptions = ['Name', 'Seeders', 'Size'];
   public results: any[] = [];
   public isSearching = false;
@@ -28,7 +28,6 @@ export class SearchManualComponent implements OnInit {
     private apiService: ApiService,
     private route: ActivatedRoute,
     private toastr: ToastrService,
-    private router: Router,
     ) {
   }
 
@@ -40,7 +39,7 @@ export class SearchManualComponent implements OnInit {
 
     this.results = [];
     this.isSearching = true;
-    this.apiService.searchTorrents(this.query, this.mediaType).subscribe(
+    this.apiService.searchTorrents(this.tmdbMedia.title, this.mediaType).subscribe(
       (results) => {
         this.results = results;
         this.filterChange();
@@ -73,24 +72,24 @@ export class SearchManualComponent implements OnInit {
     }
   }
 
-  public downloadTorrent(result: any) {
-    const torrent = SearchManualComponent._getTorrentLinkFromResult(result);
-    this._downloading[torrent] = true;
-    this.apiService.download(torrent, this.mediaType).subscribe(
+  public downloadTorrent(torrentResult: any, tmdbMedia: any) {
+    const torrentUrl = SearchManualComponent._getTorrentLinkFromResult(torrentResult);
+    this._downloading[torrentUrl] = true;
+    this.apiService.download(torrentResult, this.mediaType, tmdbMedia).subscribe(
       (data) => {
         console.log(data);
         if (!data.success) {
           this.toastr.error(data.error_detail);
         } else {
-          this.toastr.success(result.Title);
+          this.toastr.success(torrentResult.Title);
         }
-        delete this._downloading[torrent];
+        delete this._downloading[torrentUrl];
       },
       (error) => {
-        delete this._downloading[torrent];
+        delete this._downloading[torrentUrl];
         this.toastr.error('An unknown error occurred');
       },
-    )
+    );
   }
 
   public isDownloading(result) {

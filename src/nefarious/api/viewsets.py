@@ -1,5 +1,6 @@
 import os
 import logging
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -262,39 +263,61 @@ class DownloadTorrentsView(views.APIView):
     permission_classes = (IsAdminUser,)
 
     def post(self, request):
-        nefarious_settings = NefariousSettings.get()
-        torrent = request.data.get('torrent')
-        media_type = request.data.get('media_type', MEDIA_TYPE_TV)
-        if not is_magnet_url(torrent):
-            torrent = swap_jackett_host(torrent, nefarious_settings)
+        nefarious_settings = NefariousSettings.get()  # type: NefariousSettings
 
-        if not torrent:
+        tmdb_media = request.data.get('tmdb_media', {})
+        torrent_info = request.data.get('torrent', {})
+        torrent_url = torrent_info.get('MagnetUri') or torrent_info.get('Link')
+
+        if not torrent_url:
             return Response({'success': False, 'error': 'Missing torrent link'})
 
+        media_type = request.data.get('media_type', MEDIA_TYPE_TV)
+        if not is_magnet_url(torrent_url):
+            torrent_url = swap_jackett_host(torrent_url, nefarious_settings)
+
         try:
-            torrent = trace_torrent_url(torrent)
+            torrent_url = trace_torrent_url(torrent_url)
         except Exception as e:
             return Response({'success': False, 'error': 'An unknown error occurred', 'error_detail': str(e)})
 
-        logging.info('adding torrent: {}'.format(torrent))
+        logging.info('adding torrent: {}'.format(torrent_url))
 
         # add torrent
         transmission_client = get_transmission_client(nefarious_settings)
         transmission_session = transmission_client.session_stats()
 
+        tmdb = get_tmdb_client(nefarious_settings)
+
+        watch_media = None
+
+        # set download paths and associate torrent with watch instance based
+        # on the supplied tmdb media
         if media_type == MEDIA_TYPE_MOVIE:
+            tmdb_request = tmdb.Movies(tmdb_media['id'])
+            tmdb_info = tmdb_request.info()
+            watch_media = WatchMovie(
+                user=request.user,
+                tmdb_movie_id=tmdb_info['id'],
+                name=tmdb_info['title'],
+                poster_image_url=nefarious_settings.get_tmdb_poster_url(tmdb_info['poster_path']),
+            )
             download_dir = os.path.join(
                 transmission_session.download_dir, nefarious_settings.transmission_movie_download_dir.lstrip('/'))
         else:
+            # TODO - handle saving TV watch instances
+            tmdb_request = tmdb.TV(tmdb_media.id['id'])
             download_dir = os.path.join(
                 transmission_session.download_dir, nefarious_settings.transmission_tv_download_dir.lstrip('/'))
 
-        transmission_client.add_torrent(
-            torrent,
-            paused=True,
+        torrent = transmission_client.add_torrent(
+            torrent_url,
+            paused=settings.DEBUG,
             download_dir=download_dir,
         )
-        
+        watch_media.transmission_torrent_hash = torrent.hashString
+        watch_media.save()
+
         return Response({'success': True})
 
 
