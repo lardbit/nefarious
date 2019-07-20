@@ -318,7 +318,10 @@ class DownloadTorrentsView(views.APIView):
         watch_media.transmission_torrent_hash = torrent.hashString
         watch_media.save()
 
-        return Response({'success': True})
+        return Response({
+            'success': True,
+            'watch_media': WatchMovieSerializer(watch_media).data,
+        })
 
 
 class CurrentTorrentsView(views.APIView):

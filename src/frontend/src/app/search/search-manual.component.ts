@@ -77,7 +77,6 @@ export class SearchManualComponent implements OnInit {
     this._downloading[torrentUrl] = true;
     this.apiService.download(torrentResult, this.mediaType, tmdbMedia).subscribe(
       (data) => {
-        console.log(data);
         if (!data.success) {
           this.toastr.error(data.error_detail);
         } else {

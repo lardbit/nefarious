@@ -257,6 +257,13 @@ export class ApiService {
     };
     return this.http.post(this.API_URL_DOWNLOAD_TORRENTS, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
+        if (data.success) {
+          if (mediaType === this.SEARCH_MEDIA_TYPE_MOVIE) {
+            this.watchMovies.push(data.watch_media);
+          } else if (mediaType === this.SEARCH_MEDIA_TYPE_TV) {
+            // TODO
+          }
+        }
         return data;
       }),
     );

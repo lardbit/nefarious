@@ -41,11 +41,11 @@
                         </select>
                       </div>
                       <div>
-                        <button class="btn btn-block" [ngClass]="{'btn-primary': !isWatchingMovie, 'btn-warning': isWatchingMovie}">
-													<span *ngIf="!isWatchingMovie">Watch</span>
-													<span *ngIf="isWatchingMovie">Stop Watching</span>
+                        <button class="btn btn-block" [ngClass]="{'btn-primary': !isWatchingMovie(), 'btn-warning': isWatchingMovie()}">
+													<span *ngIf="!isWatchingMovie()">Watch</span>
+													<span *ngIf="isWatchingMovie()">Stop Watching</span>
                         </button>
-                        <div class="text-muted mt-1" *ngIf="isWatchingMovie && watchMovie">
+                        <div class="text-muted mt-1" *ngIf="isWatchingMovie() && watchMovie">
                           Requested by: {{ watchMovie.requested_by }}
                         </div>
                       </div>
@@ -55,14 +55,14 @@
               </div>
             </ng-template>
           </ngb-tab>
-          <ngb-tab title="Status" *ngIf="isWatchingMovie">
+          <ngb-tab title="Status" *ngIf="isWatchingMovie()">
             <ng-template ngbTabContent>
-              <div *ngIf="isWatchingMovie && watchMovie">
+              <div *ngIf="isWatchingMovie() && watchMovie">
                 <app-torrent-details mediaType="movie" [watchMedia]="getWatchMovie()"></app-torrent-details>
               </div>
             </ng-template>
           </ngb-tab>
-          <ngb-tab title="Manual Search" *ngIf="userIsStaff()">
+          <ngb-tab title="Manual Search" *ngIf="userIsStaff() && !isWatchingMovie()">
             <ng-template ngbTabContent>
               <app-search-manual [mediaType]="'movie'" [tmdbMedia]="result"></app-search-manual>
             </ng-template>
