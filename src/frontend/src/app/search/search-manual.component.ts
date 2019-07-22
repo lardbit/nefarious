@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
 import { ToastrService } from 'ngx-toastr';
@@ -11,18 +11,21 @@ import * as _ from 'lodash';
   styleUrls: ['./search-manual.component.css']
 })
 export class SearchManualComponent implements OnInit {
-  @Input('tmdbMedia') tmdbMedia: any;
+  @Input('tmdbMedia') tmdbMedia;
+  @Input('tmdbTVSeason') tmdbTVSeason;
+  @Input('tmdbTVEpisode') tmdbTVEpisode;
   @Input('mediaType') mediaType: string;
+  @Output() downloaded = new EventEmitter<any>();
   public orderByOptions = ['Name', 'Seeders', 'Size'];
   public results: any[] = [];
   public isSearching = false;
+  public isDownloading = false;
   public filter = '';
   public filters: {
     orderBy: string,
   } = {
     orderBy: 'Name',
   };
-  protected _downloading: any = {};
 
   constructor(
     private apiService: ApiService,
@@ -32,14 +35,10 @@ export class SearchManualComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.searchTorrents();
-  }
-
-  public searchTorrents() {
-
     this.results = [];
     this.isSearching = true;
-    this.apiService.searchTorrents(this.tmdbMedia.title, this.mediaType).subscribe(
+    const title = this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV ? this.tmdbMedia.name : this.tmdbMedia.title;
+    this.apiService.searchTorrents(title, this.mediaType).subscribe(
       (results) => {
         this.results = results;
         this.filterChange();
@@ -73,30 +72,40 @@ export class SearchManualComponent implements OnInit {
   }
 
   public downloadTorrent(torrentResult: any, tmdbMedia: any) {
-    const torrentUrl = SearchManualComponent._getTorrentLinkFromResult(torrentResult);
-    this._downloading[torrentUrl] = true;
-    this.apiService.download(torrentResult, this.mediaType, tmdbMedia).subscribe(
+    this.isDownloading = true;
+    const params = {};
+    if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV) {
+      params['season_number'] = this.tmdbTVSeason.season_number;
+      // requesting a single episode
+      if (this.tmdbTVEpisode) {
+        params['episode_number'] = this.tmdbTVEpisode.episode_number;
+      }
+    }
+    this.apiService.download(torrentResult, this.mediaType, tmdbMedia, params).subscribe(
       (data) => {
-        if (!data.success) {
-          this.toastr.error(data.error_detail);
+        if (data.success) {
+          let title;
+          if (data.watch_tv_episode) {
+            title = data.watch_tv_episode.name;
+          } else if (data.watch_tv_season_request) {
+            title = data.watch_tv_season_request.name;
+          } else if (data.watch_movie) {
+            title = data.watch_movie.name;
+          }
+          this.toastr.success(title);
+          this.isDownloading = false;
+          this.downloaded.emit(true);
         } else {
-          this.toastr.success(torrentResult.Title);
+          this.toastr.error(data.error_detail);
         }
-        delete this._downloading[torrentUrl];
       },
       (error) => {
-        delete this._downloading[torrentUrl];
         this.toastr.error('An unknown error occurred');
       },
     );
   }
 
-  public isDownloading(result) {
-    const torrent = SearchManualComponent._getTorrentLinkFromResult(result);
-    return this._downloading.hasOwnProperty(torrent);
-  }
-
-  protected static _getTorrentLinkFromResult(result) {
+  protected _getTorrentLinkFromResult(result) {
     let torrent: string;
     if (result.MagnetUri) {
       torrent = result.MagnetUri;

@@ -249,19 +249,33 @@ export class ApiService {
     );
   }
 
-  public download(torrentResult: any, mediaType: string, tmdbMedia: any) {
-    const params = {
+  public download(torrentResult: any, mediaType: string, tmdbMedia: any, params?: any) {
+    // add extra params
+    _.assign(params || {}, {
       torrent: torrentResult,
       media_type: mediaType,
       tmdb_media: tmdbMedia,
-    };
+    });
     return this.http.post(this.API_URL_DOWNLOAD_TORRENTS, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
         if (data.success) {
           if (mediaType === this.SEARCH_MEDIA_TYPE_MOVIE) {
-            this.watchMovies.push(data.watch_media);
+            this.watchMovies.push(data.watch_movie);
           } else if (mediaType === this.SEARCH_MEDIA_TYPE_TV) {
-            // TODO
+            // add show if it wasn't being watched already
+            const watchShow = _.find(this.watchTVShows, (show) => {
+              return show.id === data.watch_show;
+            });
+            if (!watchShow) {
+              this.watchTVShows.push(data.watch_tv_show);
+            }
+
+            // add tv season request or episode to existing lists
+            if (data.watch_tv_season_request) {
+              this.watchTVSeasonRequests.push(data.watch_tv_season_request);
+            } else if (data.watch_tv_episode) {
+              this.watchTVEpisodes.push(data.watch_tv_episode);
+            }
           }
         }
         return data;

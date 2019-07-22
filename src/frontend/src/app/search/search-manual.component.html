@@ -1,6 +1,6 @@
 <div class="position-relative">
 
-  <ngx-loading [show]="isSearching"></ngx-loading>
+  <ngx-loading [show]="isSearching || isDownloading"></ngx-loading>
 
   <div class="d-flex m-3 justify-content-end">
     <form class="form-inline" *ngIf="results.length">
@@ -35,8 +35,7 @@
         <td>{{ result.Seeders }}</td>
         <td>{{ result.Size | filesize }}</td>
         <td>
-          <button class="btn btn-sm btn-default position-relative" (click)="downloadTorrent(result, tmdbMedia)" [disabled]="isDownloading(result)">
-            <ngx-loading [show]="isDownloading(result)"></ngx-loading>
+          <button class="btn btn-sm btn-default position-relative" (click)="downloadTorrent(result, tmdbMedia)">
             <span class="oi oi-cloud-upload"></span>
           </button>
         </td>
