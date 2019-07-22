@@ -105,6 +105,20 @@ export class SearchManualComponent implements OnInit {
     );
   }
 
+  public getTmdbTitle() {
+    if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_MOVIE) {
+      return this.tmdbMedia.title;
+    } else {
+      // single episode
+      if (this.tmdbTVEpisode) {
+        return `${this.tmdbMedia.name}  ${this.tmdbTVSeason.season_number}x${this.tmdbTVEpisode.episode_number}`;
+      } else {
+        // full season
+        return `${this.tmdbMedia.name} - Season ${this.tmdbTVSeason.season_number}`;
+      }
+    }
+  }
+
   protected _getTorrentLinkFromResult(result) {
     let torrent: string;
     if (result.MagnetUri) {

@@ -2,6 +2,10 @@
 
   <ngx-loading [show]="isSearching || isDownloading"></ngx-loading>
 
+  <div class="d-flex justify-content-center mt-3">
+    <div class="alert alert-warning">Manually downloading any torrent will be assigned to <span class="text-dark">{{getTmdbTitle()}}</span></div>
+  </div>
+
   <div class="d-flex m-3 justify-content-end">
     <form class="form-inline" *ngIf="results.length">
       <div class="form-group">
