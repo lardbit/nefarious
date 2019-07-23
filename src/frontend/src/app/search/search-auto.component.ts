@@ -58,10 +58,13 @@ export class SearchAutoComponent implements OnInit {
     let query;
 
     const similarToMediaQueryRegEx = /^similar-to:(\d+)$/;
+    const recommendedToMediaQueryRegEx = /^recommended-to:(\d+)$/;
 
     // execute "similar to media" query or standard search query
     if (similarToMediaQueryRegEx.test(queryParams['q'])) {
       query = this.apiService.searchSimilarMedia(queryParams['q'].match(similarToMediaQueryRegEx)[1], queryParams.type);
+    } else if (recommendedToMediaQueryRegEx.test(queryParams['q'])) {
+      query = this.apiService.searchRecommendedMedia(queryParams['q'].match(recommendedToMediaQueryRegEx)[1], queryParams.type);
     } else {
       query = this.apiService.searchMedia(queryParams.q, queryParams.type);
     }

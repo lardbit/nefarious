@@ -193,10 +193,6 @@ class WatchTVProcessorBase(WatchProcessorBase):
     def _get_parser(self, title: str):
         return TVParser(title)
 
-    def _get_watch_media(self, watch_media_id: int):
-        watch_movie = WatchTVEpisode.objects.get(pk=watch_media_id)
-        return watch_movie
-
     def _get_media_type(self) -> str:
         return MEDIA_TYPE_TV
 

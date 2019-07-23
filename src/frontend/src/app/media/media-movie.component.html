@@ -15,7 +15,10 @@
               <div class="mt-3">
                 <div class="d-flex justify-content-between">
                   <h6 class="card-title">{{ result.release_date | date:'y' }}</h6>
-                  <a [routerLink]="['/search/auto']" [queryParams]="{type: 'movie', q: 'similar-to:' + result.id}" class="btn btn-link"><span class="oi oi-magnifying-glass"></span> Similar</a>
+                  <div class="d-flex justify-content-between">
+                    <a [routerLink]="['/search/auto']" [queryParams]="{type: 'movie', q: 'similar-to:' + result.id}" class="btn btn-link"><span class="oi oi-magnifying-glass"></span> Similar</a>
+                    <a [routerLink]="['/search/auto']" [queryParams]="{type: 'movie', q: 'recommended-to:' + result.id}" class="btn btn-link"><span class="oi oi-magnifying-glass"></span> Recommended</a>
+                  </div>
                 </div>
                 <p class="card-text">{{ result.overview }}</p>
                 <div class="card-text position-relative my-3 w-25">

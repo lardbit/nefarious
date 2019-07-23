@@ -18,7 +18,8 @@ from nefarious.tmdb import get_tmdb_client
 from nefarious.api.serializers import (
     NefariousSettingsSerializer, WatchTVEpisodeSerializer, WatchTVShowSerializer,
     UserSerializer, WatchMovieSerializer, NefariousPartialSettingsSerializer,
-    TransmissionTorrentSerializer, WatchTVSeasonSerializer, WatchTVSeasonRequestSerializer)
+    TransmissionTorrentSerializer, WatchTVSeasonSerializer, WatchTVSeasonRequestSerializer,
+)
 from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason, WatchTVSeasonRequest
 from nefarious.search import MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrents
 from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task
@@ -82,7 +83,7 @@ class WatchTVSeasonRequestViewSet(UserReferenceViewSetMixin, viewsets.ModelViewS
         super().perform_create(serializer)
 
         # save a watch tv season instance to try and download the whole season immediately
-        watch_tv_season, was_created = WatchTVSeason.objects.get_or_create(
+        watch_tv_season, _ = WatchTVSeason.objects.get_or_create(
             watch_tv_show=WatchTVShow.objects.get(id=serializer.data['watch_tv_show']),
             season_number=serializer.data['season_number'],
             defaults=dict(
@@ -243,6 +244,31 @@ class SearchSimilarMediaView(views.APIView):
             similar_results = tmdb.Movies(id=tmdb_media_id).similar_movies()
         else:
             similar_results = tmdb.TV(id=tmdb_media_id).similar()
+
+        return Response(similar_results)
+
+
+class SearchRecommendedMediaView(views.APIView):
+
+    @method_decorator(cache_page(CACHE_DAY))
+    def get(self, request):
+        media_type = request.query_params.get('media_type', MEDIA_TYPE_TV)
+        assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
+
+        if 'tmdb_media_id' not in request.query_params:
+            raise ValidationError({'tmdb_media_id': ['required parameter']})
+
+        nefarious_settings = NefariousSettings.get()
+
+        # prepare query
+        tmdb = get_tmdb_client(nefarious_settings)
+        tmdb_media_id = request.query_params.get('tmdb_media_id')
+
+        # search for media
+        if media_type == MEDIA_TYPE_MOVIE:
+            similar_results = tmdb.Movies(id=tmdb_media_id).recommendations()
+        else:
+            similar_results = tmdb.TV(id=tmdb_media_id).recommendations()
 
         return Response(similar_results)
 

@@ -14,7 +14,8 @@ Features:
 - [x] Auto download TV (individual episodes or full season)
 - [x] Auto download Movies
 - [x] Discover TV & Movies (by popularity, genres, year etc)
-- [x] Discover similar TV & Movies
+- [x] Find similar TV & Movies
+- [x] Find recommended TV & Movies
 - [x] Manually search jackett's torrent results and download
 - [x] Supports blacklisting torrent results (i.e avoid a bad/fake torrent that should be avoided)
 - [X] Supports quality profiles (i.e only download *1080p* Movies and *any* quality TV)

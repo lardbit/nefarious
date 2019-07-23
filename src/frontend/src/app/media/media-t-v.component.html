@@ -3,7 +3,10 @@
   <div *ngIf="!isLoading">
     <div class="card-header d-flex justify-content-between">
       <div>{{ result.name }}</div>
-      <a [routerLink]="['/search/auto']" [queryParams]="{type: 'tv', q: 'similar-to:' + result.id}" class="btn btn-link"><span class="oi oi-magnifying-glass"></span> Similar</a>
+      <div class="d-flex justify-content-between">
+        <a [routerLink]="['/search/auto']" [queryParams]="{type: 'tv', q: 'similar-to:' + result.id}" class="btn btn-link"><span class="oi oi-magnifying-glass"></span> Similar</a>
+        <a [routerLink]="['/search/auto']" [queryParams]="{type: 'tv', q: 'recommended-to:' + result.id}" class="btn btn-link"><span class="oi oi-magnifying-glass"></span> Recommended</a>
+      </div>
     </div>
     <div class="card-body">
       <p class="card-text">{{ result.overview }}</p>
