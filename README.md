@@ -30,43 +30,37 @@ Features:
 
 ### Contents
 
-[Installing](#installing)
-
-[Running](#running)
-
-[Screenshots](#screenshots)
-
-[Troubleshooting](#troubleshooting)
-
-[Development](#development)
+- [Installing](#installing)
+- [Running](#running)
+- [Screenshots](#screenshots)
+- [Troubleshooting](#troubleshooting)
+- [Development](#development)
 
 ### Screenshots
 
-##### Login
+#### Login
 ![](https://github.com/lardbit/nefarious/blob/master/screenshots/login.png?raw=true)
-##### Search
-![](https://github.com/lardbit/nefarious/blob/master/screenshots/search-blank.png?raw=true)
-##### Search Results
+#### Search
 ![](https://github.com/lardbit/nefarious/blob/master/screenshots/search-results.png?raw=true)
-##### TV Result
+#### TV Result
 ![](https://github.com/lardbit/nefarious/blob/master/screenshots/media-tv-result.png?raw=true)
-##### Download Status
-![](https://github.com/lardbit/nefarious/blob/master/screenshots/media-status.png?raw=true)
-##### Movie Result
+#### Movie Result
 ![](https://github.com/lardbit/nefarious/blob/master/screenshots/media-movie-result.png?raw=true)
-##### Movie Custom Quality Profile
+#### Movie Custom Quality Profile
 ![](https://github.com/lardbit/nefarious/blob/master/screenshots/media-movie-custom-quality-profile.png?raw=true)
-##### Discover
+#### Download Status
+![](https://github.com/lardbit/nefarious/blob/master/screenshots/media-status.png?raw=true)
+#### Discover
 ![](https://github.com/lardbit/nefarious/blob/master/screenshots/discover.png?raw=true)
-##### Wanted
+#### Wanted
 ![](https://github.com/lardbit/nefarious/blob/master/screenshots/wanted.png?raw=true)
-##### Watching
+#### Watching
 ![](https://github.com/lardbit/nefarious/blob/master/screenshots/watching.png?raw=true)
-##### Settings
+#### Settings
 ![](https://github.com/lardbit/nefarious/blob/master/screenshots/settings.png?raw=true)
-##### Search Manual
+#### Search Manual
 ![](https://github.com/lardbit/nefarious/blob/master/screenshots/search-manual.png?raw=true)
-##### Mobile Friendly
+#### Mobile Friendly
 ![](https://github.com/lardbit/nefarious/blob/master/screenshots/search-mobile.png?raw=true)
 
 
