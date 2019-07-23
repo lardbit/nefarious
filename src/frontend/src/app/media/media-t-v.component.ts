@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
 import { ToastrService } from 'ngx-toastr';
 import * as _ from 'lodash';
 import { forkJoin, Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 
 
 @Component({
@@ -13,10 +14,15 @@ import { catchError, tap } from 'rxjs/operators';
   styleUrls: ['./media-t-v.component.css']
 })
 export class MediaTVComponent implements OnInit {
+  @ViewChild('tabsetEl') tabsetEl: NgbTabset;
   public result: any;
+  public isManuallySearching = false;
+  public isManualSearchEnabled = false;
   public watchEpisodesOptions: {
     [param: number]: boolean,
   };
+  public manualSearchTmdbSeason: any;
+  public manualSearchTmdbEpisode: any;
   public isLoading = true;
   public isSaving = false;
 
@@ -63,7 +69,6 @@ export class MediaTVComponent implements OnInit {
   public watchAllSeasons() {
 
     if (!this.isWatchingShow()) {
-      console.log('not yet watching show %s', this.result.name);
       this._watchShow().subscribe(
         (data) => {
           this.watchAllSeasons();
@@ -81,7 +86,6 @@ export class MediaTVComponent implements OnInit {
     this.isSaving = true;
 
     if (!this.isWatchingShow()) {
-      console.log('not yet watching show %s', this.result.name);
       this._watchShow().subscribe(
         (data) => {
           this.watchEntireSeason(season);
@@ -104,6 +108,10 @@ export class MediaTVComponent implements OnInit {
           }
         );
     }
+  }
+
+  public userIsStaff(): boolean {
+    return this.apiService.userIsStaff();
   }
 
   public stopWatchingShow() {
@@ -150,6 +158,25 @@ export class MediaTVComponent implements OnInit {
     return Boolean(this._getWatchShow());
   }
 
+  public manuallySearchSeason(season: any) {
+    this.manualSearchTmdbSeason = season;
+    this.isManuallySearching = true;
+    this.tabsetEl.select('manual-search-tab');
+  }
+
+  public manuallySearchEpisode(season: any, episode: any) {
+    this.manualSearchTmdbSeason = season;
+    this.manualSearchTmdbEpisode = episode;
+    this.isManuallySearching = true;
+    this.tabsetEl.select('manual-search-tab');
+  }
+
+  public manuallyDownloadComplete() {
+    this.isManuallySearching = false;
+    this.tabsetEl.select('main-tab');
+    this._buildWatchOptions();
+  }
+
   protected _watchShow(): Observable<any> {
     return this.apiService.watchTVShow(this.result.id, this.result.name, this.mediaPosterURL(this.result)).pipe(
       tap((data) => {
@@ -186,13 +213,13 @@ export class MediaTVComponent implements OnInit {
     const watchingOptions: any = {};
     for (const season of this.result.seasons) {
       for (const episode of season.episodes) {
-        watchingOptions[episode.id] = this._isWatchingEpisode(episode.id) || this.isWatchingSeason(season.season_number);
+        watchingOptions[episode.id] = this.isWatchingEpisode(episode.id) || this.isWatchingSeason(season.season_number);
       }
     }
     this.watchEpisodesOptions = watchingOptions;
   }
 
-  protected _isWatchingEpisode(episodeId): Boolean {
+  protected isWatchingEpisode(episodeId): Boolean {
     return Boolean(_.find(this.apiService.watchTVEpisodes, (watching) => {
       return watching.tmdb_episode_id === episodeId;
     }));
@@ -205,7 +232,7 @@ export class MediaTVComponent implements OnInit {
   }
 
   protected _getSeasonFromEpisodeId(episodeId) {
-    let result;
+    let result = null;
     _.each(this.result.seasons, (season) => {
       _.each(season.episodes, (episode) => {
         if (episode.id === episodeId) {
@@ -247,7 +274,7 @@ export class MediaTVComponent implements OnInit {
       // requested to watch
       if (shouldWatch) {
         // make sure the episode is for the supplied season and they're not already watching it
-        if (seasonNumber === episode.season_number && !this._isWatchingEpisode(episodeId)) {
+        if (seasonNumber === episode.season_number && !this.isWatchingEpisode(episodeId)) {
           const season = this._getSeasonFromEpisodeId(episodeId);
           const watchShow = this._getWatchShow();
           if (episode && season && watchShow) {
@@ -259,7 +286,7 @@ export class MediaTVComponent implements OnInit {
           }
         }
       } else { // stop watching
-        if (this._isWatchingEpisode(episodeId)) {
+        if (this.isWatchingEpisode(episodeId)) {
           const watch = this._getEpisodeWatch(episodeId);
           observables.push(this.apiService.unWatchTVEpisode(watch.id));
         }

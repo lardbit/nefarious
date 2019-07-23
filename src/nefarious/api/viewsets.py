@@ -1,5 +1,6 @@
 import os
 import logging
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -262,40 +263,118 @@ class DownloadTorrentsView(views.APIView):
     permission_classes = (IsAdminUser,)
 
     def post(self, request):
+        result = {
+            'success': True,
+        }
         nefarious_settings = NefariousSettings.get()
-        torrent = request.data.get('torrent')
-        media_type = request.data.get('media_type', MEDIA_TYPE_TV)
-        if not is_magnet_url(torrent):
-            torrent = swap_jackett_host(torrent, nefarious_settings)
 
-        if not torrent:
+        tmdb_media = request.data.get('tmdb_media', {})
+        torrent_info = request.data.get('torrent', {})
+        torrent_url = torrent_info.get('MagnetUri') or torrent_info.get('Link')
+
+        if not torrent_url:
             return Response({'success': False, 'error': 'Missing torrent link'})
 
+        media_type = request.data.get('media_type', MEDIA_TYPE_TV)
+
+        # validate tv
+        if media_type == MEDIA_TYPE_TV:
+            if 'season_number' not in request.data:
+                return Response({'success': False, 'error': 'Missing season_number'})
+
+        if not is_magnet_url(torrent_url):
+            torrent_url = swap_jackett_host(torrent_url, nefarious_settings)
+
         try:
-            torrent = trace_torrent_url(torrent)
+            torrent_url = trace_torrent_url(torrent_url)
         except Exception as e:
             return Response({'success': False, 'error': 'An unknown error occurred', 'error_detail': str(e)})
 
-        logging.info('adding torrent: {}'.format(torrent))
+        logging.info('adding torrent: {}'.format(torrent_url))
 
         # add torrent
         transmission_client = get_transmission_client(nefarious_settings)
         transmission_session = transmission_client.session_stats()
 
+        tmdb = get_tmdb_client(nefarious_settings)
+
+        # - set download paths
+        # - associate torrent with watch instance
         if media_type == MEDIA_TYPE_MOVIE:
+            tmdb_request = tmdb.Movies(tmdb_media['id'])
+            tmdb_movie = tmdb_request.info()
+            watch_media = WatchMovie(
+                user=request.user,
+                tmdb_movie_id=tmdb_movie['id'],
+                name=tmdb_movie['title'],
+                poster_image_url=nefarious_settings.get_tmdb_poster_url(tmdb_movie['poster_path']),
+            )
+            watch_media.save()
             download_dir = os.path.join(
                 transmission_session.download_dir, nefarious_settings.transmission_movie_download_dir.lstrip('/'))
+            result['watch_movie'] = WatchMovieSerializer(watch_media).data
         else:
+            tmdb_request = tmdb.TV(tmdb_media['id'])
+            tmdb_show = tmdb_request.info()
+
+            watch_tv_show, _ = WatchTVShow.objects.get_or_create(
+                tmdb_show_id=tmdb_show['id'],
+                defaults=dict(
+                    user=request.user,
+                    name=tmdb_show['name'],
+                    poster_image_url=nefarious_settings.get_tmdb_poster_url(tmdb_show['poster_path']),
+                )
+            )
+
+            result['watch_tv_show'] = WatchTVShowSerializer(watch_tv_show).data
+
+            # single episode
+            if 'episode_number' in request.data:
+                tmdb_request = tmdb.TV_Episodes(tmdb_media['id'], request.data['season_number'], request.data['episode_number'])
+                tmdb_episode = tmdb_request.info()
+                watch_media = WatchTVEpisode(
+                    user=request.user,
+                    watch_tv_show=watch_tv_show,
+                    tmdb_episode_id=tmdb_episode['id'],
+                    season_number=request.data['season_number'],
+                    episode_number=request.data['episode_number'],
+                )
+                watch_media.save()
+                result['watch_tv_episode'] = WatchTVEpisodeSerializer(watch_media).data
+            # entire season
+            else:
+                # create the season request
+                watch_tv_season_request, _ = WatchTVSeasonRequest.objects.get_or_create(
+                    watch_tv_show=watch_tv_show,
+                    season_number=request.data['season_number'],
+                    defaults=dict(
+                        user=request.user,
+                        collected=True,  # set collected since we're directly downloading a torrent
+                    ),
+                )
+                # create the actual watch season instance
+                watch_media = WatchTVSeason(
+                    user=request.user,
+                    watch_tv_show=watch_tv_show,
+                    season_number=request.data['season_number'],
+                )
+                watch_media.save()
+
+                # return the season request vs the watch instance
+                result['watch_tv_season_request'] = WatchTVSeasonRequestSerializer(watch_tv_season_request).data
+
             download_dir = os.path.join(
                 transmission_session.download_dir, nefarious_settings.transmission_tv_download_dir.lstrip('/'))
 
-        transmission_client.add_torrent(
-            torrent,
-            paused=True,
+        torrent = transmission_client.add_torrent(
+            torrent_url,
+            paused=settings.DEBUG,
             download_dir=download_dir,
         )
-        
-        return Response({'success': True})
+        watch_media.transmission_torrent_hash = torrent.hashString
+        watch_media.save()
+
+        return Response(result)
 
 
 class CurrentTorrentsView(views.APIView):

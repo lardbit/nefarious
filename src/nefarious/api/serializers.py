@@ -82,6 +82,10 @@ class WatchTVSeasonSerializer(UserReferenceSerializerMixin, serializers.ModelSer
 
 
 class WatchTVSeasonRequestSerializer(UserReferenceSerializerMixin, serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
+    def get_name(self, obj: WatchTVSeasonRequest):
+        return str(obj)
 
     class Meta:
         model = WatchTVSeasonRequest

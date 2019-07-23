@@ -16,17 +16,16 @@ Features:
 - [x] Discover TV & Movies (by popularity, genres, year etc)
 - [x] Discover similar TV & Movies
 - [x] Manually search jackett's torrent results and download
-- [x] Supports blacklisting torrent results (i.e avoid a bad torrent that should be avoided)
+- [x] Supports blacklisting torrent results (i.e avoid a bad/fake torrent that should be avoided)
 - [X] Supports quality profiles (i.e only download *1080p* Movies and *any* quality TV)
 - [x] Supports whether to download media with hardcoded subtitles or not
 - [x] Auto download TV & Movies once it's released (routinely scan)
 - [x] Monitor transmission results & status from within the app
 - [x] Self/auto updating application
-- [x] Supports multiple users (i.e admin users and regular users)
+- [x] Supports multiple users and permission groups (i.e admin users and regular users)
 - [x] Responsive Design (looks great on desktops, tablets and small devices like phones)
 - [x] Movie trailers
 - [ ] Support user requests (i.e an unprivileged user must "request" to watch something)
-- [ ] Smart Ratio management (auto seed to specified indexers)
 
 ### Contents
 

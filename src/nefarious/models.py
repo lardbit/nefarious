@@ -1,3 +1,4 @@
+import os
 from django.contrib.auth.models import User
 from django.conf import settings
 from jsonfield import JSONField
@@ -35,6 +36,13 @@ class NefariousSettings(models.Model):
         if cls.objects.all().count() > 1:
             raise Exception('Should not have multiple settings records')
         return cls.objects.get()
+
+    def get_tmdb_poster_url(self, poster_path):
+        return os.path.join(
+            self.tmdb_configuration['images']['base_url'],
+            'original',
+            poster_path.lstrip('/'),
+        )
 
 
 class WatchMediaBase(models.Model):

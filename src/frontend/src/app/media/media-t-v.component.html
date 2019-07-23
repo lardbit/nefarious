@@ -17,8 +17,8 @@
       </div>
     </div>
     <div class="card-body">
-      <ngb-tabset>
-        <ngb-tab title="Details">
+      <ngb-tabset #tabsetEl="ngbTabset">
+        <ngb-tab title="Details" id="main-tab">
           <ng-template ngbTabContent>
             <div class="row">
               <div class="col-12 col-md-6 mb-3 position-relative">
@@ -28,19 +28,33 @@
                     <ngb-panel [title]="'Season ' + season.season_number">
                       <ng-template ngbPanelContent>
                         <p *ngIf="season.overview">{{ season.overview }}</p>
-                        <div class="m-3">
+                        <div class="d-flex justify-content-end mt-2" *ngIf="userIsStaff()">
+                          <form class="form">
+                            <input class="form-check-input" type="checkbox" [(ngModel)]="isManualSearchEnabled" name="manualSearch" id="toggle-manual-search">
+                            <label class="form-check-label" for="toggle-manual-search" placement="top" ngbTooltip="Enable option to manually search torrents vs automatically downloading them">Manual</label>
+                          </form>
+                        </div>
+                        <div class="my-3 d-flex justify-content-between">
                           <button *ngIf="!isWatchingSeason(season.season_number)" type="button" class="btn btn-primary" (click)="watchEntireSeason(season)">
                             <span class="oi oi-video"></span> Watch entire season
                           </button>
                           <button *ngIf="isWatchingSeason(season.season_number)" type="button" class="btn btn-warning" (click)="stopWatchingEntireSeason(season)">
                             <span class="oi oi-trash"></span> Stop watching season
                           </button>
+                          <div *ngIf="!isWatchingSeason(season.season_number) && userIsStaff() && isManualSearchEnabled">
+                            <button class="btn btn-sm btn-link" placement="top" ngbTooltip="Manually search torrents for this season" (click)="manuallySearchSeason(season)"><span class="oi oi-magnifying-glass"></span></button>
+                          </div>
                         </div>
                         <hr>
                         <form class="form" *ngIf="watchEpisodesOptions" (submit)="submitForSeason(season.season_number)">
-                          <div *ngFor="let episode of season.episodes" class="form-check">
-                            <input class="form-check-input" [class.disabled]="isWatchingSeason(season.season_number)" [disabled]="isWatchingSeason(season.season_number)" type="checkbox" [(ngModel)]="watchEpisodesOptions[episode.id]" [name]="episode.id" [id]="episode.id">
-                            <label class="form-check-label" [for]="episode.id">#{{ episode.episode_number }} - {{ episode.name }}</label>
+                          <div *ngFor="let episode of season.episodes" class="form-check d-flex justify-content-between">
+                            <div>
+                              <input class="form-check-input" [class.disabled]="isWatchingSeason(season.season_number)" [disabled]="isWatchingSeason(season.season_number)" type="checkbox" [(ngModel)]="watchEpisodesOptions[episode.id]" [name]="episode.id" [id]="episode.id">
+                              <label class="form-check-label" [for]="episode.id">#{{ episode.episode_number }} - {{ episode.name }}</label>
+                            </div>
+                            <div *ngIf="isManualSearchEnabled && !(isWatchingSeason(season.season_number) || isWatchingEpisode(episode.id))">
+                              <button class="btn btn-sm btn-link" placement="top" ngbTooltip="Manually search torrents for this episode" (click)="manuallySearchEpisode(season, episode)"><span class="oi oi-magnifying-glass"></span></button>
+                            </div>
                           </div>
                           <button type="submit" class="btn btn-info m-3" [class.disabled]="isWatchingSeason(season.season_number)" [disabled]="isWatchingSeason(season.season_number)">
                             <span class="oi oi-list"></span> Watch selected episodes
@@ -60,6 +74,11 @@
         <ngb-tab title="Status" *ngIf="isWatchingShow()">
           <ng-template ngbTabContent>
             <app-torrent-details mediaType="tv" [watchMedia]="getWatchMedia()"></app-torrent-details>
+          </ng-template>
+        </ngb-tab>
+        <ngb-tab [title]="isManuallySearching ? 'Manual Search' : ''" id="manual-search-tab" *ngIf="userIsStaff()">
+          <ng-template ngbTabContent>
+            <app-search-manual [mediaType]="'tv'" [tmdbMedia]="result" [tmdbTVSeason]="manualSearchTmdbSeason" [tmdbTVEpisode]="manualSearchTmdbEpisode" (downloaded)="manuallyDownloadComplete()"></app-search-manual>
           </ng-template>
         </ngb-tab>
       </ngb-tabset>

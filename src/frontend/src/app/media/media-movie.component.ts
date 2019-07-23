@@ -18,7 +18,6 @@ export class MediaMovieComponent implements OnInit {
   public qualityProfileCustom: string;
   public isLoading = true;
   public isSaving = false;
-  public isWatchingMovie = false;
   public trailerUrls$: Observable<any>;
 
   constructor(
@@ -35,7 +34,6 @@ export class MediaMovieComponent implements OnInit {
         this.result = data;
         this.isLoading = false;
         this.watchMovie = this.getWatchMovie();
-        this.isWatchingMovie = !!this.watchMovie;
         this.qualityProfileCustom = this.watchMovie ? this.watchMovie.quality_profile_custom : '';
       },
       (error) => {
@@ -58,16 +56,21 @@ export class MediaMovieComponent implements OnInit {
     );
   }
 
+  public isWatchingMovie() {
+    return !!this.getWatchMovie();
+  }
+
   public submit() {
-    this.isWatchingMovie = !this.isWatchingMovie;
     this.isSaving = true;
+    const watchMovie = this.getWatchMovie();
+    const isWatchingMovie = !this.isWatchingMovie();  // toggle to new requested state
 
     let endpoint;
 
-    if (this.isWatchingMovie) {
+    if (isWatchingMovie) {
       endpoint = this.apiService.watchMovie(this.result.id, this.result.title, this.mediaPosterURL(this.result), this.qualityProfileCustom);
-    } else if (!this.isWatchingMovie && this.watchMovie) {
-      endpoint = this.apiService.unWatchMovie(this.watchMovie.id);
+    } else if (!isWatchingMovie && watchMovie) {
+      endpoint = this.apiService.unWatchMovie(watchMovie.id);
     } else {
       return;
     }
@@ -75,7 +78,7 @@ export class MediaMovieComponent implements OnInit {
     endpoint.subscribe(
       (data) => {
         let verb;
-        if (this.isWatchingMovie) {
+        if (isWatchingMovie) {
           this.watchMovie = data;
           verb = 'Watching';
         } else {
@@ -89,7 +92,6 @@ export class MediaMovieComponent implements OnInit {
         console.error(error);
         this.toastr.error('An unknown error occurred');
         this.isSaving = false;
-        this.isWatchingMovie = !this.isWatchingMovie;
       }
     );
   }
