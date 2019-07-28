@@ -1,15 +1,12 @@
 dist: xenial
 
-language: python
-python:
-  - "3.6"
-install:
-  - pip install -r src/requirements.txt
-script:
-  - python src/manage.py test
+language: minimal
 
 jobs:
   include:
+    - stage: tests
+      script:
+      - docker run --entrypoint /env/bin/python lardbit/nefarious manage.py test
     - stage: build docker image
       script:
       # store commit in image for version identification

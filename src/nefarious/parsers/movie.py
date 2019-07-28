@@ -44,14 +44,14 @@ class MovieParser(ParserBase):
         ),
     ]
 
-    def _is_match(self, title, year: str) -> bool:
+    def _is_match(self, title, year: str = None) -> bool:
         if not self.match:
             return False
 
         title_matches = self.match.get('title') == self.normalize_media_title(title)
 
-        # match year if the parser included it
-        if 'year' in self.match:
+        # match year if the media and parser included it
+        if year and 'year' in self.match:
             year_matches = year in self.match['year']
             return title_matches and year_matches
 

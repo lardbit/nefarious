@@ -357,6 +357,8 @@ class TVParser(ParserBase):
         # single title
         if 'title' in self.match:
             self.match['title'] = self.normalize_media_title(self.match['title'][0])
+        else:
+            self.match['title'] = ''
 
         # parse multiple seasons
         if 'season' in self.match:
