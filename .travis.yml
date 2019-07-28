@@ -4,9 +4,6 @@ language: minimal
 
 jobs:
   include:
-    - stage: tests
-      script:
-      - docker run --entrypoint /env/bin/python lardbit/nefarious manage.py test
     - stage: build docker image
       script:
       # store commit in image for version identification
@@ -15,10 +12,17 @@ jobs:
       - if [[ $TRAVIS_BRANCH == 'master' ]]; then tag='latest'; else tag="$TRAVIS_BRANCH"; fi
       # build image
       - docker build -t lardbit/nefarious:$tag .
-      # authenticate with docker
-      - echo "$DOCKER_PASSWORD" | docker login -u "lardbit" --password-stdin
-      # push to docker hub
-      - docker push lardbit/nefarious:$tag
+    - stage: run tests
+      script:
+        - docker run --entrypoint /env/bin/python lardbit/nefarious:$tag manage.py test
+    - stage: push docker image
+      script:
+        # authenticate with docker
+        - echo "$DOCKER_PASSWORD" | docker login -u "lardbit" --password-stdin
+        # derive the docker image tag name from the git branch name
+        - if [[ $TRAVIS_BRANCH == 'master' ]]; then tag='latest'; else tag="$TRAVIS_BRANCH"; fi
+        # push to docker hub
+        - docker push lardbit/nefarious:$tag
     - stage: build docker ARM image
       script:
       # store commit in image for version identification
