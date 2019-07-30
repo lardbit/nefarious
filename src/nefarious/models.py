@@ -45,6 +45,15 @@ class NefariousSettings(models.Model):
         )
 
 
+class KeywordSearchFilters(models.Model):
+    """
+    User specified keywords to explicitly exclude or include when searching
+    """
+    settings = models.ForeignKey(NefariousSettings, on_delete=models.CASCADE)
+    exclude = models.BooleanField(default=False)
+    include = models.BooleanField(default=False)
+
+
 class WatchMediaBase(models.Model):
     """
     Abstract base class for all watchable media classes

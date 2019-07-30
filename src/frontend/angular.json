@@ -24,7 +24,8 @@
             ],
             "styles": [
               "src/styles.scss",
-              "node_modules/bootswatch/dist/solar/bootstrap.css"
+              "node_modules/bootswatch/dist/solar/bootstrap.css",
+              "node_modules/@ng-select/ng-select/themes/default.theme.css"
             ],
             "scripts": [
             ]

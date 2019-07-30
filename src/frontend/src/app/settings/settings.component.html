@@ -123,6 +123,20 @@
           </div>
         </div>
       </form>
+      <!-- keyword filters -->
+      <form class="was-validated" [formGroup]="form" (ngSubmit)="submit('keywordFilters')">
+        <div class="card" formGroupName="keywordFilters">
+          <div class="card-header">Keyword Exclusions</div>
+          <div class="card-body">
+            <div class="form-group">
+              <ng-select [multiple]="true" [items]="[]" [addTag]="true" formControlName="exclusions"></ng-select>
+            </div>
+            <div class="form-group d-flex justify-content-end">
+              <button class="btn btn-success">Save</button>
+            </div>
+          </div>
+        </div>
+      </form>
       <!-- hardcoded subs -->
       <form class="was-validated" [formGroup]="form" (ngSubmit)="submit('subs')">
         <div class="card" formGroupName="subs">

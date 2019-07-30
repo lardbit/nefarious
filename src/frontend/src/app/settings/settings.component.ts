@@ -49,6 +49,9 @@ export class SettingsComponent implements OnInit {
       'subs': this.fb.group({
         'allow_hardcoded_subs': [settings['allow_hardcoded_subs'], Validators.required],
       }),
+      'keywordFilters': this.fb.group({
+        'keyword_search_filters': [settings['keyword_search_filters'] ? settings['keyword_search_filters'] : []],
+      }),
       'users': new FormArray([]),
     });
 
@@ -187,7 +190,7 @@ export class SettingsComponent implements OnInit {
           this.toastr.error(`An unknown error occurred updating user ${userControl.value.username}`);
           console.log(error);
         }
-      )
+      );
     } else {  // new user
       this.apiService.createUser(userControl.value.username, userControl.value.password).subscribe(
         (data) => {
@@ -198,7 +201,7 @@ export class SettingsComponent implements OnInit {
           this.toastr.error(`An unknown error occurred adding user ${userControl.value.username}`);
           console.log(error);
         }
-      )
+      );
     }
   }
 
@@ -213,7 +216,7 @@ export class SettingsComponent implements OnInit {
         this.toastr.error(`An unknown error occurred deleting user ${userControl.value.username}`);
         console.log(error);
       }
-    )
+    );
   }
 
   public canDeleteUser(index: number) {
