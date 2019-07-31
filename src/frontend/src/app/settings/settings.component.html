@@ -124,9 +124,12 @@
         </div>
       </form>
       <!-- keyword filters -->
-      <form class="was-validated" [formGroup]="form" (ngSubmit)="submit('keywordFilters')">
-        <div class="card" formGroupName="keywordFilters">
-          <div class="card-header">Keyword Exclusions</div>
+      <form class="was-validated" [formGroup]="form" (ngSubmit)="submit('keywordSearchFilters')">
+        <div class="card" formGroupName="keywordSearchFilters">
+          <div class="card-header d-flex justify-content-between">
+            <span>Keyword Search Exclusions</span>
+            <span class="text-info oi oi-info" placement="left" ngbTooltip="Enter keywords to exclude from search results, i.e 'x265', '265'"></span>
+          </div>
           <div class="card-body">
             <div class="form-group">
               <ng-select [multiple]="true" [items]="[]" [addTag]="true" formControlName="exclusions"></ng-select>

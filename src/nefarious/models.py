@@ -31,6 +31,9 @@ class NefariousSettings(models.Model):
 
     allow_hardcoded_subs = models.BooleanField(default=False)
 
+    # expects keyword/boolean pairs like {"x265": false, "265": false}
+    keyword_search_filters = JSONField(blank=True, null=True)
+
     @classmethod
     def get(cls):
         if cls.objects.all().count() > 1:
@@ -43,15 +46,6 @@ class NefariousSettings(models.Model):
             'original',
             poster_path.lstrip('/'),
         )
-
-
-class KeywordSearchFilters(models.Model):
-    """
-    User specified keywords to explicitly exclude or include when searching
-    """
-    settings = models.ForeignKey(NefariousSettings, on_delete=models.CASCADE)
-    exclude = models.BooleanField(default=False)
-    include = models.BooleanField(default=False)
 
 
 class WatchMediaBase(models.Model):

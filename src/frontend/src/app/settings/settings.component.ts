@@ -49,8 +49,8 @@ export class SettingsComponent implements OnInit {
       'subs': this.fb.group({
         'allow_hardcoded_subs': [settings['allow_hardcoded_subs'], Validators.required],
       }),
-      'keywordFilters': this.fb.group({
-        'keyword_search_filters': [settings['keyword_search_filters'] ? settings['keyword_search_filters'] : []],
+      'keywordSearchFilters': this.fb.group({
+        'exclusions': [settings['keyword_search_filters'] ? _.keys(settings['keyword_search_filters']) : []],
       }),
       'users': new FormArray([]),
     });
@@ -97,11 +97,23 @@ export class SettingsComponent implements OnInit {
 
     let observable: Observable<any>;
 
+    const formData = this.form.get(group).value;
+
+    // handle keyword exclusions
+    if (group === 'keywordSearchFilters') {
+      const exclusions = {};
+      _.forEach(formData['exclusions'], (exclusion) => {
+        exclusions[exclusion] = false;
+      });
+      formData['keyword_search_filters'] = exclusions;
+      delete formData['exclusions'];
+    }
+
     // settings
     if (this.apiService.settings) {
-      observable = this.apiService.updateSettings(this.apiService.settings.id, this.form.get(group).value);
+      observable = this.apiService.updateSettings(this.apiService.settings.id, formData);
     } else {
-      observable = this.apiService.createSettings(this.form.get(group).value);
+      observable = this.apiService.createSettings(formData);
     }
 
     observable.subscribe(

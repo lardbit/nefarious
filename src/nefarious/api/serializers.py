@@ -6,7 +6,7 @@ from nefarious.models import (
     NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie,
     PERM_CAN_WATCH_IMMEDIATELY_TV, PERM_CAN_WATCH_IMMEDIATELY_MOVIE,
     WatchTVSeason, WatchTVSeasonRequest,
-    KeywordSearchFilters)
+)
 from nefarious.tmdb import get_tmdb_client
 
 
@@ -17,16 +17,10 @@ class UserReferenceSerializerMixin(serializers.ModelSerializer):
     )
 
 
-class KeywordSearchFiltersSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = KeywordSearchFilters
-        fields = '__all__'
-
-
 class NefariousSettingsSerializer(serializers.ModelSerializer):
     tmdb_configuration = serializers.JSONField(required=False)
-    keyword_search_filters = KeywordSearchFiltersSerializer(many=True)
     jackett_indexers_seed = serializers.JSONField(required=False)
+    keyword_search_filters = serializers.JSONField()
 
     class Meta:
         model = NefariousSettings
@@ -41,9 +35,6 @@ class NefariousSettingsSerializer(serializers.ModelSerializer):
         validated_data['tmdb_configuration'] = configuration.info()
 
         return super().create(validated_data)
-
-    def get_keyword_search_filters(self, nefarious_settings: NefariousSettings):
-        return nefarious_settings.keywordsearchfilters_set.values()
 
 
 class NefariousPartialSettingsSerializer(serializers.ModelSerializer):
