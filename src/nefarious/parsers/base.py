@@ -268,8 +268,8 @@ class ParserBase:
 
     def is_keyword_search_filter_match(self, exclusions: list) -> bool:
         # break up the title into individual words to compare against
-        words = regex.findall(r'\w+', self.title_query)
-        return not set(exclusions).intersection(words)
+        words = regex.findall(r'\w+', self.title_query.lower())
+        return not set([e.lower() for e in exclusions]).intersection(words)
 
     def _is_match(self, *args, **kwargs) -> bool:
         raise NotImplementedError
