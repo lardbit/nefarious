@@ -52,7 +52,7 @@ class ParserBase:
     anime_bluray_regex = regex.compile(r"bd(?:720|1080)|(?<=[-_. (\[])bd(?=[-_. )\]])", regex.I)
     high_def_pdtv_regex = regex.compile(r"hr[-_. ]ws", regex.I)
     raw_hd_regex = regex.compile(r"\b(?<rawhd>RawHD|1080i[-_. ]HDTV|Raw[-_. ]HD|MPEG[-_. ]?2)\b", regex.I)
-    hardcoded_subs_regex = regex.compile(r"\b(?<hc>hc)\b", regex.I)
+    hardcoded_subs_regex = regex.compile(r"\b(?<hc>hc|korsub)\b", regex.I)
 
     def __init__(self, title):
         self.title_query = title
@@ -265,6 +265,11 @@ class ParserBase:
         if not allows and self.match['hc']:
             return False
         return True
+
+    def is_keyword_search_filter_match(self, exclusions: list) -> bool:
+        # break up the title into individual words to compare against
+        words = regex.findall(r'\w+', self.title_query)
+        return not set(exclusions).intersection(words)
 
     def _is_match(self, *args, **kwargs) -> bool:
         raise NotImplementedError

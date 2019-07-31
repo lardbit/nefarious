@@ -49,6 +49,9 @@ export class SettingsComponent implements OnInit {
       'subs': this.fb.group({
         'allow_hardcoded_subs': [settings['allow_hardcoded_subs'], Validators.required],
       }),
+      'keywordSearchFilters': this.fb.group({
+        'exclusions': [settings['keyword_search_filters'] ? _.keys(settings['keyword_search_filters']) : []],
+      }),
       'users': new FormArray([]),
     });
 
@@ -94,11 +97,23 @@ export class SettingsComponent implements OnInit {
 
     let observable: Observable<any>;
 
+    const formData = this.form.get(group).value;
+
+    // handle keyword exclusions
+    if (group === 'keywordSearchFilters') {
+      const exclusions = {};
+      _.forEach(formData['exclusions'], (exclusion) => {
+        exclusions[exclusion] = false;
+      });
+      formData['keyword_search_filters'] = exclusions;
+      delete formData['exclusions'];
+    }
+
     // settings
     if (this.apiService.settings) {
-      observable = this.apiService.updateSettings(this.apiService.settings.id, this.form.get(group).value);
+      observable = this.apiService.updateSettings(this.apiService.settings.id, formData);
     } else {
-      observable = this.apiService.createSettings(this.form.get(group).value);
+      observable = this.apiService.createSettings(formData);
     }
 
     observable.subscribe(
@@ -187,7 +202,7 @@ export class SettingsComponent implements OnInit {
           this.toastr.error(`An unknown error occurred updating user ${userControl.value.username}`);
           console.log(error);
         }
-      )
+      );
     } else {  // new user
       this.apiService.createUser(userControl.value.username, userControl.value.password).subscribe(
         (data) => {
@@ -198,7 +213,7 @@ export class SettingsComponent implements OnInit {
           this.toastr.error(`An unknown error occurred adding user ${userControl.value.username}`);
           console.log(error);
         }
-      )
+      );
     }
   }
 
@@ -213,7 +228,7 @@ export class SettingsComponent implements OnInit {
         this.toastr.error(`An unknown error occurred deleting user ${userControl.value.username}`);
         console.log(error);
       }
-    )
+    );
   }
 
   public canDeleteUser(index: number) {

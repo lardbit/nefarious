@@ -9,6 +9,7 @@ import { FileSizeModule } from 'ngx-filesize';
 import { ToastrModule } from 'ngx-toastr';
 import { LoadingModule } from 'ngx-loading';
 import { MomentModule } from 'ngx-moment';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 
 import { AppComponent } from './app.component';
@@ -93,6 +94,7 @@ export function init(apiService: ApiService) {
     ToastrModule.forRoot(),
     LoadingModule,
     MomentModule,
+    NgSelectModule,
   ],
   entryComponents: [],
   providers: [

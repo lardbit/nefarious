@@ -123,6 +123,24 @@
           </div>
         </div>
       </form>
+      <!-- keyword filters -->
+      <form class="was-validated" [formGroup]="form" (ngSubmit)="submit('keywordSearchFilters')">
+        <div class="card" formGroupName="keywordSearchFilters">
+          <div class="card-header d-flex justify-content-between">
+            <span>Keyword Search Exclusions</span>
+            <span class="text-info oi oi-info" placement="left" ngbTooltip="Avoid search results with keywords, i.e 'x265', '265'"></span>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <ng-select [multiple]="true" [items]="[]" [addTag]="true" formControlName="exclusions"></ng-select>
+              <small *ngIf="form.get('keywordSearchFilters').value.exclusions" class="form-text text-muted">Avoiding search results with keywords: {{ form.get('keywordSearchFilters').value.exclusions }}</small>
+            </div>
+            <div class="form-group d-flex justify-content-end">
+              <button class="btn btn-success">Save</button>
+            </div>
+          </div>
+        </div>
+      </form>
       <!-- hardcoded subs -->
       <form class="was-validated" [formGroup]="form" (ngSubmit)="submit('subs')">
         <div class="card" formGroupName="subs">

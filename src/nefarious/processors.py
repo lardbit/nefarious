@@ -62,7 +62,7 @@ class WatchProcessorBase:
 
                     torrent = transmission_client.add_torrent(
                         best_result['torrent_url'],
-                        paused=True,  # verify torrent hasn't been blacklisted, then start it
+                        paused=True,  # start paused to we can verify if the torrent has been blacklisted
                         download_dir=self._get_download_dir(transmission_session),
                     )
 
@@ -105,8 +105,14 @@ class WatchProcessorBase:
 
         profile = Profile.get_from_name(quality_profile)
 
-        return self._is_match(parser) and parser.is_quality_match(profile) and parser.is_hardcoded_subs_match(
-            self.nefarious_settings.allow_hardcoded_subs)
+        return (
+            self._is_match(parser) and
+            parser.is_quality_match(profile) and
+            parser.is_hardcoded_subs_match(self.nefarious_settings.allow_hardcoded_subs) and
+            parser.is_keyword_search_filter_match(
+                self.nefarious_settings.keyword_search_filters.keys() if self.nefarious_settings.keyword_search_filters else []
+            )
+        )
 
     def _results_with_valid_urls(self, results: list):
         return results_with_valid_urls(results, self.nefarious_settings)

@@ -5,7 +5,8 @@ from rest_framework.exceptions import ValidationError
 from nefarious.models import (
     NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie,
     PERM_CAN_WATCH_IMMEDIATELY_TV, PERM_CAN_WATCH_IMMEDIATELY_MOVIE,
-    WatchTVSeason, WatchTVSeasonRequest)
+    WatchTVSeason, WatchTVSeasonRequest,
+)
 from nefarious.tmdb import get_tmdb_client
 
 
@@ -19,6 +20,7 @@ class UserReferenceSerializerMixin(serializers.ModelSerializer):
 class NefariousSettingsSerializer(serializers.ModelSerializer):
     tmdb_configuration = serializers.JSONField(required=False)
     jackett_indexers_seed = serializers.JSONField(required=False)
+    keyword_search_filters = serializers.JSONField()
 
     class Meta:
         model = NefariousSettings
