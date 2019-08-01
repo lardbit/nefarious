@@ -97,7 +97,8 @@ export class SettingsComponent implements OnInit {
 
     let observable: Observable<any>;
 
-    const formData = this.form.get(group).value;
+    // create a copy of the form data so we can modify it
+    const formData = _.assign({}, this.form.get(group).value);
 
     // handle keyword exclusions
     if (group === 'keywordSearchFilters') {
@@ -127,6 +128,11 @@ export class SettingsComponent implements OnInit {
         this.isSaving = false;
       }
     );
+  }
+
+  public hasExclusions(): boolean {
+    const exclusions = this.form.get('keywordSearchFilters').value.exclusions;
+    return exclusions && exclusions.length;
   }
 
   public hasSettings() {
