@@ -20,6 +20,7 @@ Features:
 - [x] Supports blacklisting torrent results (i.e avoid a bad/fake torrent that should be avoided)
 - [X] Supports quality profiles (i.e only download *1080p* Movies and *any* quality TV)
 - [x] Supports whether to download media with hardcoded subtitles or not
+- [x] Supports user defined keywords to filter results (i.e ignore "x265", "hevc" codecs)
 - [x] Auto download TV & Movies once it's released (routinely scan)
 - [x] Monitor transmission results & status from within the app
 - [x] Self/auto updating application
