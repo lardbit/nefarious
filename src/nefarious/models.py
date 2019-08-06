@@ -142,7 +142,8 @@ class WatchTVEpisode(WatchMediaBase):
         unique_together = ('watch_tv_show', 'season_number', 'episode_number')
 
     def __str__(self):
-        return '{} {}x{}'.format(self.watch_tv_show, self.season_number, self.episode_number)
+        # i.e "Broad City - S01E04"
+        return '{} - S{:02d}E{:02d}'.format(self.watch_tv_show, self.season_number, self.episode_number)
 
     @property
     def name(self):

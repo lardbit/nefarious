@@ -1,4 +1,5 @@
 import os
+import regex
 import logging
 from django.conf import settings
 from datetime import datetime
@@ -56,15 +57,20 @@ class WatchProcessorBase:
                     # find the torrent result with the highest weight (i.e seeds)
                     best_result = self._get_best_torrent_result(valid_search_results)
 
-                    # add to transmission
                     transmission_client = get_transmission_client(self.nefarious_settings)
                     transmission_session = transmission_client.session_stats()
 
+                    # add to transmission
                     torrent = transmission_client.add_torrent(
                         best_result['torrent_url'],
                         paused=True,  # start paused to we can verify if the torrent has been blacklisted
                         download_dir=self._get_download_dir(transmission_session),
                     )
+
+                    # rename the torrent file path
+                    new_torrent_path = self._renamed_torrent_path(torrent)
+                    logging.info('Renaming torrent file from {} to {}'. format(torrent.name, new_torrent_path))
+                    transmission_client.rename_torrent_path(torrent.id, torrent.name, new_torrent_path)
 
                     # verify it's not blacklisted and save & start this torrent
                     if not TorrentBlacklist.objects.filter(hash=torrent.hashString).exists():
@@ -113,6 +119,16 @@ class WatchProcessorBase:
                 self.nefarious_settings.keyword_search_filters.keys() if self.nefarious_settings.keyword_search_filters else []
             )
         )
+
+    def _renamed_torrent_path(self, torrent):
+        new_name = str(self.watch_media)
+        # maintain extension if torrent is a single file vs a directory
+        if len(torrent.files()) == 1:
+            extension_match = regex.search(r'(\.\w+)$', torrent.name)
+            if extension_match:
+                extension = extension_match.group()
+                new_name += extension
+        return new_name
 
     def _results_with_valid_urls(self, results: list):
         return results_with_valid_urls(results, self.nefarious_settings)
