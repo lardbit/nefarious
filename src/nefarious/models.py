@@ -32,7 +32,7 @@ class NefariousSettings(models.Model):
     allow_hardcoded_subs = models.BooleanField(default=False)
 
     # expects keyword/boolean pairs like {"x265": false, "265": false}
-    keyword_search_filters = JSONField(blank=True, null=True)
+    keyword_search_filters = JSONField(blank=True, null=True)  # type: dict
 
     @classmethod
     def get(cls):
@@ -59,6 +59,7 @@ class WatchMediaBase(models.Model):
     collected_date = models.DateTimeField(blank=True, null=True)
     last_attempt_date = models.DateTimeField(blank=True, null=True)
     transmission_torrent_hash = models.CharField(max_length=100, null=True, blank=True)
+    renamed = models.BooleanField(default=False)
 
     class Meta:
         abstract = True

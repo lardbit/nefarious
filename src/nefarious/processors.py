@@ -67,11 +67,6 @@ class WatchProcessorBase:
                         download_dir=self._get_download_dir(transmission_session),
                     )
 
-                    # rename the torrent file path
-                    new_torrent_path = self._renamed_torrent_path(torrent)
-                    logging.info('Renaming torrent file from {} to {}'. format(torrent.name, new_torrent_path))
-                    transmission_client.rename_torrent_path(torrent.id, torrent.name, new_torrent_path)
-
                     # verify it's not blacklisted and save & start this torrent
                     if not TorrentBlacklist.objects.filter(hash=torrent.hashString).exists():
                         logging.info('Adding torrent for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
@@ -119,16 +114,6 @@ class WatchProcessorBase:
                 self.nefarious_settings.keyword_search_filters.keys() if self.nefarious_settings.keyword_search_filters else []
             )
         )
-
-    def _renamed_torrent_path(self, torrent):
-        new_name = str(self.watch_media)
-        # maintain extension if torrent is a single file vs a directory
-        if len(torrent.files()) == 1:
-            extension_match = regex.search(r'(\.\w+)$', torrent.name)
-            if extension_match:
-                extension = extension_match.group()
-                new_name += extension
-        return new_name
 
     def _results_with_valid_urls(self, results: list):
         return results_with_valid_urls(results, self.nefarious_settings)

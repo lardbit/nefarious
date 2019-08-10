@@ -1,4 +1,5 @@
 import logging
+import regex
 from celery import chain
 from celery.signals import task_failure
 from datetime import datetime
@@ -13,6 +14,10 @@ from nefarious.transmission import get_transmission_client
 app.conf.beat_schedule = {
     'Completed Media Task': {
         'task': 'nefarious.tasks.completed_media_task',
+        'schedule': 60 * 3,
+    },
+    'Rename Media Task': {
+        'task': 'nefarious.tasks.rename_media_task',
         'schedule': 60 * 3,
     },
     'Wanted Media Task': {
@@ -222,3 +227,50 @@ def wanted_tv_season_task():
 
     # execute tasks sequentially
     chain(*tasks)()
+
+
+@app.task
+def rename_media_task():
+
+    # TODO - we should download to a staging location, then rename it, then move it before Plex or whatever indexes it
+
+    nefarious_settings = NefariousSettings.get()
+    transmission_client = get_transmission_client(nefarious_settings)
+
+    need_rename_kwargs = dict(renamed=False, collected=False, transmission_torrent_hash__isnull=False)
+
+    movies = WatchMovie.objects.filter(**need_rename_kwargs)
+    tv_seasons = WatchTVSeason.objects.filter(**need_rename_kwargs)
+    tv_episodes = WatchTVEpisode.objects.filter(**need_rename_kwargs)
+
+    need_rename_media = list(movies) + list(tv_episodes) + list(tv_seasons)
+
+    def _renamed_torrent_name(torrent, watch_media):
+        new_name = str(watch_media)
+        # maintain extension if torrent is a single file vs a directory
+        if len(torrent.files()) == 1:
+            extension_match = regex.search(r'(\.\w+)$', torrent.name)
+            if extension_match:
+                extension = extension_match.group()
+                new_name += extension
+        return new_name
+
+    for media in need_rename_media:
+        try:
+            torrent = transmission_client.get_torrent(media.transmission_torrent_hash)
+        except KeyError:
+            logging.info("Media's torrent no longer present, removing reference: {}".format(media))
+            media.transmission_torrent_hash = None
+            media.save()
+        else:
+            # no files indicates it hasn't retrieved the proper metadata yet, so there's nothing we can do
+            if not torrent.files():
+                continue
+            # rename the torrent file path
+            new_torrent_name = _renamed_torrent_name(torrent, media)
+            logging.info('Renaming torrent file from "{}" to "{}"'.format(torrent.name, new_torrent_name))
+            transmission_client.rename_torrent_path(torrent.id, torrent.name, new_torrent_name)
+
+            # update media to indicate it's been renamed
+            media.renamed = True
+            media.save()
