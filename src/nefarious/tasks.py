@@ -1,5 +1,4 @@
 import logging
-import regex
 from celery import chain
 from celery.signals import task_failure
 from datetime import datetime
@@ -10,14 +9,11 @@ from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, Watc
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
+from nefarious.utils import get_renamed_torrent
 
 app.conf.beat_schedule = {
     'Completed Media Task': {
         'task': 'nefarious.tasks.completed_media_task',
-        'schedule': 60 * 3,
-    },
-    'Rename Media Task': {
-        'task': 'nefarious.tasks.rename_media_task',
         'schedule': 60 * 3,
     },
     'Wanted Media Task': {
@@ -132,21 +128,32 @@ def completed_media_task():
         try:
             torrent = transmission_client.get_torrent(media.transmission_torrent_hash)
         except KeyError:
+            # media's torrent reference no longer exists so remove the reference
             logging.info("Media's torrent no longer present, removing reference: {}".format(media))
             media.transmission_torrent_hash = None
             media.save()
         else:
+            # download is complete
             if torrent.progress == 100:
+
+                # flag media as completed
                 logging.info('Media completed: {}'.format(media))
                 media.collected = True
                 media.collected_date = datetime.utcnow()
                 media.save()
 
-                # if season is complete, mark season request complete
+                # if it's a season then also mark season request complete
                 if isinstance(media, WatchTVSeason):
                     for season_request in WatchTVSeasonRequest.objects.filter(watch_tv_show=media.watch_tv_show, season_number=media.season_number):
                         season_request.collected = True
                         season_request.save()
+
+                # rename the torrent file/path
+                renamed_torrent_name = get_renamed_torrent(torrent, media)
+                logging.info('Renaming torrent file from "{}" to "{}"'.format(torrent.name, renamed_torrent_name))
+                transmission_client.rename_torrent_path(torrent.id, torrent.name, renamed_torrent_name)
+
+                # TODO - move data from staging path to actual complete path
 
 
 @app.task
@@ -184,13 +191,13 @@ def wanted_media_task():
 def wanted_tv_season_task():
     tasks = []
     nefarious_settings = NefariousSettings.get()
+    tmdb = get_tmdb_client(nefarious_settings)
 
     #
     # re-check for requested tv seasons that have had new episodes released from TMDB (which was stale previously)
     #
 
     for tv_season_request in WatchTVSeasonRequest.objects.filter(collected=False):
-        tmdb = get_tmdb_client(nefarious_settings)
         season_request = tmdb.TV_Seasons(tv_season_request.watch_tv_show.tmdb_show_id, tv_season_request.season_number)
         season = season_request.info()
 
@@ -227,50 +234,3 @@ def wanted_tv_season_task():
 
     # execute tasks sequentially
     chain(*tasks)()
-
-
-@app.task
-def rename_media_task():
-
-    # TODO - we should download to a staging location, then rename it, then move it before Plex or whatever indexes it
-
-    nefarious_settings = NefariousSettings.get()
-    transmission_client = get_transmission_client(nefarious_settings)
-
-    need_rename_kwargs = dict(renamed=False, collected=False, transmission_torrent_hash__isnull=False)
-
-    movies = WatchMovie.objects.filter(**need_rename_kwargs)
-    tv_seasons = WatchTVSeason.objects.filter(**need_rename_kwargs)
-    tv_episodes = WatchTVEpisode.objects.filter(**need_rename_kwargs)
-
-    need_rename_media = list(movies) + list(tv_episodes) + list(tv_seasons)
-
-    def _renamed_torrent_name(torrent, watch_media):
-        new_name = str(watch_media)
-        # maintain extension if torrent is a single file vs a directory
-        if len(torrent.files()) == 1:
-            extension_match = regex.search(r'(\.\w+)$', torrent.name)
-            if extension_match:
-                extension = extension_match.group()
-                new_name += extension
-        return new_name
-
-    for media in need_rename_media:
-        try:
-            torrent = transmission_client.get_torrent(media.transmission_torrent_hash)
-        except KeyError:
-            logging.info("Media's torrent no longer present, removing reference: {}".format(media))
-            media.transmission_torrent_hash = None
-            media.save()
-        else:
-            # no files indicates it hasn't retrieved the proper metadata yet, so there's nothing we can do
-            if not torrent.files():
-                continue
-            # rename the torrent file path
-            new_torrent_name = _renamed_torrent_name(torrent, media)
-            logging.info('Renaming torrent file from "{}" to "{}"'.format(torrent.name, new_torrent_name))
-            transmission_client.rename_torrent_path(torrent.id, torrent.name, new_torrent_name)
-
-            # update media to indicate it's been renamed
-            media.renamed = True
-            media.save()

@@ -1,5 +1,4 @@
 import os
-import regex
 import logging
 from django.conf import settings
 from datetime import datetime
@@ -173,7 +172,7 @@ class WatchMovieProcessor(WatchProcessorBase):
 
     def _get_download_dir(self, transmission_session):
         return os.path.join(
-            transmission_session.download_dir, self.nefarious_settings.transmission_movie_download_dir.lstrip('/'))
+            transmission_session.download_dir, settings.UNPROCESSED_PATH, self.nefarious_settings.transmission_movie_download_dir.lstrip('/'))
 
     def _get_tmdb_title_key(self):
         return 'title'
@@ -205,7 +204,7 @@ class WatchTVProcessorBase(WatchProcessorBase):
 
     def _get_download_dir(self, transmission_session):
         return os.path.join(
-            transmission_session.download_dir, self.nefarious_settings.transmission_tv_download_dir.lstrip('/'))
+            transmission_session.download_dir, settings.UNPROCESSED_PATH, self.nefarious_settings.transmission_tv_download_dir.lstrip('/'))
 
     def _get_tmdb_title_key(self):
         return 'name'

@@ -1,4 +1,5 @@
 import logging
+import regex
 import requests
 from typing import List
 import xml.etree.ElementTree as ET
@@ -136,3 +137,15 @@ def get_seed_only_indexers(nefarious_settings: NefariousSettings):
         if seed_only:
             results.append(tracker)
     return results
+
+
+def get_renamed_torrent(torrent, watch_media):
+    # TODO - need to analyze torrent.files() to find the actual path/directory name to pass to torrent.rename_torrent_path()
+    new_name = str(watch_media)
+    # maintain extension if torrent is a single file vs a directory
+    if len(torrent.files()) == 1:
+        extension_match = regex.search(r'(\.\w+)$', torrent.name)
+        if extension_match:
+            extension = extension_match.group()
+            new_name += extension
+    return new_name
