@@ -101,6 +101,10 @@ Where the new download path would be `/home/bob/Downloads`.  Leave the right sid
 
 **Windows** users: use forward slashes in your download path despite your hesitation, i.e  `c:/users/bob/downloads:/downloads`.
 
+After editing anything in `docker-compose.yml`, you'll need to restart the containers by running:
+
+    docker-compose up -d
+
 There is no default transmission user/pass, but feel free to edit the `transmission-settings.json` beforehand following the [official settings](https://github.com/transmission/transmission/wiki/Editing-Configuration-Files) to make any changes you'd like.
 
 **NOTE** if you make any changes to `transmission-settings.json` you'll have to recreate the transmission container for the changes to take place:
@@ -168,7 +172,11 @@ This creates a default user and pass (admin/admin).
 
 #### Build front-end resources
 
-First build the frontend html/css stuff (angular):
+First install the frontend dependencies:
+
+    npm --prefix src/frontend install
+
+Then build the frontend html/css stuff (angular):
     
     npm --prefix src/frontend run build
    
