@@ -1,4 +1,5 @@
 import logging
+import os
 from celery import chain
 from celery.signals import task_failure
 from datetime import datetime
@@ -142,7 +143,7 @@ def completed_media_task():
                 media.collected_date = datetime.utcnow()
                 media.save()
 
-                # if it's a season then also mark season request complete
+                # if it's a season, also mark season request complete
                 if isinstance(media, WatchTVSeason):
                     for season_request in WatchTVSeasonRequest.objects.filter(watch_tv_show=media.watch_tv_show, season_number=media.season_number):
                         season_request.collected = True
@@ -153,7 +154,18 @@ def completed_media_task():
                 logging.info('Renaming torrent file from "{}" to "{}"'.format(torrent.name, renamed_torrent_name))
                 transmission_client.rename_torrent_path(torrent.id, torrent.name, renamed_torrent_name)
 
-                # TODO - move data from staging path to actual complete path
+                # TODO - verify this works
+                # move data from staging path to actual complete path
+                dir_name = (
+                    nefarious_settings.transmission_movie_download_dir if isinstance(media, WatchMovie)
+                    else nefarious_settings.transmission_tv_download_dir
+                )
+                transmission_session = transmission_client.session_stats()
+                move_to_path = os.path.join(
+                    transmission_session.download_dir,
+                    dir_name.lstrip('/'),
+                )
+                torrent.move_data(move_to_path)
 
 
 @app.task
