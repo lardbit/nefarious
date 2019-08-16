@@ -29,6 +29,7 @@ class WatchProcessorBase:
         self.tmdb_media = self._get_tmdb_media()
 
     def fetch(self):
+        logging.info('Processing request to watch {}'.format(self.watch_media))
         valid_search_results = []
         search = self._get_search_results()
 

@@ -165,6 +165,7 @@ def completed_media_task():
                     transmission_session.download_dir,
                     dir_name.lstrip('/'),
                 )
+                logging.info('Moving torrent data to "{}"'.format(move_to_path))
                 torrent.move_data(move_to_path)
 
 
