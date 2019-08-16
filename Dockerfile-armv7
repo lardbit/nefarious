@@ -1,9 +1,11 @@
 FROM resin/armv7hf-ubuntu
 
+ARG tag=latest
+
 WORKDIR /app
 
 # copy pre-built app from base image
-COPY --from=lardbit/nefarious /app .
+COPY --from=lardbit/nefarious:$tag /app .
 
 RUN ["cross-build-start"]
 

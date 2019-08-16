@@ -25,7 +25,7 @@ jobs:
         # derive the docker ARM image tag name from the git branch name
         - if [[ $TRAVIS_BRANCH == 'master' ]]; then tag='armv7'; else tag="armv7-$TRAVIS_BRANCH"; fi
         # build ARM image copying the app from the previously built base image
-        - docker build -f Dockerfile-armv7 -t lardbit/nefarious:$tag .
+        - docker build -f Dockerfile-armv7 --build-arg tag=$tag -t lardbit/nefarious:$tag .
         # authenticate with docker
         - echo "$DOCKER_PASSWORD" | docker login -u "lardbit" --password-stdin
         # push ARM image to docker hub
