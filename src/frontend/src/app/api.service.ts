@@ -435,11 +435,12 @@ export class ApiService {
     );
   }
 
-  public watchTVShow(showId: number, name: string, posterImageUrl: string) {
+  public watchTVShow(showId: number, name: string, posterImageUrl: string, releaseDate: string) {
     const params = {
       tmdb_show_id: showId,
       name: name,
       poster_image_url: posterImageUrl,
+      release_date: releaseDate,
     };
     return this.http.post(this.API_URL_WATCH_TV_SHOW, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
@@ -511,12 +512,13 @@ export class ApiService {
     );
   }
 
-  public watchMovie(movieId: number, name: string, posterImageUrl: string, qualityProfileCustom?: string) {
+  public watchMovie(movieId: number, name: string, posterImageUrl: string, releaseDate: string, qualityProfileCustom?: string) {
     const params = {
       tmdb_movie_id: movieId,
       name: name,
       poster_image_url: posterImageUrl,
       quality_profile_custom: qualityProfileCustom,
+      release_date: releaseDate,
     };
 
     const watchMovie = _.find(this.watchMovies, (watchMovie) => {

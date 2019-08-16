@@ -68,6 +68,7 @@ class WatchMovie(WatchMediaBase):
     tmdb_movie_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
     poster_image_url = models.CharField(max_length=1000)
+    release_date = models.DateField(null=True, blank=True)
 
     class Meta:
         permissions = (
@@ -86,6 +87,7 @@ class WatchTVShow(models.Model):
     tmdb_show_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
     poster_image_url = models.CharField(max_length=1000)
+    release_date = models.DateField(null=True, blank=True)
 
     class Meta:
         permissions = (

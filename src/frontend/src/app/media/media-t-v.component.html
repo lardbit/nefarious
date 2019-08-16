@@ -31,7 +31,8 @@
                     <ngb-panel [title]="'Season ' + season.season_number">
                       <ng-template ngbPanelContent>
                         <p *ngIf="season.overview">{{ season.overview }}</p>
-                        <div class="d-flex justify-content-end mt-2" *ngIf="userIsStaff()">
+                        <!-- manual search toggle -->
+                        <div class="d-flex justify-content-end mt-2" *ngIf="userIsStaff() && !isWatchingSeason(season.season_number)">
                           <form class="form">
                             <input class="form-check-input" type="checkbox" [(ngModel)]="isManualSearchEnabled" name="manualSearch" id="toggle-manual-search">
                             <label class="form-check-label" for="toggle-manual-search" placement="top" ngbTooltip="Enable option to manually search torrents vs automatically downloading them">Manual</label>
@@ -44,6 +45,7 @@
                           <button *ngIf="isWatchingSeason(season.season_number)" type="button" class="btn btn-warning" (click)="stopWatchingEntireSeason(season)">
                             <span class="oi oi-trash"></span> Stop watching season
                           </button>
+                          <!-- manual search -->
                           <div *ngIf="!isWatchingSeason(season.season_number) && userIsStaff() && isManualSearchEnabled">
                             <button class="btn btn-sm btn-link" placement="top" ngbTooltip="Manually search torrents for this season" (click)="manuallySearchSeason(season)"><span class="oi oi-magnifying-glass"></span></button>
                           </div>

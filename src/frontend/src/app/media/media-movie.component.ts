@@ -68,7 +68,8 @@ export class MediaMovieComponent implements OnInit {
     let endpoint;
 
     if (isWatchingMovie) {
-      endpoint = this.apiService.watchMovie(this.result.id, this.result.title, this.mediaPosterURL(this.result), this.qualityProfileCustom);
+      endpoint = this.apiService.watchMovie(
+        this.result.id, this.result.title, this.mediaPosterURL(this.result), this.result.release_date, this.qualityProfileCustom);
     } else if (!isWatchingMovie && watchMovie) {
       endpoint = this.apiService.unWatchMovie(watchMovie.id);
     } else {

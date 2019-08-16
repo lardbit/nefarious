@@ -5,7 +5,7 @@ from typing import List
 import xml.etree.ElementTree as ET
 from urllib.parse import urlparse
 from transmissionrpc import TransmissionError
-from nefarious.models import NefariousSettings
+from nefarious.models import NefariousSettings, WatchMovie
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
 
@@ -140,8 +140,10 @@ def get_seed_only_indexers(nefarious_settings: NefariousSettings):
 
 
 def get_renamed_torrent(torrent, watch_media):
-    # TODO - need to analyze torrent.files() to find the actual path/directory name to pass to torrent.rename_torrent_path()
     new_name = str(watch_media)
+    # append year for Movies, i.e "Toy Story 4 (2019)"
+    if isinstance(watch_media, WatchMovie) and watch_media.release_date:
+        new_name += ' ({})'.format(watch_media.release_date.year)
     # maintain extension if torrent is a single file vs a directory
     if len(torrent.files()) == 1:
         extension_match = regex.search(r'(\.\w+)$', torrent.name)

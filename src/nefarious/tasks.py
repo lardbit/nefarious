@@ -154,7 +154,6 @@ def completed_media_task():
                 logging.info('Renaming torrent file from "{}" to "{}"'.format(torrent.name, renamed_torrent_name))
                 transmission_client.rename_torrent_path(torrent.id, torrent.name, renamed_torrent_name)
 
-                # TODO - verify this works
                 # move data from staging path to actual complete path
                 dir_name = (
                     nefarious_settings.transmission_movie_download_dir if isinstance(media, WatchMovie)
