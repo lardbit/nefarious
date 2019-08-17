@@ -1,14 +1,14 @@
-# accept image tag as build arg and define a "base" FROM to copy from
+# accept an image tag build argument to define a "copy_app_image" FROM image to copy the prebuilt app from
 ARG tag=latest
-FROM lardbit/nefarious:${tag} as base
+FROM lardbit/nefarious:${tag} as copy_app_image
 
-# main image
+# base image
 FROM resin/armv7hf-ubuntu
 
 WORKDIR /app
 
-# copy pre-built app from "base" image
-COPY --from=base /app .
+# copy pre-built app from "copy_app_image" image
+COPY --from=copy_app_image /app .
 
 RUN ["cross-build-start"]
 

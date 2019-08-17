@@ -241,4 +241,23 @@ export class SettingsComponent implements OnInit {
     const userControl = this.form.get('users').controls[index];
     return userControl.get('id') && this.apiService.user.id !== userControl.get('id').value;
   }
+
+  public getServiceURL(service: string) {
+    let host: string;
+    let port: number;
+
+    if (service === 'jackett') {
+      host = this.form.get('jackett').value['jackett_host'];
+      port = this.form.get('jackett').value['jackett_port'];
+    } else if (service === 'transmission') {
+      host = this.form.get('transmission').value['transmission_host'];
+      port = this.form.get('transmission').value['transmission_port'];
+    }
+
+    if (host && port) {
+      return `http://${host}:${port}`;
+    }
+
+    return null;
+  }
 }
