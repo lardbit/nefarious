@@ -8,10 +8,7 @@
     <div class="col-12 col-sm-6 col-md-4">
       <form class="was-validated" [formGroup]="form" (ngSubmit)="submit('jackett')">
         <div class="card" formGroupName="jackett">
-          <div class="card-header d-flex justify-content-between">
-            <span>Jackett</span>
-            <a class="btn btn-link" target="_blank" *ngIf="getServiceURL('jackett')" [href]="getServiceURL('jackett')"><span class="oi oi-external-link"></span></a>
-          </div>
+          <div class="card-header">Jackett</div>
           <div class="card-body">
             <div class="form-group">
               <label>Host</label>
@@ -67,10 +64,7 @@
     <div class="col-12 col-sm-6 col-md-4">
       <form class="was-validated" [formGroup]="form" (ngSubmit)="submit('transmission')">
         <div class="card" formGroupName="transmission">
-          <div class="card-header d-flex justify-content-between">
-            <span>Transmission</span>
-            <a class="btn btn-link" target="_blank" *ngIf="getServiceURL('transmission')" [href]="getServiceURL('transmission')"><span class="oi oi-external-link"></span></a>
-          </div>
+          <div class="card-header">Transmission</div>
           <div class="card-body">
             <div class="form-group">
               <label>Host</label>
