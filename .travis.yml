@@ -24,7 +24,7 @@ jobs:
         - echo "$TRAVIS_COMMIT" > src/.commit
         # derive the docker ARM image tag name from the git branch name
         - if [[ $TRAVIS_BRANCH == 'master' ]]; then tag='armv7'; else tag="armv7-$TRAVIS_BRANCH"; fi
-        # define the copy_from_tag to copy the image app in the build phase
+        # define the image tag to copy the image app in the build phase
         - if [[ $TRAVIS_BRANCH == 'master' ]]; then copy_from_tag='latest'; else copy_from_tag="$TRAVIS_BRANCH"; fi
         # build ARM image copying the app from the previously built base image
         - docker build -f Dockerfile-armv7 --build-arg copy_from_tag=$copy_from_tag -t lardbit/nefarious:$tag .

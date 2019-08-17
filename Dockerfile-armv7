@@ -1,6 +1,6 @@
 # accept an image tag build argument to define a "copy_from_app_image" FROM image to copy the prebuilt app from
 ARG copy_from_tag=latest
-FROM lardbit/nefarious:${tag} as copy_from_app_image
+FROM lardbit/nefarious:${copy_from_tag} as copy_from_app_image
 
 # base image
 FROM resin/armv7hf-ubuntu
