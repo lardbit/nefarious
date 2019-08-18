@@ -29,6 +29,7 @@ class WatchProcessorBase:
         self.tmdb_media = self._get_tmdb_media()
 
     def fetch(self):
+        logging.info('Processing request to watch {}'.format(self.watch_media))
         valid_search_results = []
         search = self._get_search_results()
 
@@ -56,10 +57,10 @@ class WatchProcessorBase:
                     # find the torrent result with the highest weight (i.e seeds)
                     best_result = self._get_best_torrent_result(valid_search_results)
 
-                    # add to transmission
                     transmission_client = get_transmission_client(self.nefarious_settings)
                     transmission_session = transmission_client.session_stats()
 
+                    # add to transmission
                     torrent = transmission_client.add_torrent(
                         best_result['torrent_url'],
                         paused=True,  # start paused to we can verify if the torrent has been blacklisted
@@ -172,7 +173,7 @@ class WatchMovieProcessor(WatchProcessorBase):
 
     def _get_download_dir(self, transmission_session):
         return os.path.join(
-            transmission_session.download_dir, self.nefarious_settings.transmission_movie_download_dir.lstrip('/'))
+            transmission_session.download_dir, settings.UNPROCESSED_PATH, self.nefarious_settings.transmission_movie_download_dir.lstrip('/'))
 
     def _get_tmdb_title_key(self):
         return 'title'
@@ -204,7 +205,7 @@ class WatchTVProcessorBase(WatchProcessorBase):
 
     def _get_download_dir(self, transmission_session):
         return os.path.join(
-            transmission_session.download_dir, self.nefarious_settings.transmission_tv_download_dir.lstrip('/'))
+            transmission_session.download_dir, settings.UNPROCESSED_PATH, self.nefarious_settings.transmission_tv_download_dir.lstrip('/'))
 
     def _get_tmdb_title_key(self):
         return 'name'

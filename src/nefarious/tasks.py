@@ -1,4 +1,5 @@
 import logging
+import os
 from celery import chain
 from celery.signals import task_failure
 from datetime import datetime
@@ -9,6 +10,7 @@ from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, Watc
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
+from nefarious.utils import get_renamed_torrent
 
 app.conf.beat_schedule = {
     'Completed Media Task': {
@@ -127,21 +129,43 @@ def completed_media_task():
         try:
             torrent = transmission_client.get_torrent(media.transmission_torrent_hash)
         except KeyError:
+            # media's torrent reference no longer exists so remove the reference
             logging.info("Media's torrent no longer present, removing reference: {}".format(media))
             media.transmission_torrent_hash = None
             media.save()
         else:
+            # download is complete
             if torrent.progress == 100:
+
+                # flag media as completed
                 logging.info('Media completed: {}'.format(media))
                 media.collected = True
                 media.collected_date = datetime.utcnow()
                 media.save()
 
-                # if season is complete, mark season request complete
+                # if it's a season, also mark season request complete
                 if isinstance(media, WatchTVSeason):
                     for season_request in WatchTVSeasonRequest.objects.filter(watch_tv_show=media.watch_tv_show, season_number=media.season_number):
                         season_request.collected = True
                         season_request.save()
+
+                # rename the torrent file/path
+                renamed_torrent_name = get_renamed_torrent(torrent, media)
+                logging.info('Renaming torrent file from "{}" to "{}"'.format(torrent.name, renamed_torrent_name))
+                transmission_client.rename_torrent_path(torrent.id, torrent.name, renamed_torrent_name)
+
+                # move data from staging path to actual complete path
+                dir_name = (
+                    nefarious_settings.transmission_movie_download_dir if isinstance(media, WatchMovie)
+                    else nefarious_settings.transmission_tv_download_dir
+                )
+                transmission_session = transmission_client.session_stats()
+                move_to_path = os.path.join(
+                    transmission_session.download_dir,
+                    dir_name.lstrip('/'),
+                )
+                logging.info('Moving torrent data to "{}"'.format(move_to_path))
+                torrent.move_data(move_to_path)
 
 
 @app.task
@@ -179,13 +203,13 @@ def wanted_media_task():
 def wanted_tv_season_task():
     tasks = []
     nefarious_settings = NefariousSettings.get()
+    tmdb = get_tmdb_client(nefarious_settings)
 
     #
     # re-check for requested tv seasons that have had new episodes released from TMDB (which was stale previously)
     #
 
     for tv_season_request in WatchTVSeasonRequest.objects.filter(collected=False):
-        tmdb = get_tmdb_client(nefarious_settings)
         season_request = tmdb.TV_Seasons(tv_season_request.watch_tv_show.tmdb_show_id, tv_season_request.season_number)
         season = season_request.info()
 

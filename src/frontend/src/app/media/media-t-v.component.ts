@@ -178,7 +178,7 @@ export class MediaTVComponent implements OnInit {
   }
 
   protected _watchShow(): Observable<any> {
-    return this.apiService.watchTVShow(this.result.id, this.result.name, this.mediaPosterURL(this.result)).pipe(
+    return this.apiService.watchTVShow(this.result.id, this.result.name, this.mediaPosterURL(this.result), this.result.first_air_date).pipe(
       tap((data) => {
         this.toastr.success(`Watching show ${data.name}`);
       }),
