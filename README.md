@@ -27,6 +27,7 @@ Features:
 - [x] Supports multiple users and permission groups (i.e admin users and regular users)
 - [x] Responsive Design (looks great on desktops, tablets and small devices like phones)
 - [x] Movie trailers
+- [x] Automatically renames media
 - [ ] Support user requests (i.e an unprivileged user must "request" to watch something)
 
 ### Contents
