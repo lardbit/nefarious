@@ -1,9 +1,9 @@
-# Nefarious
+# nefarious
 
 [![Build Status](https://travis-ci.org/lardbit/nefarious.svg?branch=master)](https://travis-ci.org/lardbit/nefarious)
 [![Docker Pulls](https://img.shields.io/docker/pulls/lardbit/nefarious.svg?maxAge=60&style=flat-square)](https://hub.docker.com/r/lardbit/nefarious)
 
-**Nefarious is a web application that helps you download Movies and TV Shows.**
+**nefarious is a web application that helps you download Movies and TV Shows.**
 
 It aims to combine features of [Sonarr](https://github.com/Sonarr/Sonarr/), [Radarr](https://github.com/Radarr/Radarr) and [Ombi](https://github.com/tidusjar/Ombi).
 
@@ -68,7 +68,7 @@ Features:
 
 ### Installing
 
-Nefarious is best run via [Docker](https://hub.docker.com/search/?type=edition&offering=community) through [Docker Compose](https://docs.docker.com/compose/install/).
+nefarious is best run via [Docker](https://hub.docker.com/search/?type=edition&offering=community) through [Docker Compose](https://docs.docker.com/compose/install/).
 
 Install that and you're all set.
 
@@ -78,7 +78,7 @@ Run nefarious and dependencies:
     
     docker-compose up -d
     
-Nefarious and all dependencies are now running.  See below for configuration details.
+nefarious and all dependencies are now running.  See below for configuration details.
 
 **NOTE:** There is an *ARM* compatible version (`docker-compose.arm.yml`) as well which allows you to run nefarious on hardware like the raspberry pi, odroid etc.
 
@@ -114,7 +114,7 @@ There is no default transmission user/pass, but feel free to edit the `transmiss
 
 You can view transmission's web ui at [http://localhost:9091](http://localhost:9091) to see what's actually being downloaded by nefarious.
 
-#### Configure Nefarious
+#### Configure nefarious
     
 The default user/pass is `admin/admin`.  You can change this on settings page.
 
@@ -126,7 +126,7 @@ Since jackett is running in the same docker network, you'll need to set the host
 
 ###### Transmission settings
 
-Configure your transmission host, port, username and password, and download sub-directories.  Nefarious will save TV and Movies in individual sub-folders of your configured Transmission download path.
+Configure your transmission host, port, username and password, and download sub-directories.  nefarious will save TV and Movies in individual sub-folders of your configured Transmission download path.
 
 If you're using the built-in transmission in the `docker-compose.yml`, then make sure to enter `transmission` as the host since it's in the same docker network stack.
 
@@ -140,12 +140,19 @@ There is no default transmission user/pass, so leave those blank if you didn't m
     # logs for tasks (search results)
     docker-compose logs -f celery
 
+    # list all services (they should all be "up")
+    docker-compose ps
+
+    # use hammer and restart everything (you won't lose your settings, though)
+    docker-compose down
+    docker-compose up -d
+
 
 ## Development
 
 If you're interested in contributing or simply want to run nefarious without *docker* then follow these instructions.
 
-Nefarious is built on:
+nefarious is built on:
 
 - Python 3.6
 - Django 2
