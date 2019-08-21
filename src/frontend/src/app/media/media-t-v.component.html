@@ -42,7 +42,7 @@
                           <button *ngIf="!isWatchingSeason(season.season_number)" type="button" class="btn btn-primary" (click)="watchEntireSeason(season)">
                             <span class="oi oi-video"></span> Watch entire season
                           </button>
-                          <button *ngIf="isWatchingSeason(season.season_number)" type="button" class="btn btn-warning" (click)="stopWatchingEntireSeason(season)">
+                          <button *ngIf="isWatchingSeason(season.season_number)" type="button" class="btn btn-warning" (click)="stopWatchingEntireSeason(season)" [disabled]="!canUnWatchSeason(season.season_number)">
                             <span class="oi oi-trash"></span> Stop watching season
                           </button>
                           <!-- manual search -->

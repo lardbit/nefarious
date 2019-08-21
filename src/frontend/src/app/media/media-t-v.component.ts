@@ -177,6 +177,11 @@ export class MediaTVComponent implements OnInit {
     this._buildWatchOptions();
   }
 
+  public canUnWatchSeason(seasonNumber: number) {
+    const watchSeasonRequest = this._getWatchSeasonRequest(seasonNumber);
+    return this.userIsStaff() || (watchSeasonRequest && watchSeasonRequest.requested_by === this.apiService.user.username);
+  }
+
   protected _watchShow(): Observable<any> {
     return this.apiService.watchTVShow(this.result.id, this.result.name, this.mediaPosterURL(this.result), this.result.first_air_date).pipe(
       tap((data) => {
