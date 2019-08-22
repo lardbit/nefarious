@@ -14,7 +14,7 @@
         <button type="button" class="btn btn-success" (click)="watchAllSeasons()">
           <span class="oi oi-video"></span> Watch all seasons
         </button>
-        <button type="button" class="btn btn-danger btn-sm ml-3" *ngIf="isWatchingShow()" (click)="stopWatchingShow()">
+        <button type="button" class="btn btn-danger btn-sm ml-3" *ngIf="isWatchingShow()" (click)="stopWatchingShow()" [disabled]="!canUnWatchShow()">
           <span class="oi oi-trash"></span> Stop watching show
         </button>
       </div>

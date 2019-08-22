@@ -182,6 +182,17 @@ export class MediaTVComponent implements OnInit {
     return this.userIsStaff() || (watchSeasonRequest && watchSeasonRequest.requested_by === this.apiService.user.username);
   }
 
+  public canUnWatchShow() {
+    const watchShow = this._getWatchShow();
+    return this.userIsStaff() || (watchShow && watchShow.requested_by === this.apiService.user.username);
+  }
+
+  public isWatchingEpisode(episodeId): Boolean {
+    return Boolean(_.find(this.apiService.watchTVEpisodes, (watching) => {
+      return watching.tmdb_episode_id === episodeId;
+    }));
+  }
+
   protected _watchShow(): Observable<any> {
     return this.apiService.watchTVShow(this.result.id, this.result.name, this.mediaPosterURL(this.result), this.result.first_air_date).pipe(
       tap((data) => {
@@ -222,12 +233,6 @@ export class MediaTVComponent implements OnInit {
       }
     }
     this.watchEpisodesOptions = watchingOptions;
-  }
-
-  protected isWatchingEpisode(episodeId): Boolean {
-    return Boolean(_.find(this.apiService.watchTVEpisodes, (watching) => {
-      return watching.tmdb_episode_id === episodeId;
-    }));
   }
 
   protected _getEpisodeWatch(episodeId) {
