@@ -452,12 +452,12 @@ class CurrentTorrentsView(views.APIView):
                     try:
                         torrent = transmission_client.get_torrent(media.transmission_torrent_hash)
                     except (KeyError, ValueError):  # torrent no longer exists or was invalid
-                        continue
+                        pass
                     except Exception as e:
                         logging.error(str(e))
                         raise e
-
-                    result['torrent'] = TransmissionTorrentSerializer(torrent).data
+                    else:
+                        result['torrent'] = TransmissionTorrentSerializer(torrent).data
 
                 results.append(result)
 
