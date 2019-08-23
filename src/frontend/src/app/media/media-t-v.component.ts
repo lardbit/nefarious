@@ -133,6 +133,15 @@ export class MediaTVComponent implements OnInit {
     return this._getWatchShow();
   }
 
+  public isWatchingAllSeasons() {
+    for (const season of this.result.seasons) {
+      if (!this.isWatchingSeason(season.season_number)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   public isWatchingSeason(seasonNumber: number) {
     const watchSeasonRequest = this._getWatchSeasonRequest(seasonNumber);
     return Boolean(watchSeasonRequest);

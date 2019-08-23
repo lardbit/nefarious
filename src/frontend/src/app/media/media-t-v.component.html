@@ -11,7 +11,7 @@
     <div class="card-body">
       <p class="card-text">{{ result.overview }}</p>
       <div class="d-flex justify-content-end">
-        <button type="button" class="btn btn-success" (click)="watchAllSeasons()">
+        <button type="button" class="btn btn-success" (click)="watchAllSeasons()" [disabled]="isWatchingAllSeasons()">
           <span class="oi oi-video"></span> Watch all seasons
         </button>
         <button type="button" class="btn btn-danger btn-sm ml-3" *ngIf="isWatchingShow()" (click)="stopWatchingShow()" [disabled]="!canUnWatchShow()">
