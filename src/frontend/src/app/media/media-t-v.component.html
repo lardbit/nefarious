@@ -14,8 +14,8 @@
         <button type="button" class="btn btn-success" (click)="watchAllSeasons()" [disabled]="isWatchingAllSeasons()">
           <span class="oi oi-video"></span> Watch all seasons
         </button>
-        <button type="button" class="btn btn-danger btn-sm ml-3" *ngIf="isWatchingShow()" (click)="stopWatchingShow()" [disabled]="!canUnWatchShow()">
-          <span class="oi oi-trash"></span> Stop watching show
+        <button type="button" class="btn btn-danger ml-3" *ngIf="isWatchingShow()" (click)="stopWatchingShow()" [disabled]="!canUnWatchShow()">
+          <span class="oi oi-x"></span> Stop watching show
         </button>
       </div>
     </div>
@@ -31,19 +31,12 @@
                     <ngb-panel [title]="'Season ' + season.season_number">
                       <ng-template ngbPanelContent>
                         <p *ngIf="season.overview">{{ season.overview }}</p>
-                        <!-- manual search toggle -->
-                        <div class="d-flex justify-content-end mt-2" *ngIf="userIsStaff() && !isWatchingSeason(season.season_number)">
-                          <form class="form">
-                            <input class="form-check-input" type="checkbox" [(ngModel)]="isManualSearchEnabled" name="manualSearch" id="toggle-manual-search">
-                            <label class="form-check-label" for="toggle-manual-search" placement="top" ngbTooltip="Enable option to manually search torrents vs automatically downloading them">Manual</label>
-                          </form>
-                        </div>
                         <div class="my-3 d-flex justify-content-between">
                           <button *ngIf="!isWatchingSeason(season.season_number)" type="button" class="btn btn-primary" (click)="watchEntireSeason(season)">
                             <span class="oi oi-video"></span> Watch entire season
                           </button>
                           <button *ngIf="isWatchingSeason(season.season_number)" type="button" class="btn btn-warning" (click)="stopWatchingEntireSeason(season)" [disabled]="!canUnWatchSeason(season.season_number)">
-                            <span class="oi oi-trash"></span> Stop watching season
+                            <span class="oi oi-x"></span> Stop watching season
                           </button>
                           <!-- manual search -->
                           <div *ngIf="!isWatchingSeason(season.season_number) && userIsStaff() && isManualSearchEnabled">
@@ -64,6 +57,13 @@
                           <button type="submit" class="btn btn-info m-3" [class.disabled]="isWatchingSeason(season.season_number)" [disabled]="isWatchingSeason(season.season_number)">
                             <span class="oi oi-list"></span> Watch selected episodes
                           </button>
+                          <!-- manual search toggle -->
+                          <div class="d-flex justify-content-end mt-2" *ngIf="userIsStaff() && !isWatchingSeason(season.season_number)">
+                            <form class="form">
+                              <input class="form-check-input" type="checkbox" [(ngModel)]="isManualSearchEnabled" name="manualSearch" id="toggle-manual-search">
+                              <label class="form-check-label" for="toggle-manual-search" placement="top" ngbTooltip="Enable option to manually search torrents vs automatically downloading them">Manual</label>
+                            </form>
+                          </div>
                         </form>
                       </ng-template>
                     </ngb-panel>
