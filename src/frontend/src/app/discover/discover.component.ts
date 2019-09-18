@@ -57,7 +57,7 @@ export class DiscoverComponent implements OnInit {
             this.form.controls[key].setValue(value);
           }
         });
-        this.search();
+        this._search();
       });
 
     this._fetchGenres().subscribe(
@@ -72,34 +72,39 @@ export class DiscoverComponent implements OnInit {
     );
   }
 
-  public search() {
-    this.isLoading = true;
+  public search(paginate: boolean = false) {
+
+    // conditionally increment the "page" input value
+    if (paginate) {
+      this.form.controls['page'].setValue(parseInt(this.form.get('page').value, 10) + 1);
+    }
 
     const currentUrl = this.route.snapshot.url.map((data) => {
       return data.path;
     });
 
+    // update the url params
+    this.router.navigate([`/${currentUrl.join('/')}/`, this._formValues()]);
+  }
+
+  protected _search() {
+    this.isLoading = true;
+
     const discoverEndpoint = this.form.value.mediaType === this.apiService.SEARCH_MEDIA_TYPE_MOVIE ?
       this.apiService.discoverMovies(this._formValues()) :
       this.apiService.discoverTV(this._formValues());
 
-    // update the url params then search
-    this.router.navigate([`/${currentUrl.join('/')}/`, this._formValues()]).then(
-      () => {
-        discoverEndpoint.subscribe(
-          (data: any) => {
-            this.results = data.results;
-            // increment the "page" input value
-            this.form.controls['page'].setValue(data.page + 1);
-            this.isLoading = false;
-          },
-          (error) => {
-            this.toastr.error('An unknown error occurred');
-            this.isLoading = false;
-          }
-        );
+    discoverEndpoint.subscribe(
+      (data: any) => {
+        this.results = data.results;
+        this.isLoading = false;
+      },
+      (error) => {
+        this.toastr.error('An unknown error occurred');
+        this.isLoading = false;
       }
     );
+
   }
 
   protected _initialForm() {
