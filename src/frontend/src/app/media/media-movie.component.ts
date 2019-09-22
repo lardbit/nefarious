@@ -114,4 +114,8 @@ export class MediaMovieComponent implements OnInit {
       return watchMovie.tmdb_movie_id === this.result.id;
     });
   }
+
+  public canUnWatch() {
+    return this.userIsStaff() || this.watchMovie.requested_by === this.apiService.user.username;
+  }
 }

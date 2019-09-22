@@ -143,11 +143,17 @@ def completed_media_task():
                 media.collected_date = datetime.utcnow()
                 media.save()
 
-                # if it's a season, also mark season request complete
+                # special handling for tv seasons
                 if isinstance(media, WatchTVSeason):
+
+                    # mark season request complete
                     for season_request in WatchTVSeasonRequest.objects.filter(watch_tv_show=media.watch_tv_show, season_number=media.season_number):
                         season_request.collected = True
                         season_request.save()
+
+                    # delete any individual episodes now that we have the whole season
+                    for episode in WatchTVEpisode.objects.filter(watch_tv_show=media.watch_tv_show, season_number=media.season_number):
+                        episode.delete()
 
                 # rename the torrent file/path
                 renamed_torrent_name = get_renamed_torrent(torrent, media)

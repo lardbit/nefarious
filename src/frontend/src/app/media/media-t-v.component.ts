@@ -133,6 +133,15 @@ export class MediaTVComponent implements OnInit {
     return this._getWatchShow();
   }
 
+  public isWatchingAllSeasons() {
+    for (const season of this.result.seasons) {
+      if (!this.isWatchingSeason(season.season_number)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   public isWatchingSeason(seasonNumber: number) {
     const watchSeasonRequest = this._getWatchSeasonRequest(seasonNumber);
     return Boolean(watchSeasonRequest);
@@ -177,6 +186,27 @@ export class MediaTVComponent implements OnInit {
     this._buildWatchOptions();
   }
 
+  public canUnWatchSeason(seasonNumber: number) {
+    const watchSeasonRequest = this._getWatchSeasonRequest(seasonNumber);
+    return this.userIsStaff() || (watchSeasonRequest && watchSeasonRequest.requested_by === this.apiService.user.username);
+  }
+
+  public canUnWatchShow() {
+    const watchShow = this._getWatchShow();
+    return this.userIsStaff() || (watchShow && watchShow.requested_by === this.apiService.user.username);
+  }
+
+  public canUnWatchEpisode(episodeId) {
+    const watchEpisode = this._getWatchEpisode(episodeId);
+    return this.userIsStaff() || (watchEpisode && watchEpisode.requested_by === this.apiService.user.username);
+  }
+
+  public isWatchingEpisode(episodeId): Boolean {
+    return Boolean(_.find(this.apiService.watchTVEpisodes, (watching) => {
+      return watching.tmdb_episode_id === episodeId;
+    }));
+  }
+
   protected _watchShow(): Observable<any> {
     return this.apiService.watchTVShow(this.result.id, this.result.name, this.mediaPosterURL(this.result), this.result.first_air_date).pipe(
       tap((data) => {
@@ -219,13 +249,7 @@ export class MediaTVComponent implements OnInit {
     this.watchEpisodesOptions = watchingOptions;
   }
 
-  protected isWatchingEpisode(episodeId): Boolean {
-    return Boolean(_.find(this.apiService.watchTVEpisodes, (watching) => {
-      return watching.tmdb_episode_id === episodeId;
-    }));
-  }
-
-  protected _getEpisodeWatch(episodeId) {
+  protected _getWatchEpisode(episodeId) {
     return _.find(this.apiService.watchTVEpisodes, (watch) => {
       return watch.tmdb_episode_id === episodeId;
     });
@@ -287,7 +311,7 @@ export class MediaTVComponent implements OnInit {
         }
       } else { // stop watching
         if (this.isWatchingEpisode(episodeId)) {
-          const watch = this._getEpisodeWatch(episodeId);
+          const watch = this._getWatchEpisode(episodeId);
           observables.push(this.apiService.unWatchTVEpisode(watch.id));
         }
       }
