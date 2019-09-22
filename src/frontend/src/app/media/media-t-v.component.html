@@ -47,7 +47,7 @@
                         <form class="form" *ngIf="watchEpisodesOptions" (submit)="submitForSeason(season.season_number)">
                           <div *ngFor="let episode of season.episodes" class="form-check d-flex justify-content-between">
                             <div>
-                              <input class="form-check-input" [class.disabled]="isWatchingSeason(season.season_number)" [disabled]="isWatchingSeason(season.season_number)" type="checkbox" [(ngModel)]="watchEpisodesOptions[episode.id]" [name]="episode.id" [id]="episode.id">
+                              <input class="form-check-input" [disabled]="isWatchingSeason(season.season_number) || (isWatchingEpisode(episode.id) && !canUnWatchEpisode(episode.id))" type="checkbox" [(ngModel)]="watchEpisodesOptions[episode.id]" [name]="episode.id" [id]="episode.id">
                               <label class="form-check-label" [for]="episode.id">#{{ episode.episode_number }} - {{ episode.name }}</label>
                             </div>
                             <div *ngIf="isManualSearchEnabled && !(isWatchingSeason(season.season_number) || isWatchingEpisode(episode.id))">

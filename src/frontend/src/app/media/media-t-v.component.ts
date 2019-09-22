@@ -196,6 +196,11 @@ export class MediaTVComponent implements OnInit {
     return this.userIsStaff() || (watchShow && watchShow.requested_by === this.apiService.user.username);
   }
 
+  public canUnWatchEpisode(episodeId) {
+    const watchEpisode = this._getWatchEpisode(episodeId);
+    return this.userIsStaff() || (watchEpisode && watchEpisode.requested_by === this.apiService.user.username);
+  }
+
   public isWatchingEpisode(episodeId): Boolean {
     return Boolean(_.find(this.apiService.watchTVEpisodes, (watching) => {
       return watching.tmdb_episode_id === episodeId;
@@ -244,7 +249,7 @@ export class MediaTVComponent implements OnInit {
     this.watchEpisodesOptions = watchingOptions;
   }
 
-  protected _getEpisodeWatch(episodeId) {
+  protected _getWatchEpisode(episodeId) {
     return _.find(this.apiService.watchTVEpisodes, (watch) => {
       return watch.tmdb_episode_id === episodeId;
     });
@@ -306,7 +311,7 @@ export class MediaTVComponent implements OnInit {
         }
       } else { // stop watching
         if (this.isWatchingEpisode(episodeId)) {
-          const watch = this._getEpisodeWatch(episodeId);
+          const watch = this._getWatchEpisode(episodeId);
           observables.push(this.apiService.unWatchTVEpisode(watch.id));
         }
       }
