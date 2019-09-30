@@ -4,19 +4,27 @@
     <div class="card-header d-flex justify-content-between">
       <div>{{ result.name }}</div>
       <div class="d-flex justify-content-between">
-        <a [routerLink]="['/search/auto']" [queryParams]="{type: 'tv', q: 'similar-to:' + result.id}" class="btn btn-link"><span class="oi oi-magnifying-glass"></span> Similar</a>
-        <a [routerLink]="['/search/auto']" [queryParams]="{type: 'tv', q: 'recommended-to:' + result.id}" class="btn btn-link"><span class="oi oi-magnifying-glass"></span> Recommended</a>
+        <a [routerLink]="['/search/auto']" [queryParams]="{type: 'tv', q: 'similar-to:' + result.id}" class="btn btn-link">
+          <span class="oi oi-sun"></span> <span class="d-none d-sm-block">Similar</span>
+        </a>
+        <a [routerLink]="['/search/auto']" [queryParams]="{type: 'tv', q: 'recommended-to:' + result.id}" class="btn btn-link">
+          <span class="oi oi-magnifying-glass"></span> <span class="d-none d-sm-block">Recommended</span>
+        </a>
       </div>
     </div>
     <div class="card-body">
       <p class="card-text">{{ result.overview }}</p>
-      <div class="d-flex justify-content-end">
-        <button type="button" class="btn btn-success" (click)="watchAllSeasons()" [disabled]="isWatchingAllSeasons()">
-          <span class="oi oi-video"></span> Watch all seasons
-        </button>
-        <button type="button" class="btn btn-danger ml-3" *ngIf="isWatchingShow()" (click)="stopWatchingShow()" [disabled]="!canUnWatchShow()">
-          <span class="oi oi-x"></span> Stop watching show
-        </button>
+      <div class="row justify-content-end">
+        <div class="col-sm col-md-4">
+          <button type="button" class="btn btn-success" (click)="watchAllSeasons()" [disabled]="isWatchingAllSeasons()">
+            <span class="oi oi-video"></span> Watch all seasons
+          </button>
+        </div>
+        <div class="col-sm col-md-4">
+          <button type="button" class="btn btn-danger" *ngIf="isWatchingShow()" (click)="stopWatchingShow()" [disabled]="!canUnWatchShow()">
+            <span class="oi oi-x"></span> Stop watching show
+          </button>
+        </div>
       </div>
     </div>
     <div class="card-body">

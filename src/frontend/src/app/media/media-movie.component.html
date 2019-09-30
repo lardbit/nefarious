@@ -16,8 +16,12 @@
                 <div class="d-flex justify-content-between">
                   <h6 class="card-title">{{ result.release_date | date:'y' }}</h6>
                   <div class="d-flex justify-content-between">
-                    <a [routerLink]="['/search/auto']" [queryParams]="{type: 'movie', q: 'similar-to:' + result.id}" class="btn btn-link"><span class="oi oi-magnifying-glass"></span> Similar</a>
-                    <a [routerLink]="['/search/auto']" [queryParams]="{type: 'movie', q: 'recommended-to:' + result.id}" class="btn btn-link"><span class="oi oi-magnifying-glass"></span> Recommended</a>
+                    <a [routerLink]="['/search/auto']" [queryParams]="{type: 'movie', q: 'similar-to:' + result.id}" class="btn btn-link">
+                      <span class="oi oi-sun"></span> <span class="d-none d-sm-block">Similar</span>
+                    </a>
+                    <a [routerLink]="['/search/auto']" [queryParams]="{type: 'movie', q: 'recommended-to:' + result.id}" class="btn btn-link">
+                      <span class="oi oi-magnifying-glass"></span> <span class="d-none d-sm-block">Recommended</span>
+                    </a>
                   </div>
                 </div>
                 <p class="card-text">{{ result.overview }}</p>
