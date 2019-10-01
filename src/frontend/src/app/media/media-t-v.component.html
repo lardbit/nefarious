@@ -14,17 +14,13 @@
     </div>
     <div class="card-body">
       <p class="card-text">{{ result.overview }}</p>
-      <div class="row justify-content-end">
-        <div class="col-sm col-md-4">
-          <button type="button" class="btn btn-success" (click)="watchAllSeasons()" [disabled]="isWatchingAllSeasons()">
-            <span class="oi oi-video"></span> Watch all seasons
-          </button>
-        </div>
-        <div class="col-sm col-md-4">
-          <button type="button" class="btn btn-danger" *ngIf="isWatchingShow()" (click)="stopWatchingShow()" [disabled]="!canUnWatchShow()">
-            <span class="oi oi-x"></span> Stop watching show
-          </button>
-        </div>
+      <div class="d-flex flex-wrap justify-content-end">
+        <button type="button" class="btn btn-success m-1" (click)="watchAllSeasons()" [disabled]="isWatchingAllSeasons()">
+          <span class="oi oi-video"></span> Watch all seasons
+        </button>
+        <button type="button" class="btn btn-danger m-1" *ngIf="isWatchingShow()" (click)="stopWatchingShow()" [disabled]="!canUnWatchShow()">
+          <span class="oi oi-x"></span> Stop watching show
+        </button>
       </div>
     </div>
     <div class="card-body">
