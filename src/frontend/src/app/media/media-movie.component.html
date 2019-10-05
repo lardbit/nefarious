@@ -40,7 +40,7 @@
                   <div class="col position-relative">
                     <ngx-loading [show]="isSaving"></ngx-loading>
                     <form class="form" (submit)="submit()">
-                      <div class="form-group mt-4" *ngIf="userIsStaff()">
+                      <div class="form-group mt-4" *ngIf="userIsStaff() && !isWatchingMovie()">
                         <label>Custom Profile</label>
                         <select type="text" class="form-control form-control-sm" [(ngModel)]="qualityProfileCustom" name="quality-profile-custom">
                           <option></option>
