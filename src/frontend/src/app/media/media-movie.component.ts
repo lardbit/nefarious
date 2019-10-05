@@ -84,6 +84,7 @@ export class MediaMovieComponent implements OnInit {
           verb = 'Watching';
         } else {
           verb = 'Stop watching';
+          this.watchMovie = null;
         }
         const message = `${verb} ${this.result.title}`;
         this.toastr.success(message);

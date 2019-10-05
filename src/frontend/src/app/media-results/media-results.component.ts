@@ -20,7 +20,29 @@ export class MediaResultsComponent implements OnInit {
   ngOnInit() {
   }
 
+  public hasDownloadedResult(result: any): boolean {
+    const watchingResult = this._watchingResult(result);
+    return watchingResult ? watchingResult.collected : null;
+  }
+
   public isWatchingResult(result: any): boolean {
+    return Boolean(this._watchingResult(result));
+  }
+
+  public isSearchingTV() {
+    return this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV;
+  }
+
+  public isSearchingMovies() {
+    return this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_MOVIE;
+  }
+
+  public mediaPosterURL(result) {
+    return `${this.apiService.settings.tmdb_configuration.images.base_url}/original/${result.poster_path}`;
+  }
+
+  protected _watchingResult(result: any) {
+
     if (this.isSearchingTV()) {
       const watchingEpisode = _.find(this.apiService.watchTVEpisodes, (watch) => {
         return watch.tmdb_show_id === result.id;
@@ -34,17 +56,5 @@ export class MediaResultsComponent implements OnInit {
         return watch.tmdb_movie_id === result.id;
       });
     }
-  }
-
-  public isSearchingTV() {
-    return this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV;
-  }
-
-  public isSearchingMovies() {
-    return this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_MOVIE;
-  }
-
-  public mediaPosterURL(result) {
-    return `${this.apiService.settings.tmdb_configuration.images.base_url}/original/${result.poster_path}`;
   }
 }

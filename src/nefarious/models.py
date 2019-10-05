@@ -71,6 +71,7 @@ class WatchMovie(WatchMediaBase):
     release_date = models.DateField(null=True, blank=True)
 
     class Meta:
+        ordering = ('name',)
         permissions = (
             (PERM_CAN_WATCH_IMMEDIATELY_MOVIE, 'Can immediately start watching movies'),
         )
@@ -90,6 +91,7 @@ class WatchTVShow(models.Model):
     release_date = models.DateField(null=True, blank=True)
 
     class Meta:
+        ordering = ('name',)
         permissions = (
             (PERM_CAN_WATCH_IMMEDIATELY_TV, 'Can immediately start watching tv shows'),
         )

@@ -9,7 +9,12 @@
     <div class="row">
       <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let result of results | filter: search">
         <div class="card" [ngClass]="{'border border-success rounded': isWatchingResult(result)}">
-          <div *ngIf="isWatchingResult(result)" class="result-watching text-success"><span class="oi oi-check"></span></div>
+          <div class="result-watching">
+            <div class="d-flex justify-content-end">
+              <div *ngIf="isWatchingResult(result)" class="text-success" ngbTooltip="Watching"><span class="oi oi-eye"></span></div>
+              <div *ngIf="hasDownloadedResult(result)" class="ml-2 text-success" ngbTooltip="Downloaded"><span class="oi oi-check"></span></div>
+            </div>
+          </div>
           <a [routerLink]="['/media', mediaType, result.id]">
             <img class="card-img-top" [src]="mediaPosterURL(result)" alt="">
           </a>
