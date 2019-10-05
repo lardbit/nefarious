@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
+import * as _ from 'lodash';
 
 
 @Component({
@@ -22,11 +23,17 @@ export class WatchingComponent implements OnInit {
     this.route.params.subscribe(
       (params) => {
         this.mediaType = params.type;
+        let watches: any[];
         if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV) {
-          this.results = this.apiService.watchTVShows;
+          watches = this.apiService.watchTVShows;
         } else {
-          this.results = this.apiService.watchMovies;
+          watches = this.apiService.watchMovies;
         }
+
+        // filter collected media
+        this.results = _.filter(watches, (watchMedia) => {
+          return watchMedia.collected;
+        });
       }
     );
   }
