@@ -12,17 +12,21 @@
     <div class="d-flex justify-content-end">
       <input class="form-control form-control-sm w-25 mb-3" [(ngModel)]="search" required minlength="2" name="search" type="text" placeholder="Filter..." autocomplete="off">
     </div>
-    <div class="row">
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let result of results | filter: search">
-        <div class="card result">
-          <a [routerLink]="['/media', mediaType, getTMDBId(result)]">
-            <img class="card-img-top" [src]="result.poster_image_url" alt="Card image cap">
-            <div class="card-body">
-              <h5 class="card-title">{{ result.name }}</h5>
-            </div>
-          </a>
-        </div>
-      </div>
-    </div>
+    <table class="table table-striped">
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th *ngIf="mediaType === 'movie'">Requested</th>
+        <th *ngIf="mediaType === 'movie'">Requested By</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let result of results | filter: search">
+        <td><a [routerLink]="['/media', mediaType, getTMDBId(result)]">{{ result.name }}</a></td>
+        <td *ngIf="mediaType === 'movie'">{{ result.date_added | date: 'shortDate' }}</td>
+        <td *ngIf="mediaType === 'movie'">{{ result.requested_by }}</td>
+      </tr>
+      </tbody>
+    </table>
   </div>
 </div>

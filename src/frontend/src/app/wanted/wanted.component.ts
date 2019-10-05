@@ -28,7 +28,7 @@ export class WantedComponent implements OnInit {
         this.mediaType = params.type;
         let wanted: any[];
         if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV) {
-          wanted = this.apiService.watchTVSeasons.concat(this.apiService.watchTVEpisodes);
+          wanted = this.apiService.watchTVSeasonRequests.concat(this.apiService.watchTVEpisodes);
         } else {
           wanted = this.apiService.watchMovies;
         }

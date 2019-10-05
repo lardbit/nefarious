@@ -111,6 +111,7 @@ class WatchTVSeasonRequest(models.Model):
     season_number = models.IntegerField()
     quality_profile_custom = models.CharField(max_length=500, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     collected = models.BooleanField(default=False)
+    date_added = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ('watch_tv_show', 'season_number',)
