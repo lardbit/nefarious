@@ -23,17 +23,11 @@ export class WatchingComponent implements OnInit {
     this.route.params.subscribe(
       (params) => {
         this.mediaType = params.type;
-        let watches: any[];
         if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV) {
-          watches = this.apiService.watchTVShows;
+          this.results = this.apiService.watchTVShows;
         } else {
-          watches = this.apiService.watchMovies;
+          this.results = this.apiService.watchMovies;
         }
-
-        // filter collected media
-        this.results = _.filter(watches, (watchMedia) => {
-          return watchMedia.collected;
-        });
       }
     );
   }
