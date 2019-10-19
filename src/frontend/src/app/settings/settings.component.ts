@@ -14,9 +14,6 @@ export class SettingsComponent implements OnInit {
   public users: any[];
   public form;
   public isSaving = false;
-  public jackettIndexers: string[];
-  public isJackettIndexersSettingsCollapsed = true;
-  public isLoadingJackettIndexers = true;
   public isVeryingJackettIndexers = false;
 
   constructor(
@@ -28,53 +25,21 @@ export class SettingsComponent implements OnInit {
   ngOnInit() {
     const settings = this.apiService.settings || {};
     this.form = this.fb.group({
-      'jackett': this.fb.group({
-          'jackett_host': [settings['jackett_host'], Validators.required],
-          'jackett_port': [settings['jackett_port'], Validators.required],
-          'jackett_token': [settings['jackett_token'], Validators.required],
-        }
-      ),
-      'transmission': this.fb.group({
-        'transmission_host': [settings['transmission_host'], Validators.required],
-        'transmission_port': [settings['transmission_port'], Validators.required],
-        'transmission_user': [settings['transmission_user']],
-        'transmission_pass': [settings['transmission_pass']],
-        'transmission_tv_download_dir': [settings['transmission_tv_download_dir'], Validators.required],
-        'transmission_movie_download_dir': [settings['transmission_movie_download_dir'], Validators.required],
-      }),
-      'quality': this.fb.group({
-          'quality_profile_tv': [settings['quality_profile_tv'], Validators.required],
-          'quality_profile_movies': [settings['quality_profile_movies'], Validators.required],
-      }),
-      'subs': this.fb.group({
-        'allow_hardcoded_subs': [settings['allow_hardcoded_subs'], Validators.required],
-      }),
-      'keywordSearchFilters': this.fb.group({
-        'exclusions': [settings['keyword_search_filters'] ? _.keys(settings['keyword_search_filters']) : []],
-      }),
+      'jackett_host': [settings['jackett_host'], Validators.required],
+      'jackett_port': [settings['jackett_port'], Validators.required],
+      'jackett_token': [settings['jackett_token'], Validators.required],
+      'transmission_host': [settings['transmission_host'], Validators.required],
+      'transmission_port': [settings['transmission_port'], Validators.required],
+      'transmission_user': [settings['transmission_user']],
+      'transmission_pass': [settings['transmission_pass']],
+      'transmission_tv_download_dir': [settings['transmission_tv_download_dir'], Validators.required],
+      'transmission_movie_download_dir': [settings['transmission_movie_download_dir'], Validators.required],
+      'quality_profile_tv': [settings['quality_profile_tv'], Validators.required],
+      'quality_profile_movies': [settings['quality_profile_movies'], Validators.required],
+      'allow_hardcoded_subs': [settings['allow_hardcoded_subs'], Validators.required],
+      'exclusions': [settings['keyword_search_filters'] ? _.keys(settings['keyword_search_filters']) : []],
       'users': new FormArray([]),
     });
-
-    if (this.apiService.settings) {
-      this.apiService.fetchJackettIndexers().subscribe(
-        (data: string[]) => {
-          this.jackettIndexers = data;
-          const formControls = {};
-          this.jackettIndexers.forEach((indexer) => {
-            formControls[indexer] = (
-              this.apiService.settings.jackett_indexers_seed && this.apiService.settings.jackett_indexers_seed[indexer]
-            ) || false;
-          });
-          this.form.get('jackett').addControl('jackett_indexers_seed', this.fb.group(formControls));
-          this.isLoadingJackettIndexers = false;
-        },
-        (error) => {
-          console.error(error);
-          this.toastr.error('An unknown error occurred fetching jackett indexers');
-          this.isLoadingJackettIndexers = false;
-        }
-      );
-    }
 
     this.apiService.fetchUsers().subscribe(
       (users) => {
@@ -92,32 +57,21 @@ export class SettingsComponent implements OnInit {
     );
   }
 
-  public submit(group: string) {
+  public submit() {
     this.isSaving = true;
 
-    let observable: Observable<any>;
-
     // create a copy of the form data so we can modify it
-    const formData = _.assign({}, this.form.get(group).value);
+    const formData = _.assign({}, this.form.value);
 
     // handle keyword exclusions
-    if (group === 'keywordSearchFilters') {
-      const exclusions = {};
-      _.forEach(formData['exclusions'], (exclusion) => {
-        exclusions[exclusion] = false;
-      });
-      formData['keyword_search_filters'] = exclusions;
-      delete formData['exclusions'];
-    }
+    const exclusions = {};
+    _.forEach(formData['exclusions'], (exclusion) => {
+      exclusions[exclusion] = false;
+    });
+    formData['keyword_search_filters'] = exclusions;
+    delete formData['exclusions'];
 
-    // settings
-    if (this.apiService.settings) {
-      observable = this.apiService.updateSettings(this.apiService.settings.id, formData);
-    } else {
-      observable = this.apiService.createSettings(formData);
-    }
-
-    observable.subscribe(
+    this.apiService.updateSettings(this.apiService.settings.id, formData).subscribe(
       (data) => {
         this.toastr.success('Updated settings');
         this.isSaving = false;
@@ -131,12 +85,8 @@ export class SettingsComponent implements OnInit {
   }
 
   public hasExclusions(): boolean {
-    const exclusions = this.form.get('keywordSearchFilters').value.exclusions;
+    const exclusions = this.form.get('exclusions').value;
     return exclusions && exclusions.length;
-  }
-
-  public hasSettings() {
-    return !!this.apiService.settings;
   }
 
   public verifySettings() {

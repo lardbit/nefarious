@@ -25,14 +25,11 @@ export class SettingsGuard implements CanActivate {
     // verify settings
     //
 
+    // TODO - verify the jackett api token isn't the default
+
     if (!this.apiService.settings) {
-      // redirect to the settings page if they're privileged
-      if (this.apiService.user && this.apiService.user.is_staff) {
+      this.toastr.error('missing core settings');
         console.log('no settings, redirecting');
-        this.router.navigate(['/settings']);
-      } else {
-        this.toastr.error('missing core settings - contact administrator');
-      }
       return false;
     }
 
