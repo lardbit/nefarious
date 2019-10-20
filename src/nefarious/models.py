@@ -19,8 +19,8 @@ class NefariousSettings(models.Model):
 
     transmission_host = models.CharField(max_length=500, default='transmission')
     transmission_port = models.IntegerField(default=9091)
-    transmission_user = models.CharField(max_length=500, null=True)  # credentials aren't required for transmission
-    transmission_pass = models.CharField(max_length=500, null=True)  # credentials aren't required for transmission
+    transmission_user = models.CharField(max_length=500, blank=True, default='')  # credentials aren't required for transmission
+    transmission_pass = models.CharField(max_length=500, blank=True, default='')  # credentials aren't required for transmission
     transmission_tv_download_dir = models.CharField(max_length=500, default='tv/', help_text='Relative to download path')
     transmission_movie_download_dir = models.CharField(max_length=500, default='movies/', help_text='Relative to download path')
 
