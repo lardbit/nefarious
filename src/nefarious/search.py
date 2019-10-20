@@ -13,11 +13,9 @@ class SearchTorrents:
     ok = True
     error_content = None
     nefarious_settings: NefariousSettings
-    search_seed_only = False
 
-    def __init__(self, media_type: str, query: str, search_seed_only: bool = False):
+    def __init__(self, media_type: str, query: str):
         assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
-        self.search_seed_only = search_seed_only
         self.nefarious_settings = NefariousSettings.get()
 
         params = {
@@ -46,20 +44,7 @@ class SearchTorrents:
             return cat_tv
 
     def _trackers(self) -> list:
-        trackers = fetch_jackett_indexers(self.nefarious_settings)
-        seed_only_trackers = []
-
-        # fetch all active indexers and separate any configured as "seed only"
-        if self.nefarious_settings.jackett_indexers_seed:
-            for tracker, seed_only in self.nefarious_settings.jackett_indexers_seed.items():
-                if seed_only and tracker in trackers:
-                    seed_only_trackers.append(tracker)
-                    trackers.remove(tracker)
-
-        if self.search_seed_only:
-            return seed_only_trackers
-        else:
-            return trackers
+        return fetch_jackett_indexers(self.nefarious_settings)
 
 
 class SearchTorrentsCombined:

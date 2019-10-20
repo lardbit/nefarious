@@ -2,7 +2,6 @@ import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
 import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
 import * as _ from 'lodash';
 
 @Component({

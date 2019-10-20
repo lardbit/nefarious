@@ -15,7 +15,6 @@ class NefariousSettings(models.Model):
     jackett_host = models.CharField(max_length=500, default='jackett')
     jackett_port = models.IntegerField(default=9117)
     jackett_token = models.CharField(max_length=500, default=JACKETT_TOKEN_DEFAULT)
-    jackett_indexers_seed = JSONField(blank=True, null=True)  # seed only indexers
 
     transmission_host = models.CharField(max_length=500, default='transmission')
     transmission_port = models.IntegerField(default=9091)
@@ -26,7 +25,6 @@ class NefariousSettings(models.Model):
 
     tmdb_token = models.CharField(max_length=500, default=settings.TMDB_API_TOKEN)
     tmdb_configuration = JSONField(blank=True, null=True)
-    tmdb_configuration_date = models.DateTimeField(blank=True, null=True, auto_now=True)
 
     quality_profile_tv = models.CharField(max_length=500, default=quality.PROFILE_ANY.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     quality_profile_movies = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))

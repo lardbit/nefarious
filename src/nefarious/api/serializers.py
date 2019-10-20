@@ -19,23 +19,12 @@ class UserReferenceSerializerMixin(serializers.ModelSerializer):
 
 class NefariousSettingsSerializer(serializers.ModelSerializer):
     tmdb_configuration = serializers.JSONField(required=False)
-    jackett_indexers_seed = serializers.JSONField(required=False)
     keyword_search_filters = serializers.JSONField(required=False)
     jackett_default_token = serializers.ReadOnlyField(default=NefariousSettings.JACKETT_TOKEN_DEFAULT)
 
     class Meta:
         model = NefariousSettings
         fields = '__all__'
-
-    def create(self, validated_data):
-
-        # save tmdb configuration settings on creation
-        nefarious_settings = NefariousSettings(**validated_data)
-        tmdb_client = get_tmdb_client(nefarious_settings)
-        configuration = tmdb_client.Configuration()
-        validated_data['tmdb_configuration'] = configuration.info()
-
-        return super().create(validated_data)
 
 
 class NefariousPartialSettingsSerializer(serializers.ModelSerializer):

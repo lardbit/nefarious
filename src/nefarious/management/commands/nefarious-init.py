@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from nefarious.models import NefariousSettings
+from nefarious.tmdb import get_tmdb_client
 
 
 class Command(BaseCommand):
@@ -21,4 +22,11 @@ class Command(BaseCommand):
                 options['username'], options['password'], options['email'])))
 
         # create settings if they don't already exist
-        NefariousSettings.objects.get_or_create()
+        nefarious_settings, _ = NefariousSettings.objects.get_or_create()
+
+        # populate tmdb configuration if necessary
+        if not nefarious_settings.tmdb_configuration:
+            tmdb_client = get_tmdb_client(nefarious_settings)
+            configuration = tmdb_client.Configuration()
+            nefarious_settings.tmdb_configuration = configuration.info()
+            nefarious_settings.save()
