@@ -10,9 +10,11 @@ PERM_CAN_WATCH_IMMEDIATELY_MOVIE = 'can_immediately_watch_movie'
 
 
 class NefariousSettings(models.Model):
+    JACKETT_TOKEN_DEFAULT = 'COPY_YOUR_JACKETT_TOKEN_HERE'
+
     jackett_host = models.CharField(max_length=500, default='jackett')
     jackett_port = models.IntegerField(default=9117)
-    jackett_token = models.CharField(max_length=500, default='COPY_YOUR_JACKETT_TOKEN_HERE')
+    jackett_token = models.CharField(max_length=500, default=JACKETT_TOKEN_DEFAULT)
     jackett_indexers_seed = JSONField(blank=True, null=True)  # seed only indexers
 
     transmission_host = models.CharField(max_length=500, default='transmission')

@@ -22,14 +22,16 @@ export class SettingsGuard implements CanActivate {
     state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
 
     //
-    // verify settings
+    // settings will have already been created and all fields were created using their defaults.
+    // however, the jackett api token used a dummy value and needs to be defined so we're checking
+    // for that scenario
     //
 
-    // TODO - verify the jackett api token isn't the default
-
-    if (!this.apiService.settings) {
-      this.toastr.error('missing core settings');
-        console.log('no settings, redirecting');
+    // verify the jackett api token isn't the default
+    if (this.apiService.settings.jackett_token === this.apiService.settings.jackett_default_token) {
+      this.toastr.error('missing jackett api token');
+      console.log('missing jackett token, redirecting');
+      this.router.navigate(['/settings']);
       return false;
     }
 
