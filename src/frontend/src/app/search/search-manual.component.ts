@@ -16,6 +16,7 @@ export class SearchManualComponent implements OnInit {
   @Input('tmdbTVEpisode') tmdbTVEpisode;
   @Input('mediaType') mediaType: string;
   @Output() downloaded = new EventEmitter<any>();
+  public searchInput: string;
   public orderByOptions = ['Name', 'Seeders', 'Size'];
   public results: any[] = [];
   public isSearching = false;
@@ -35,10 +36,15 @@ export class SearchManualComponent implements OnInit {
   }
 
   ngOnInit() {
+    // automatically search on load
+    this.searchInput = this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV ? this.tmdbMedia.name : this.tmdbMedia.title;
+    this.search();
+  }
+
+  public search() {
     this.results = [];
     this.isSearching = true;
-    const title = this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV ? this.tmdbMedia.name : this.tmdbMedia.title;
-    this.apiService.searchTorrents(title, this.mediaType).subscribe(
+    this.apiService.searchTorrents(this.searchInput, this.mediaType).subscribe(
       (results) => {
         this.results = results;
         this.filterChange();
@@ -118,15 +124,4 @@ export class SearchManualComponent implements OnInit {
       }
     }
   }
-
-  protected _getTorrentLinkFromResult(result) {
-    let torrent: string;
-    if (result.MagnetUri) {
-      torrent = result.MagnetUri;
-    } else {
-      torrent = result.Link;
-    }
-    return torrent;
-  }
-
 }

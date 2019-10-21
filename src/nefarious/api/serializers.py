@@ -29,10 +29,11 @@ class NefariousSettingsSerializer(serializers.ModelSerializer):
 
 class NefariousPartialSettingsSerializer(serializers.ModelSerializer):
     tmdb_configuration = serializers.JSONField(required=False, read_only=True)
+    jackett_default_token = serializers.ReadOnlyField(default=NefariousSettings.JACKETT_TOKEN_DEFAULT)
 
     class Meta:
         model = NefariousSettings
-        fields = ('tmdb_configuration',)
+        fields = ('tmdb_configuration', 'jackett_default_token',)
 
 
 class WatchMovieSerializer(UserReferenceSerializerMixin, serializers.ModelSerializer):

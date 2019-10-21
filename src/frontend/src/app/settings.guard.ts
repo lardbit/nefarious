@@ -28,16 +28,18 @@ export class SettingsGuard implements CanActivate {
     //
 
     // verify the jackett api token isn't the default
-    if (this.apiService.settings.jackett_token === this.apiService.settings.jackett_default_token) {
-      console.log('missing jackett token, redirecting');
-      if (this.apiService.userIsStaff()) {
-        this.toastr.error('missing jackett api token');
-        this.router.navigate(['/settings']);
-      } else {
-        this.router.navigate(['/page-not-found']);
-        this.toastr.error('missing jackett api token - contact admin');
+    if (this.apiService.settings) {
+      if (this.apiService.settings.jackett_token === this.apiService.settings.jackett_default_token) {
+        console.log('missing jackett token, redirecting');
+        if (this.apiService.userIsStaff()) {
+          this.toastr.error('missing jackett api token');
+          this.router.navigate(['/settings']);
+        } else {
+          this.router.navigate(['/page-not-found']);
+          this.toastr.error('missing jackett api token - contact admin');
+        }
+        return false;
       }
-      return false;
     }
 
     return true;
