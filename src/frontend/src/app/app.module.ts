@@ -33,7 +33,7 @@ import { FilterPipe } from './filter.pipe';
 import { WantedComponent } from './wanted/wanted.component';
 
 const appRoutes: Routes = [
-  { path: '', redirectTo: 'search/auto', pathMatch: 'full' },
+  { path: '', redirectTo: 'search/auto', pathMatch: 'full' },  // redirects
   { path: 'search', redirectTo: 'search/auto', pathMatch: 'full', canActivate: [LoginGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'search/auto', component: SearchAutoComponent, canActivate: [LoginGuard, SettingsGuard] },

@@ -10,23 +10,23 @@ PERM_CAN_WATCH_IMMEDIATELY_MOVIE = 'can_immediately_watch_movie'
 
 
 class NefariousSettings(models.Model):
-    jackett_host = models.CharField(max_length=500, default='localhost')
-    jackett_port = models.IntegerField(default=9117, blank=True)
-    jackett_token = models.CharField(max_length=500, blank=True)
-    jackett_indexers_seed = JSONField(blank=True, null=True)  # seed only indexers
+    JACKETT_TOKEN_DEFAULT = 'COPY_YOUR_JACKETT_TOKEN_HERE'
 
-    transmission_host = models.CharField(max_length=500, blank=True)
-    transmission_port = models.IntegerField(default=9091, blank=True)
-    transmission_user = models.CharField(max_length=500, blank=True, null=True)
-    transmission_pass = models.CharField(max_length=500, blank=True, null=True)
+    jackett_host = models.CharField(max_length=500, default='jackett')
+    jackett_port = models.IntegerField(default=9117)
+    jackett_token = models.CharField(max_length=500, default=JACKETT_TOKEN_DEFAULT)
+
+    transmission_host = models.CharField(max_length=500, default='transmission')
+    transmission_port = models.IntegerField(default=9091)
+    transmission_user = models.CharField(max_length=500, blank=True, default='')  # credentials aren't required for transmission
+    transmission_pass = models.CharField(max_length=500, blank=True, default='')  # credentials aren't required for transmission
     transmission_tv_download_dir = models.CharField(max_length=500, default='tv/', help_text='Relative to download path')
     transmission_movie_download_dir = models.CharField(max_length=500, default='movies/', help_text='Relative to download path')
 
     tmdb_token = models.CharField(max_length=500, default=settings.TMDB_API_TOKEN)
     tmdb_configuration = JSONField(blank=True, null=True)
-    tmdb_configuration_date = models.DateTimeField(blank=True, null=True, auto_now=True)
 
-    quality_profile_tv = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+    quality_profile_tv = models.CharField(max_length=500, default=quality.PROFILE_ANY.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     quality_profile_movies = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
 
     allow_hardcoded_subs = models.BooleanField(default=False)

@@ -131,14 +131,6 @@ def results_with_valid_urls(results: list, nefarious_settings: NefariousSettings
     return populated_results
 
 
-def get_seed_only_indexers(nefarious_settings: NefariousSettings):
-    results = []
-    for tracker, seed_only in nefarious_settings.jackett_indexers_seed.items():
-        if seed_only:
-            results.append(tracker)
-    return results
-
-
 def get_renamed_torrent(torrent, watch_media):
     new_name = str(watch_media)
     # append year for Movies, i.e "Toy Story 4 (2019)"

@@ -1,4 +1,3 @@
-import { ToastrService } from 'ngx-toastr';
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from './api.service';
 
@@ -13,18 +12,21 @@ export class AppComponent implements OnInit {
 
   constructor(
     private apiService: ApiService,
-    private toastr: ToastrService,
   ) {
   }
 
   ngOnInit() {
   }
 
-  public isStaff() {
+  public hasSettings(): Boolean {
+    return Boolean(this.apiService.settings);
+  }
+
+  public isStaff(): Boolean {
     return this.apiService.user && this.apiService.user.is_staff;
   }
 
-  public isLoggedIn() {
+  public isLoggedIn(): Boolean {
     return this.apiService.isLoggedIn();
   }
 
