@@ -36,6 +36,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3-dev \
         curl \
         gnupg \
+        git \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
     && true
