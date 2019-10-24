@@ -107,6 +107,7 @@ def refresh_tmdb_configuration():
     configuration = tmdb_client.Configuration()
 
     nefarious_settings.tmdb_configuration = configuration.info()
+    nefarious_settings.tmdb_languages = configuration.languages()
     nefarious_settings.save()
 
     return nefarious_settings.tmdb_configuration

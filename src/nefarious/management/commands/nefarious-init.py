@@ -25,8 +25,9 @@ class Command(BaseCommand):
         nefarious_settings, _ = NefariousSettings.objects.get_or_create()
 
         # populate tmdb configuration if necessary
-        if not nefarious_settings.tmdb_configuration:
+        if not nefarious_settings.tmdb_configuration or not nefarious_settings.tmdb_languages:
             tmdb_client = get_tmdb_client(nefarious_settings)
             configuration = tmdb_client.Configuration()
             nefarious_settings.tmdb_configuration = configuration.info()
+            nefarious_settings.tmdb_languages = configuration.languages()
             nefarious_settings.save()

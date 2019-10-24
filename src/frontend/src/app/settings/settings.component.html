@@ -6,8 +6,8 @@
       <button type="button" class="btn btn-sm btn-info mx-1" (click)="verifySettings()">Verify Settings</button>
     </div>
     <div class="row" *ngIf="form">
-      <!-- jackett -->
       <div class="col-12 col-sm-6 col-md-4">
+        <!-- jackett -->
         <div class="card">
           <div class="card-header">Jackett</div>
           <div class="card-body">
@@ -66,8 +66,18 @@
           </div>
         </div>
       </div>
-      <!-- quality profiles -->
       <div class="col-12 col-sm-6 col-md-4">
+        <!-- Global -->
+        <div class="card">
+          <div class="card-header">Global</div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>Language</label>
+              <ng-select [multiple]="false" [items]="getLanguages()" bindValue="iso_639_1" bindLabel="english_name" formControlName="language"></ng-select>
+            </div>
+          </div>
+        </div>
+        <!-- quality profiles -->
         <div class="card">
           <div class="card-header">Quality Profiles</div>
           <div class="card-body">
