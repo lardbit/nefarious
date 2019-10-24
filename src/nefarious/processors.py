@@ -180,7 +180,10 @@ class WatchMovieProcessor(WatchProcessorBase):
 
     def _get_tmdb_media(self):
         movie_result = self.tmdb_client.Movies(self.watch_media.tmdb_movie_id)
-        movie = movie_result.info()
+        params = {
+            'language': self.nefarious_settings.language,
+        }
+        movie = movie_result.info(**params)
         return movie
 
     def _get_watch_media(self, watch_media_id: int):
@@ -232,10 +235,13 @@ class WatchTVEpisodeProcessor(WatchTVProcessorBase):
     def _get_tmdb_media(self):
         # store show on instance
         show_result = self.tmdb_client.TV(self.watch_media.watch_tv_show.tmdb_show_id)
-        self.show = show_result.info()
+        params = {
+            'language': self.nefarious_settings.language,
+        }
+        self.show = show_result.info(**params)
 
         episode_result = self.tmdb_client.TV_Episodes(self.watch_media.watch_tv_show.tmdb_show_id, self.watch_media.season_number, self.watch_media.episode_number)
-        episode = episode_result.info()
+        episode = episode_result.info(**params)
         return episode
 
     def _get_search_results(self):
@@ -243,7 +249,10 @@ class WatchTVEpisodeProcessor(WatchTVProcessorBase):
         # i.e search for "Atlanta" and "Atlanta s01e05" individually for best results
         watch_episode = self.watch_media  # type: WatchTVEpisode
         show_result = self.tmdb_client.TV(watch_episode.watch_tv_show.tmdb_show_id)
-        show = show_result.info()
+        params = {
+            'language': self.nefarious_settings.language,
+        }
+        show = show_result.info(**params)
 
         return SearchTorrentsCombined([
             # search the show name
@@ -274,7 +283,10 @@ class WatchTVSeasonProcessor(WatchTVProcessorBase):
 
     def _get_tmdb_media(self):
         show_result = self.tmdb_client.TV(self.watch_media.watch_tv_show.tmdb_show_id)
-        show = show_result.info()
+        params = {
+            'language': self.nefarious_settings.language,
+        }
+        show = show_result.info(**params)
         return show
 
     def _get_search_results(self):
