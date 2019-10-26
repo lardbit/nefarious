@@ -1,7 +1,6 @@
 import os
 import logging
 from django.conf import settings
-from django.core.cache import cache
 from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -163,14 +162,6 @@ class SettingsViewSet(viewsets.ModelViewSet):
     def configured_indexers(self, request):
         nefarious_settings = NefariousSettings.get()
         return Response(fetch_jackett_indexers(nefarious_settings))
-
-    def perform_update(self, serializer):
-        nefarious_settings = NefariousSettings.get()
-        if serializer.validated_data['language'] != nefarious_settings.language:
-            logging.info('language was updated. clearing cache')
-            # clear cache
-            cache.clear()
-        super().perform_update(serializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):

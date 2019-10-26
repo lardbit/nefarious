@@ -16,7 +16,6 @@ export class ApiService {
   API_URL_USERS = '/api/users/';
   API_URL_LOGIN = '/api/auth/';
   API_URL_SETTINGS = '/api/settings/';
-  API_URL_JACKETT_INDEXERS_CONFIGURED = '/api/settings/configured-indexers/';
   API_URL_SEARCH_TORRENTS = '/api/search/torrents/';
   API_URL_DOWNLOAD_TORRENTS = '/api/download/torrents/';
   API_URL_SEARCH_MEDIA = '/api/search/media/';
@@ -224,15 +223,6 @@ export class ApiService {
     );
   }
 
-  public createSettings(params: any) {
-    return this.http.post(this.API_URL_SETTINGS, params, {headers: this._requestHeaders()}).pipe(
-      map((data: any) => {
-        this.settings = data;
-        return this.settings;
-      }),
-    );
-  }
-
   public updateSettings(id: number, params: any) {
     return this.http.patch(`${this.API_URL_SETTINGS}${id}/`, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
@@ -285,10 +275,12 @@ export class ApiService {
   }
 
   public searchMedia(query: string, mediaType: string) {
-    const httpParams = new HttpParams({fromObject: {
-        q: query,
-        media_type: mediaType,
-      }});
+    let params = {
+      q: query,
+      media_type: mediaType,
+    };
+    params = _.assign(params, this._defaultParams());
+    const httpParams = new HttpParams({fromObject: params});
     return this.http.get(this.API_URL_SEARCH_MEDIA, {headers: this._requestHeaders(), params: httpParams}).pipe(
       map((data: any) => {
         return data;
@@ -297,11 +289,14 @@ export class ApiService {
   }
 
   public searchSimilarMedia(tmdbMediaId: string, mediaType: string) {
-    const httpParams = new HttpParams({fromObject: {
-        tmdb_media_id: tmdbMediaId,
-        media_type: mediaType,
-      }});
-    return this.http.get(this.API_URL_SEARCH_SIMILAR_MEDIA, {headers: this._requestHeaders(), params: httpParams}).pipe(
+    let params = {
+      tmdb_media_id: tmdbMediaId,
+      media_type: mediaType,
+    };
+    params = _.assign(params, this._defaultParams());
+    const httpParams = new HttpParams({fromObject: params});
+    const options = {headers: this._requestHeaders(), params: httpParams};
+    return this.http.get(this.API_URL_SEARCH_SIMILAR_MEDIA, options).pipe(
       map((data: any) => {
         return data;
       }),
@@ -309,11 +304,14 @@ export class ApiService {
   }
 
   public searchRecommendedMedia(tmdbMediaId: string, mediaType: string) {
-    const httpParams = new HttpParams({fromObject: {
+    let params = {
         tmdb_media_id: tmdbMediaId,
         media_type: mediaType,
-      }});
-    return this.http.get(this.API_URL_SEARCH_RECOMMENDED_MEDIA, {headers: this._requestHeaders(), params: httpParams}).pipe(
+      };
+    params = _.assign(params, this._defaultParams());
+    const httpParams = new HttpParams({fromObject: params});
+    const options = {headers: this._requestHeaders(), params: httpParams};
+    return this.http.get(this.API_URL_SEARCH_RECOMMENDED_MEDIA, options).pipe(
       map((data: any) => {
         return data;
       }),
@@ -321,7 +319,8 @@ export class ApiService {
   }
 
   public searchMediaDetail(mediaType: string, id: string) {
-    return this.http.get(`${this.API_URL_SEARCH_MEDIA}${mediaType}/${id}/`, {headers: this._requestHeaders()}).pipe(
+    const options = {headers: this._requestHeaders(), params: this._defaultParams()};
+    return this.http.get(`${this.API_URL_SEARCH_MEDIA}${mediaType}/${id}/`, options).pipe(
       map((data: any) => {
         return data;
       }),
@@ -329,7 +328,8 @@ export class ApiService {
   }
 
   public fetchMediaVideos(mediaType: string, id: string) {
-    return this.http.get(`${this.API_URL_SEARCH_MEDIA}${mediaType}/${id}/videos/`, {headers: this._requestHeaders()}).pipe(
+    const options = {headers: this._requestHeaders()};
+    return this.http.get(`${this.API_URL_SEARCH_MEDIA}${mediaType}/${id}/videos/`, options).pipe(
       map((data: any) => {
         return data;
       }),
@@ -369,18 +369,6 @@ export class ApiService {
     );
   }
 
-  public fetchWatchMovie(id: number) {
-    return this.http.get(`${this.API_URL_WATCH_MOVIE}${id}/`, {headers: this._requestHeaders()}).pipe(
-      map((data: any) => {
-        this.watchMovies.forEach((watchMovie) => {
-          if (data.id === watchMovie.id) {
-            _.assign(watchMovie, data);
-          }
-        });
-      })
-    );
-  }
-
   public fetchWatchMovies(params?: any) {
     params = params || {};
     const httpParams = new HttpParams({fromObject: params});
@@ -390,30 +378,6 @@ export class ApiService {
         this.watchMovies = data;
         return this.watchMovies;
       }),
-    );
-  }
-
-  public fetchWatchTVEpisode(id: number) {
-    return this.http.get(`${this.API_URL_WATCH_TV_EPISODE}${id}/`, {headers: this._requestHeaders()}).pipe(
-      map((data: any) => {
-        this.watchTVEpisodes.forEach((watchTVEpisode) => {
-          if (data.id === watchTVEpisode.id) {
-            _.assign(watchTVEpisode, data);
-          }
-        });
-      })
-    );
-  }
-
-  public fetchWatchTVSeason(id: number) {
-    return this.http.get(`${this.API_URL_WATCH_TV_SEASON}${id}/`, {headers: this._requestHeaders()}).pipe(
-      map((data: any) => {
-        this.watchTVSeasons.forEach((watchTVSeason) => {
-          if (data.id === watchTVSeason.id) {
-            _.assign(watchTVSeason, data);
-          }
-        });
-      })
     );
   }
 
@@ -644,27 +608,28 @@ export class ApiService {
     return this._fetchGenres(this.SEARCH_MEDIA_TYPE_TV);
   }
 
-  public fetchJackettIndexers() {
-    return this.http.get(this.API_URL_JACKETT_INDEXERS_CONFIGURED, {headers: this._requestHeaders()}).pipe(
-      map((data: any) => {
-        return data;
-      }),
-    );
-  }
-
   public verifyJackettIndexers() {
     return this.http.get(`${this.API_URL_SETTINGS}${this.settings.id}/verify-jackett-indexers/`, {headers: this._requestHeaders()});
   }
 
   protected _fetchGenres(mediaType: string) {
     const url = mediaType === this.SEARCH_MEDIA_TYPE_MOVIE ? this.API_URL_GENRES_MOVIE : this.API_URL_GENRES_TV;
-    return this.http.get(url, {headers: this._requestHeaders()});
+    const params = this._defaultParams();
+    return this.http.get(url, {headers: this._requestHeaders(), params: params});
   }
 
   protected _discoverMedia(mediaType: string, params: any) {
+    params = _.assign(params, this._defaultParams());
     const httpParams = new HttpParams({fromObject: params});
     const url = mediaType === this.SEARCH_MEDIA_TYPE_MOVIE ? this.API_URL_DISCOVER_MOVIES : this.API_URL_DISCOVER_TV;
     return this.http.get(url, {params: httpParams, headers: this._requestHeaders()});
+  }
+
+  protected _defaultParams() {
+    // include "language" to effectively cache-bust when they change their language setting
+    return {
+      'language': this.settings.language,
+    };
   }
 
   protected _requestHeaders() {
