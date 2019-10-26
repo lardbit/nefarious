@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-gdbm \
     gnupg \
     curl \
+    git \
     && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
     && apt-get install nodejs -y \
     && npm --prefix frontend install \
@@ -35,6 +36,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3-dev \
         curl \
         gnupg \
+        git \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
     && true

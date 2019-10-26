@@ -5,8 +5,8 @@
   <div class="d-flex justify-content-center my-1">
     <form (ngSubmit)="search()">
       <div class="d-flex">
-        <input class="form-control form-control-lg" [(ngModel)]="searchInput" name="searchInput" required minlength="2" type="text" placeholder="Search..." autocomplete="off">
-        <button class="btn btn-primary position-relative" [disabled]="!searchInput" [ngClass]="{'disabled': !searchInput}">
+        <input class="form-control form-control-sm" [(ngModel)]="searchInput" name="searchInput" required minlength="2" type="text" placeholder="Search..." autocomplete="off">
+        <button class="btn btn-primary position-relative ml-2" [disabled]="!searchInput" [ngClass]="{'disabled': !searchInput}">
           <span class="oi oi-magnifying-glass"></span> Search
         </button>
       </div>
@@ -17,7 +17,7 @@
     <div class="alert alert-warning">Manually downloading any torrent will be assigned to <span class="text-dark">{{getTmdbTitle()}}</span></div>
   </div>
 
-  <div class="d-flex m-3 justify-content-end">
+  <div class="d-flex justify-content-end">
     <form class="form-inline" *ngIf="results.length">
       <div class="form-group">
         <label class="m-2">Sort</label>

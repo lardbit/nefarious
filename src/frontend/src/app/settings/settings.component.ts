@@ -37,6 +37,7 @@ export class SettingsComponent implements OnInit {
       'quality_profile_movies': [settings['quality_profile_movies'], Validators.required],
       'allow_hardcoded_subs': [settings['allow_hardcoded_subs'], Validators.required],
       'exclusions': [settings['keyword_search_filters'] ? _.keys(settings['keyword_search_filters']) : []],
+      'language': [settings['language'], Validators.required],
       'users': new FormArray([]),
     });
 
@@ -189,5 +190,9 @@ export class SettingsComponent implements OnInit {
   public canDeleteUser(index: number) {
     const userControl = this.form.get('users').controls[index];
     return userControl.get('id') && this.apiService.user.id !== userControl.get('id').value;
+  }
+
+  public getLanguages() {
+    return this.apiService.settings.tmdb_languages;
   }
 }

@@ -2,7 +2,8 @@ Django==2.1.5
 djangorestframework==3.8.2
 requests==2.21.0
 transmissionrpc==0.11
-tmdbsimple==2.2.0
+# forked version including languages
+git+https://github.com/lardbit/tmdbsimple.git
 jsonfield2==3.0.1
 gunicorn==19.9.0
 regex==2018.8.29

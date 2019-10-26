@@ -185,17 +185,21 @@ class MediaDetailView(views.APIView):
         nefarious_settings = NefariousSettings.get()
         tmdb = get_tmdb_client(nefarious_settings)
 
+        params = {
+            'language': nefarious_settings.language,
+        }
+
         if media_type == MEDIA_TYPE_MOVIE:
             movie = tmdb.Movies(media_id)
-            response = movie.info()
+            response = movie.info(**params)
         else:
             tv = tmdb.TV(media_id)
-            response = tv.info()
+            response = tv.info(**params)
             # omit season "0" -- special episodes
             response['seasons'] = [season for season in response['seasons'] if season['season_number'] > 0]
             for season in response['seasons']:
                 seasons_request = tmdb.TV_Seasons(response['id'], season['season_number'])
-                seasons = seasons_request.info()
+                seasons = seasons_request.info(**params)
                 season['episodes'] = seasons['episodes']
 
         return Response(response)
@@ -216,6 +220,7 @@ class SearchMediaView(views.APIView):
 
         params = {
             'query': query,
+            'language': nefarious_settings.language,
         }
 
         # search for media
@@ -241,15 +246,19 @@ class SearchSimilarMediaView(views.APIView):
 
         nefarious_settings = NefariousSettings.get()
 
+        params = {
+            'language': nefarious_settings.language,
+        }
+
         # prepare query
         tmdb = get_tmdb_client(nefarious_settings)
         tmdb_media_id = request.query_params.get('tmdb_media_id')
 
         # search for media
         if media_type == MEDIA_TYPE_MOVIE:
-            similar_results = tmdb.Movies(id=tmdb_media_id).similar_movies()
+            similar_results = tmdb.Movies(id=tmdb_media_id).similar_movies(**params)
         else:
-            similar_results = tmdb.TV(id=tmdb_media_id).similar()
+            similar_results = tmdb.TV(id=tmdb_media_id).similar(**params)
 
         return Response(similar_results)
 
@@ -266,15 +275,19 @@ class SearchRecommendedMediaView(views.APIView):
 
         nefarious_settings = NefariousSettings.get()
 
+        params = {
+            'language': nefarious_settings.language,
+        }
+
         # prepare query
         tmdb = get_tmdb_client(nefarious_settings)
         tmdb_media_id = request.query_params.get('tmdb_media_id')
 
         # search for media
         if media_type == MEDIA_TYPE_MOVIE:
-            similar_results = tmdb.Movies(id=tmdb_media_id).recommendations()
+            similar_results = tmdb.Movies(id=tmdb_media_id).recommendations(**params)
         else:
-            similar_results = tmdb.TV(id=tmdb_media_id).recommendations()
+            similar_results = tmdb.TV(id=tmdb_media_id).recommendations(**params)
 
         return Response(similar_results)
 
@@ -474,7 +487,9 @@ class DiscoverMediaView(views.APIView):
 
         # prepare query
         tmdb = get_tmdb_client(nefarious_settings)
-        args = request.query_params
+        args = request.query_params.copy()
+        args['language'] = nefarious_settings.language
+
         discover = tmdb.Discover()
 
         if media_type == MEDIA_TYPE_MOVIE:
@@ -495,7 +510,9 @@ class GenresView(views.APIView):
 
         # prepare query
         tmdb = get_tmdb_client(nefarious_settings)
-        args = request.query_params
+        args = request.query_params.copy()
+        args['language'] = nefarious_settings.language
+
         genres = tmdb.Genres()
 
         if media_type == MEDIA_TYPE_MOVIE:

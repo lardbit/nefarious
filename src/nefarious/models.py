@@ -12,6 +12,8 @@ PERM_CAN_WATCH_IMMEDIATELY_MOVIE = 'can_immediately_watch_movie'
 class NefariousSettings(models.Model):
     JACKETT_TOKEN_DEFAULT = 'COPY_YOUR_JACKETT_TOKEN_HERE'
 
+    language = models.CharField(max_length=2, default='en')  # chosen language
+
     jackett_host = models.CharField(max_length=500, default='jackett')
     jackett_port = models.IntegerField(default=9117)
     jackett_token = models.CharField(max_length=500, default=JACKETT_TOKEN_DEFAULT)
@@ -25,6 +27,7 @@ class NefariousSettings(models.Model):
 
     tmdb_token = models.CharField(max_length=500, default=settings.TMDB_API_TOKEN)
     tmdb_configuration = JSONField(blank=True, null=True)
+    tmdb_languages = JSONField(blank=True, null=True)  # type: list
 
     quality_profile_tv = models.CharField(max_length=500, default=quality.PROFILE_ANY.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     quality_profile_movies = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))

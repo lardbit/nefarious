@@ -6,20 +6,22 @@ jobs:
   include:
     - stage: build default image and run unit tests
       script:
-      # store commit in image for version identification
-      - echo "$TRAVIS_COMMIT" > src/.commit
-      # derive the docker image tag name from the git branch name
-      - if [[ $TRAVIS_BRANCH == 'master' ]]; then tag='latest'; else tag="$TRAVIS_BRANCH"; fi
-      # build image
-      - docker build -t lardbit/nefarious:$tag .
-      # run unit tests
-      - docker run --entrypoint /env/bin/python lardbit/nefarious:$tag manage.py test
-      # authenticate with docker
-      - echo "$DOCKER_PASSWORD" | docker login -u "lardbit" --password-stdin
-      # push image to docker hub
-      - docker push lardbit/nefarious:$tag
+        - set -e
+        # store commit in image for version identification
+        - echo "$TRAVIS_COMMIT" > src/.commit
+        # derive the docker image tag name from the git branch name
+        - if [[ $TRAVIS_BRANCH == 'master' ]]; then tag='latest'; else tag="$TRAVIS_BRANCH"; fi
+        # build image
+        - docker build -t lardbit/nefarious:$tag .
+        # run unit tests
+        - docker run --entrypoint /env/bin/python lardbit/nefarious:$tag manage.py test
+        # authenticate with docker
+        - echo "$DOCKER_PASSWORD" | docker login -u "lardbit" --password-stdin
+        # push image to docker hub
+        - docker push lardbit/nefarious:$tag
     - stage: build ARM image
       script:
+        - set -e
         # store commit in image for version identification
         - echo "$TRAVIS_COMMIT" > src/.commit
         # derive the docker ARM image tag name from the git branch name

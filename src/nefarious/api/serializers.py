@@ -20,6 +20,7 @@ class UserReferenceSerializerMixin(serializers.ModelSerializer):
 class NefariousSettingsSerializer(serializers.ModelSerializer):
     tmdb_configuration = serializers.JSONField(required=False)
     keyword_search_filters = serializers.JSONField(required=False)
+    tmdb_languages = serializers.JSONField(required=False)
     jackett_default_token = serializers.ReadOnlyField(default=NefariousSettings.JACKETT_TOKEN_DEFAULT)
 
     class Meta:
