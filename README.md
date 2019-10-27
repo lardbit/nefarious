@@ -9,6 +9,8 @@ It aims to combine features of [Sonarr](https://github.com/Sonarr/Sonarr/), [Rad
 
 It uses [Jackett](https://github.com/Jackett/Jackett/) and [Transmission](https://transmissionbt.com/) under the hood.  Jackett searches for torrents and Transmission does the downloading.
 
+![](screenshots/nefarious-demo.gif)
+
 Features:
 - [x] Search TV & Movies
 - [x] Auto download TV (individual episodes or full season)
@@ -42,7 +44,7 @@ Features:
 ### Screenshots
 
 #### Login
-![](https://github.com/lardbit/nefarious/blob/master/screenshots/login.png?raw=true)
+![](screenshots/login.png)
 #### Search
 ![](https://github.com/lardbit/nefarious/blob/master/screenshots/search-results.png?raw=true)
 #### TV Result
