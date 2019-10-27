@@ -9,8 +9,6 @@ It aims to combine features of [Sonarr](https://github.com/Sonarr/Sonarr/), [Rad
 
 It uses [Jackett](https://github.com/Jackett/Jackett/) and [Transmission](https://transmissionbt.com/) under the hood.  Jackett searches for torrents and Transmission does the downloading.
 
-![](screenshots/nefarious-demo.gif)
-
 Features:
 - [x] Search TV & Movies
 - [x] Auto download TV (individual episodes or full season)
@@ -37,36 +35,41 @@ Features:
 
 - [Installing](#installing)
 - [Running](#running)
+- [Demo](#demo)
 - [Screenshots](#screenshots)
 - [Troubleshooting](#troubleshooting)
 - [Development](#development)
+
+### Demo
+
+![](screenshots/nefarious-demo.gif)
 
 ### Screenshots
 
 #### Login
 ![](screenshots/login.png)
 #### Search
-![](https://github.com/lardbit/nefarious/blob/master/screenshots/search-results.png?raw=true)
+![](screenshots/search-results.png)
 #### TV Result
-![](https://github.com/lardbit/nefarious/blob/master/screenshots/media-tv-result.png?raw=true)
+![](screenshots/media-tv-result.png)
 #### Movie Result
-![](https://github.com/lardbit/nefarious/blob/master/screenshots/media-movie-result.png?raw=true)
+![](screenshots/media-movie-result.png)
 #### Movie Custom Quality Profile
-![](https://github.com/lardbit/nefarious/blob/master/screenshots/media-movie-custom-quality-profile.png?raw=true)
+![](screenshots/media-movie-custom-quality-profile.png)
 #### Download Status
-![](https://github.com/lardbit/nefarious/blob/master/screenshots/media-status.png?raw=true)
+![](screenshots/media-status.png)
 #### Discover
-![](https://github.com/lardbit/nefarious/blob/master/screenshots/discover.png?raw=true)
+![](screenshots/discover.png)
 #### Wanted
-![](https://github.com/lardbit/nefarious/blob/master/screenshots/wanted.png?raw=true)
+![](screenshots/wanted.png)
 #### Watching
-![](https://github.com/lardbit/nefarious/blob/master/screenshots/watching.png?raw=true)
+![](screenshots/watching.png)
 #### Settings
-![](https://github.com/lardbit/nefarious/blob/master/screenshots/settings.png?raw=true)
+![](screenshots/settings.png)
 #### Search Manual
-![](https://github.com/lardbit/nefarious/blob/master/screenshots/search-manual.png?raw=true)
+![](screenshots/search-manual.png)
 #### Mobile Friendly
-![](https://github.com/lardbit/nefarious/blob/master/screenshots/search-mobile.png?raw=true)
+![](screenshots/search-mobile.png)
 
 
 ### Installing
