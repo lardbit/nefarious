@@ -28,6 +28,7 @@ Features:
 - [x] Responsive Design (looks great on desktops, tablets and small devices like phones)
 - [x] Movie trailers
 - [x] Automatically renames media
+- [x] Supports multiple languages (TMDB supports internationalized Titles, Descriptions and Poster artwork)
 - [ ] Support user requests (i.e an unprivileged user must "request" to watch something)
 
 ### Contents
