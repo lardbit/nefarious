@@ -2,8 +2,14 @@
   <ngx-loading [show]="isSaving"></ngx-loading>
   <form class="was-validated" [formGroup]="form" (ngSubmit)="submit()">
     <div class="d-flex justify-content-end my-3">
-      <button class="btn btn-success mx-1" [ngClass]="{'btn-success': form.valid, 'btn-danger': !form.valid}">Save</button>
-      <button type="button" class="btn btn-sm btn-info mx-1" (click)="verifySettings()">Verify Settings</button>
+      <button type="button" class="btn btn-sm btn-info mx-1" (click)="verifySettings()">
+        Verify Settings
+        <span class="oi oi-pulse"></span>
+      </button>
+      <button class="btn btn-success mx-1" [ngClass]="{'btn-success': form.valid, 'btn-danger': !form.valid}">
+        Save
+        <span class="oi oi-check"></span>
+      </button>
     </div>
     <div class="row" *ngIf="form">
       <div class="col-12 col-sm-6 col-md-4">
