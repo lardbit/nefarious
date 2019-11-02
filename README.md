@@ -127,13 +127,13 @@ You'll need to ensure that your PC is running a version of Windows 10 64-bit Pro
    
 If you get an error 'groupadd: group 'docker' already exists', proceed
 
-    sudo usermod -aG docker $YOURUSERHERE$ 
+    sudo usermod -aG docker $USER
 
 The two above commands allow for Docker commands to be executed without needing to call for sudo each time you run any Docker command.  Logout, then login again.
 
-    docker run --rm -it --init alpine echo "success"   
+    docker run --rm -it --init alpine echo "success"
     
-This ensures Tini, a zombie docker process killer, is activated
+Ensures that Docker is able to pull down container images, and will respond with "success" if it does so.
 
     docker-compose --version
 
