@@ -35,8 +35,8 @@ Features:
 
 - [Demo](#demo)
 - [Screenshots](#screenshots)
-- [Dependencies](#Dependencies)
-- [OS Agnostic Setup Guide](#OS Agnostic Setup Guide)
+- [Dependencies](#dependencies)
+- [Setup](#setup)
 - [Troubleshooting](#troubleshooting)
 - [Development](#development)
 
@@ -76,111 +76,139 @@ Features:
 
 nefarious is best run via [Docker](https://hub.docker.com/search/?type=edition&offering=community) through [Docker Compose](https://docs.docker.com/compose/install/).
 
-Install that and you're all set.  Check to see if your OS has Docker and Docker Compose repositories first before downloading from above.
+Install those two programs and you're all set. If your OS isn't listed in the Docker downloads, see the OS specific instructions below.
 
-### Arch based OSes can just install docker and docker-compose from Software Center/repositories
+#### OS specific dependencies
 
-### Solus OS users can also simply install docker and docker-compose from Software Center
+Follow some guidelines for installing Docker and Docker Compose for various OS's.
 
-### Ubuntu/Debian x86-based OS Dependencies
+##### Arch
+
+You should be able to install docker and docker-compose from the default Software Center/repositories.
+
+##### Solus OS
+
+You should be able to install docker and docker-compose from the default Software Center/repositories.
+
+##### Ubuntu/Debian
 
 Ensure that git and curl are already installed, then run the following commands:
 
-    sudo apt install docker.io
-    sudo curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-compose-`uname -s`-`uname -m` -o         /usr/local/bin/docker-compose
+    sudo apt-get update
+    sudo apt-get install -y docker.io
+    # this commands refers to the current latest docker compose version of 1.18.0.  See latest versions at https://github.com/docker/compose/releases
+    sudo curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
 
-You can update docker before or after the rest of the setup if you wish.
-
-**NOTE:** For those running ARM-based Debian OSes
-
-The commands from above should be identical, and the majority of commands below should match.  When you download nefarious from Github, you will run the 'docker-compose.arm.yml' file instead of the 'docker-compose.yml' file.  Like so: 
-    
-    docker-compose -f docker-compose.arm.yml up -d
-
-### Fedora Dependencies
+##### Fedora
 
 Install the Docker repository and update metadata cache
 
     sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
     sudo dnf makecache
 
-install docker and docker-compose from repository
+Install docker and docker-compose from repository
 
     sudo dnf install docker-ce
     sudo dnf -y install docker-compose
 
-At the moment Docker-Compose doesn't fully work without modification on Fedora 31.  30,29,28, and so on should work however.  If you're running Fedora 31, use the following Reddit Thread and most recent post at your own discretion. 
+At the moment Docker-Compose doesn't fully work without modification on Fedora 31.  30,29,28, and so on should work however.  If you're running Fedora 31, use the following Reddit thread and most recent post at your own discretion. 
 https://www.reddit.com/r/Fedora/comments/d8ukd0/has_anyone_managed_to_run_docker_ce_on_fedora_31/
 
-### Windows OS Dependencies
+##### Windows
 
-You'll need to ensure that your PC is running a version of Windows 10 64-bit Professional, Education, or Enterprise.  Docker for Windows requires Hyper-V techonology, which is not supported by Windows 10 Home.  You'll also need to ensure that your PC has Virtualization enabled in BIOS before attempting to install Docker for Windows.  While Nefarious is not by any means a Linux exclusive application, it is much easier to setup on either a Linux based OS, or on a Linux Virtual Machine through your preferred VM software on any actively updated version of Windows. Consult appropriate documentation relating to said software if you wish to setup folder shares between your Linux VM and your Windows install.  Docker Toolbox is also an option, as it runs docker commands on non-Hyper-V supported OSes by running them through an integrated Linux VM.  If you'd prefer to avoid using something like Virtualbox, VMWare, or other separate Virtualization software, this would would probably work best for you.  That being said, we'd recommend this only be done by experienced users of Docker software.
+You'll need to ensure that your PC is running a version of Windows 10 64-bit Professional, Education, or Enterprise.
+Docker for Windows requires Hyper-V technology, which is not supported by Windows 10 Home.
+You'll also need to ensure that your PC has Virtualization enabled in BIOS before attempting to install Docker for Windows.
+While nefarious is not by any means a Linux exclusive application, it is much easier to setup on either a Linux based OS, or on a Linux Virtual Machine through your preferred VM software on any actively updated version of Windows.
+Consult appropriate documentation relating to said software if you wish to setup folder shares between your Linux VM and your Windows install.  Docker Toolbox is also an option, as it runs docker commands on non-Hyper-V supported OSes by running them through an integrated Linux VM.
+If you'd prefer to avoid using something like Virtualbox, VMWare, or other separate Virtualization software, this would would probably work best for you.
+That being said, we'd recommend this only be done by experienced users of Docker software.
 
-### OS Agnostic Setup Guide
+### Setup
 
-### Part 1 - Setup performed from terminal
+#### Part 1 - Setup performed from terminal
 
+Run the following commands:
+    
     sudo systemctl start docker.service
     sudo systemctl enable docker.service
-    sudo groupadd docker
-   
-If you get an error 'groupadd: group 'docker' already exists', proceed
-
+    sudo groupadd -f docker
     sudo usermod -aG docker $USER
+    newgrp docker
 
-The two above commands allow for Docker commands to be executed without needing to call for sudo each time you run any Docker command.  Logout, then login again.
+This will:
+
+- verify docker is initialized
+- add current user to the docker group
+- update the current shell session to use new login group
+
+You'll now be able to run Docker commands without needing to call `sudo` each time.
+
+Ensure that Docker is setup correctly.  Run the following command which should respond with "success":
 
     docker run --rm -it --init alpine echo "success"
     
-Ensures that Docker is able to pull down container images, and will respond with "success" if it does so.
+Ensure that docker-compose is setup correctly.  This shows the version of docker-compose currently installed on the system:
 
     docker-compose --version
-
-This shows the version of docker-compose currently installed on the system
+    
+Clone the nefarious repository and start all the Docker containers:
 
     git clone https://github.com/lardbit/nefarious.git
     cd nefarious
-    docker-compose up -d redis jackett transmission   
-
-Above commands construct the Docker containers for Jackett, Transmission Web GUI, and Redis
-
     docker-compose up -d
 
-Run the above inside of your nefarious folder to locally update your containers.  Your default local addresses for the various services will be:
+Your default local addresses for the various services will be:
 
-Nefarious local address     http://localhost:8000
+- nefarious: [http://localhost:8000](http://localhost:8000)
+- Jackett: [http://localhost:9117](http://localhost:9117)
+- Transmission: [http://localhost:9091](http://localhost:9091)
 
-Jackett local address       http://localhost:9117
+**NOTE:** See *Part 2* for finalizing the configuration.
 
-Transmission local address  http://localhost:9091
+##### ARM devices
+
+For those running ARM devices like the raspberry pi, odroid, pine etc: 
+
+You will need to reference the `docker-compose.arm.yml` file when running docker commands instead of the `docker-compose.yml` file.
+
+For example, run the following to bring up all the services on ARM devices: 
+    
+    docker-compose -f docker-compose.arm.yml up -d
 
 ### Part 2 - Setup performed from GUI or text editor
 
+The default nefarious user/password is `admin`/`admin`.  On first login you will be directed to the main nefarious settings and asked to configure your Jackett API token.
+Jackett's host in the main settings should remain `jackett` and the port should remain `9117`.  Copy your API Token from [Jackett](http://localhost:9117) into the appropriate nefarious section.
+Don't forget to also add some indexers in Jackett to track your preferred content, and be sure to test them to see that they're working.  Some popular examples are *The Pirate Bay*, *1337x*, *RARBG*.
 
-The default Nefarious user/password is admin/admin.  On first login you will be asked to configure your Jackett and Transmission settings.  Jackett's name in settings should remain 'jackett' and the port should remain 9117.  Copy your API Token from Jackett into the appropriate Nefarious section.  Don't forget to also add some indexers to track your preferred content, and be sure to test them to see that they're working!  
+Transmission's host should remain `transmission` and port should remain `9091`.  It's possible to configure it with a username and password, but defaults to keeping them both blank.
+Entering both username and password in the nefarious settings should only be done if the Transmission settings of 'transmission-settings.json' were also configured for your desired user/pass.
+The Download Subdirectories can also be configured here as well.  Bear in mind these are subdirectories, and that we will be configuring the parent download directory shortly.
+Leaving these as they are will be perfectly fine.  
 
-Transmission's port should remain 9091.  It also can be configured with a username and password, but feel free to leave both blank.  Entering both username and password in the UI should only be done if the Transmission settings of 'transmission-settings.json' were also configured for your desired user/pass.  The Download Subdirectories can also be configured here as well.  Bear in mind these are subdirectories, and that we will be configuring the parent download directory shortly.  Leaving these as they are will be perfectly fine.  
+Global Language, Keyword Exclusions, Subtitles, and Picture Quality can also be configured here.
+TV and Movie quality profiles can be changed independently of each other if you wish to have differing profiles.
+Finally, user accounts and passwords can be added or modified as well.  Feel free to change the defaults now if you so desire, or add additional users on your PC/system.
+Once all of your Settings are to your preference, first click `Save` then be sure to `Verify Settings`.
 
-Global Language, Keyword Exclusions, Subtitles, and Picture Quality can also be configured here.  TV and Movie quality can be changed independently of each other if you wish to have differing profiles.  Finally, user accounts and passwords can be added or modified as well.  Feel free to change the defaults now if you so desire, or add additional users on your PC/system.  Once all of your Settings are to your preference, first click 'Save,' then be sure to Verify Settings.
+#### Transmission Configuration
 
+In order to change the download folder (which is set to `/tmp/transmission` by default) look for the `docker-compose.yml` file in your nefarious folder and edit 
 
-### Transmission Configuration
+    /tmp/transmission:/downloads
 
+to be like
 
-In order to change the download folder (which is set to /tmp/transmission by default) look for the "docker-compose.yml" file in your nefarious folder and edit 
-
-    /tmp/transmission:/downloads   
-
-to be like    
-
-    /Your/Desired/Folder:/downloads  
+    /Your/Desired/Folder:/downloads
   
-Leave the right side alone, only change the left side.  The structure of the folder path is the same for both Linux and Windows.  Once you've made your changes, save your docker-compose.yml file, open a terminal to your Nefarious folder and type 
+Leave the right side alone and only change the left side.  The structure of the folder path is the same for both Linux and Windows.
+Once you've made your changes, save your `docker-compose.yml` file, open a terminal to your nefarious folder and type 
 
     docker-compose up -d
 
-to update and apply your newly created changes.  
+to update and apply your updates.
 
 There is no default transmission user/pass, but feel free to edit the `transmission-settings.json` beforehand following the [official settings](https://github.com/transmission/transmission/wiki/Editing-Configuration-Files) to make any changes you'd like.
 
@@ -188,8 +216,7 @@ There is no default transmission user/pass, but feel free to edit the `transmiss
 
     docker-compose up -d --force-recreate transmission
 
-
-## Troubleshooting
+### Troubleshooting
    
     # logs for main app
     docker-compose logs -f nefarious
@@ -200,12 +227,12 @@ There is no default transmission user/pass, but feel free to edit the `transmiss
     # list all services (they should all be "up")
     docker-compose ps
 
-    # use hammer and restart everything (you won't lose your settings, though)
+    # use a hammer and restart everything (you won't lose your settings, though)
     docker-compose down
     docker-compose up -d
 
 
-## Development
+### Development
 
 If you're interested in contributing or simply want to run nefarious without *docker* then follow these instructions.
 
