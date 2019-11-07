@@ -1,0 +1,31 @@
+FROM alpine:3.10
+
+EXPOSE 80
+
+# add the main app
+ADD src /app
+
+# add the docker entrypoint
+ADD docker-entrypoint.sh /app
+
+WORKDIR /app
+
+# install app dependencies, build app and remove dev dependencies
+RUN apk --no-cache add \
+    python3 \
+    && apk --no-cache add --virtual=builddeps \
+        build-base \
+        npm \
+        py3-virtualenv \
+        python3-dev \
+    && npm --prefix frontend install \
+    && mkdir -p staticassets \
+    && npm --prefix frontend run build-prod \
+    && python3 -m venv /env \
+    && /env/bin/pip install --no-cache-dir -r requirements.txt \
+    && /env/bin/python manage.py collectstatic --no-input \
+    && rm -rf frontend/node_modules \
+    && apk del builddeps \
+    && true
+
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
