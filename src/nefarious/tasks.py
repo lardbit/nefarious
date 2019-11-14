@@ -165,11 +165,16 @@ def completed_media_task():
                 dir_name = (
                     nefarious_settings.transmission_movie_download_dir if isinstance(media, WatchMovie)
                     else nefarious_settings.transmission_tv_download_dir
-                )
+                ).lstrip('/')
+
+                # define parent directory if it's just a single file
+                if len(torrent.files()) == 1:
+                    dir_name = os.path.join(dir_name, str(media))
+
                 transmission_session = transmission_client.session_stats()
                 move_to_path = os.path.join(
                     transmission_session.download_dir,
-                    dir_name.lstrip('/'),
+                    dir_name,
                 )
                 logging.info('Moving torrent data to "{}"'.format(move_to_path))
                 torrent.move_data(move_to_path)
