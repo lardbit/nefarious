@@ -230,7 +230,10 @@ def wanted_tv_season_task():
 
         # otherwise add any new episodes to our watch list
         for episode in season['episodes']:
-            episode_air_date = parse_date(episode['air_date'])
+            if not episode['air_date']:
+                episode_air_date = last_air_date
+            else:
+                episode_air_date = parse_date(episode['air_date'])
             last_air_date = episode_air_date if episode_air_date > last_air_date else last_air_date
             watch_tv_episode, was_created = WatchTVEpisode.objects.get_or_create(
                 tmdb_episode_id=episode['id'],
