@@ -226,15 +226,15 @@ def wanted_tv_season_task():
         season = season_request.info()
 
         now = datetime.utcnow()
-        last_air_date = parse_date(season['air_date'])  # season air date
+        last_air_date = parse_date(season['air_date'] or '')  # season air date
 
         # otherwise add any new episodes to our watch list
         for episode in season['episodes']:
-            if not episode['air_date']:
-                episode_air_date = last_air_date
-            else:
+
+            if episode['air_date'] is not None:
                 episode_air_date = parse_date(episode['air_date'])
-            last_air_date = episode_air_date if episode_air_date > last_air_date else last_air_date
+                last_air_date = episode_air_date if not last_air_date or episode_air_date > last_air_date else last_air_date
+
             watch_tv_episode, was_created = WatchTVEpisode.objects.get_or_create(
                 tmdb_episode_id=episode['id'],
                 defaults=dict(
@@ -253,7 +253,7 @@ def wanted_tv_season_task():
                 tasks.append(watch_tv_episode_task.si(watch_tv_episode.id))
 
         # assume there's no new episodes for anything that's aired this long ago
-        days_since_aired = (now.date() - last_air_date).days
+        days_since_aired = (now.date() - last_air_date).days if last_air_date else 0
         if days_since_aired > 30:
             logging.warning('completing old tv season request {}'.format(tv_season_request))
             tv_season_request.collected = True
