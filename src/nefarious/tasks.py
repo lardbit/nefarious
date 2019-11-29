@@ -236,16 +236,15 @@ def wanted_tv_season_task():
                 last_air_date = episode_air_date if not last_air_date or episode_air_date > last_air_date else last_air_date
 
             watch_tv_episode, was_created = WatchTVEpisode.objects.get_or_create(
-                tmdb_episode_id=episode['id'],
+                watch_tv_show=tv_season_request.watch_tv_show,
+                season_number=tv_season_request.season_number,
+                episode_number=episode['episode_number'],
                 defaults=dict(
                     # add non-unique constraint fields for the default values
-                    watch_tv_show=tv_season_request.watch_tv_show,
-                    season_number=tv_season_request.season_number,
-                    episode_number=episode['episode_number'],
+                    tmdb_episode_id=episode['id'],
                     user=tv_season_request.user,
                 ))
             if was_created:
-                watch_tv_episode.save()
 
                 logging.info('adding newly found episode {} for {}'.format(episode['episode_number'], tv_season_request))
 
