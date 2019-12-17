@@ -10,7 +10,7 @@ from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, Watc
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
-from nefarious.utils import get_renamed_torrent
+from nefarious.utils import get_media_new_name_and_path
 
 app.conf.beat_schedule = {
     'Completed Media Task': {
@@ -156,28 +156,28 @@ def completed_media_task():
                     for episode in WatchTVEpisode.objects.filter(watch_tv_show=media.watch_tv_show, season_number=media.season_number):
                         episode.delete()
 
-                # rename the torrent file/path
-                renamed_torrent_name = get_renamed_torrent(torrent, media)
-                logging.info('Renaming torrent file from "{}" to "{}"'.format(torrent.name, renamed_torrent_name))
-                transmission_client.rename_torrent_path(torrent.id, torrent.name, renamed_torrent_name)
-
-                # move data from staging path to actual complete path
-                dir_name = (
+                # get the complete path (ie. "movies", "tv') so we can move the data from staging
+                stage_path = (
                     nefarious_settings.transmission_movie_download_dir if isinstance(media, WatchMovie)
                     else nefarious_settings.transmission_tv_download_dir
                 ).lstrip('/')
 
-                # define parent directory if it's just a single file
-                if len(torrent.files()) == 1:
-                    dir_name = os.path.join(dir_name, str(media))
+                # get the new name and path for the data
+                new_name, new_path = get_media_new_name_and_path(media, torrent.name)
 
+                # move the data
                 transmission_session = transmission_client.session_stats()
                 move_to_path = os.path.join(
                     transmission_session.download_dir,
-                    dir_name,
+                    stage_path,
+                    new_path,
                 )
                 logging.info('Moving torrent data to "{}"'.format(move_to_path))
                 torrent.move_data(move_to_path)
+
+                # rename the data
+                logging.info('Renaming torrent file from "{}" to "{}"'.format(torrent.name, new_name))
+                transmission_client.rename_torrent_path(torrent.id, torrent.name, new_name)
 
 
 @app.task
