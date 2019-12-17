@@ -163,7 +163,7 @@ def completed_media_task():
                 ).lstrip('/')
 
                 # get the new name and path for the data
-                new_name, new_path = get_media_new_name_and_path(media, torrent.name)
+                new_name, new_path = get_media_new_name_and_path(media, torrent.name, len(torrent.files()) == 1)
 
                 # move the data
                 transmission_session = transmission_client.session_stats()
