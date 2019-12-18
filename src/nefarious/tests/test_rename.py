@@ -4,7 +4,7 @@ from django.test import TestCase
 from nefarious.utils import get_media_new_name_and_path
 
 
-class RenameTorrentPaths(TestCase):
+class RenameTorrentsAndPaths(TestCase):
     tests = []
 
     def setUp(self):
@@ -25,7 +25,7 @@ class RenameTorrentPaths(TestCase):
             (episode, "Rick.and.Morty.S01E14.720p.AMZN.WEBRip.DDP5.1.x264-NTb[rartv].mkv", "S01E14.mkv", "Rick and Morty/Season 01", True),
         ]
 
-    def test_tv(self):
+    def test_rename(self):
         for test_media, test_torrent, test_name, test_path, is_single_file in self.tests:
             name, path = get_media_new_name_and_path(test_media, test_torrent, is_single_file)
             self.assertEquals(test_name, name)
