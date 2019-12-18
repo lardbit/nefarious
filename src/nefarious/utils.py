@@ -1,11 +1,12 @@
 import logging
+import os
 import regex
 import requests
 from typing import List
 import xml.etree.ElementTree as ET
 from urllib.parse import urlparse
 from transmissionrpc import TransmissionError
-from nefarious.models import NefariousSettings, WatchMovie
+from nefarious.models import NefariousSettings, WatchMovie, WatchTVSeason, WatchTVEpisode, WatchMediaBase
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
 
@@ -131,15 +132,62 @@ def results_with_valid_urls(results: list, nefarious_settings: NefariousSettings
     return populated_results
 
 
-def get_renamed_torrent(torrent, watch_media):
-    new_name = str(watch_media)
-    # append year for Movies, i.e "Toy Story 4 (2019)"
-    if isinstance(watch_media, WatchMovie) and watch_media.release_date:
-        new_name += ' ({})'.format(watch_media.release_date.year)
+def get_media_new_name_and_path(watch_media, torrent_name: str, is_single_file=False) -> tuple:
+    """
+    Returns a tuple of the media name and the path to where it should be moved.
+    Movie Single File:
+        Input: "Rambo [scene-stuff].mkv"
+        Output: ("Rambo (1982).mkv", "Rambo (1982)")
+    Movie Folder:
+        Input: "Rambo [scene-stuff]"
+        Output: ("Rambo (1982)", "Rambo (1982)/")
+    TV Single Episode Folder:
+        Input: "Rick and Morty - S03E14 [scene-stuff]"
+        Output: ("S03E14", "Rick and Morty/Season 3/")
+    TV Single Episode File:
+        Input: "Rick and Morty - S03E14 [scene-stuff].mkv"
+        Output ("S03E14.mkv", "Rick and Morty/Season 3/")
+    TV Full Full Season Folder:
+        Input: "Rick and Morty - Season 3 [scene-stuff]"
+        Output: ("Season 3", "Rick and Morty/")
+    """
+
+    # movie
+    if isinstance(watch_media, WatchMovie):
+        name = '{} ({})'.format(watch_media, watch_media.release_date.year)
+        dir_name = name
+
+    # tv
+    else:
+        # full season
+        if isinstance(watch_media, WatchTVSeason):
+            season = watch_media  # type WatchTVSeason
+            name = 'Season {:02d}'.format(season.season_number)
+            dir_name = str(season.watch_tv_show)
+        # single episode
+        elif isinstance(watch_media, WatchTVEpisode):
+            episode = watch_media  # type WatchTVEpisode
+            name = 'S{:02d}E{:02d}'.format(episode.season_number, episode.episode_number)
+            dir_name = os.path.join(str(episode.watch_tv_show), 'Season {:02d}'.format(episode.season_number))
+        else:
+            raise Exception('unknown media')
+
     # maintain extension if torrent is a single file vs a directory
-    if len(torrent.files()) == 1:
-        extension_match = regex.search(r'(\.\w+)$', torrent.name)
+    if is_single_file:
+        extension_match = regex.search(r'(\.\w+)$', torrent_name)
         if extension_match:
             extension = extension_match.group()
-            new_name += extension
-    return new_name
+            name += extension
+
+    return name, dir_name
+
+
+def destroy_transmission_result(instance: WatchMediaBase):
+    # delete transmission result, including data, if it still exists
+    nefarious_settings = NefariousSettings.get()
+    try:
+        transmission_client = get_transmission_client(nefarious_settings)
+        transmission_client.remove_torrent([instance.transmission_torrent_hash], delete_data=True, timeout=10)
+    except Exception as e:
+        logging.warning(str(e))
+        logging.warning('could not destroy torrent in transmission')
