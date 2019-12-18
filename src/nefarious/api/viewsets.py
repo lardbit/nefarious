@@ -27,7 +27,7 @@ from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, wa
 from nefarious.utils import (
     trace_torrent_url, swap_jackett_host, is_magnet_url,
     verify_settings_jackett, verify_settings_transmission, verify_settings_tmdb,
-    fetch_jackett_indexers)
+    fetch_jackett_indexers, destroy_transmission_result)
 
 CACHE_MINUTE = 60
 CACHE_HOUR = CACHE_MINUTE * 60
@@ -103,14 +103,16 @@ class WatchTVSeasonRequestViewSet(UserReferenceViewSetMixin, viewsets.ModelViewS
         return Response(serializer.data)
 
     def perform_destroy(self, watch_tv_season_request: WatchTVSeasonRequest):
-        # destroy all watch tv season & episode instances as well
+        # destroy all watch tv season & episode instances as well, including any related torrents in transmission
         query_args = dict(
             watch_tv_show=watch_tv_season_request.watch_tv_show,
             season_number=watch_tv_season_request.season_number,
         )
         for season in WatchTVSeason.objects.filter(**query_args):
+            destroy_transmission_result(season)
             season.delete()
         for episode in WatchTVEpisode.objects.filter(**query_args):
+            destroy_transmission_result(episode)
             episode.delete()
         return super().perform_destroy(watch_tv_season_request)
 

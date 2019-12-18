@@ -6,7 +6,7 @@ from typing import List
 import xml.etree.ElementTree as ET
 from urllib.parse import urlparse
 from transmissionrpc import TransmissionError
-from nefarious.models import NefariousSettings, WatchMovie, WatchTVSeason, WatchTVEpisode
+from nefarious.models import NefariousSettings, WatchMovie, WatchTVSeason, WatchTVEpisode, WatchMediaBase
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
 
@@ -180,3 +180,14 @@ def get_media_new_name_and_path(watch_media, torrent_name: str, is_single_file=F
             name += extension
 
     return name, dir_name
+
+
+def destroy_transmission_result(instance: WatchMediaBase):
+    # delete transmission result, including data, if it still exists
+    nefarious_settings = NefariousSettings.get()
+    try:
+        transmission_client = get_transmission_client(nefarious_settings)
+        transmission_client.remove_torrent([instance.transmission_torrent_hash], delete_data=True, timeout=10)
+    except Exception as e:
+        logging.warning(str(e))
+        logging.warning('could not destroy torrent in transmission')

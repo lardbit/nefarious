@@ -4,6 +4,7 @@ from rest_framework.response import Response
 
 from nefarious.models import NefariousSettings, TorrentBlacklist, WatchMediaBase
 from nefarious.transmission import get_transmission_client
+from nefarious.utils import destroy_transmission_result
 
 
 class UserReferenceViewSetMixin:
@@ -62,10 +63,5 @@ class DestroyTransmissionResultMixin:
 
     def perform_destroy(self, instance: WatchMediaBase):
         # delete transmission result, including data, if it still exists
-        nefarious_settings = NefariousSettings.get()
-        try:
-            transmission_client = get_transmission_client(nefarious_settings)
-            transmission_client.remove_torrent([instance.transmission_torrent_hash], delete_data=True)
-        except:
-            logging.warning('could not connect to transmission to delete the torrent')
+        destroy_transmission_result(instance)
         super().perform_destroy(instance)
