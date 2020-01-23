@@ -27,4 +27,5 @@ urlpatterns = [
     path('genres/<str:media_type>/', viewsets.GenresView.as_view()),
     path('quality-profiles/', viewsets.QualityProfilesView.as_view()),
     path('auth/', views.ObtainAuthToken.as_view()),  # authenticates user and returns token
+    path('git-commit/', views.GitCommit.as_view()),  # returns this app's git commit
 ]

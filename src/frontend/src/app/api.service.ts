@@ -32,6 +32,7 @@ export class ApiService {
   API_URL_GENRES_MOVIE = '/api/genres/movie/';
   API_URL_GENRES_TV = '/api/genres/tv/';
   API_URL_QUALITY_PROFILES = '/api/quality-profiles/';
+  API_URL_GIT_COMMIT = '/api/git-commit/';
 
   SEARCH_MEDIA_TYPE_TV = 'tv';
   SEARCH_MEDIA_TYPE_MOVIE = 'movie';
@@ -610,6 +611,14 @@ export class ApiService {
 
   public verifyJackettIndexers() {
     return this.http.get(`${this.API_URL_SETTINGS}${this.settings.id}/verify-jackett-indexers/`, {headers: this._requestHeaders()});
+  }
+
+  public fetchGitCommit(): Observable<any> {
+    return this.http.get(this.API_URL_GIT_COMMIT, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        return data;
+      }),
+    );
   }
 
   protected _fetchGenres(mediaType: string) {

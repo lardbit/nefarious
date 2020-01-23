@@ -10,7 +10,7 @@ from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, Watc
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
-from nefarious.utils import get_media_new_name_and_path
+from nefarious.utils import get_media_new_path_and_name
 
 app.conf.beat_schedule = {
     'Completed Media Task': {
@@ -156,21 +156,21 @@ def completed_media_task():
                     for episode in WatchTVEpisode.objects.filter(watch_tv_show=media.watch_tv_show, season_number=media.season_number):
                         episode.delete()
 
-                # get the complete path (ie. "movies", "tv') so we can move the data from staging
-                stage_path = (
+                # get the sub path (ie. "movies/", "tv/') so we can move the data from staging
+                sub_path = (
                     nefarious_settings.transmission_movie_download_dir if isinstance(media, WatchMovie)
                     else nefarious_settings.transmission_tv_download_dir
                 ).lstrip('/')
 
-                # get the new name and path for the data
-                new_name, new_path = get_media_new_name_and_path(media, torrent.name, len(torrent.files()) == 1)
+                # get the path and updated name for the data
+                new_path, new_name = get_media_new_path_and_name(media, torrent.name, len(torrent.files()) == 1)
 
                 # move the data
                 transmission_session = transmission_client.session_stats()
                 move_to_path = os.path.join(
                     transmission_session.download_dir,
-                    stage_path,
-                    new_path,
+                    sub_path,
+                    new_path or '',
                 )
                 logging.info('Moving torrent data to "{}"'.format(move_to_path))
                 torrent.move_data(move_to_path)

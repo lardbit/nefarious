@@ -7,7 +7,6 @@ from nefarious.models import (
     PERM_CAN_WATCH_IMMEDIATELY_TV, PERM_CAN_WATCH_IMMEDIATELY_MOVIE,
     WatchTVSeason, WatchTVSeasonRequest,
 )
-from nefarious.tmdb import get_tmdb_client
 
 
 class UserReferenceSerializerMixin(serializers.ModelSerializer):

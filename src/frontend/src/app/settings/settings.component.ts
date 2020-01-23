@@ -14,6 +14,7 @@ export class SettingsComponent implements OnInit {
   public form;
   public isSaving = false;
   public isVeryingJackettIndexers = false;
+  public gitCommit = '';
 
   constructor(
     private toastr: ToastrService,
@@ -55,6 +56,10 @@ export class SettingsComponent implements OnInit {
         });
       }
     );
+
+    this.apiService.fetchGitCommit().subscribe((data) => {
+      this.gitCommit = data.commit;
+    });
   }
 
   public submit() {

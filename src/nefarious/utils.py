@@ -132,42 +132,42 @@ def results_with_valid_urls(results: list, nefarious_settings: NefariousSettings
     return populated_results
 
 
-def get_media_new_name_and_path(watch_media, torrent_name: str, is_single_file=False) -> tuple:
+def get_media_new_path_and_name(watch_media, torrent_name: str, is_single_file: bool) -> tuple:
     """
-    Returns a tuple of the media name and the path to where it should be moved.
-    Movie Single File:
+    Returns a tuple of the new name and the path.
+    Movie - Single File:
         Input: "Rambo [scene-stuff].mkv"
-        Output: ("Rambo (1982).mkv", "Rambo (1982)")
-    Movie Folder:
+        Output: ("Rambo (1982)", "Rambo (1982).mkv")
+    Movie - Folder:
         Input: "Rambo [scene-stuff]"
-        Output: ("Rambo (1982)", "Rambo (1982)/")
-    TV Single Episode Folder:
+        Output: (None, "Rambo (1982)")
+    TV - Single Episode Folder:
         Input: "Rick and Morty - S03E14 [scene-stuff]"
-        Output: ("S03E14", "Rick and Morty/Season 3/")
-    TV Single Episode File:
+        Output: ("Rick and Morty/Season 3/", "Rick and Morty - S03E14")
+    TV - Single Episode File:
         Input: "Rick and Morty - S03E14 [scene-stuff].mkv"
-        Output ("S03E14.mkv", "Rick and Morty/Season 3/")
-    TV Full Full Season Folder:
+        Output ("Rick and Morty/Season 3/", "Rick and Morty - S03E14.mkv")
+    TV - Full Full Season Folder:
         Input: "Rick and Morty - Season 3 [scene-stuff]"
-        Output: ("Season 3", "Rick and Morty/")
+        Output: ("Rick and Morty/", "Rick and Morty - Season 3")
     """
 
     # movie
     if isinstance(watch_media, WatchMovie):
         name = '{} ({})'.format(watch_media, watch_media.release_date.year)
-        dir_name = name
+        dir_name = name if is_single_file else None
 
     # tv
     else:
         # full season
         if isinstance(watch_media, WatchTVSeason):
             season = watch_media  # type WatchTVSeason
-            name = 'Season {:02d}'.format(season.season_number)
+            name = str(season)
             dir_name = str(season.watch_tv_show)
         # single episode
         elif isinstance(watch_media, WatchTVEpisode):
             episode = watch_media  # type WatchTVEpisode
-            name = 'S{:02d}E{:02d}'.format(episode.season_number, episode.episode_number)
+            name = str(episode)
             dir_name = os.path.join(str(episode.watch_tv_show), 'Season {:02d}'.format(episode.season_number))
         else:
             raise Exception('unknown media')
@@ -179,7 +179,7 @@ def get_media_new_name_and_path(watch_media, torrent_name: str, is_single_file=F
             extension = extension_match.group()
             name += extension
 
-    return name, dir_name
+    return dir_name, name
 
 
 def destroy_transmission_result(instance: WatchMediaBase):
