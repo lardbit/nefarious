@@ -28,13 +28,16 @@ export class MediaMovieComponent implements OnInit {
   }
 
   ngOnInit() {
+
     const routeParams = this.route.snapshot.params;
     this.apiService.searchMediaDetail(this.apiService.SEARCH_MEDIA_TYPE_MOVIE, routeParams.id).subscribe(
       (data) => {
         this.result = data;
         this.isLoading = false;
         this.watchMovie = this.getWatchMovie();
-        this.qualityProfileCustom = this.watchMovie ? this.watchMovie.quality_profile_custom : '';
+        this.qualityProfileCustom = this.watchMovie ?
+          this.watchMovie.quality_profile_custom :
+          this.apiService.settings.quality_profile_movies;
       },
       (error) => {
         this.isLoading = false;

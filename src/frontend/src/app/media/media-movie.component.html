@@ -41,8 +41,8 @@
                     <ngx-loading [show]="isSaving"></ngx-loading>
                     <form class="form" (submit)="submit()">
                       <div class="form-group mt-4" *ngIf="userIsStaff() && !isWatchingMovie()">
-                        <label>Custom Profile</label>
-                        <select type="text" class="form-control form-control-sm" [(ngModel)]="qualityProfileCustom" name="quality-profile-custom">
+                        <label>Quality Profile</label>
+                        <select class="form-control form-control-sm" [(ngModel)]="qualityProfileCustom" name="quality-profile-custom">
                           <option></option>
                           <option *ngFor="let profile of qualityProfiles()" [value]="profile">{{ profile }}</option>
                         </select>
