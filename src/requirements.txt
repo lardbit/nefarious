@@ -1,15 +1,16 @@
-Django==2.1.5
-djangorestframework==3.8.2
-requests==2.21.0
-transmissionrpc==0.11
-# forked version including languages
-git+https://github.com/lardbit/tmdbsimple.git
-jsonfield2==3.0.1
-gunicorn==19.9.0
-regex==2018.8.29
 bpython==0.18
-whitenoise==4.1
+celery==4.4.0
 dj-database-url==0.5.0
-celery==4.2.1
-redis==3.2.0
-django-filter==2.0.0
+Django==3.0.2
+django-filter==2.2.0
+djangorestframework==3.11.0
+gunicorn==20.0.4
+jsonfield2==3.1.0
+redis==3.3.11
+regex==2020.1.8
+requests==2.22.0
+# tmdbsimple - forked version including languages
+git+https://github.com/lardbit/tmdbsimple.git
+transmissionrpc==0.11
+uvicorn==0.11.2
+whitenoise==5.0.1
