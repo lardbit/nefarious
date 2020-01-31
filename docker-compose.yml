@@ -62,7 +62,7 @@ services:
   redis:
     image: redis
     restart: always
-    # TODO - use "expose" vs "ports" to limit external access
+    # TODO - use "expose" vs "ports" to limit external access when not in development
     ports:
     - "6379:6379"
 
