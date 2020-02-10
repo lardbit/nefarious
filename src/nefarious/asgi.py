@@ -27,15 +27,21 @@ class WS(WebSocketEndpoint):
         self.websockets.append(websocket)
 
     async def on_receive(self, websocket, data):
-        [await ws.send_text(f"Message text was: {data}") for ws in self.websockets]
+        # send to all websocket connections
+        for ws in self.websockets:
+            try:
+                await ws.send_json(data)
+            # failed communicating with this websocket so remove it from the pool
+            except RuntimeError:
+                self.websockets.remove(websocket)
 
     async def on_disconnect(self, websocket, close_code):
-        pass
+        self.websockets.remove(websocket)
 
 
 application = Starlette(
     routes=[
-        Route("/", get_asgi_application()),
-        WebSocketRoute("/ws", WS),
+        WebSocketRoute("/ws", endpoint=WS),
+        Route("/{any:path}", endpoint=get_asgi_application()),
     ]
 )
