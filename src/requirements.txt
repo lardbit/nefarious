@@ -1,4 +1,4 @@
-Django==2.1.5
+Django==2.2.10
 djangorestframework==3.8.2
 requests==2.21.0
 transmissionrpc==0.11
