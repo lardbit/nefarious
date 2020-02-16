@@ -45,19 +45,6 @@ services:
     depends_on:
       - redis
 
-  # websocket server
-  ws-server:
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
-    image: lardbit/nefarious
-    restart: always
-    entrypoint: /env/bin/python ws-server.py
-    expose:
-      - "6789:6789"
-    logging:
-      options:
-        max-size: 10m
-
   # in-memory database for task queue
   redis:
     image: redis

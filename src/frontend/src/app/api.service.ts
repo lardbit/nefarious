@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
 import { forkJoin, Observable, of, zip } from 'rxjs';
+import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
 
 
 @Injectable({
@@ -47,6 +48,9 @@ export class ApiService {
   public watchTVEpisodes: any[] = [];
   public watchTVShows: any[] = [];
   public watchMovies: any[] = [];
+
+  protected _webSocket: WebSocketSubject<any>;
+
 
   constructor(
     private http: HttpClient,
@@ -113,13 +117,19 @@ export class ApiService {
 
   public fetchCoreData(): Observable<any> {
     return forkJoin(
-      this.fetchSettings(),
-      this.fetchWatchTVShows(),
-      this.fetchWatchTVSeasons(),
-      this.fetchWatchTVSeasonRequests(),
-      this.fetchWatchTVEpisodes(),
-      this.fetchWatchMovies(),
-      this.fetchQualityProfiles(),
+      [
+        this.fetchSettings().pipe(
+          tap(() => {
+            this._initWebSocket();
+          })
+        ),
+        this.fetchWatchTVShows(),
+        this.fetchWatchTVSeasons(),
+        this.fetchWatchTVSeasonRequests(),
+        this.fetchWatchTVEpisodes(),
+        this.fetchWatchMovies(),
+        this.fetchQualityProfiles(),
+      ]
     );
   }
 
@@ -618,6 +628,18 @@ export class ApiService {
       map((data: any) => {
         return data;
       }),
+    );
+  }
+
+  protected _initWebSocket() {
+    this._webSocket = webSocket(this.settings.websocket_url);
+    this._webSocket.subscribe(
+      (data) => {
+        console.log(data);
+      },
+      (error) => {
+        console.error(error);
+      },
     );
   }
 

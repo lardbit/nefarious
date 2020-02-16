@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -21,19 +22,24 @@ class NefariousSettingsSerializer(serializers.ModelSerializer):
     keyword_search_filters = serializers.JSONField(required=False)
     tmdb_languages = serializers.JSONField(required=False)
     jackett_default_token = serializers.ReadOnlyField(default=NefariousSettings.JACKETT_TOKEN_DEFAULT)
+    websocket_url = serializers.SerializerMethodField()
+
+    def get_websocket_url(self, obj):
+        return settings.WEBSOCKET_URL
 
     class Meta:
         model = NefariousSettings
         fields = '__all__'
 
 
-class NefariousPartialSettingsSerializer(serializers.ModelSerializer):
+class NefariousPartialSettingsSerializer(NefariousSettingsSerializer):
+    # redefine as read-only
     tmdb_configuration = serializers.JSONField(required=False, read_only=True)
-    jackett_default_token = serializers.ReadOnlyField(default=NefariousSettings.JACKETT_TOKEN_DEFAULT)
 
     class Meta:
         model = NefariousSettings
-        fields = ('tmdb_configuration', 'jackett_default_token',)
+        # only include specific fields
+        fields = ('tmdb_configuration', 'jackett_default_token', 'websocket_url')
 
 
 class WatchMovieSerializer(UserReferenceSerializerMixin, serializers.ModelSerializer):
