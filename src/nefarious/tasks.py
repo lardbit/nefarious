@@ -5,13 +5,14 @@ from celery.signals import task_failure
 from datetime import datetime
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_date
+
 from nefarious.celery import app
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, WatchTVSeason, WatchTVSeasonRequest
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
 from nefarious.utils import get_media_new_path_and_name
-from nefarious.websocket import websocket_send_data, MESSAGE_MEDIA_COMPLETE
+from nefarious.websocket import websocket_message_media_complete
 
 app.conf.beat_schedule = {
     'Completed Media Task': {
@@ -180,8 +181,8 @@ def completed_media_task():
                 logging.info('Renaming torrent file from "{}" to "{}"'.format(torrent.name, new_name))
                 transmission_client.rename_torrent_path(torrent.id, torrent.name, new_name)
 
-                # send websocket message
-                websocket_send_data({MESSAGE_MEDIA_COMPLETE: media.id})
+                # send websocket "media complete" message
+                websocket_message_media_complete(media)
 
 
 @app.task

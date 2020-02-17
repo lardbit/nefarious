@@ -635,12 +635,42 @@ export class ApiService {
     this._webSocket = webSocket(this.settings.websocket_url);
     this._webSocket.subscribe(
       (data) => {
-        console.log(data);
+        this._handleWebSocketMessage(data);
       },
       (error) => {
         console.error(error);
+        console.error('websocket error. reconnecting...');
+        this._reconnectWebSocket();
       },
+      () => {
+        console.warn('websocket closed. reconnecting...');
+        this._reconnectWebSocket();
+      }
     );
+  }
+
+  protected _reconnectWebSocket() {
+    if (this._webSocket && !this._webSocket.closed) {
+      console.warn('reinitializing websocket');
+      this._webSocket.unsubscribe();
+    } else {
+      console.log('initializing websocket');
+    }
+    setTimeout(() => {
+      this._initWebSocket();
+    }, 500);
+  }
+
+  protected _handleWebSocketMessage(data: any) {
+    if (data['message'] === 'MEDIA_COMPLETE_MOVIE') {
+      this.watchMovies.push(data['data']);
+    } else if (data['message'] === 'MEDIA_COMPLETE_TV_SEASON') {
+      this.watchTVSeasons.push(data['data']);
+    } else if (data['message'] === 'MEDIA_COMPLETE_TV_SHOW') {
+      this.watchTVEpisodes.push(data['data']);
+    } else {
+      console.error('Unknown websocket message', data);
+    }
   }
 
   protected _fetchGenres(mediaType: string) {
