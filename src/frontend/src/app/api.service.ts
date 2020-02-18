@@ -662,14 +662,33 @@ export class ApiService {
   }
 
   protected _handleWebSocketMessage(data: any) {
+    try {
+      data = JSON.parse(data);
+    } catch (err) {
+      console.error('websocket message not json', err);
+    }
+
+    let mediaList = [];
+
     if (data['message'] === 'MEDIA_COMPLETE_MOVIE') {
-      this.watchMovies.push(data['data']);
+      mediaList = this.watchMovies;
     } else if (data['message'] === 'MEDIA_COMPLETE_TV_SEASON') {
-      this.watchTVSeasons.push(data['data']);
+      mediaList = this.watchTVSeasons;
     } else if (data['message'] === 'MEDIA_COMPLETE_TV_SHOW') {
-      this.watchTVEpisodes.push(data['data']);
+      mediaList = this.watchTVEpisodes;
     } else {
       console.error('Unknown websocket message', data);
+      return;
+    }
+
+    // find existing media and update it or add to appropriate media list
+    const watchMedia = _.find(mediaList, (media) => {
+      return media.id === data['data'].id;
+    });
+    if (watchMedia) {
+      _.assign(watchMedia, data['data']);
+    } else {
+      mediaList.push(data['data']);
     }
   }
 
