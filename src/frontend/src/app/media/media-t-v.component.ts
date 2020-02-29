@@ -147,6 +147,47 @@ export class MediaTVComponent implements OnInit {
     return Boolean(watchSeasonRequest);
   }
 
+  public hasCollectedAllEpisodesInSeason(season: any) {
+    // watching entire season
+    if (this.hasCollectedSeason(season)) {
+      return true;
+    }
+
+    // verify every episode is collected
+    for (const episode of season.episodes) {
+      const watchEpisode = this._getWatchEpisode(episode.id);
+      if (!watchEpisode || !watchEpisode.collected) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public isWatchingAllEpisodesInSeason(season: any) {
+    // watching all episodes in season
+    let watchingEpisodes = 0;
+    for (const episode of season.episodes) {
+      if (this.isWatchingEpisode(episode.id)) {
+        watchingEpisodes += 1;
+      }
+    }
+    return season.episodes.length === watchingEpisodes;
+  }
+
+  public isWatchingAnyEpisodeInSeason(season: any) {
+    for (const episode of season.episodes) {
+      if (this.isWatchingEpisode(episode.id)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public hasCollectedSeason(season): boolean {
+    const watchSeason = this._getWatchSeason(season.season_number);
+    return watchSeason && watchSeason.collected;
+  }
+
   public stopWatchingEntireSeason(season: any) {
     const watchSeasonRequest = this._getWatchSeasonRequest(season.season_number);
     if (watchSeasonRequest) {

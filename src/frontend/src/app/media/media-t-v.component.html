@@ -32,7 +32,30 @@
                 <ngx-loading [show]="isSaving"></ngx-loading>
                 <ul class="list-group" *ngFor="let season of result.seasons">
                   <ngb-accordion>
-                    <ngb-panel [title]="'Season ' + season.season_number">
+                    <ngb-panel>
+                      <ng-template ngbPanelTitle>
+                        Season {{ season.season_number }}
+                        &nbsp;&nbsp;&nbsp;
+                        <span [ngSwitch]="hasCollectedAllEpisodesInSeason(season)">
+                          <!-- downloaded everything -->
+                          <span *ngSwitchCase="true">
+                            <span class="oi oi-check"></span>
+                          </span>
+                          <!-- not downloaded everything -->
+                          <span *ngSwitchCase="false">
+                            <span [ngSwitch]="isWatchingSeason(season.season_number) || isWatchingAllEpisodesInSeason(season)">
+                              <!-- watching whole season -->
+                              <span *ngSwitchCase="true"> <span class="oi oi-eye"></span></span>
+                              <span *ngSwitchCase="false">
+                              <!-- watching some episodes -->
+                                <span [ngSwitch]="isWatchingAnyEpisodeInSeason(season)">
+                                  <span *ngSwitchCase="true"> <span class="oi oi-ellipses"></span></span>
+                                </span>
+                              </span>
+                            </span>
+                          </span>
+                        </span>
+                      </ng-template>
                       <ng-template ngbPanelContent>
                         <p *ngIf="season.overview">{{ season.overview }}</p>
                         <div class="my-3 d-flex justify-content-between">

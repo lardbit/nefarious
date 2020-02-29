@@ -661,7 +661,7 @@ export class ApiService {
     }, 500);
   }
 
-  protected _handleWebSocketMessage(data: any) {
+  protected _handleWebSocketMessage(data: string) {
     try {
       data = JSON.parse(data);
     } catch (err) {
@@ -674,7 +674,7 @@ export class ApiService {
       mediaList = this.watchMovies;
     } else if (data['message'] === 'MEDIA_COMPLETE_TV_SEASON') {
       mediaList = this.watchTVSeasons;
-    } else if (data['message'] === 'MEDIA_COMPLETE_TV_SHOW') {
+    } else if (data['message'] === 'MEDIA_COMPLETE_TV_EPISODE') {
       mediaList = this.watchTVEpisodes;
     } else {
       console.error('Unknown websocket message', data);
