@@ -634,7 +634,13 @@ export class ApiService {
   }
 
   protected _initWebSocket() {
-    this._webSocket = webSocket(this.settings.websocket_url);
+    // we can't rely on the server's websocket url because it may be "nefarious" when run in a docker stack,
+    // so we'll just extract the port and path and use the current window's url
+    const serverWebSocketURL = new URL(this.settings.websocket_url);
+    const windowLocation = window.location;
+    const webSocketProtocol = `${windowLocation.protocol === 'https' ? 'wss' : 'ws'}://`;
+    const webSocketHost = `${webSocketProtocol}${windowLocation.hostname}:${serverWebSocketURL.port}${serverWebSocketURL.pathname}`;
+    this._webSocket = webSocket(webSocketHost);
     this._webSocket.subscribe(
       (data) => {
         this._handleWebSocketMessage(data);
