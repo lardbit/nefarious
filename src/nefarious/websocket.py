@@ -3,29 +3,42 @@ import logging
 from django.conf import settings
 from websocket import create_connection
 
-from nefarious.api.serializers import WatchMovieSerializer, WatchTVSeasonSerializer, WatchTVEpisodeSerializer
-from nefarious.models import WatchMovie, WatchTVEpisode, WatchTVSeason
+from nefarious.api.serializers import (
+    WatchMovieSerializer, WatchTVSeasonSerializer, WatchTVEpisodeSerializer, WatchTVSeasonRequestSerializer, WatchTVShowSerializer)
+from nefarious.models import WatchMovie, WatchTVEpisode, WatchTVSeason, WatchTVSeasonRequest, WatchMediaBase, WatchTVShow
 
-MEDIA_COMPLETE_MOVIE = 'MEDIA_COMPLETE_MOVIE'
-MEDIA_COMPLETE_TV_SEASON = 'MEDIA_COMPLETE_TV_SEASON'
-MEDIA_COMPLETE_TV_EPISODE = 'MEDIA_COMPLETE_TV_EPISODE'
+ACTION_UPDATED = 'UPDATED'
+ACTION_REMOVED = 'REMOVED'
+
+MEDIA_TYPE_MOVIE = 'MOVIE'
+MEDIA_TYPE_TV_SHOW = 'TV_SHOW'
+MEDIA_TYPE_TV_SEASON = 'TV_SEASON'
+MEDIA_TYPE_TV_SEASON_REQUEST = 'TV_SEASON_REQUEST'
+MEDIA_TYPE_TV_EPISODE = 'TV_EPISODE'
 
 
-def websocket_send_data(message: str, data: dict):
+def send_message(action: str, media: WatchMediaBase):
+    media_type, data = get_media_type_and_serialized_watch_media(media)
     try:
         ws = create_connection(settings.WEBSOCKET_URL, timeout=5)
         ws.send(json.dumps({
-            'message': message,
+            'action': action,
+            'type': media_type,
             'data': data,
         }))
     except Exception as e:
         logging.exception(e)
 
 
-def websocket_message_media_complete(media):
+def get_media_type_and_serialized_watch_media(media) -> tuple:
     if isinstance(media, WatchMovie):
-        websocket_send_data(MEDIA_COMPLETE_MOVIE, WatchMovieSerializer(instance=media).data)
+        return MEDIA_TYPE_MOVIE, WatchMovieSerializer(instance=media).data
+    elif isinstance(media, WatchTVShow):
+        return MEDIA_TYPE_TV_SHOW, WatchTVShowSerializer(instance=media).data
     elif isinstance(media, WatchTVSeason):
-        websocket_send_data(MEDIA_COMPLETE_TV_SEASON, WatchTVSeasonSerializer(instance=media).data)
+        return MEDIA_TYPE_TV_SEASON, WatchTVSeasonSerializer(instance=media).data
+    elif isinstance(media, WatchTVSeasonRequest):
+        return MEDIA_TYPE_TV_SEASON_REQUEST, WatchTVSeasonRequestSerializer(instance=media).data
     elif isinstance(media, WatchTVEpisode):
-        websocket_send_data(MEDIA_COMPLETE_TV_EPISODE, WatchTVEpisodeSerializer(instance=media).data)
+        return MEDIA_TYPE_TV_EPISODE, WatchTVEpisodeSerializer(instance=media).data
+    raise Exception('Unknown watch media type: {}'.format(type(media)))

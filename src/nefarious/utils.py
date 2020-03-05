@@ -6,6 +6,7 @@ from typing import List
 import xml.etree.ElementTree as ET
 from urllib.parse import urlparse
 from transmissionrpc import TransmissionError
+
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVSeason, WatchTVEpisode, WatchMediaBase
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client

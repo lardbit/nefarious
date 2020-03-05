@@ -670,11 +670,15 @@ export class ApiService {
 
     let mediaList = [];
 
-    if (data['message'] === 'MEDIA_COMPLETE_MOVIE') {
+    if (data['type'] === 'MOVIE') {
       mediaList = this.watchMovies;
-    } else if (data['message'] === 'MEDIA_COMPLETE_TV_SEASON') {
+    } else if (data['type'] === 'TV_SHOW') {
+      mediaList = this.watchTVShows;
+    } else if (data['type'] === 'TV_SEASON') {
       mediaList = this.watchTVSeasons;
-    } else if (data['message'] === 'MEDIA_COMPLETE_TV_EPISODE') {
+    } else if (data['type'] === 'TV_SEASON_REQUEST') {
+      mediaList = this.watchTVSeasonRequests;
+    } else if (data['type'] === 'TV_EPISODE') {
       mediaList = this.watchTVEpisodes;
     } else {
       console.error('Unknown websocket message', data);
@@ -682,13 +686,22 @@ export class ApiService {
     }
 
     // find existing media and update it or add to appropriate media list
-    const watchMedia = _.find(mediaList, (media) => {
+    const watchMediaIndex = _.findIndex(mediaList, (media) => {
       return media.id === data['data'].id;
     });
-    if (watchMedia) {
-      _.assign(watchMedia, data['data']);
-    } else {
-      mediaList.push(data['data']);
+    if (data['action'] === 'UPDATED') {
+      // update existing media
+      if (watchMediaIndex >= 0) {
+        _.assign(mediaList[watchMediaIndex], data['data']);
+      } else {
+        // add to media list
+        mediaList.push(data['data']);
+      }
+    } else if (data['action'] === 'REMOVED') {
+      // remove media
+      if (watchMediaIndex >= 0) {
+        mediaList.splice(watchMediaIndex, 1);
+      }
     }
   }
 

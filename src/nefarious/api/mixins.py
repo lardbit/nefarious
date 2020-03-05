@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from nefarious.models import NefariousSettings, TorrentBlacklist, WatchMediaBase
 from nefarious.transmission import get_transmission_client
 from nefarious.utils import destroy_transmission_result
+from nefarious.websocket import send_message, ACTION_UPDATED, ACTION_REMOVED
 
 
 class UserReferenceViewSetMixin:
@@ -64,4 +65,18 @@ class DestroyTransmissionResultMixin:
     def perform_destroy(self, instance: WatchMediaBase):
         # delete transmission result, including data, if it still exists
         destroy_transmission_result(instance)
+        super().perform_destroy(instance)
+
+
+class WebSocketMediaMessageUpdated:
+
+    def perform_create(self, serializer):
+        # create instance first and then send message
+        super().perform_create(serializer)
+        # send websocket message media was updated
+        send_message(ACTION_UPDATED, serializer.instance)
+
+    def perform_destroy(self, instance):
+        # send message first then remove
+        send_message(ACTION_REMOVED, instance)
         super().perform_destroy(instance)
