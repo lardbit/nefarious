@@ -155,7 +155,7 @@ LOGGING = {
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
 REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
 
-WEBSOCKET_URL = os.environ.get('WEBSOCKET_HOST', 'ws://localhost:8000/ws')
+WEBSOCKET_URL = os.environ.get('WEBSOCKET_HOST', 'ws://nefarious:8000/ws')
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

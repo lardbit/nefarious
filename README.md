@@ -291,7 +291,7 @@ It'll be now running at [http://127.0.0.1:8000](http://127.0.0.1:8000)
 This method runs the production server (with hot reload) and supports websockets.
 
     python src/manage.py collectstatic --noinput
-    DEBUG=1 uvicorn nefarious.asgi:application --reload
+    DEBUG=1 WEBSOCKET_HOST=ws://localhost:8000/ws uvicorn nefarious.asgi:application --reload
     
 It'll be now running at [http://127.0.0.1:8000](http://127.0.0.1:8000)
    
