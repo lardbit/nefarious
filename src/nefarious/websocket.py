@@ -26,6 +26,7 @@ def send_message(action: str, media_type: str, data: dict):
             'data': data,
         }))
     except Exception as e:
+        logging.error('Failed connecting to websocket server: {}'.format(settings.WEBSOCKET_URL))
         logging.exception(e)
 
 
