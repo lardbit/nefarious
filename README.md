@@ -238,8 +238,8 @@ If you're interested in contributing or simply want to run nefarious without *do
 
 nefarious is built on:
 
-- Python 3.6
-- Django 2
+- Python 3.8
+- Django 3
 - Angular 6
 - Bootstrap 4
 
@@ -276,12 +276,24 @@ Note: run `npm --prefix src/frontend run watch` to automatically rebuild while y
    
 #### Run nefarious
 
-Run the python application using django's *development* `runserver` management command: 
+##### Basic development server
+
+This method is the default Django development server but doesn't support websockets.
 
     DEBUG=1 python src/manage.py runserver 8000
    
 It'll be now running at [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
+*NOTE: this method won't support websockets*
+
+##### Development server with websockets
+
+This method runs the production server (with hot reload) and supports websockets.
+
+    python src/manage.py collectstatic --noinput
+    DEBUG=1 uvicorn nefarious.asgi:application --reload
+    
+It'll be now running at [http://127.0.0.1:8000](http://127.0.0.1:8000)
    
 #### Run celery (task queue)
 
@@ -290,9 +302,11 @@ It'll be now running at [http://127.0.0.1:8000](http://127.0.0.1:8000)
 Run the celery server:
 
     cd src
-    celery -A nefarious worker --loglevel=INFO
+    DEBUG=1 celery -A nefarious worker --loglevel=INFO
     
 You'll see all download logs/activity come out of here.
+
+**NOTE**: By prefixing `DEBUG=1` before the celery command, all torrents will start as **paused** to avoid downloading anything.
 
 #### Dependencies
 
