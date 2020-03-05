@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
-import * as _ from 'lodash';
 
 
 @Component({
@@ -47,6 +46,5 @@ export class WatchingComponent implements OnInit {
     } else {
       this.results = this.apiService.watchMovies;
     }
-
   }
 }
