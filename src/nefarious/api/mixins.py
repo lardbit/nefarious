@@ -3,9 +3,10 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from nefarious.models import NefariousSettings, TorrentBlacklist, WatchMediaBase
+from nefarious.tasks import send_websocket_message_task
 from nefarious.transmission import get_transmission_client
 from nefarious.utils import destroy_transmission_result
-from nefarious.websocket import send_message, ACTION_UPDATED, ACTION_REMOVED
+from nefarious import websocket
 
 
 class UserReferenceViewSetMixin:
@@ -71,12 +72,14 @@ class DestroyTransmissionResultMixin:
 class WebSocketMediaMessageUpdated:
 
     def perform_create(self, serializer):
-        # create instance first and then send message
+        # create instance first then send websocket message
         super().perform_create(serializer)
         # send websocket message media was updated
-        send_message(ACTION_UPDATED, serializer.instance)
+        media_type, data = websocket.get_media_type_and_serialized_watch_media(serializer.instance)
+        send_websocket_message_task.delay(websocket.ACTION_UPDATED, media_type, data)
 
     def perform_destroy(self, instance):
-        # send message first then remove
-        send_message(ACTION_REMOVED, instance)
+        # send websocket message first then remove
+        media_type, data = websocket.get_media_type_and_serialized_watch_media(instance)
+        send_websocket_message_task.delay(websocket.ACTION_REMOVED, media_type, data)
         super().perform_destroy(instance)

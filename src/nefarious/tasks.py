@@ -12,7 +12,7 @@ from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, W
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
 from nefarious.utils import get_media_new_path_and_name
-from nefarious.websocket import send_message, ACTION_UPDATED
+from nefarious import websocket
 
 app.conf.beat_schedule = {
     'Completed Media Task': {
@@ -182,7 +182,7 @@ def completed_media_task():
                 transmission_client.rename_torrent_path(torrent.id, torrent.name, new_name)
 
                 # send websocket message media was updated
-                send_message(ACTION_UPDATED, media)
+                websocket.send_message(websocket.ACTION_UPDATED, media)
 
 
 @app.task
@@ -265,3 +265,8 @@ def wanted_tv_season_task():
 
     # execute tasks sequentially
     chain(*tasks)()
+
+
+@app.task
+def send_websocket_message_task(action: str, media_type: str, data: dict):
+    websocket.send_message(action, media_type, data)

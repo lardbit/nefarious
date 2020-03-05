@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
-import { forkJoin, Observable, of, zip } from 'rxjs';
+import {forkJoin, Observable, of, Subject, zip} from 'rxjs';
 import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
 
 
@@ -48,6 +48,8 @@ export class ApiService {
   public watchTVEpisodes: any[] = [];
   public watchTVShows: any[] = [];
   public watchMovies: any[] = [];
+
+  public mediaUpdated$ = new Subject<any>();
 
   protected _webSocket: WebSocketSubject<any>;
 
@@ -666,6 +668,7 @@ export class ApiService {
       data = JSON.parse(data);
     } catch (err) {
       console.error('websocket message not json', err);
+      return;
     }
 
     let mediaList = [];
@@ -701,8 +704,13 @@ export class ApiService {
       // remove media
       if (watchMediaIndex >= 0) {
         mediaList.splice(watchMediaIndex, 1);
+      } else {
+        console.warn('could not find media to remove', data['data']);
       }
     }
+
+    // alert any relevant components media has been updated
+    this.mediaUpdated$.next(true);
   }
 
   protected _fetchGenres(mediaType: string) {

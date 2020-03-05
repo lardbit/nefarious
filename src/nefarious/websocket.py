@@ -17,8 +17,7 @@ MEDIA_TYPE_TV_SEASON_REQUEST = 'TV_SEASON_REQUEST'
 MEDIA_TYPE_TV_EPISODE = 'TV_EPISODE'
 
 
-def send_message(action: str, media: WatchMediaBase):
-    media_type, data = get_media_type_and_serialized_watch_media(media)
+def send_message(action: str, media_type: str, data: dict):
     try:
         ws = create_connection(settings.WEBSOCKET_URL, timeout=5)
         ws.send(json.dumps({
@@ -28,6 +27,11 @@ def send_message(action: str, media: WatchMediaBase):
         }))
     except Exception as e:
         logging.exception(e)
+
+
+def send_media_message(action: str, media: WatchMediaBase):
+    media_type, data = get_media_type_and_serialized_watch_media(media)
+    send_message(action, media_type, data)
 
 
 def get_media_type_and_serialized_watch_media(media) -> tuple:

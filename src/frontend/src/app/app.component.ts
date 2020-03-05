@@ -18,10 +18,6 @@ export class AppComponent implements OnInit {
   ngOnInit() {
   }
 
-  public hasSettings(): Boolean {
-    return Boolean(this.apiService.settings);
-  }
-
   public isStaff(): Boolean {
     return this.apiService.user && this.apiService.user.is_staff;
   }

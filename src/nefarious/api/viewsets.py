@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAdminUser
 
+from nefarious import websocket
 from nefarious.api.mixins import UserReferenceViewSetMixin, BlacklistAndRetryMixin, DestroyTransmissionResultMixin, WebSocketMediaMessageUpdated
 from nefarious.api.permissions import IsAuthenticatedDjangoObjectUser
 from nefarious.quality import PROFILES
@@ -23,7 +24,7 @@ from nefarious.api.serializers import (
 )
 from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason, WatchTVSeasonRequest
 from nefarious.search import MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrents
-from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task
+from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task, send_websocket_message_task
 from nefarious.utils import (
     trace_torrent_url, swap_jackett_host, is_magnet_url,
     verify_settings_jackett, verify_settings_transmission, verify_settings_tmdb,
@@ -96,6 +97,9 @@ class WatchTVSeasonRequestViewSet(WebSocketMediaMessageUpdated, UserReferenceVie
                 user=self.request.user,
             ),
         )
+        # send a websocket message for this new season
+        media_type, data = websocket.get_media_type_and_serialized_watch_media(watch_tv_season)
+        send_websocket_message_task.delay(websocket.ACTION_UPDATED, media_type, data)
 
         # create a task to download the whole season (fallback to individual episodes if it fails)
         watch_tv_show_season_task.delay(watch_tv_season.id)
