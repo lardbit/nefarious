@@ -62,6 +62,26 @@ class WatchTVShowViewSet(WebSocketMediaMessageUpdated, UserReferenceViewSetMixin
     serializer_class = WatchTVShowSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
 
+    def perform_destroy(self, watch_tv_show: WatchTVShow):
+        # delete all seasons, season requests, episodes and remove from transmission
+
+        # delete season requests
+        WatchTVSeasonRequest.objects.filter(watch_tv_show=watch_tv_show).delete()
+
+        # delete instance and from transmission and send websocket messages
+        queries = [WatchTVSeason.objects.filter(watch_tv_show=watch_tv_show), WatchTVEpisode.objects.filter(watch_tv_show=watch_tv_show)]
+        for qs in queries:
+            for media in qs:
+                # send a websocket message that this media was removed
+                media_type, data = websocket.get_media_type_and_serialized_watch_media(media)
+                send_websocket_message_task.delay(websocket.ACTION_REMOVED, media_type, data)
+                # delete from transmission
+                destroy_transmission_result(media)
+                # delete the media
+                media.delete()
+
+        return super().perform_destroy(watch_tv_show)
+
 
 class WatchTVSeasonViewSet(WebSocketMediaMessageUpdated, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVSeason.objects.all()
