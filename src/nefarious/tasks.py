@@ -154,10 +154,6 @@ def completed_media_task():
                         season_request.collected = True
                         season_request.save()
 
-                    # delete any individual episodes now that we have the whole season
-                    for episode in WatchTVEpisode.objects.filter(watch_tv_show=media.watch_tv_show, season_number=media.season_number):
-                        episode.delete()
-
                 # get the sub path (ie. "movies/", "tv/') so we can move the data from staging
                 sub_path = (
                     nefarious_settings.transmission_movie_download_dir if isinstance(media, WatchMovie)

@@ -101,6 +101,14 @@ class WatchTVSeasonRequestViewSet(WebSocketMediaMessageUpdated, UserReferenceVie
         media_type, data = websocket.get_media_type_and_serialized_watch_media(watch_tv_season)
         send_websocket_message_task.delay(websocket.ACTION_UPDATED, media_type, data)
 
+        # delete any individual episodes now that we're watching the entire season
+        for episode in WatchTVEpisode.objects.filter(watch_tv_show=watch_tv_season.watch_tv_show, season_number=watch_tv_season.season_number):
+            # send a websocket message for this removed episode
+            media_type, data = websocket.get_media_type_and_serialized_watch_media(episode)
+            send_websocket_message_task.delay(websocket.ACTION_REMOVED, media_type, data)
+            # delete the episode
+            episode.delete()
+
         # create a task to download the whole season (fallback to individual episodes if it fails)
         watch_tv_show_season_task.delay(watch_tv_season.id)
 
@@ -347,8 +355,7 @@ class DownloadTorrentsView(views.APIView):
 
         tmdb = get_tmdb_client(nefarious_settings)
 
-        # - set download paths
-        # - associate torrent with watch instance
+        # set download paths and associate torrent with watch instance
         if media_type == MEDIA_TYPE_MOVIE:
             tmdb_request = tmdb.Movies(tmdb_media['id'])
             tmdb_movie = tmdb_request.info()

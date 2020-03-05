@@ -22,6 +22,7 @@ export class WantedComponent implements OnInit {
 
   ngOnInit() {
 
+    // watch for updated media
     this.apiService.mediaUpdated$.subscribe(
       () => {
         this._buildResults(this.mediaType);

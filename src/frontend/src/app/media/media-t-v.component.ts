@@ -45,6 +45,13 @@ export class MediaTVComponent implements OnInit {
         this.toastr.error('An unknown error occurred');
       }
     );
+
+    // watch for updated media
+    this.apiService.mediaUpdated$.subscribe(
+      () => {
+        this._buildWatchOptions();
+      }
+    );
   }
 
   public submitForSeason(seasonNumber: number) {
