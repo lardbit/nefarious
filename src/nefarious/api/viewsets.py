@@ -101,11 +101,13 @@ class WatchTVSeasonRequestViewSet(WebSocketMediaMessageUpdated, UserReferenceVie
         media_type, data = websocket.get_media_type_and_serialized_watch_media(watch_tv_season)
         send_websocket_message_task.delay(websocket.ACTION_UPDATED, media_type, data)
 
-        # delete any individual episodes now that we're watching the entire season
+        # delete any individual episodes (including in transmission) now that we're watching the entire season
         for episode in WatchTVEpisode.objects.filter(watch_tv_show=watch_tv_season.watch_tv_show, season_number=watch_tv_season.season_number):
             # send a websocket message for this removed episode
             media_type, data = websocket.get_media_type_and_serialized_watch_media(episode)
             send_websocket_message_task.delay(websocket.ACTION_REMOVED, media_type, data)
+            # delete from transmission
+            destroy_transmission_result(episode)
             # delete the episode
             episode.delete()
 
@@ -113,17 +115,19 @@ class WatchTVSeasonRequestViewSet(WebSocketMediaMessageUpdated, UserReferenceVie
         watch_tv_show_season_task.delay(watch_tv_season.id)
 
     def perform_destroy(self, watch_tv_season_request: WatchTVSeasonRequest):
-        # destroy all watch tv season & episode instances as well, including any related torrents in transmission
+        # destroy watch tv season instances as well, including any related torrents in transmission
         query_args = dict(
             watch_tv_show=watch_tv_season_request.watch_tv_show,
             season_number=watch_tv_season_request.season_number,
         )
         for season in WatchTVSeason.objects.filter(**query_args):
+            # send a websocket message that this season was removed
+            media_type, data = websocket.get_media_type_and_serialized_watch_media(season)
+            send_websocket_message_task.delay(websocket.ACTION_REMOVED, media_type, data)
+            # delete from transmission
             destroy_transmission_result(season)
+            # delete the season
             season.delete()
-        for episode in WatchTVEpisode.objects.filter(**query_args):
-            destroy_transmission_result(episode)
-            episode.delete()
         return super().perform_destroy(watch_tv_season_request)
 
 
