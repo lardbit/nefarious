@@ -421,7 +421,12 @@ export class ApiService {
     };
     return this.http.post(this.API_URL_WATCH_TV_SHOW, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        this.watchTVShows.push(data);
+        const found = this.watchTVShows.find((media) => {
+          return media.id === data['id'];
+        });
+        if (!found) {
+          this.watchTVShows.push(data);
+        }
         return data;
       }),
     );
@@ -436,20 +441,30 @@ export class ApiService {
     };
     return this.http.post(this.API_URL_WATCH_TV_EPISODE, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        this.watchTVEpisodes.push(data);
+        const found = this.watchTVEpisodes.find((media) => {
+          return media.id === data['id'];
+        });
+        if (!found) {
+          this.watchTVEpisodes.push(data);
+        }
         return data;
       }),
     );
   }
 
-  public watchTVSeason(watchShowId: number, seasonNumber: number) {
+  public watchTVSeasonRequest(watchShowId: number, seasonNumber: number) {
     const params = {
       watch_tv_show: watchShowId,
       season_number: seasonNumber,
     };
     return this.http.post(this.API_URL_WATCH_TV_SEASON_REQUEST, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        this.watchTVSeasonRequests.push(data);
+        const found = this.watchTVSeasonRequests.find((media) => {
+          return media.id === data['id'];
+        });
+        if (!found) {
+          this.watchTVSeasonRequests.push(data);
+        }
         return data;
       }),
     );
@@ -498,19 +513,12 @@ export class ApiService {
       release_date: releaseDate,
     };
 
-    const watchMovie = _.find(this.watchMovies, (watchMovie) => {
-      return watchMovie.tmdb_movie_id == movieId;
-    });
-
-    const endpoint = watchMovie ?
-      this.http.patch(`${this.API_URL_WATCH_MOVIE}${watchMovie.id}/`, params, {headers: this._requestHeaders()}) :
-      this.http.post(this.API_URL_WATCH_MOVIE, params, {headers: this._requestHeaders()});
-
-    return endpoint.pipe(
+    return this.http.post(this.API_URL_WATCH_MOVIE, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        if (watchMovie) {
-          _.assign(watchMovie, data);
-        } else {
+        const found = this.watchMovies.find((media) => {
+          return media.id === data['id'];
+        });
+        if (!found) {
           this.watchMovies.push(data);
         }
         return data;
@@ -650,7 +658,7 @@ export class ApiService {
       (data) => {
         this._handleWebSocketMessage(data);
       },
-      (error) => {
+      () => {
         console.error('websocket error. reconnecting...');
         this._reconnectWebSocket();
       },

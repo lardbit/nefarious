@@ -10,6 +10,7 @@ Using Starlette for Routing and WebSockets
 https://www.starlette.io/websockets/
 """
 import os
+import logging
 from starlette.applications import Starlette
 from starlette.routing import Route, WebSocketRoute
 from starlette.endpoints import WebSocketEndpoint
@@ -32,16 +33,23 @@ class WS(WebSocketEndpoint):
             try:
                 await ws.send_json(data)
             # failed communicating with this websocket so remove it from the pool
-            except RuntimeError:
+            except Exception as e:
+                logging.exception(e)
                 self.websockets.remove(websocket)
 
     async def on_disconnect(self, websocket, close_code):
-        self.websockets.remove(websocket)
+        if websocket in self.websockets:
+            logging.info('removing disconnected websocket')
+            self.websockets.remove(websocket)
+        else:
+            logging.info('disconnected websocket not found')
 
 
 application = Starlette(
     routes=[
+        # websockets
         WebSocketRoute("/ws", endpoint=WS),
+        # django
         Route("/{any:path}", endpoint=get_asgi_application()),
     ]
 )

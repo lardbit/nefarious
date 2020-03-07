@@ -12,7 +12,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAdminUser
 
 from nefarious import websocket
-from nefarious.api.mixins import UserReferenceViewSetMixin, BlacklistAndRetryMixin, DestroyTransmissionResultMixin, WebSocketMediaMessageUpdated
+from nefarious.api.mixins import UserReferenceViewSetMixin, BlacklistAndRetryMixin, DestroyTransmissionResultMixin, WebSocketMediaMessageUpdatedMixin
 from nefarious.api.permissions import IsAuthenticatedDjangoObjectUser
 from nefarious.quality import PROFILES
 from nefarious.transmission import get_transmission_client
@@ -37,7 +37,7 @@ CACHE_DAY = CACHE_HALF_DAY * 2
 CACHE_WEEK = CACHE_DAY * 7
 
 
-class WatchMovieViewSet(WebSocketMediaMessageUpdated, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
+class WatchMovieViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchMovie.objects.all()
     serializer_class = WatchMovieSerializer
     filter_fields = ('collected',)
@@ -57,7 +57,7 @@ class WatchMovieViewSet(WebSocketMediaMessageUpdated, DestroyTransmissionResultM
         watch_movie_task.delay(watch_media_id)
 
 
-class WatchTVShowViewSet(WebSocketMediaMessageUpdated, UserReferenceViewSetMixin, viewsets.ModelViewSet):
+class WatchTVShowViewSet(WebSocketMediaMessageUpdatedMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVShow.objects.all()
     serializer_class = WatchTVShowSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
@@ -83,7 +83,7 @@ class WatchTVShowViewSet(WebSocketMediaMessageUpdated, UserReferenceViewSetMixin
         return super().perform_destroy(watch_tv_show)
 
 
-class WatchTVSeasonViewSet(WebSocketMediaMessageUpdated, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
+class WatchTVSeasonViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVSeason.objects.all()
     serializer_class = WatchTVSeasonSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
@@ -96,7 +96,7 @@ class WatchTVSeasonViewSet(WebSocketMediaMessageUpdated, DestroyTransmissionResu
         watch_tv_show_season_task.delay(watch_media_id)
 
 
-class WatchTVSeasonRequestViewSet(WebSocketMediaMessageUpdated, UserReferenceViewSetMixin, viewsets.ModelViewSet):
+class WatchTVSeasonRequestViewSet(WebSocketMediaMessageUpdatedMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     """
     Special viewset to monitor the request of a season, not collection of the season/media itself
     """
@@ -151,7 +151,7 @@ class WatchTVSeasonRequestViewSet(WebSocketMediaMessageUpdated, UserReferenceVie
         return super().perform_destroy(watch_tv_season_request)
 
 
-class WatchTVEpisodeViewSet(WebSocketMediaMessageUpdated, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
+class WatchTVEpisodeViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVEpisode.objects.all()
     serializer_class = WatchTVEpisodeSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)

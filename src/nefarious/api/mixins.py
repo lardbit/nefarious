@@ -69,7 +69,7 @@ class DestroyTransmissionResultMixin:
         super().perform_destroy(instance)
 
 
-class WebSocketMediaMessageUpdated:
+class WebSocketMediaMessageUpdatedMixin:
 
     def perform_create(self, serializer):
         # create instance first then send websocket message

@@ -102,7 +102,7 @@ export class MediaTVComponent implements OnInit {
 
         const watchTvShow = this._getWatchShow();
 
-        this.apiService.watchTVSeason(watchTvShow.id, season.season_number).subscribe(
+        this.apiService.watchTVSeasonRequest(watchTvShow.id, season.season_number).subscribe(
           (data) => {
             this.isSaving = false;
             this.toastr.success(`Watching season ${season.season_number}`);
