@@ -178,7 +178,8 @@ def completed_media_task():
                 transmission_client.rename_torrent_path(torrent.id, torrent.name, new_name)
 
                 # send websocket message media was updated
-                websocket.send_message(websocket.ACTION_UPDATED, media)
+                media_type, data = websocket.get_media_type_and_serialized_watch_media(media)
+                websocket.send_message(websocket.ACTION_UPDATED, media_type, data)
 
 
 @app.task
