@@ -3,7 +3,8 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
-import { forkJoin, Observable, of, zip } from 'rxjs';
+import {forkJoin, Observable, of, Subject, zip} from 'rxjs';
+import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
 
 
 @Injectable({
@@ -47,6 +48,11 @@ export class ApiService {
   public watchTVEpisodes: any[] = [];
   public watchTVShows: any[] = [];
   public watchMovies: any[] = [];
+
+  public mediaUpdated$ = new Subject<any>();
+
+  protected _webSocket: WebSocketSubject<any>;
+
 
   constructor(
     private http: HttpClient,
@@ -113,13 +119,19 @@ export class ApiService {
 
   public fetchCoreData(): Observable<any> {
     return forkJoin(
-      this.fetchSettings(),
-      this.fetchWatchTVShows(),
-      this.fetchWatchTVSeasons(),
-      this.fetchWatchTVSeasonRequests(),
-      this.fetchWatchTVEpisodes(),
-      this.fetchWatchMovies(),
-      this.fetchQualityProfiles(),
+      [
+        this.fetchSettings().pipe(
+          tap(() => {
+            this._initWebSocket();
+          })
+        ),
+        this.fetchWatchTVShows(),
+        this.fetchWatchTVSeasons(),
+        this.fetchWatchTVSeasonRequests(),
+        this.fetchWatchTVEpisodes(),
+        this.fetchWatchMovies(),
+        this.fetchQualityProfiles(),
+      ]
     );
   }
 
@@ -409,7 +421,12 @@ export class ApiService {
     };
     return this.http.post(this.API_URL_WATCH_TV_SHOW, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        this.watchTVShows.push(data);
+        const found = this.watchTVShows.find((media) => {
+          return media.id === data['id'];
+        });
+        if (!found) {
+          this.watchTVShows.push(data);
+        }
         return data;
       }),
     );
@@ -424,20 +441,30 @@ export class ApiService {
     };
     return this.http.post(this.API_URL_WATCH_TV_EPISODE, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        this.watchTVEpisodes.push(data);
+        const found = this.watchTVEpisodes.find((media) => {
+          return media.id === data['id'];
+        });
+        if (!found) {
+          this.watchTVEpisodes.push(data);
+        }
         return data;
       }),
     );
   }
 
-  public watchTVSeason(watchShowId: number, seasonNumber: number) {
+  public watchTVSeasonRequest(watchShowId: number, seasonNumber: number) {
     const params = {
       watch_tv_show: watchShowId,
       season_number: seasonNumber,
     };
     return this.http.post(this.API_URL_WATCH_TV_SEASON_REQUEST, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        this.watchTVSeasonRequests.push(data);
+        const found = this.watchTVSeasonRequests.find((media) => {
+          return media.id === data['id'];
+        });
+        if (!found) {
+          this.watchTVSeasonRequests.push(data);
+        }
         return data;
       }),
     );
@@ -486,19 +513,12 @@ export class ApiService {
       release_date: releaseDate,
     };
 
-    const watchMovie = _.find(this.watchMovies, (watchMovie) => {
-      return watchMovie.tmdb_movie_id == movieId;
-    });
-
-    const endpoint = watchMovie ?
-      this.http.patch(`${this.API_URL_WATCH_MOVIE}${watchMovie.id}/`, params, {headers: this._requestHeaders()}) :
-      this.http.post(this.API_URL_WATCH_MOVIE, params, {headers: this._requestHeaders()});
-
-    return endpoint.pipe(
+    return this.http.post(this.API_URL_WATCH_MOVIE, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        if (watchMovie) {
-          _.assign(watchMovie, data);
-        } else {
+        const found = this.watchMovies.find((media) => {
+          return media.id === data['id'];
+        });
+        if (!found) {
           this.watchMovies.push(data);
         }
         return data;
@@ -619,6 +639,96 @@ export class ApiService {
         return data;
       }),
     );
+  }
+
+  protected _initWebSocket() {
+
+    // we can't rely on the server's websocket url because it may be "nefarious" when run in a docker stack,
+    // so we'll just extract the port and path and use the current window's url
+    const serverWebSocketURL = new URL(this.settings.websocket_url);
+    const windowLocation = window.location;
+    const webSocketProtocol = `${windowLocation.protocol === 'https' ? 'wss' : 'ws'}://`;
+    const webSocketHost = `${webSocketProtocol}${windowLocation.hostname}:${windowLocation.port}${serverWebSocketURL.pathname}`;
+
+    console.log('Connecting to WebSocket URL: %s', webSocketHost);
+
+    this._webSocket = webSocket(webSocketHost);
+
+    this._webSocket.subscribe(
+      (data) => {
+        this._handleWebSocketMessage(data);
+      },
+      () => {
+        console.error('websocket error. reconnecting...');
+        this._reconnectWebSocket();
+      },
+      () => {
+        console.warn('websocket closed. reconnecting...');
+        this._reconnectWebSocket();
+      }
+    );
+  }
+
+  protected _reconnectWebSocket() {
+    if (this._webSocket && !this._webSocket.closed) {
+      console.warn('reinitializing websocket');
+      this._webSocket.unsubscribe();
+    } else {
+      console.log('initializing websocket');
+    }
+    setTimeout(() => {
+      this._initWebSocket();
+    }, 500);
+  }
+
+  protected _handleWebSocketMessage(data: string) {
+    try {
+      data = JSON.parse(data);
+    } catch (err) {
+      console.error('websocket message not json', err);
+      return;
+    }
+
+    let mediaList = [];
+
+    if (data['type'] === 'MOVIE') {
+      mediaList = this.watchMovies;
+    } else if (data['type'] === 'TV_SHOW') {
+      mediaList = this.watchTVShows;
+    } else if (data['type'] === 'TV_SEASON') {
+      mediaList = this.watchTVSeasons;
+    } else if (data['type'] === 'TV_SEASON_REQUEST') {
+      mediaList = this.watchTVSeasonRequests;
+    } else if (data['type'] === 'TV_EPISODE') {
+      mediaList = this.watchTVEpisodes;
+    } else {
+      console.error('Unknown websocket message', data);
+      return;
+    }
+
+    // find existing media and update it or add to appropriate media list
+    const watchMediaIndex = _.findIndex(mediaList, (media) => {
+      return media.id === data['data'].id;
+    });
+    if (data['action'] === 'UPDATED') {
+      // update existing media
+      if (watchMediaIndex >= 0) {
+        _.assign(mediaList[watchMediaIndex], data['data']);
+      } else {
+        // add to media list
+        mediaList.push(data['data']);
+      }
+    } else if (data['action'] === 'REMOVED') {
+      // remove media
+      if (watchMediaIndex >= 0) {
+        mediaList.splice(watchMediaIndex, 1);
+      } else {
+        console.warn('could not find media to remove', data['data']);
+      }
+    }
+
+    // alert any relevant components media has been updated
+    this.mediaUpdated$.next(true);
   }
 
   protected _fetchGenres(mediaType: string) {

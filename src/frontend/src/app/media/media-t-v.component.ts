@@ -45,6 +45,13 @@ export class MediaTVComponent implements OnInit {
         this.toastr.error('An unknown error occurred');
       }
     );
+
+    // watch for updated media
+    this.apiService.mediaUpdated$.subscribe(
+      () => {
+        this._buildWatchOptions();
+      }
+    );
   }
 
   public submitForSeason(seasonNumber: number) {
@@ -95,7 +102,7 @@ export class MediaTVComponent implements OnInit {
 
         const watchTvShow = this._getWatchShow();
 
-        this.apiService.watchTVSeason(watchTvShow.id, season.season_number).subscribe(
+        this.apiService.watchTVSeasonRequest(watchTvShow.id, season.season_number).subscribe(
           (data) => {
             this.isSaving = false;
             this.toastr.success(`Watching season ${season.season_number}`);
@@ -145,6 +152,47 @@ export class MediaTVComponent implements OnInit {
   public isWatchingSeason(seasonNumber: number) {
     const watchSeasonRequest = this._getWatchSeasonRequest(seasonNumber);
     return Boolean(watchSeasonRequest);
+  }
+
+  public hasCollectedAllEpisodesInSeason(season: any) {
+    // watching entire season
+    if (this.hasCollectedSeason(season)) {
+      return true;
+    }
+
+    // verify every episode is collected
+    for (const episode of season.episodes) {
+      const watchEpisode = this._getWatchEpisode(episode.id);
+      if (!watchEpisode || !watchEpisode.collected) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public isWatchingAllEpisodesInSeason(season: any) {
+    // watching all episodes in season
+    let watchingEpisodes = 0;
+    for (const episode of season.episodes) {
+      if (this.isWatchingEpisode(episode.id)) {
+        watchingEpisodes += 1;
+      }
+    }
+    return season.episodes.length === watchingEpisodes;
+  }
+
+  public isWatchingAnyEpisodeInSeason(season: any) {
+    for (const episode of season.episodes) {
+      if (this.isWatchingEpisode(episode.id)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public hasCollectedSeason(season): boolean {
+    const watchSeason = this._getWatchSeason(season.season_number);
+    return watchSeason && watchSeason.collected;
   }
 
   public stopWatchingEntireSeason(season: any) {

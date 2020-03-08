@@ -11,7 +11,8 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAdminUser
 
-from nefarious.api.mixins import UserReferenceViewSetMixin, BlacklistAndRetryMixin, DestroyTransmissionResultMixin
+from nefarious import websocket
+from nefarious.api.mixins import UserReferenceViewSetMixin, BlacklistAndRetryMixin, DestroyTransmissionResultMixin, WebSocketMediaMessageUpdatedMixin
 from nefarious.api.permissions import IsAuthenticatedDjangoObjectUser
 from nefarious.quality import PROFILES
 from nefarious.transmission import get_transmission_client
@@ -23,7 +24,7 @@ from nefarious.api.serializers import (
 )
 from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason, WatchTVSeasonRequest
 from nefarious.search import MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrents
-from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task
+from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task, send_websocket_message_task
 from nefarious.utils import (
     trace_torrent_url, swap_jackett_host, is_magnet_url,
     verify_settings_jackett, verify_settings_transmission, verify_settings_tmdb,
@@ -36,7 +37,7 @@ CACHE_DAY = CACHE_HALF_DAY * 2
 CACHE_WEEK = CACHE_DAY * 7
 
 
-class WatchMovieViewSet(DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
+class WatchMovieViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchMovie.objects.all()
     serializer_class = WatchMovieSerializer
     filter_fields = ('collected',)
@@ -56,13 +57,33 @@ class WatchMovieViewSet(DestroyTransmissionResultMixin, BlacklistAndRetryMixin, 
         watch_movie_task.delay(watch_media_id)
 
 
-class WatchTVShowViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
+class WatchTVShowViewSet(WebSocketMediaMessageUpdatedMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVShow.objects.all()
     serializer_class = WatchTVShowSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
 
+    def perform_destroy(self, watch_tv_show: WatchTVShow):
+        # delete all seasons, season requests, episodes and remove from transmission
 
-class WatchTVSeasonViewSet(DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
+        # delete season requests
+        WatchTVSeasonRequest.objects.filter(watch_tv_show=watch_tv_show).delete()
+
+        # delete instance and from transmission and send websocket messages
+        queries = [WatchTVSeason.objects.filter(watch_tv_show=watch_tv_show), WatchTVEpisode.objects.filter(watch_tv_show=watch_tv_show)]
+        for qs in queries:
+            for media in qs:
+                # send a websocket message that this media was removed
+                media_type, data = websocket.get_media_type_and_serialized_watch_media(media)
+                send_websocket_message_task.delay(websocket.ACTION_REMOVED, media_type, data)
+                # delete from transmission
+                destroy_transmission_result(media)
+                # delete the media
+                media.delete()
+
+        return super().perform_destroy(watch_tv_show)
+
+
+class WatchTVSeasonViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVSeason.objects.all()
     serializer_class = WatchTVSeasonSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
@@ -75,7 +96,7 @@ class WatchTVSeasonViewSet(DestroyTransmissionResultMixin, BlacklistAndRetryMixi
         watch_tv_show_season_task.delay(watch_media_id)
 
 
-class WatchTVSeasonRequestViewSet(UserReferenceViewSetMixin, viewsets.ModelViewSet):
+class WatchTVSeasonRequestViewSet(WebSocketMediaMessageUpdatedMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     """
     Special viewset to monitor the request of a season, not collection of the season/media itself
     """
@@ -96,28 +117,41 @@ class WatchTVSeasonRequestViewSet(UserReferenceViewSetMixin, viewsets.ModelViewS
                 user=self.request.user,
             ),
         )
+        # send a websocket message for this new season
+        media_type, data = websocket.get_media_type_and_serialized_watch_media(watch_tv_season)
+        send_websocket_message_task.delay(websocket.ACTION_UPDATED, media_type, data)
+
+        # delete any individual episodes (including in transmission) now that we're watching the entire season
+        for episode in WatchTVEpisode.objects.filter(watch_tv_show=watch_tv_season.watch_tv_show, season_number=watch_tv_season.season_number):
+            # send a websocket message for this removed episode
+            media_type, data = websocket.get_media_type_and_serialized_watch_media(episode)
+            send_websocket_message_task.delay(websocket.ACTION_REMOVED, media_type, data)
+            # delete from transmission
+            destroy_transmission_result(episode)
+            # delete the episode
+            episode.delete()
 
         # create a task to download the whole season (fallback to individual episodes if it fails)
         watch_tv_show_season_task.delay(watch_tv_season.id)
 
-        return Response(serializer.data)
-
     def perform_destroy(self, watch_tv_season_request: WatchTVSeasonRequest):
-        # destroy all watch tv season & episode instances as well, including any related torrents in transmission
+        # destroy watch tv season instances as well, including any related torrents in transmission
         query_args = dict(
             watch_tv_show=watch_tv_season_request.watch_tv_show,
             season_number=watch_tv_season_request.season_number,
         )
         for season in WatchTVSeason.objects.filter(**query_args):
+            # send a websocket message that this season was removed
+            media_type, data = websocket.get_media_type_and_serialized_watch_media(season)
+            send_websocket_message_task.delay(websocket.ACTION_REMOVED, media_type, data)
+            # delete from transmission
             destroy_transmission_result(season)
+            # delete the season
             season.delete()
-        for episode in WatchTVEpisode.objects.filter(**query_args):
-            destroy_transmission_result(episode)
-            episode.delete()
         return super().perform_destroy(watch_tv_season_request)
 
 
-class WatchTVEpisodeViewSet(DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
+class WatchTVEpisodeViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVEpisode.objects.all()
     serializer_class = WatchTVEpisodeSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
@@ -345,8 +379,7 @@ class DownloadTorrentsView(views.APIView):
 
         tmdb = get_tmdb_client(nefarious_settings)
 
-        # - set download paths
-        # - associate torrent with watch instance
+        # set download paths and associate torrent with watch instance
         if media_type == MEDIA_TYPE_MOVIE:
             tmdb_request = tmdb.Movies(tmdb_media['id'])
             tmdb_movie = tmdb_request.info()

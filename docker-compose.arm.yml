@@ -1,4 +1,4 @@
-version: '2'
+version: '2.4'
 
 services:
 
@@ -49,7 +49,7 @@ services:
   redis:
     image: arm32v7/redis
     restart: always
-    # TODO - use "expose" vs "ports" to limit external access
+    # TODO - use "expose" vs "ports" to limit external access when not in development
     ports:
     - "6379:6379"
 
@@ -72,8 +72,11 @@ services:
     image: linuxserver/transmission:arm32v7-latest
     volumes:
       # NOTE: the settings in this included file allow any IP to connect
-      - ./transmission-settings.json:/config/settings.json:ro
-      # NOTE: update this path to point to where you want things downloaded to
+      - type: bind
+        source: ./transmission-settings.json
+        target: /config/settings.json
+        read_only: true
+      # NOTE: update the first part of this path to point to where you want things downloaded to
       - /tmp/transmission:/downloads
     ports:
       - "9091:9091"

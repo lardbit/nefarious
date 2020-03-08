@@ -9,7 +9,7 @@ router.register(r'watch-tv-show', viewsets.WatchTVShowViewSet)
 router.register(r'watch-tv-season', viewsets.WatchTVSeasonViewSet)
 router.register(r'watch-tv-season-request', viewsets.WatchTVSeasonRequestViewSet)
 router.register(r'watch-tv-episode', viewsets.WatchTVEpisodeViewSet)
-router.register(r'users', viewsets.UserViewSet, base_name='users')  # specify base_name since it shares a queryset
+router.register(r'users', viewsets.UserViewSet)
 router.register(r'user', viewsets.CurrentUserViewSet)
 router.register(r'watch-movie', viewsets.WatchMovieViewSet)
 
@@ -26,6 +26,6 @@ urlpatterns = [
     path('discover/media/<str:media_type>/', viewsets.DiscoverMediaView.as_view()),
     path('genres/<str:media_type>/', viewsets.GenresView.as_view()),
     path('quality-profiles/', viewsets.QualityProfilesView.as_view()),
-    path('auth/', views.ObtainAuthToken.as_view()),  # authenticates user and returns token
-    path('git-commit/', views.GitCommit.as_view()),  # returns this app's git commit
+    path('auth/', views.ObtainAuthTokenView.as_view()),  # authenticates user and returns token
+    path('git-commit/', views.GitCommitView.as_view()),  # returns this app's git commit
 ]

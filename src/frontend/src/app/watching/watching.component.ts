@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
-import * as _ from 'lodash';
 
 
 @Component({
@@ -20,19 +19,32 @@ export class WatchingComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+
+    // watch for updated media
+    this.apiService.mediaUpdated$.subscribe(
+      () => {
+        this._buildResults(this.mediaType);
+      }
+    );
+
+    // watch for route changes
     this.route.params.subscribe(
       (params) => {
         this.mediaType = params.type;
-        if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV) {
-          this.results = this.apiService.watchTVShows;
-        } else {
-          this.results = this.apiService.watchMovies;
-        }
+        this._buildResults(this.mediaType);
       }
     );
   }
 
   public getTMDBId(result) {
     return this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV ? result['tmdb_show_id'] : result['tmdb_movie_id'];
+  }
+
+  protected _buildResults(mediaType: string) {
+    if (mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV) {
+      this.results = this.apiService.watchTVShows;
+    } else {
+      this.results = this.apiService.watchMovies;
+    }
   }
 }

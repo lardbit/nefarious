@@ -40,8 +40,5 @@
   </div>
 </nav>
 <main role="main">
-  <div class="alert alert-warning" *ngIf="isLoggedIn() && !hasSettings()">
-    Missing Settings.  Something went very wrong.
-  </div>
-  <router-outlet *ngIf="!isLoggedIn() || (isLoggedIn() && hasSettings())"></router-outlet>
+  <router-outlet></router-outlet>
 </main>

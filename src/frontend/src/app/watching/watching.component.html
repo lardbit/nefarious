@@ -12,21 +12,25 @@
     <div class="d-flex justify-content-end">
       <input class="form-control form-control-sm w-25 mb-3" [(ngModel)]="search" required minlength="2" name="search" type="text" placeholder="Filter..." autocomplete="off">
     </div>
-    <table class="table table-striped">
-      <thead>
-      <tr>
-        <th>Name</th>
-        <th *ngIf="mediaType === 'movie'">Requested</th>
-        <th *ngIf="mediaType === 'movie'">Requested By</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let result of results | filter: search">
-        <td><a [routerLink]="['/media', mediaType, getTMDBId(result)]">{{ result.name }}</a></td>
-        <td *ngIf="mediaType === 'movie'">{{ result.date_added | date: 'shortDate' }}</td>
-        <td *ngIf="mediaType === 'movie'">{{ result.requested_by }}</td>
-      </tr>
-      </tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th *ngIf="mediaType === 'movie'">Requested</th>
+          <th *ngIf="mediaType === 'movie'">Requested By</th>
+          <th *ngIf="mediaType === 'movie'">Downloaded</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let result of results | filter: search">
+          <td><a [routerLink]="['/media', mediaType, getTMDBId(result)]">{{ result.name }}</a></td>
+          <td *ngIf="mediaType === 'movie'">{{ result.date_added | date: 'shortDate' }}</td>
+          <td *ngIf="mediaType === 'movie'">{{ result.requested_by }}</td>
+          <td *ngIf="mediaType === 'movie'"><span *ngIf="result.collected" class="oi oi-check text-success"></span></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

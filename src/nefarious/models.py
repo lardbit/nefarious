@@ -122,7 +122,7 @@ class WatchTVSeasonRequest(models.Model):
         unique_together = ('watch_tv_show', 'season_number',)
 
     def __str__(self):
-        return '{} - Season {}'.format(self.watch_tv_show, self.season_number)
+        return '{} - Season {:02d}'.format(self.watch_tv_show, self.season_number)
 
 
 class WatchTVSeason(WatchMediaBase):
