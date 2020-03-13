@@ -1,31 +1,37 @@
-import {Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
+import {Component, OnInit, OnDestroy } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
 import { ActivatedRoute } from '@angular/router';
 import * as _ from 'lodash';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-wanted',
   templateUrl: './wanted.component.html',
   styleUrls: ['./wanted.component.css']
 })
-export class WantedComponent implements OnInit {
+export class WantedComponent implements OnInit, OnDestroy {
   public results: any[] = [];
   public mediaType: string;
   public search = '';
+
+  protected _changes: Subscription;
 
   constructor(
     private apiService: ApiService,
     private toastr: ToastrService,
     private route: ActivatedRoute,
+    private changeDetectorRef: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
 
     // watch for updated media
-    this.apiService.mediaUpdated$.subscribe(
+    this._changes = this.apiService.mediaUpdated$.subscribe(
       () => {
         this._buildResults(this.mediaType);
+        this.changeDetectorRef.detectChanges();
       }
     );
 
@@ -34,6 +40,10 @@ export class WantedComponent implements OnInit {
         this._buildResults(params.type);
       }
     );
+  }
+
+  ngOnDestroy() {
+    this._changes.unsubscribe();
   }
 
   public getTMDBId(result) {

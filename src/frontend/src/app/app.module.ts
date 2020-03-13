@@ -10,6 +10,8 @@ import { ToastrModule } from 'ngx-toastr';
 import { LoadingModule } from 'ngx-loading';
 import { MomentModule } from 'ngx-moment';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { AngularPageVisibilityModule } from 'angular-page-visibility';
+
 
 
 import { AppComponent } from './app.component';
@@ -50,9 +52,9 @@ const appRoutes: Routes = [
 
 export function init(apiService: ApiService) {
   return () => apiService.init().toPromise().then(
-    (data) => {
+    () => {
       console.log('app init success');
-    }, (error) => {
+    }, () => {
     console.error('app init failed');
   }
   );
@@ -95,6 +97,7 @@ export function init(apiService: ApiService) {
     LoadingModule,
     MomentModule,
     NgSelectModule,
+    AngularPageVisibilityModule,
   ],
   entryComponents: [],
   providers: [

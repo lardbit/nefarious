@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -8,22 +10,26 @@ import { ApiService } from '../api.service';
   templateUrl: './watching.component.html',
   styleUrls: ['./watching.component.css']
 })
-export class WatchingComponent implements OnInit {
+export class WatchingComponent implements OnInit, OnDestroy {
   public results: any[];
   public mediaType: string;
   public search: string;
 
+  protected _changes: Subscription;
+
   constructor(
     private apiService: ApiService,
     private route: ActivatedRoute,
+    private changeDetectorRef: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
 
     // watch for updated media
-    this.apiService.mediaUpdated$.subscribe(
+    this._changes = this.apiService.mediaUpdated$.subscribe(
       () => {
         this._buildResults(this.mediaType);
+        this.changeDetectorRef.detectChanges();
       }
     );
 
@@ -34,6 +40,10 @@ export class WatchingComponent implements OnInit {
         this._buildResults(this.mediaType);
       }
     );
+  }
+
+  ngOnDestroy() {
+    this._changes.unsubscribe();
   }
 
   public getTMDBId(result) {

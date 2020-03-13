@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from './api.service';
+import { OnPageVisible } from 'angular-page-visibility';
 
 
 @Component({
@@ -16,6 +17,12 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  @OnPageVisible()
+  logWhenPageVisible (): void {
+    console.log('page visible, re-fetching data');
+    this.apiService.fetchCoreData().subscribe();
   }
 
   public isStaff(): Boolean {

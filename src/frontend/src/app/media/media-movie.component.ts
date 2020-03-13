@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
 import { ToastrService } from 'ngx-toastr';
 import * as _ from 'lodash';
-import { Observable } from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import { map, share } from 'rxjs/operators';
 
 
@@ -12,7 +13,7 @@ import { map, share } from 'rxjs/operators';
   templateUrl: './media-movie.component.html',
   styleUrls: ['./media-movie.component.css']
 })
-export class MediaMovieComponent implements OnInit {
+export class MediaMovieComponent implements OnInit, OnDestroy {
   public result: any;
   public watchMovie: any;
   public qualityProfileCustom: string;
@@ -20,10 +21,13 @@ export class MediaMovieComponent implements OnInit {
   public isSaving = false;
   public trailerUrls$: Observable<any>;
 
+  protected _changes: Subscription;
+
   constructor(
     private route: ActivatedRoute,
     private apiService: ApiService,
     private toastr: ToastrService,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
   }
 
@@ -57,6 +61,17 @@ export class MediaMovieComponent implements OnInit {
         });
       })
     );
+
+    // watch for updated media
+    this._changes = this.apiService.mediaUpdated$.subscribe(
+      () => {
+        this.changeDetectorRef.detectChanges();
+      }
+    );
+  }
+
+  ngOnDestroy() {
+    this._changes.unsubscribe();
   }
 
   public isWatchingMovie() {

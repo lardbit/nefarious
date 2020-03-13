@@ -106,9 +106,9 @@ export class ApiService {
       this.localStorage.getItem(this.STORAGE_KEY_USER).pipe(
         map(
           (data) => {
-          this.user = data;
-          return this.user;
-        }),
+            this.user = data;
+            return this.user;
+          }),
       )
     );
   }
@@ -132,6 +132,11 @@ export class ApiService {
         this.fetchWatchMovies(),
         this.fetchQualityProfiles(),
       ]
+    ).pipe(
+      tap(() => {
+        // alert any relevant components media has been updated
+        this._alertMediaUpdated();
+      })
     );
   }
 
@@ -318,9 +323,9 @@ export class ApiService {
 
   public searchRecommendedMedia(tmdbMediaId: string, mediaType: string) {
     let params = {
-        tmdb_media_id: tmdbMediaId,
-        media_type: mediaType,
-      };
+      tmdb_media_id: tmdbMediaId,
+      media_type: mediaType,
+    };
     params = _.assign(params, this._defaultParams());
     const httpParams = new HttpParams({fromObject: params});
     const options = {headers: this._requestHeaders(), params: httpParams};
@@ -728,7 +733,7 @@ export class ApiService {
     }
 
     // alert any relevant components media has been updated
-    this.mediaUpdated$.next(true);
+    this._alertMediaUpdated();
   }
 
   protected _fetchGenres(mediaType: string) {
@@ -756,5 +761,9 @@ export class ApiService {
       'Content-Type':  'application/json',
       'Authorization': `Token ${this.userToken}`,
     });
+  }
+
+  protected _alertMediaUpdated() {
+    this.mediaUpdated$.next(true);
   }
 }
