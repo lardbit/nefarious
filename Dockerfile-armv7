@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.8-venv \
     python3.8-gdbm \
     git \
-    && python3 -m venv /env \
+    && python3.8 -m venv /env \
     && /env/bin/pip install -r requirements.txt \
     && apt-get remove -y \
         build-essential \
