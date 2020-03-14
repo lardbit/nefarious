@@ -20,6 +20,7 @@
           <th>Requested</th>
           <th>Requested By</th>
           <th>Last Attempt</th>
+          <th>Torrent Found</th>
         </tr>
         </thead>
         <tbody>
@@ -28,6 +29,7 @@
           <td>{{ result.date_added | date: 'shortDate' }}</td>
           <td>{{ result.requested_by }}</td>
           <td>{{ result.last_attempt_date | date: 'shortDate' }}</td>
+          <td><span *ngIf="result.transmission_torrent_hash" class="oi oi-check text-success"></span></td>
         </tr>
         </tbody>
       </table>
