@@ -16,14 +16,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     python3.8 \
     python3.8-dev \
-    python3.8-venv \
     python3.8-gdbm \
+    # note: python3 vs python3.8 for virtualenv
+    python3-venv \
     git \
-    && python3.8 -m venv /env \
-    && /env/bin/pip install -r requirements.txt \
+    # note: python3 vs python3.8 for creating virtualenv
+    && python3 -m venv /env \
+    && /env/bin/pip3.8 install -r requirements.txt \
     && apt-get remove -y \
         build-essential \
-        python3.8-venv \
+        python3-venv \
         python3.8-dev \
         git \
     && apt-get autoremove -y \
