@@ -29,7 +29,9 @@ jobs:
         # define the image tag to copy the image app in the build phase
         - if [[ $TRAVIS_BRANCH == 'master' ]]; then copy_from_tag='latest'; else copy_from_tag="$TRAVIS_BRANCH"; fi
         # build ARM image copying the app from the previously built base image
-        - docker build -f Dockerfile-armv7 --build-arg copy_from_tag=$copy_from_tag -t lardbit/nefarious:$tag .
+        # NOTE: using "travis_wait" which produces output every minute to prevent the build from timing out
+        # https://docs.travis-ci.com/user/common-build-problems/#build-times-out-because-no-output-was-received
+        - travis_wait docker build -f Dockerfile-armv7 --build-arg copy_from_tag=$copy_from_tag -t lardbit/nefarious:$tag .
         # authenticate with docker
         - echo "$DOCKER_PASSWORD" | docker login -u "lardbit" --password-stdin
         # push ARM image to docker hub
