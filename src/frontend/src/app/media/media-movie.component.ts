@@ -117,7 +117,7 @@ export class MediaMovieComponent implements OnInit, OnDestroy {
   }
 
   public mediaPosterURL(result) {
-    return `${this.apiService.settings.tmdb_configuration.images.base_url}/original/${result.poster_path}`;
+    return `${this.apiService.settings.tmdb_configuration.images.secure_base_url}/original/${result.poster_path}`;
   }
 
   public userIsStaff(): boolean {

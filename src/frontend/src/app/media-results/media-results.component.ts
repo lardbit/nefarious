@@ -38,7 +38,7 @@ export class MediaResultsComponent implements OnInit {
   }
 
   public mediaPosterURL(result) {
-    return `${this.apiService.settings.tmdb_configuration.images.base_url}/original/${result.poster_path}`;
+    return `${this.apiService.settings.tmdb_configuration.images.secure_base_url}/original/${result.poster_path}`;
   }
 
   protected _watchingResult(result: any) {

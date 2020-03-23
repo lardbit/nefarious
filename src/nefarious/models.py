@@ -45,7 +45,7 @@ class NefariousSettings(models.Model):
 
     def get_tmdb_poster_url(self, poster_path):
         return os.path.join(
-            self.tmdb_configuration['images']['base_url'],
+            self.tmdb_configuration['images']['secure_base_url'],
             'original',
             poster_path.lstrip('/'),
         )

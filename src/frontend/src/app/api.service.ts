@@ -652,7 +652,7 @@ export class ApiService {
     // so we'll just extract the port and path and use the current window's url
     const serverWebSocketURL = new URL(this.settings.websocket_url);
     const windowLocation = window.location;
-    const webSocketProtocol = `${windowLocation.protocol === 'https' ? 'wss' : 'ws'}://`;
+    const webSocketProtocol = `${windowLocation.protocol === 'https:' ? 'wss' : 'ws'}://`;
     const webSocketHost = `${webSocketProtocol}${windowLocation.hostname}:${windowLocation.port}${serverWebSocketURL.pathname}`;
 
     console.log('Connecting to WebSocket URL: %s', webSocketHost);
