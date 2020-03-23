@@ -21,8 +21,8 @@ RUN ["cross-build-end"]
 
 # app image
 FROM resin/armv7hf-ubuntu
-COPY --from=0 /app /
-COPY --from=0 /env /
+COPY --from=0 /app /app
+COPY --from=0 /env /env
 
 EXPOSE 80
 
