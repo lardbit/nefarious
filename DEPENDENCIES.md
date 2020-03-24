@@ -1,3 +1,5 @@
+# Dependencies
+
 nefarious is best run via [Docker](https://docs.docker.com/install/) through [Docker Compose](https://docs.docker.com/compose/).
 
 Install those two programs and you're all set. If your OS isn't listed in the Docker downloads, see the OS specific instructions below.
