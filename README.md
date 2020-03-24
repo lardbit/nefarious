@@ -79,6 +79,8 @@ See [DEPENDENCIES.md](./DEPENDENCIES.md)
 
 ### Setup
 
+You must have **docker** and **docker-compose** already installed.  See [dependencies](DEPENDENCIES.md).
+
 #### Part 1 - Setup performed from terminal
 
 Run the following commands:
@@ -92,7 +94,7 @@ Run the following commands:
 This will:
 
 - verify docker is initialized
-- add current user to the docker group
+- add the current user to the docker group
 - update the current shell session to use new login group
 
 You'll now be able to run Docker commands without needing to call `sudo` each time.
@@ -119,7 +121,7 @@ Your default local URLs for all the various services will be:
 - Jackett: [http://localhost:9117](http://localhost:9117)
 - Transmission: [http://localhost:9091](http://localhost:9091)
 
-**NOTE:** See *Part 2* for finalizing the configuration.
+**See** *Part 2* for finalizing the configuration.
 
 ##### ARM devices
 
