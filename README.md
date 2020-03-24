@@ -1,5 +1,6 @@
 # nefarious
 
+
 [![Build Status](https://travis-ci.org/lardbit/nefarious.svg?branch=master)](https://travis-ci.org/lardbit/nefarious)
 [![Docker Pulls](https://img.shields.io/docker/pulls/lardbit/nefarious.svg?maxAge=60&style=flat-square)](https://hub.docker.com/r/lardbit/nefarious)
 
@@ -74,58 +75,11 @@ Features:
 
 ### Dependencies
 
-nefarious is best run via [Docker](https://hub.docker.com/search/?type=edition&offering=community) through [Docker Compose](https://docs.docker.com/compose/install/).
-
-Install those two programs and you're all set. If your OS isn't listed in the Docker downloads, see the OS specific instructions below.
-
-#### OS specific dependencies
-
-Follow some guidelines for installing Docker and Docker Compose for various OS's.
-
-##### Arch
-
-You should be able to install docker and docker-compose from the default Software Center/repositories.
-
-##### Solus OS
-
-You should be able to install docker and docker-compose from the default Software Center/repositories.
-
-##### Ubuntu/Debian
-
-Ensure that git and curl are already installed, then run the following commands:
-
-    sudo apt-get update
-    sudo apt-get install -y docker.io
-    # this commands refers to the current latest docker compose version of 1.18.0.  See latest versions at https://github.com/docker/compose/releases
-    sudo curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-
-##### Fedora
-
-Install the Docker repository and update metadata cache
-
-    sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
-    sudo dnf makecache
-
-Install docker and docker-compose from repository
-
-    sudo dnf install docker-ce
-    sudo dnf -y install docker-compose
-
-At the moment Docker-Compose doesn't fully work without modification on Fedora 31.  30,29,28, and so on should work however.  If you're running Fedora 31, use the following Reddit thread and most recent post at your own discretion. 
-https://www.reddit.com/r/Fedora/comments/d8ukd0/has_anyone_managed_to_run_docker_ce_on_fedora_31/
-
-##### Windows
-
-You'll need to ensure that your PC is running a version of Windows 10 64-bit Professional, Education, or Enterprise.
-Docker for Windows requires Hyper-V technology, which is not supported by Windows 10 Home.
-You'll also need to ensure that your PC has Virtualization enabled in BIOS before attempting to install Docker for Windows.
-While nefarious is not by any means a Linux exclusive application, it is much easier to setup on either a Linux based OS, or on a Linux Virtual Machine through your preferred VM software on any actively updated version of Windows.
-Consult appropriate documentation relating to said software if you wish to setup folder shares between your Linux VM and your Windows install.  Docker Toolbox is also an option, as it runs docker commands on non-Hyper-V supported OSes by running them through an integrated Linux VM.
-If you'd prefer to avoid using something like Virtualbox, VMWare, or other separate Virtualization software, this would would probably work best for you.
-That being said, we'd recommend this only be done by experienced users of Docker software.
+See [DEPENDENCIES.md](./DEPENDENCIES.md)
 
 ### Setup
+
+You must have **docker** and **docker-compose** already installed.  See [dependencies](DEPENDENCIES.md).
 
 #### Part 1 - Setup performed from terminal
 
@@ -140,7 +94,7 @@ Run the following commands:
 This will:
 
 - verify docker is initialized
-- add current user to the docker group
+- add the current user to the docker group
 - update the current shell session to use new login group
 
 You'll now be able to run Docker commands without needing to call `sudo` each time.
@@ -158,14 +112,16 @@ Clone the nefarious repository and start all the Docker containers:
     git clone https://github.com/lardbit/nefarious.git
     cd nefarious
     docker-compose up -d
+    
+**NOTE: the first time you bring up nefarious can take a few minutes.**
 
-Your default local addresses for the various services will be:
+Your default local URLs for all the various services will be:
 
 - nefarious: [http://localhost:8000](http://localhost:8000)
 - Jackett: [http://localhost:9117](http://localhost:9117)
 - Transmission: [http://localhost:9091](http://localhost:9091)
 
-**NOTE:** See *Part 2* for finalizing the configuration.
+**See** *Part 2* for finalizing the configuration.
 
 ##### ARM devices
 
@@ -177,10 +133,10 @@ For example, run the following to bring up all the services on ARM devices:
     
     docker-compose -f docker-compose.arm.yml up -d
 
-### Part 2 - Setup performed from GUI or text editor
+#### Part 2 - Setup performed from GUI or text editor
 
 The default nefarious user/password is `admin`/`admin`.  On first login you will be directed to the main nefarious settings and asked to configure your Jackett API token.
-Jackett's host in the main settings should remain `jackett` and the port should remain `9117`.  Copy your API Token from [Jackett](http://localhost:9117) into the appropriate nefarious section.
+Jackett's **host** in the main settings should remain `jackett` and the port should remain `9117`.  Copy your API Token from [Jackett](http://localhost:9117) into the appropriate nefarious section.
 Don't forget to also add some indexers in Jackett to track your preferred content, and be sure to test them to see that they're working.  Some popular examples are *The Pirate Bay*, *1337x*, *RARBG*.
 
 Transmission's host should remain `transmission` and port should remain `9091`.  It's possible to configure it with a username and password, but defaults to keeping them both blank.
@@ -193,7 +149,7 @@ TV and Movie quality profiles can be changed independently of each other if you 
 Finally, user accounts and passwords can be added or modified as well.  Feel free to change the defaults now if you so desire, or add additional users on your PC/system.
 Once all of your Settings are to your preference, first click `Save` then be sure to `Verify Settings`.
 
-#### Transmission Configuration
+##### Transmission Configuration
 
 In order to change the download folder (which is set to `/tmp/transmission` by default) look for the `docker-compose.yml` file in your nefarious folder and edit 
 
@@ -234,86 +190,4 @@ There is no default transmission user/pass, but feel free to edit the `transmiss
 
 ### Development
 
-If you're interested in contributing or simply want to run nefarious without *docker* then follow these instructions.
-
-nefarious is built on:
-
-- Python 3.8
-- Django 3
-- Angular 6
-- Bootstrap 4
-
-*Note*: Review the `Dockerfile` for all necessary dependencies.
-
-#### Install python dependencies
-
-This assumes you're either installing these packages in your global python environment (in which case you probably need to use `sudo`) or, even better, install a [virtual environment](https://docs.python.org/3/library/venv.html) first.
-  
-    pip install -r src/requirements.txt
-
-#### Build database
-  
-    python src/manage.py migrate
-
-#### Run nefarious init script
-
-This creates a default user and pass (admin/admin).
-
-    python src/manage.py nefarious-init admin admin@localhost admin
-
-
-#### Build front-end resources
-
-First install the frontend dependencies:
-
-    npm --prefix src/frontend install
-
-Then build the frontend html/css stuff (angular):
-    
-    npm --prefix src/frontend run build
-   
-Note: run `npm --prefix src/frontend run watch` to automatically rebuild while you're developing the frontend stuff.
-   
-#### Run nefarious
-
-##### Basic development server
-
-This method is the default Django development server but doesn't support websockets.
-
-    DEBUG=1 python src/manage.py runserver 8000
-   
-It'll be now running at [http://127.0.0.1:8000](http://127.0.0.1:8000)
-
-*NOTE: this method won't support websockets*
-
-##### Development server with websockets
-
-This method runs the production server (with hot reload) and supports websockets.
-
-    python src/manage.py collectstatic --noinput
-    DEBUG=1 uvicorn nefarious.asgi:application --reload
-    
-It'll be now running at [http://127.0.0.1:8000](http://127.0.0.1:8000)
-   
-#### Run celery (task queue)
-
-[Celery](http://celeryproject.org) is a task queue and is used by nefarious to queue downloads, monitor for things, etc.
-
-Run the celery server:
-
-    cd src
-    DEBUG=1 WEBSOCKET_HOST=ws://localhost:8000/ws celery -A nefarious worker --loglevel=INFO
-    
-You'll see all download logs/activity come out of here.
-
-**NOTE**: By prefixing `DEBUG=1` before the celery command, all torrents will start as **paused** to avoid downloading anything.
-
-#### Dependencies
-
-Jackett, Redis and Transmission are expected to be running somewhere.  
-
-You can download and run them manually, or, for simplicity, I'd just run them via docker using the `docker-compose.yml` file.
-
-Run redis, jackett and transmission from the `docker-compose.yml` file:
-
-    docker-compose up -d redis jackett transmission
+See [DEVELOPMENT.md](DEVELOPMENT.md).
