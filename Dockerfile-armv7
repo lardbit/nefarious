@@ -2,11 +2,16 @@
 ARG copy_from_tag=latest
 FROM lardbit/nefarious:${copy_from_tag} as copy_from_app_image
 
-# base image - copy pre-built app from "copy_from_app_image" image
+# base image
 FROM resin/armv7hf-ubuntu
+
 WORKDIR /app
+
+# copy pre-built app from "copy_from_app_image" image
 COPY --from=copy_from_app_image /app .
+
 RUN ["cross-build-start"]
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     python3.8 \
@@ -14,16 +19,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.8-dev \
     python3.8-gdbm \
     python3-venv \
-    git
-RUN python3.8 -m venv /env
-RUN /env/bin/pip install -r requirements.txt
-RUN ["cross-build-end"]
+    git \
+    && python3.8 -m venv /env \
+    && /env/bin/pip install -r requirements.txt \
+    && apt-get remove -y \
+        build-essential \
+        python3.8-venv \
+        python3.8-dev \
+        python3-venv \
+        git \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && true
 
-# app image
-FROM resin/armv7hf-ubuntu
-WORKDIR /app
-COPY --from=0 /app /app
-COPY --from=0 /env /env
+RUN ["cross-build-end"]
 
 EXPOSE 80
 
