@@ -65,6 +65,7 @@ export class MediaMovieComponent implements OnInit, OnDestroy {
     // watch for updated media
     this._changes = this.apiService.mediaUpdated$.subscribe(
       () => {
+        this.watchMovie = this.getWatchMovie();
         this.changeDetectorRef.detectChanges();
       }
     );

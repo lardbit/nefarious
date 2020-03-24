@@ -44,20 +44,23 @@ Note: run `npm --prefix src/frontend run watch` to automatically rebuild while y
 
 ##### Basic development server
 
-This method is the default Django development server but doesn't support websockets.
+This method is the default Django development server but *doesn't support websockets*.
 
     DEBUG=1 python src/manage.py runserver 8000
    
 It'll be now running at [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
-*NOTE: this method won't support websockets*
-
 ##### Development server with websockets
 
 This method runs the production server (with hot reload) and supports websockets.
 
+Collect all the static assets:
+
     python src/manage.py collectstatic --noinput
-    DEBUG=1 uvicorn nefarious.asgi:application --reload
+    
+Run the server:
+
+    uvicorn nefarious.asgi:application --reload
     
 It'll be now running at [http://127.0.0.1:8000](http://127.0.0.1:8000)
    

@@ -23,9 +23,13 @@ class NefariousSettingsSerializer(serializers.ModelSerializer):
     tmdb_languages = serializers.JSONField(required=False)
     jackett_default_token = serializers.ReadOnlyField(default=NefariousSettings.JACKETT_TOKEN_DEFAULT)
     websocket_url = serializers.SerializerMethodField()
+    is_debug = serializers.SerializerMethodField()
 
     def get_websocket_url(self, obj):
         return settings.WEBSOCKET_URL
+
+    def get_is_debug(self, obj):
+        return settings.DEBUG
 
     class Meta:
         model = NefariousSettings

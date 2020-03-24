@@ -122,7 +122,10 @@ export class ApiService {
       [
         this.fetchSettings().pipe(
           tap(() => {
-            this._initWebSocket();
+            // only initialize when in production
+            if (!this.settings.is_debug) {
+              this._initWebSocket();
+            }
           })
         ),
         this.fetchWatchTVShows(),
