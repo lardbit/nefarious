@@ -10,9 +10,13 @@
 ## Downloading Movies
 
 - change **Quality Profile** if you want to update the default setting
-- click the **Watch** button
+- click the **Watch** button and nefarious will begin searching and downloading the movie
 
 ### Manually searching for Movies
+
+Sometimes you want more control about what torrent is chosen for download.
+
+*Only admin users will see this option*.
 
 - click the **Manual Search** tab to begin a torrent search
 - sort the results as necessary (ie. by name, seeders, size)
@@ -33,6 +37,10 @@
 - expand the season you want and check the specific episodes you want and then click the **Watch selected episodes** button and nefarious will begin searching for and downloading those episodes
 
 ### Manually searching for TV
+
+Sometimes you want more control about what torrent is chosen for download.
+
+*Only admin users will see this option*.
 
 - expand the season you want
 - click the **Manual** checkbox
