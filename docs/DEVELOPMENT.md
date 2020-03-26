@@ -9,7 +9,7 @@ nefarious is built on:
 - Angular 6
 - Bootstrap 4
 
-*Note*: Review the [Dockerfile](Dockerfile) for all the necessary development dependencies.
+*Note*: Review the [Dockerfile](../Dockerfile) for all the necessary development dependencies.
 
 #### Install python dependencies
 

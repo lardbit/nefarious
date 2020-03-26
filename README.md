@@ -37,6 +37,7 @@ Features:
 - [Screenshots](#screenshots)
 - [Dependencies](#dependencies)
 - [Setup](#setup)
+- [Usage](#usage)
 - [Troubleshooting](#troubleshooting)
 - [Development](#development)
 
@@ -74,11 +75,11 @@ Features:
 
 ### Dependencies
 
-See [DEPENDENCIES.md](./DEPENDENCIES.md)
+See [DEPENDENCIES.md](docs/DEPENDENCIES.md)
 
 ### Setup
 
-You must have **docker** and **docker-compose** already installed.  See [dependencies](DEPENDENCIES.md).
+You must have **docker** and **docker-compose** already installed.  See [dependencies](docs/DEPENDENCIES.md).
 
 #### Part 1 - Setup performed from terminal
 
@@ -170,23 +171,15 @@ There is no default transmission user/pass, but feel free to edit the `transmiss
 **NOTE** if you make any changes to `transmission-settings.json` you'll have to recreate the transmission container for the changes to take place:
 
     docker-compose up -d --force-recreate transmission
+    
+### Usage
+
+See [USAGE.md](docs/USAGE.md).
 
 ### Troubleshooting
-   
-    # logs for main app
-    docker-compose logs -f nefarious
 
-    # logs for tasks (search results)
-    docker-compose logs -f celery
-
-    # list all services (they should all be "up")
-    docker-compose ps
-
-    # use a hammer and restart everything (you won't lose your settings, though)
-    docker-compose down
-    docker-compose up -d
-
+See [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 
 ### Development
 
-See [DEVELOPMENT.md](DEVELOPMENT.md).
+See [DEVELOPMENT.md](docs/DEVELOPMENT.md).
