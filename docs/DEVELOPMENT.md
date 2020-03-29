@@ -71,9 +71,11 @@ It'll be now running at [http://127.0.0.1:8000](http://127.0.0.1:8000)
 Run the celery server:
 
     cd src
-    DEBUG=1 WEBSOCKET_HOST=ws://localhost:8000/ws celery -A nefarious worker --loglevel=INFO
+    DEBUG=1 celery -A nefarious worker --loglevel=INFO
     
 You'll see all download logs/activity come out of here.
+
+**NOTE**: Prefix `WEBSOCKET_HOST=ws://localhost:8000/ws` if you're using the websocket version of the server so the celery tasks can send websocket messages.
 
 **NOTE**: By prefixing `DEBUG=1` before the celery command, all torrents will start as **paused** to avoid downloading anything.
 
