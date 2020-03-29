@@ -440,6 +440,21 @@ export class ApiService {
     );
   }
 
+  public updateWatchTVShow(id: number, params: any) {
+    return this.http.patch(`${this.API_URL_WATCH_TV_SHOW}${id}/`, params, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        const showIndex = this.watchTVShows.findIndex((media) => {
+          return media.id === data['id'];
+        });
+        if (showIndex >= 0) {
+          // update show
+          Object.assign(this.watchTVShows[showIndex], data);
+        }
+        return this.watchTVShows[showIndex];
+      }),
+    );
+  }
+
   public watchTVEpisode(watchShowId: number, episodeId: number, seasonNumber: number, episodeNumber: number) {
     const params = {
       watch_tv_show: watchShowId,

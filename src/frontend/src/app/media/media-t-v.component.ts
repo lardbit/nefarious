@@ -19,6 +19,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
   public result: any;
   public isManuallySearching = false;
   public isManualSearchEnabled = false;
+  public autoWatchFutureSeasons = false;
   public watchEpisodesOptions: {
     [param: number]: boolean,
   };
@@ -39,6 +40,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const routeParams = this.route.snapshot.params;
+    this.autoWatchFutureSeasons = this.apiService.settings.auto_watch;
     this.apiService.searchMediaDetail(this.apiService.SEARCH_MEDIA_TYPE_TV, routeParams.id).subscribe(
       (data) => {
         this.result = data;
@@ -270,6 +272,20 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     return Boolean(_.find(this.apiService.watchTVEpisodes, (watching) => {
       return watching.tmdb_episode_id === episodeId;
     }));
+  }
+
+  public autoWatchUpdate() {
+    const watchTvShow = this._getWatchShow();
+    if (watchTvShow) {
+      this.apiService.updateWatchTVShow(watchTvShow.id, {auto_watch: this.autoWatchFutureSeasons}).subscribe(
+        (data) => {
+          this.toastr.success('Updated auto watch');
+        }, (error) => {
+          console.error(error);
+          this.toastr.error('An unknown error occurred updating auto watch');
+        }
+      );
+    }
   }
 
   protected _watchShow(): Observable<any> {
