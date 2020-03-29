@@ -40,11 +40,18 @@ export class MediaTVComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const routeParams = this.route.snapshot.params;
-    this.autoWatchFutureSeasons = this.apiService.settings.auto_watch;
     this.apiService.searchMediaDetail(this.apiService.SEARCH_MEDIA_TYPE_TV, routeParams.id).subscribe(
       (data) => {
+        // set result and build the watching options
         this.result = data;
         this._buildWatchOptions();
+
+        // populate "auto watch" settings
+        const watchShow = this._getWatchShow();
+        if (watchShow) {
+          this.autoWatchFutureSeasons = watchShow.auto_watch;
+        }
+
         this.isLoading = false;
       },
       (error) => {

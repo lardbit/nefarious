@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.models import User
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -44,6 +46,13 @@ class WatchTVShowViewSet(WebSocketMediaMessageUpdatedMixin, UserReferenceViewSet
     queryset = WatchTVShow.objects.all()
     serializer_class = WatchTVShowSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
+
+    def perform_update(self, serializer):
+        instance = self.get_object()  # type: WatchTVShow
+        # set the auto watch date to now if it was toggled on
+        if not instance.auto_watch and serializer.validated_data.get('auto_watch'):
+            serializer.validated_data['auto_watch_date_requested'] = datetime.utcnow().date()
+        super().perform_update(serializer)
 
     def perform_destroy(self, watch_tv_show: WatchTVShow):
         # delete all seasons, season requests, episodes and remove from transmission

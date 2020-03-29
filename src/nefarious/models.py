@@ -93,7 +93,7 @@ class WatchTVShow(models.Model):
     poster_image_url = models.CharField(max_length=1000)
     release_date = models.DateField(null=True, blank=True)
     auto_watch = models.BooleanField(default=False)  # whether to automatically watch future seasons
-    auto_watch_date_created = models.DateField(auto_now_add=True, null=True, blank=True)
+    auto_watch_date_requested = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ('name',)
