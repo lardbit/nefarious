@@ -94,12 +94,28 @@ export class MediaTVComponent implements OnInit, OnDestroy {
   public watchAllSeasons() {
 
     if (!this.isWatchingShow()) {
-      this._watchShow().subscribe(
+      // enable auto-watch
+      this.autoWatchFutureSeasons = true;
+      this._watchShow(true).subscribe(
         (data) => {
           this.watchAllSeasons();
+        }, (error) => {
+          console.error(error);
+          this.autoWatchFutureSeasons = false;
+          this.toastr.error('An unknown error occurred');
         }
       );
     } else {
+      // enable auto-watch
+      this.autoWatchFutureSeasons = true;
+      this.apiService.updateWatchTVShow(this._getWatchShow().id, {auto_watch: this.autoWatchFutureSeasons}).subscribe(
+        () => {},
+        (error) => {
+          console.error(error);
+          this.autoWatchFutureSeasons = false;
+          this.toastr.error('An unknown error occurred');
+        }
+      );
       for (const season of this.result.seasons) {
         this.watchEntireSeason(season);
       }
@@ -149,6 +165,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
         (data) => {
           this.toastr.success('Stopped watching show');
           this._buildWatchOptions();
+          this.autoWatchFutureSeasons = false;
           this.isSaving = false;
         },
         (error) => {
@@ -295,8 +312,8 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected _watchShow(): Observable<any> {
-    return this.apiService.watchTVShow(this.result.id, this.result.name, this.mediaPosterURL(this.result), this.result.first_air_date).pipe(
+  protected _watchShow(autoWatchNewSeasons?: boolean): Observable<any> {
+    return this.apiService.watchTVShow(this.result.id, this.result.name, this.mediaPosterURL(this.result), this.result.first_air_date, autoWatchNewSeasons).pipe(
       tap((data) => {
         this.toastr.success(`Watching show ${data.name}`);
       }),

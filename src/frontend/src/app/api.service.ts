@@ -420,12 +420,13 @@ export class ApiService {
     );
   }
 
-  public watchTVShow(showId: number, name: string, posterImageUrl: string, releaseDate: string) {
+  public watchTVShow(showId: number, name: string, posterImageUrl: string, releaseDate: string, autoWatchNewSeasons?: boolean) {
     const params = {
       tmdb_show_id: showId,
       name: name,
       poster_image_url: posterImageUrl,
       release_date: releaseDate,
+      auto_watch: !!autoWatchNewSeasons,
     };
     return this.http.post(this.API_URL_WATCH_TV_SHOW, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
