@@ -22,6 +22,14 @@
           <span class="oi oi-x"></span> Stop watching show
         </button>
       </div>
+      <div class="d-flex justify-content-end" *ngIf="isWatchingShow()">
+        <div class="form-check text-muted form-control-sm">
+          <input class="form-check-input" type="checkbox" id="auto-watch" [(ngModel)]="autoWatchFutureSeasons" (ngModelChange)="autoWatchUpdate()">
+          <label class="form-check-label" for="auto-watch" placement="top" ngbTooltip="When new seasons air, this setting will automatically start watching them">
+            Automatically watch future seasons
+          </label>
+        </div>
+      </div>
     </div>
     <div class="card-body">
       <ngb-tabset #tabsetEl="ngbTabset">

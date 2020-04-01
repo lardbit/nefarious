@@ -43,7 +43,7 @@ class NefariousPartialSettingsSerializer(NefariousSettingsSerializer):
     class Meta:
         model = NefariousSettings
         # only include specific fields
-        fields = ('tmdb_configuration', 'jackett_default_token', 'websocket_url')
+        fields = ('tmdb_configuration', 'jackett_default_token', 'websocket_url', 'is_debug')
 
 
 class WatchMovieSerializer(UserReferenceSerializerMixin, serializers.ModelSerializer):

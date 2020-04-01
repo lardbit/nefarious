@@ -420,12 +420,13 @@ export class ApiService {
     );
   }
 
-  public watchTVShow(showId: number, name: string, posterImageUrl: string, releaseDate: string) {
+  public watchTVShow(showId: number, name: string, posterImageUrl: string, releaseDate: string, autoWatchNewSeasons?: boolean) {
     const params = {
       tmdb_show_id: showId,
       name: name,
       poster_image_url: posterImageUrl,
       release_date: releaseDate,
+      auto_watch: !!autoWatchNewSeasons,
     };
     return this.http.post(this.API_URL_WATCH_TV_SHOW, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
@@ -436,6 +437,21 @@ export class ApiService {
           this.watchTVShows.push(data);
         }
         return data;
+      }),
+    );
+  }
+
+  public updateWatchTVShow(id: number, params: any) {
+    return this.http.patch(`${this.API_URL_WATCH_TV_SHOW}${id}/`, params, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        const showIndex = this.watchTVShows.findIndex((media) => {
+          return media.id === data['id'];
+        });
+        if (showIndex >= 0) {
+          // update show
+          Object.assign(this.watchTVShows[showIndex], data);
+        }
+        return this.watchTVShows[showIndex];
       }),
     );
   }

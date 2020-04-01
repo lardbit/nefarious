@@ -19,6 +19,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
   public result: any;
   public isManuallySearching = false;
   public isManualSearchEnabled = false;
+  public autoWatchFutureSeasons = false;
   public watchEpisodesOptions: {
     [param: number]: boolean,
   };
@@ -41,8 +42,16 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     const routeParams = this.route.snapshot.params;
     this.apiService.searchMediaDetail(this.apiService.SEARCH_MEDIA_TYPE_TV, routeParams.id).subscribe(
       (data) => {
+        // set result and build the watching options
         this.result = data;
         this._buildWatchOptions();
+
+        // populate "auto watch" settings
+        const watchShow = this._getWatchShow();
+        if (watchShow) {
+          this.autoWatchFutureSeasons = watchShow.auto_watch;
+        }
+
         this.isLoading = false;
       },
       (error) => {
@@ -85,12 +94,28 @@ export class MediaTVComponent implements OnInit, OnDestroy {
   public watchAllSeasons() {
 
     if (!this.isWatchingShow()) {
-      this._watchShow().subscribe(
+      // enable auto-watch
+      this.autoWatchFutureSeasons = true;
+      this._watchShow(true).subscribe(
         (data) => {
           this.watchAllSeasons();
+        }, (error) => {
+          console.error(error);
+          this.autoWatchFutureSeasons = false;
+          this.toastr.error('An unknown error occurred');
         }
       );
     } else {
+      // enable auto-watch
+      this.autoWatchFutureSeasons = true;
+      this.apiService.updateWatchTVShow(this._getWatchShow().id, {auto_watch: this.autoWatchFutureSeasons}).subscribe(
+        () => {},
+        (error) => {
+          console.error(error);
+          this.autoWatchFutureSeasons = false;
+          this.toastr.error('An unknown error occurred');
+        }
+      );
       for (const season of this.result.seasons) {
         this.watchEntireSeason(season);
       }
@@ -140,6 +165,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
         (data) => {
           this.toastr.success('Stopped watching show');
           this._buildWatchOptions();
+          this.autoWatchFutureSeasons = false;
           this.isSaving = false;
         },
         (error) => {
@@ -272,8 +298,22 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     }));
   }
 
-  protected _watchShow(): Observable<any> {
-    return this.apiService.watchTVShow(this.result.id, this.result.name, this.mediaPosterURL(this.result), this.result.first_air_date).pipe(
+  public autoWatchUpdate() {
+    const watchTvShow = this._getWatchShow();
+    if (watchTvShow) {
+      this.apiService.updateWatchTVShow(watchTvShow.id, {auto_watch: this.autoWatchFutureSeasons}).subscribe(
+        (data) => {
+          this.toastr.success('Updated auto watch');
+        }, (error) => {
+          console.error(error);
+          this.toastr.error('An unknown error occurred updating auto watch');
+        }
+      );
+    }
+  }
+
+  protected _watchShow(autoWatchNewSeasons?: boolean): Observable<any> {
+    return this.apiService.watchTVShow(this.result.id, this.result.name, this.mediaPosterURL(this.result), this.result.first_air_date, autoWatchNewSeasons).pipe(
       tap((data) => {
         this.toastr.success(`Watching show ${data.name}`);
       }),
