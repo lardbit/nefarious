@@ -282,17 +282,19 @@ def auto_watch_new_seasons_task():
     nefarious_settings = NefariousSettings.get()
     tmdb_client = get_tmdb_client(nefarious_settings)
 
-    # go through every show they want to auto-watch
+    # cycle through every show that has auto-watch enabled
     for watch_show in WatchTVShow.objects.filter(auto_watch=True):
         tmdb_show = tmdb_client.TV(watch_show.tmdb_show_id)
         show_data = tmdb_show.info()
+
+        added_season = False
 
         # find any season with a newer air date than the "auto watch" and queue it up
         for season in show_data['seasons']:
             air_date = parse_date(season['air_date'] or '')
 
             # air date is newer than our auto watch date
-            if air_date and air_date > watch_show.auto_watch_date_requested:
+            if air_date and watch_show.auto_watch_date_updated and air_date >= watch_show.auto_watch_date_updated:
 
                 # season & request params
                 create_params = dict(
@@ -310,6 +312,7 @@ def auto_watch_new_seasons_task():
 
                 # season was created
                 if was_season_created:
+                    added_season = True
                     logging.info('Automatically watching newly aired season {}'.format(watch_tv_season))
                     # send a websocket message for this new season
                     media_type, data = websocket.get_media_type_and_serialized_watch_media(watch_tv_season)
@@ -317,3 +320,9 @@ def auto_watch_new_seasons_task():
 
                     # create a task to download the whole season (fallback to individual episodes if it fails)
                     watch_tv_show_season_task.delay(watch_tv_season.id)
+
+        # new season added to show
+        if added_season:
+            # update auto watch date requested
+            watch_show.auto_watch_date_updated = datetime.utcnow().date()
+            watch_show.save()

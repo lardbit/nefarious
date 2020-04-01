@@ -51,7 +51,7 @@ class WatchTVShowViewSet(WebSocketMediaMessageUpdatedMixin, UserReferenceViewSet
         instance = self.get_object()  # type: WatchTVShow
         # set the auto watch date to now if it was toggled on
         if not instance.auto_watch and serializer.validated_data.get('auto_watch'):
-            serializer.validated_data['auto_watch_date_requested'] = datetime.utcnow().date()
+            serializer.validated_data['auto_watch_date_updated'] = datetime.utcnow().date()
         super().perform_update(serializer)
 
     def perform_destroy(self, watch_tv_show: WatchTVShow):
