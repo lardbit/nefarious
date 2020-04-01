@@ -81,31 +81,7 @@ See [DEPENDENCIES.md](docs/DEPENDENCIES.md)
 
 You must have **docker** and **docker-compose** already installed.  See [dependencies](docs/DEPENDENCIES.md).
 
-#### Part 1 - Setup performed from terminal
-
-Run the following commands:
-    
-    sudo systemctl start docker.service
-    sudo systemctl enable docker.service
-    sudo groupadd -f docker
-    sudo usermod -aG docker $USER
-    newgrp docker
-
-This will:
-
-- verify docker is initialized
-- add the current user to the docker group
-- update the current shell session to use new login group
-
-You'll now be able to run Docker commands without needing to call `sudo` each time.
-
-Ensure that Docker is setup correctly.  Run the following command which should respond with "success":
-
-    docker run --rm -it --init alpine echo "success"
-    
-Ensure that docker-compose is setup correctly.  This shows the version of docker-compose currently installed on the system:
-
-    docker-compose --version
+#### Part 1
     
 Clone the nefarious repository and start all the Docker containers:
 
@@ -121,7 +97,7 @@ Your default local URLs for all the various services will be:
 - Jackett: [http://localhost:9117](http://localhost:9117)
 - Transmission: [http://localhost:9091](http://localhost:9091)
 
-**See** *Part 2* for finalizing the configuration.
+**See** [Part 2](#part-2) for finalizing the configuration.
 
 ##### ARM devices
 
@@ -133,7 +109,7 @@ For example, run the following to bring up all the services on ARM devices:
     
     docker-compose -f docker-compose.arm.yml up -d
 
-#### Part 2 - Setup performed from GUI or text editor
+#### Part 2
 
 The default nefarious user/password is `admin`/`admin`.  On first login you will be directed to the main nefarious settings and asked to configure your Jackett API token.
 Jackett's **host** in the main settings should remain `jackett` and the port should remain `9117`.  Copy your API Token from [Jackett](http://localhost:9117) into the appropriate nefarious section.

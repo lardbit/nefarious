@@ -2,9 +2,35 @@
 
 nefarious is best run via [Docker](https://docs.docker.com/install/) through [Docker Compose](https://docs.docker.com/compose/).
 
-Install those two programs and you're all set. If your OS isn't listed in the Docker downloads, see the OS specific instructions below.
+Install those two programs and you'll be all set. If your OS isn't listed in the Docker downloads, see the [OS specific instructions below](#os-specific-instructions) below.
 
-#### OS specific dependencies
+## Post Install
+
+Once you have **Docker** and **Docker Compose** installed, run the following commands:
+    
+    sudo systemctl start docker.service
+    sudo systemctl enable docker.service
+    sudo groupadd -f docker
+    sudo usermod -aG docker $USER
+    newgrp docker
+
+This will:
+
+- verify docker is initialized
+- add the current user to the docker group
+- update the current shell session to use new login group
+
+You'll now be able to run Docker commands without needing to call `sudo` each time.
+
+To ensure that docker is setup correctly,  run the following command which should respond with "success":
+
+    docker run --rm -it --init alpine echo "success"
+    
+To ensure that docker-compose is installed correctly, just output the version:
+
+    docker-compose --version
+
+#### OS specific instructions
 
 Follow some guidelines for installing Docker and Docker Compose for various OS's.
 
