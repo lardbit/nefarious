@@ -11,19 +11,19 @@ It uses [Jackett](https://github.com/Jackett/Jackett/) and [Transmission](https:
 
 Features:
 - [x] Search TV & Movies
-- [x] Auto download TV (individual episodes or full season)
+- [x] Auto download TV (individual episodes or full seasons)
 - [x] Auto download Movies
 - [x] Discover TV & Movies (by popularity, genres, year etc)
 - [x] Find similar TV & Movies
 - [x] Find recommended TV & Movies
-- [x] Manually search jackett's torrent results and download
-- [x] Supports blacklisting torrent results (i.e avoid a bad/fake torrent that should be avoided)
-- [X] Supports quality profiles (i.e only download *1080p* Movies and *any* quality TV)
+- [x] Manually search and download Jackett's torrent results
+- [x] Supports blacklisting torrent results (i.e permanently avoid a bad/fake torrent)
+- [X] Supports quality profiles (i.e only download *1080p* Movies and *720p* TV)
 - [x] Supports whether to download media with hardcoded subtitles or not
 - [x] Supports user defined keywords to filter results (i.e ignore "x265", "hevc" codecs)
-- [x] Auto download TV & Movies once it's released (routinely scan)
+- [x] Auto download TV & Movies once it's released (routinely scans for newly released content)
 - [x] Monitor transmission results & status from within the app
-- [x] Self/auto updating application
+- [x] Self/auto updating application so you're always up-to-date
 - [x] Supports multiple users and permission groups (i.e admin users and regular users)
 - [x] Responsive Design (looks great on desktops, tablets and small devices like phones)
 - [x] Movie trailers
