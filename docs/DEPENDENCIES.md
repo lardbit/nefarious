@@ -30,19 +30,19 @@ To ensure that docker-compose is installed correctly, just output the version:
 
     docker-compose --version
 
-#### OS specific instructions
+## OS specific instructions
 
 Follow some guidelines for installing Docker and Docker Compose for various OS's.
 
-##### Arch
+#### Arch
 
 You should be able to install docker and docker-compose from the default Software Center/repositories.
 
-##### Solus OS
+#### Solus OS
 
 You should be able to install docker and docker-compose from the default Software Center/repositories.
 
-##### Ubuntu/Debian
+#### Ubuntu/Debian
 
 Ensure that git and curl are already installed, then run the following commands:
 
@@ -52,7 +52,7 @@ Ensure that git and curl are already installed, then run the following commands:
     sudo curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
 
-##### Fedora
+#### Fedora
 
 Install the Docker repository and update metadata cache
 
@@ -67,7 +67,7 @@ Install docker and docker-compose from repository
 At the moment Docker-Compose doesn't fully work without modification on Fedora 31.  30,29,28, and so on should work however.  If you're running Fedora 31, use the following Reddit thread and most recent post at your own discretion. 
 https://www.reddit.com/r/Fedora/comments/d8ukd0/has_anyone_managed_to_run_docker_ce_on_fedora_31/
 
-##### Windows
+#### Windows
 
 You'll need to ensure that your PC is running a version of Windows 10 64-bit Professional, Education, or Enterprise.
 Docker for Windows requires Hyper-V technology, which is not supported by Windows 10 Home.
