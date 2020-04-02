@@ -37,6 +37,10 @@ class NefariousSettings(models.Model):
     # expects keyword/boolean pairs like {"x265": false, "265": false}
     keyword_search_filters = JSONField(blank=True, null=True)  # type: dict
 
+    # webhook
+    webhook_url = models.CharField(max_length=1500, blank=True, null=True)  # url of webhook
+    webhook_key = models.CharField(max_length=50, blank=True, default='text')  # data key to post, i.e "text"
+
     @classmethod
     def get(cls):
         if cls.objects.all().count() > 1:
