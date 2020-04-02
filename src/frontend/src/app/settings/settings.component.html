@@ -171,6 +171,29 @@
           </div>
         </form>
       </div>
+      <!-- webhook -->
+      <div class="col-12 col-sm-6 col-md-4">
+        <div class="card">
+          <div class="card-header">Webhook</div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>URL</label>
+              <input type="text" class="form-control" placeholder="https://..." formControlName="webhook_url">
+            </div>
+            <div class="form-group">
+              <label>Key</label>
+              <input type="text" class="form-control" placeholder="text" formControlName="webhook_key">
+            </div>
+            <div *ngIf="form.get('webhook_url').value && form.get('webhook_key').value">
+              <small>These settings would post something like
+                <div class="text-primary">{{'{"' + form.get('webhook_key').value + '": "some message"}'}}</div>
+                  to
+                <div class="text-primary">{{form.get('webhook_url').value}}</div>
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </form>
   <footer class="d-flex justify-content-end">

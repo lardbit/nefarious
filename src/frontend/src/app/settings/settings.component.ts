@@ -40,6 +40,8 @@ export class SettingsComponent implements OnInit {
       'exclusions': [settings['keyword_search_filters'] ? _.keys(settings['keyword_search_filters']) : []],
       'language': [settings['language'], Validators.required],
       'users': new FormArray([]),
+      'webhook_url': [settings['webhook_url']],
+      'webhook_key': [settings['webhook_key']],
     });
 
     this.apiService.fetchUsers().subscribe(

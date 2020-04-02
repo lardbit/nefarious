@@ -13,6 +13,7 @@ from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
 from nefarious.utils import get_media_new_path_and_name
 from nefarious import websocket
+from nefarious import webhook
 
 app.conf.beat_schedule = {
     'Completed Media Task': {
@@ -184,6 +185,9 @@ def completed_media_task():
                 # send websocket message media was updated
                 media_type, data = websocket.get_media_type_and_serialized_watch_media(media)
                 websocket.send_message(websocket.ACTION_UPDATED, media_type, data)
+
+                # send complete message through webhook
+                webhook.send_message('{} was downloaded'.format(media))
 
 
 @app.task
