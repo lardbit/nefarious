@@ -18,6 +18,7 @@ MEDIA_TYPE_TV_EPISODE = 'TV_EPISODE'
 
 
 def send_message(action: str, media_type: str, data: dict):
+    logging.info('Sending "{}" websocket message for media type {}'.format(action, media_type))
     if not settings.DEBUG:
         try:
             ws = create_connection(settings.WEBSOCKET_URL, timeout=5)
