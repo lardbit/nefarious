@@ -1,5 +1,6 @@
-import logging
+import re
 import os
+import logging
 import regex
 import requests
 from typing import List
@@ -180,6 +181,9 @@ def get_media_new_path_and_name(watch_media, torrent_name: str, is_single_file: 
             extension = extension_match.group()
             name += extension
 
+    name = sanitize_final_media_title(name)
+    dir_name = sanitize_final_media_title(dir_name)
+
     return dir_name, name
 
 
@@ -192,3 +196,12 @@ def destroy_transmission_result(instance: WatchMediaBase):
     except Exception as e:
         logging.warning(str(e))
         logging.warning('could not destroy torrent in transmission')
+
+
+def sanitize_final_media_title(title: str):
+    # replace any colons (plex seems to have trouble with them)
+    # Input: "The Lego Movie 2: The Second Part"
+    # Output: "The Lego Movie 2 - The Second Part"
+    if title:
+        title = re.sub(r"\s*:+\s*", ' - ', title)
+    return title

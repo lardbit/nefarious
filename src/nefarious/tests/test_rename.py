@@ -9,6 +9,7 @@ class RenameTorrentsAndPaths(TestCase):
 
     def setUp(self):
         movie = WatchMovie(name='Rambo', release_date=datetime(1982, 1, 1))
+        movie_with_colon = WatchMovie(name='The Lego Movie 2: The Second Part', release_date=datetime(2019, 1, 1))
         show = WatchTVShow(name='Rick and Morty')
         season = WatchTVSeason(watch_tv_show=show, season_number=1)
         episode = WatchTVEpisode(watch_tv_show=show, season_number=1, episode_number=14)
@@ -17,6 +18,8 @@ class RenameTorrentsAndPaths(TestCase):
             (movie, "Rambo.1982.1080p.BluRay", None, "Rambo (1982)", False),
             # movie single file
             (movie, "Rambo.1982.1080p.BluRay.mkv", "Rambo (1982)", "Rambo (1982).mkv", True),
+            # movie folder with a colon in the name which should be replaced with a hyphen
+            (movie_with_colon, "The.Lego.Movie.2:The.Second.Part", None, "The Lego Movie 2 - The Second Part (2019)", False),
             # full season
             (season, "Rick.and.Morty.S01.720p.AMZN.WEBRip.DDP5.1.x264-NTb[rartv]", "Rick and Morty", "Rick and Morty - Season 01", False),
             # single episode folder
