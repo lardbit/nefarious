@@ -116,8 +116,11 @@ export class MediaTVComponent implements OnInit, OnDestroy {
           this.toastr.error('An unknown error occurred');
         }
       );
+      // watch every season we're not already watching
       for (const season of this.result.seasons) {
-        this.watchEntireSeason(season);
+        if (!this.isWatchingSeason(season.season_number)) {
+          this.watchEntireSeason(season);
+        }
       }
     }
   }
