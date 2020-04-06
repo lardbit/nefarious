@@ -3,6 +3,7 @@ import os
 from celery import chain
 from celery.signals import task_failure
 from datetime import datetime
+from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_date
 
@@ -15,6 +16,9 @@ from nefarious.utils import get_media_new_path_and_name
 from nefarious import websocket
 from nefarious import webhook
 
+
+SECONDS_WANTED_MEDIA = 60 * 60 * 3
+
 app.conf.beat_schedule = {
     'Completed Media Task': {
         'task': 'nefarious.tasks.completed_media_task',
@@ -22,7 +26,7 @@ app.conf.beat_schedule = {
     },
     'Wanted Media Task': {
         'task': 'nefarious.tasks.wanted_media_task',
-        'schedule': 60 * 60 * 3,
+        'schedule': SECONDS_WANTED_MEDIA,
     },
     'Wanted TV Seasons Task': {
         'task': 'nefarious.tasks.wanted_tv_season_task',
@@ -207,15 +211,24 @@ def wanted_media_task():
 
     for media in wanted_movies:
         logging.info('Wanted movie: {}'.format(media))
-        tasks.append(watch_movie_task.si(media.id))
+        if cache.add('wanted_movie:{}'.format(media.id), True, SECONDS_WANTED_MEDIA):
+            tasks.append(watch_movie_task.si(media.id))
+        else:
+            logging.warning('Task already exists for wanted movie: {}'.format(media))
 
     for media in wanted_tv_seasons:
         logging.info('Wanted tv season: {}'.format(media))
-        tasks.append(watch_tv_show_season_task.si(media.id))
+        if cache.add('wanted_tv_season:{}'.format(media.id), True, SECONDS_WANTED_MEDIA):
+            tasks.append(watch_tv_show_season_task.si(media.id))
+        else:
+            logging.warning('Task already exists for wanted tv season: {}'.format(media))
 
     for media in wanted_tv_episodes:
         logging.info('Wanted tv episode: {}'.format(media))
-        tasks.append(watch_tv_episode_task.si(media.id))
+        if cache.add('wanted_tv_episode:{}'.format(media.id), True, SECONDS_WANTED_MEDIA):
+            tasks.append(watch_tv_episode_task.si(media.id))
+        else:
+            logging.warning('Task already exists for wanted tv episode: {}'.format(media))
 
     # execute tasks sequentially
     chain(*tasks)()
