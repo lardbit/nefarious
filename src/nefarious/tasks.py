@@ -3,7 +3,7 @@ import os
 from celery import chain
 from celery.signals import task_failure
 from datetime import datetime
-from django.core.cache import cache
+from celery_once import QueueOnce
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_date
 
@@ -17,8 +17,6 @@ from nefarious import websocket
 from nefarious import webhook
 
 
-SECONDS_WANTED_MEDIA = 60 * 60 * 3
-
 app.conf.beat_schedule = {
     'Completed Media Task': {
         'task': 'nefarious.tasks.completed_media_task',
@@ -26,7 +24,7 @@ app.conf.beat_schedule = {
     },
     'Wanted Media Task': {
         'task': 'nefarious.tasks.wanted_media_task',
-        'schedule': SECONDS_WANTED_MEDIA,
+        'schedule': 60 * 60 * 3,
     },
     'Wanted TV Seasons Task': {
         'task': 'nefarious.tasks.wanted_tv_season_task',
@@ -48,7 +46,7 @@ def log_exception(**kwargs):
     logging.error('TASK EXCEPTION', exc_info=kwargs['exception'])
 
 
-@app.task
+@app.task(base=QueueOnce, once={'graceful': True})
 def watch_tv_show_season_task(watch_tv_season_id: int):
     processor = WatchTVSeasonProcessor(watch_media_id=watch_tv_season_id)
     success = processor.fetch()
@@ -95,13 +93,13 @@ def watch_tv_show_season_task(watch_tv_season_id: int):
         chain(*watch_tv_episodes_tasks)()
 
 
-@app.task
+@app.task(base=QueueOnce, once={'graceful': True})
 def watch_tv_episode_task(watch_tv_episode_id: int):
     processor = WatchTVEpisodeProcessor(watch_media_id=watch_tv_episode_id)
     processor.fetch()
 
 
-@app.task
+@app.task(base=QueueOnce, once={'graceful': True})
 def watch_movie_task(watch_movie_id: int):
     processor = WatchMovieProcessor(watch_media_id=watch_movie_id)
     processor.fetch()
@@ -211,24 +209,15 @@ def wanted_media_task():
 
     for media in wanted_movies:
         logging.info('Wanted movie: {}'.format(media))
-        if cache.add('wanted_movie:{}'.format(media.id), True, SECONDS_WANTED_MEDIA):
-            tasks.append(watch_movie_task.si(media.id))
-        else:
-            logging.warning('Task already exists for wanted movie: {}'.format(media))
+        tasks.append(watch_movie_task.si(media.id))
 
     for media in wanted_tv_seasons:
         logging.info('Wanted tv season: {}'.format(media))
-        if cache.add('wanted_tv_season:{}'.format(media.id), True, SECONDS_WANTED_MEDIA):
-            tasks.append(watch_tv_show_season_task.si(media.id))
-        else:
-            logging.warning('Task already exists for wanted tv season: {}'.format(media))
+        tasks.append(watch_tv_show_season_task.si(media.id))
 
     for media in wanted_tv_episodes:
         logging.info('Wanted tv episode: {}'.format(media))
-        if cache.add('wanted_tv_episode:{}'.format(media.id), True, SECONDS_WANTED_MEDIA):
-            tasks.append(watch_tv_episode_task.si(media.id))
-        else:
-            logging.warning('Task already exists for wanted tv episode: {}'.format(media))
+        tasks.append(watch_tv_episode_task.si(media.id))
 
     # execute tasks sequentially
     chain(*tasks)()

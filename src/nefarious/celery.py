@@ -10,6 +10,15 @@ app = Celery('nefarious', broker='redis://{}:{}/0'.format(
     settings.REDIS_HOST,
     settings.REDIS_PORT,
 ))
+# celery-once
+# https://github.com/cameronmaske/celery-once#usage
+app.conf.ONCE = {
+  'backend': 'celery_once.backends.Redis',
+  'settings': {
+    'url': 'redis://{host}:{port}/0'.format(host=settings.REDIS_HOST, port=settings.REDIS_PORT),
+    'default_timeout': 60 * 60 * 6,
+  }
+}
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.

@@ -17,3 +17,4 @@ whitenoise==5.0.1
 starlette==0.13.1
 websocket-client==0.57.0
 django-redis==4.11.0
+celery-once==3.0.1
