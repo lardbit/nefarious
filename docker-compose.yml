@@ -31,7 +31,7 @@ services:
       - com.centurylinklabs.watchtower.enable=true
     image: lardbit/nefarious
     restart: always
-    # the number of celery workers defaults to "0" which means it'll match the number of CPUs
+    # the number of celery workers defaults to "0" which means it'll match the number of available CPUs
     entrypoint: /env/bin/celery -A nefarious worker --concurrency ${NUM_CELERY_WORKERS:-0} --beat --loglevel=INFO
     environment:
       # https://github.com/kennethreitz/dj-database-url
