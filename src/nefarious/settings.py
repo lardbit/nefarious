@@ -155,6 +155,16 @@ LOGGING = {
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
 REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://{host}:{port}/0".format(host=REDIS_HOST, port=REDIS_PORT),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
 WEBSOCKET_URL = os.environ.get('WEBSOCKET_HOST', 'ws://nefarious:80/ws')
 
 REST_FRAMEWORK = {

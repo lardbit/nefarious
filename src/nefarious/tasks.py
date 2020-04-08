@@ -3,6 +3,7 @@ import os
 from celery import chain
 from celery.signals import task_failure
 from datetime import datetime
+from celery_once import QueueOnce
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_date
 
@@ -14,6 +15,7 @@ from nefarious.transmission import get_transmission_client
 from nefarious.utils import get_media_new_path_and_name
 from nefarious import websocket
 from nefarious import webhook
+
 
 app.conf.beat_schedule = {
     'Completed Media Task': {
@@ -44,7 +46,7 @@ def log_exception(**kwargs):
     logging.error('TASK EXCEPTION', exc_info=kwargs['exception'])
 
 
-@app.task
+@app.task(base=QueueOnce, once={'graceful': True})
 def watch_tv_show_season_task(watch_tv_season_id: int):
     processor = WatchTVSeasonProcessor(watch_media_id=watch_tv_season_id)
     success = processor.fetch()
@@ -91,13 +93,13 @@ def watch_tv_show_season_task(watch_tv_season_id: int):
         chain(*watch_tv_episodes_tasks)()
 
 
-@app.task
+@app.task(base=QueueOnce, once={'graceful': True})
 def watch_tv_episode_task(watch_tv_episode_id: int):
     processor = WatchTVEpisodeProcessor(watch_media_id=watch_tv_episode_id)
     processor.fetch()
 
 
-@app.task
+@app.task(base=QueueOnce, once={'graceful': True})
 def watch_movie_task(watch_movie_id: int):
     processor = WatchMovieProcessor(watch_media_id=watch_movie_id)
     processor.fetch()

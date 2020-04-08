@@ -102,13 +102,7 @@ Your default local URLs for all the various services will be:
 
 ##### ARM devices
 
-For those running ARM devices like the raspberry pi, odroid, pine etc: 
-
-You will need to reference the `docker-compose.arm.yml` file when running docker commands instead of the `docker-compose.yml` file.
-
-For example, run the following to bring up all the services on ARM devices: 
-    
-    docker-compose -f docker-compose.arm.yml up -d
+See [ARM.md](ARM.md) for arm-based architectures like the raspberry pi, odroid, pine etc. 
 
 #### Part 2
 
