@@ -66,6 +66,7 @@ class WatchMediaBase(models.Model):
     collected_date = models.DateTimeField(blank=True, null=True)
     last_attempt_date = models.DateTimeField(blank=True, null=True)
     transmission_torrent_hash = models.CharField(max_length=100, null=True, blank=True)
+    release_date = models.DateField(null=True, blank=True)
 
     class Meta:
         abstract = True

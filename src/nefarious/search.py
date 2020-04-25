@@ -22,7 +22,6 @@ class SearchTorrents:
             'apikey': self.nefarious_settings.jackett_token,
             'Query': query,
             'Category[]': self._categories(media_type),
-            'Tracker[]': self._trackers(),
         }
 
         res = requests.get(get_jackett_search_url(self.nefarious_settings), params, timeout=90)
@@ -42,9 +41,6 @@ class SearchTorrents:
             return cat_movies
         else:
             return cat_tv
-
-    def _trackers(self) -> list:
-        return fetch_jackett_indexers(self.nefarious_settings)
 
 
 class SearchTorrentsCombined:
