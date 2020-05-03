@@ -5,6 +5,7 @@ from celery.signals import task_failure
 from datetime import datetime
 from celery_once import QueueOnce
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.dateparse import parse_date
 
 from nefarious.celery import app
@@ -68,6 +69,7 @@ def watch_tv_show_season_task(watch_tv_season_id: int):
         tmdb = get_tmdb_client(nefarious_settings)
         season_request = tmdb.TV_Seasons(watch_tv_season.watch_tv_show.tmdb_show_id, watch_tv_season.season_number)
         season = season_request.info()
+        release_date = parse_date(season.get('air_date') or '')
 
         # save individual episode watches
         watch_tv_episodes_tasks = []
@@ -80,6 +82,7 @@ def watch_tv_show_season_task(watch_tv_season_id: int):
                     watch_tv_show=watch_tv_season.watch_tv_show,
                     season_number=watch_tv_season.season_number,
                     episode_number=episode['episode_number'],
+                    release_date=release_date,
                 )
             )
 
@@ -195,29 +198,39 @@ def completed_media_task():
 @app.task
 def wanted_media_task():
 
+    tasks = []
     wanted_kwargs = dict(collected=False, transmission_torrent_hash__isnull=True)
 
     #
-    # individual watch media
+    # scan for individual watch media
     #
 
-    wanted_movies = WatchMovie.objects.filter(**wanted_kwargs)
-    wanted_tv_seasons = WatchTVSeason.objects.filter(**wanted_kwargs)
-    wanted_tv_episodes = WatchTVEpisode.objects.filter(**wanted_kwargs)
+    wanted_media_data = {
+        'movie': {
+            'query': WatchMovie.objects.filter(**wanted_kwargs),
+            'task': watch_movie_task,
+        },
+        'season': {
+            'query': WatchTVSeason.objects.filter(**wanted_kwargs),
+            'task': watch_tv_show_season_task,
+        },
+        'episode': {
+            'query': WatchTVEpisode.objects.filter(**wanted_kwargs),
+            'task': watch_tv_episode_task,
+        },
+    }
 
-    tasks = []
+    today = timezone.now().date()
 
-    for media in wanted_movies:
-        logging.info('Wanted movie: {}'.format(media))
-        tasks.append(watch_movie_task.si(media.id))
-
-    for media in wanted_tv_seasons:
-        logging.info('Wanted tv season: {}'.format(media))
-        tasks.append(watch_tv_show_season_task.si(media.id))
-
-    for media in wanted_tv_episodes:
-        logging.info('Wanted tv episode: {}'.format(media))
-        tasks.append(watch_tv_episode_task.si(media.id))
+    for media_type, data in wanted_media_data.items():
+        for media in data['query']:
+            # media has been released (or it's missing it's release date so try anyway) so create a task to try and fetch it
+            if not media.release_date or media.release_date <= today:
+                logging.info('Wanted {type}: {media}'.format(type=media_type, media=media))
+                tasks.append(data['task'].si(media.id))
+            # media has not been released so skip
+            else:
+                logging.info("Skipping wanted {type} since it hasn't aired yet: {media} ".format(type=media_type, media=media))
 
     # execute tasks sequentially
     chain(*tasks)()
@@ -238,13 +251,14 @@ def wanted_tv_season_task():
         season = season_request.info()
 
         now = datetime.utcnow()
-        last_air_date = parse_date(season['air_date'] or '')  # season air date
+        last_air_date = parse_date(season.get('air_date') or '')  # season air date
 
         # otherwise add any new episodes to our watch list
         for episode in season['episodes']:
+            episode_air_date = parse_date(episode.get('air_date') or '')
 
-            if episode['air_date'] is not None:
-                episode_air_date = parse_date(episode['air_date'])
+            # if episode air date exists, use as last air date
+            if episode_air_date:
                 last_air_date = episode_air_date if not last_air_date or episode_air_date > last_air_date else last_air_date
 
             watch_tv_episode, was_created = WatchTVEpisode.objects.get_or_create(
@@ -255,6 +269,7 @@ def wanted_tv_season_task():
                     # add non-unique constraint fields for the default values
                     tmdb_episode_id=episode['id'],
                     user=tv_season_request.user,
+                    release_date=episode_air_date,
                 ))
             if was_created:
 
@@ -308,6 +323,7 @@ def auto_watch_new_seasons_task():
                     season_number=season['season_number'],
                     defaults=dict(
                         user=watch_show.user,
+                        release_date=air_date,
                     )
                 )
 

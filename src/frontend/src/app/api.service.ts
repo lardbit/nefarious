@@ -456,12 +456,13 @@ export class ApiService {
     );
   }
 
-  public watchTVEpisode(watchShowId: number, episodeId: number, seasonNumber: number, episodeNumber: number) {
+  public watchTVEpisode(watchShowId: number, episodeId: number, seasonNumber: number, episodeNumber: number, releaseDate: string) {
     const params = {
       watch_tv_show: watchShowId,
       tmdb_episode_id: episodeId,
       season_number: seasonNumber,
       episode_number: episodeNumber,
+      release_date: releaseDate,
     };
     return this.http.post(this.API_URL_WATCH_TV_EPISODE, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
@@ -476,10 +477,11 @@ export class ApiService {
     );
   }
 
-  public watchTVSeasonRequest(watchShowId: number, seasonNumber: number) {
+  public watchTVSeasonRequest(watchShowId: number, seasonNumber: number, releaseDate: string) {
     const params = {
       watch_tv_show: watchShowId,
       season_number: seasonNumber,
+      release_date: releaseDate,
     };
     return this.http.post(this.API_URL_WATCH_TV_SEASON_REQUEST, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {

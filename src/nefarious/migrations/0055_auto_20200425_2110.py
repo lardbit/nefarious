@@ -3,7 +3,6 @@
 import logging
 from django.db import migrations
 from django.utils.dateparse import parse_date
-from datetime import datetime
 
 from nefarious.tmdb import get_tmdb_client
 

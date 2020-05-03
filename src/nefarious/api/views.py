@@ -1,6 +1,7 @@
 import os
 import logging
 from django.conf import settings
+from django.utils.dateparse import parse_date
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework.exceptions import ValidationError
@@ -220,6 +221,7 @@ class DownloadTorrentsView(views.APIView):
                 tmdb_movie_id=tmdb_movie['id'],
                 name=tmdb_movie['title'],
                 poster_image_url=nefarious_settings.get_tmdb_poster_url(tmdb_movie['poster_path']),
+                release_date=parse_date(tmdb_movie['release_date'] or ''),
             )
             watch_media.save()
             download_dir = os.path.join(
@@ -250,11 +252,14 @@ class DownloadTorrentsView(views.APIView):
                     tmdb_episode_id=tmdb_episode['id'],
                     season_number=request.data['season_number'],
                     episode_number=request.data['episode_number'],
+                    release_date=parse_date(tmdb_episode['air_date'] or '')
                 )
                 watch_media.save()
                 result['watch_tv_episode'] = WatchTVEpisodeSerializer(watch_media).data
             # entire season
             else:
+                season_result = tmdb.TV_Seasons(tmdb_show['id'], request.data['season_number'])
+                season_data = season_result.info()
                 # create the season request
                 watch_tv_season_request, _ = WatchTVSeasonRequest.objects.get_or_create(
                     watch_tv_show=watch_tv_show,
@@ -262,6 +267,7 @@ class DownloadTorrentsView(views.APIView):
                     defaults=dict(
                         user=request.user,
                         collected=True,  # set collected since we're directly downloading a torrent
+                        release_date=parse_date(season_data['air_date'] or '')
                     ),
                 )
                 # create the actual watch season instance
@@ -269,6 +275,7 @@ class DownloadTorrentsView(views.APIView):
                     user=request.user,
                     watch_tv_show=watch_tv_show,
                     season_number=request.data['season_number'],
+                    release_date=parse_date(season_data['air_date'] or '')
                 )
                 watch_media.save()
 

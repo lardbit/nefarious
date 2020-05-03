@@ -107,6 +107,7 @@ class WatchTVSeasonRequestViewSet(WebSocketMediaMessageUpdatedMixin, UserReferen
             defaults=dict(
                 # add non-unique constraint fields for the default values
                 user=self.request.user,
+                release_date=serializer.data['release_date'],
             ),
         )
         # send a websocket message for this new season
