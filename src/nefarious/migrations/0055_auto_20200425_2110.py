@@ -15,6 +15,8 @@ def populate_release_date(apps, schema_editor):
     NefariousSettings = apps.get_model('nefarious', 'NefariousSettings')
 
     nefarious_settings = NefariousSettings.objects.all().first()
+    if not nefarious_settings:  # skip during continuous integration since it won't have any settings
+        return
 
     tmdb_client = get_tmdb_client(nefarious_settings)
 
