@@ -139,7 +139,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
 
       const watchTvShow = this._getWatchShow();
 
-      this.apiService.watchTVSeasonRequest(watchTvShow.id, season.season_number).subscribe(
+      this.apiService.watchTVSeasonRequest(watchTvShow.id, season.season_number, season.air_date).subscribe(
         (data) => {
           this.isSaving = false;
           this.toastr.success(`Watching season ${season.season_number}`);
@@ -412,7 +412,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
           if (episode && season && watchShow) {
             observables.push(
               this.apiService.watchTVEpisode(
-                watchShow.id, Number(episodeId), episode.season_number, episode.episode_number));
+                watchShow.id, Number(episodeId), episode.season_number, episode.episode_number, episode.air_date));
           } else {
             console.log('ERROR: episode %s not found in results', episodeId);
           }
