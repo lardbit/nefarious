@@ -23,22 +23,31 @@ def populate_release_date(apps, schema_editor):
     logging.info('Adding release dates')
 
     for media in WatchMovie.objects.all():
-        movie_result = tmdb_client.Movies(media.tmdb_movie_id)
-        data = movie_result.info()
-        release_date = parse_date(data.get('release_date', ''))
-        update_release_date(media, release_date)
+        try:
+            movie_result = tmdb_client.Movies(media.tmdb_movie_id)
+            data = movie_result.info()
+            release_date = parse_date(data.get('release_date', ''))
+            update_release_date(media, release_date)
+        except Exception as e:
+            logging.exception(e)
 
     for media in WatchTVSeason.objects.all():
-        season_result = tmdb_client.TV_Seasons(media.watch_tv_show.tmdb_show_id, media.season_number)
-        data = season_result.info()
-        release_date = parse_date(data.get('air_date', ''))
-        update_release_date(media, release_date)
+        try:
+            season_result = tmdb_client.TV_Seasons(media.watch_tv_show.tmdb_show_id, media.season_number)
+            data = season_result.info()
+            release_date = parse_date(data.get('air_date', ''))
+            update_release_date(media, release_date)
+        except Exception as e:
+            logging.exception(e)
 
     for media in WatchTVEpisode.objects.all():
-        episode_result = tmdb_client.TV_Episodes(media.watch_tv_show.tmdb_show_id, media.season_number, media.episode_number)
-        data = episode_result.info()
-        release_date = parse_date(data.get('air_date', ''))
-        update_release_date(media, release_date)
+        try:
+            episode_result = tmdb_client.TV_Episodes(media.watch_tv_show.tmdb_show_id, media.season_number, media.episode_number)
+            data = episode_result.info()
+            release_date = parse_date(data.get('air_date', ''))
+            update_release_date(media, release_date)
+        except Exception as e:
+            logging.exception(e)
 
 
 def update_release_date(media, release_date):
