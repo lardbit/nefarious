@@ -6,6 +6,8 @@ import { ApiService } from '../api.service';
 import * as _ from 'lodash';
 import { tap } from 'rxjs/operators';
 import { Observable, zip } from 'rxjs';
+import * as moment from 'moment';
+
 
 @Component({
   selector: 'app-discover',
@@ -90,9 +92,32 @@ export class DiscoverComponent implements OnInit {
   protected _search() {
     this.isLoading = true;
 
-    const discoverEndpoint = this.form.value.mediaType === this.apiService.SEARCH_MEDIA_TYPE_MOVIE ?
-      this.apiService.discoverMovies(this._formValues()) :
-      this.apiService.discoverTV(this._formValues());
+    const params = this._formValues();
+
+    // update "greater than" release year to be a full date on beginning of year, i.e 2020-01-01
+    if (params['primary_release_date.gte']) {
+      params['primary_release_date.gte'] = moment(params['primary_release_date.gte'], 'YYYY').month(0).date(1).format('YYYY-MM-DD');
+    }
+    // update "less than" release year to be a full date on end of year, i.e 2020-12-31
+    if (params['primary_release_date.lte']) {
+      params['primary_release_date.lte'] = moment(params['primary_release_date.lte'], 'YYYY').month(11).date(31).format('YYYY-MM-DD');
+    }
+
+    let discoverEndpoint;
+    if (this.form.value.mediaType === this.apiService.SEARCH_MEDIA_TYPE_MOVIE) {
+      discoverEndpoint = this.apiService.discoverMovies(params);
+    } else {
+      // update the "release date" parameter to "air_date"
+      if (params['primary_release_date.gte']) {
+        params['air_date.gte'] = params['primary_release_date.gte'];
+        delete params['primary_release_date.gte'];
+      }
+      if (params['primary_release_date.lte']) {
+        params['air_date.lte'] = params['primary_release_date.lte'];
+        delete params['primary_release_date.lte'];
+      }
+      discoverEndpoint = this.apiService.discoverTV(params);
+    }
 
     discoverEndpoint.subscribe(
       (data: any) => {
