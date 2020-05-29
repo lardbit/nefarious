@@ -84,7 +84,7 @@ class WatchProcessorBase:
                         # remove the blacklisted/paused torrent and continue to the next result
                         logging.info('BLACKLISTED: {} ({}) - trying next best result'.format(best_result['Title'], torrent.hashString))
                         transmission_client.remove_torrent([torrent.id])
-                        valid_search_results.pop()
+                        valid_search_results.remove(best_result)
                         continue
             else:
                 logging.info('No valid search results for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
