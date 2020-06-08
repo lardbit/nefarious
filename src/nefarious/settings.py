@@ -192,3 +192,5 @@ REST_FRAMEWORK = {
 TMDB_API_TOKEN = '21c8985a267ac3f11ea75baf2c05c3ba'
 
 UNPROCESSED_PATH = '.nefarious-unprocessed-downloads'
+
+DOWNLOAD_PATH = os.environ.get('DOWNLOAD_PATH')

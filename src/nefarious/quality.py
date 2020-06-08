@@ -258,3 +258,7 @@ def quality_from_extension(extension):
         if ext == extension:
             return quality
     return UNKNOWN
+
+
+def video_extensions():
+    return EXTENSIONS.keys()

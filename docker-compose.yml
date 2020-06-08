@@ -39,7 +39,7 @@ services:
       DATABASE_URL: "sqlite:////nefarious-db/db.sqlite3"
       REDIS_HOST: "redis"
     volumes:
-      - ${DOWNLOAD_DIRECTORY:-/tmp}:/downloads
+      - ${DOWNLOAD_PATH:-/tmp}:/downloads
       # persistent named volume for sqlite database
       - nefarious-db:/nefarious-db
     logging:
@@ -74,7 +74,7 @@ services:
   transmission:
     image: linuxserver/transmission
     volumes:
-      - ${DOWNLOAD_DIRECTORY:-/tmp}:/downloads
+      - ${DOWNLOAD_PATH:-/tmp}:/downloads
       - ./transmission-settings.json:/config/settings.json:ro
     ports:
       - "9091:9091"

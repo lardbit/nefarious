@@ -383,24 +383,35 @@ class TVParser(ParserBase):
 
         return self.match
 
+    def is_full_season(self):
+        # verify no episode is in match
+        return self.match and 'title' in self.match and all([
+            self.match.get('season'),
+            'episode' not in self.match,
+        ])
+
+    def is_single_episode(self):
+        # must have season and episode
+        return self.match and 'title' in self.match and all([
+            self.match.get('season'),
+            self.match.get('episode'),
+        ])
+
     def _is_match(self, title, season_number, episode_number=None):
         if episode_number is not None:
-            return self._is_episode_match(title, season_number, episode_number)
+            return self._is_episode_match_test(title, season_number, episode_number)
         else:
-            return self._is_season_match(title, season_number)
+            return self._is_season_match_test(title, season_number)
 
-    def _is_season_match(self, title, season_number) -> bool:
-        # verify no "episode" in match
-        return self.match and 'title' in self.match and all([
-            season_number in self.match.get('season'),
-            'episode' not in self.match,
+    def _is_season_match_test(self, title, season_number) -> bool:
+        return self.is_full_season() and all([
+            season_number in self.match['season'],
             self.match['title'] == self.normalize_media_title(title),
         ])
 
-    def _is_episode_match(self, title, season_number, episode_number) -> bool:
-        # must match title, season and episode
-        return self.match and 'title' in self.match and all([
-            season_number in self.match.get('season', []),
-            episode_number in self.match.get('episode', []),
+    def _is_episode_match_test(self, title, season_number, episode_number) -> bool:
+        return self.is_single_episode() and all([
             self.match['title'] == self.normalize_media_title(title),
+            season_number in self.match.get('season'),
+            episode_number in self.match.get('episode'),
         ])
