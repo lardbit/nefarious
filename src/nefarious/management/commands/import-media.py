@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from django.core.cache import cache
 from django.utils import timezone
+from requests import HTTPError
 
 from nefarious.tmdb import get_tmdb_client
 from nefarious.parsers.tv import TVParser
@@ -50,16 +51,40 @@ class Command(BaseCommand):
                 extension_match = parser.file_extension_regex.search(file_name)
                 if extension_match:
                     title = parser.match['title']
+                    # could be a sub-directory like "show/season 01/e01.mkv" so we need to update the "title"
+                    if not title:
+                        if self._ingest_depth(file_path) > 1:
+                            # use one of the parent folders as the show and append it to the "title"
+                            file_path_split = file_path.split(os.sep)
+                            new_title = '{} - {}'.format(
+                                os.path.basename(os.sep.join(file_path_split[:-(self._ingest_depth(file_path) - 1)])), file_name)
+                            # re-parse to and define the title
+                            parser = TVParser(new_title)
+                            title = parser.match['title']
+                            if not parser.match['title']:
+                                self.stderr.write(self.style.WARNING('Could not match nested file "{}"'.format(file_path)))
+                                return
+                        else:
+                            self.stderr.write(self.style.WARNING('Could not match file "{}"'.format(file_path)))
+                            return
                     extension = extension_match.group()
                     if extension in video_extensions():
                         if parser.is_single_episode():
+                            if WatchTVEpisode.objects.filter(download_path=file_path).exists():
+                                self.stderr.write(self.style.WARNING('skipping already-processed file "{}"'.format(file_path)))
+                                return
                             # get or set tmdb search results for this title in the cache
                             results = cache.get(title)
                             if not results:
-                                results = self.tmdb_search.tv(query=title, language=self.nefarious_settings.language)
+                                try:
+                                    results = self.tmdb_search.tv(query=title, language=self.nefarious_settings.language)
+                                except HTTPError:
+                                    self.stderr.write(self.style.WARNING('tmdb search exception for title {} on file "{}"'.format(title, file_path)))
+                                    return
                                 cache.set(title, results, 60 * 60)
                             # loop over results for the exact match
                             for result in results['results']:
+                                poster_path = self.nefarious_settings.get_tmdb_poster_url(result['poster_path']) if result['poster_path'] else ''
                                 # normalize titles and see if they match
                                 if parser.normalize_media_title(result['name']) == title:
                                     season_number = parser.match['season'][0]
@@ -69,11 +94,15 @@ class Command(BaseCommand):
                                         defaults=dict(
                                             user=self.user,
                                             name=result['name'],
-                                            poster_image_url=self.nefarious_settings.get_tmdb_poster_url(result['poster_path']),
+                                            poster_image_url=poster_path,
                                         ),
                                     )
                                     episode_result = self.tmdb_client.TV_Episodes(result['id'], season_number, episode_number)
-                                    episode_data = episode_result.info()
+                                    try:
+                                        episode_data = episode_result.info()
+                                    except HTTPError:
+                                        self.stderr.write(self.style.WARNING('tmdb episode exception for title {} on file "{}"'.format(title, file_path)))
+                                        continue
                                     watch_episode, _ = WatchTVEpisode.objects.update_or_create(
                                         tmdb_episode_id=episode_data['id'],
                                         defaults=dict(
@@ -87,27 +116,31 @@ class Command(BaseCommand):
                                         ),
                                     )
                                     self.stdout.write(
-                                        self.style.SUCCESS('Matched episode "{}" with file "{}"'.format(watch_episode, file_name)))
+                                        self.style.SUCCESS('Matched episode "{}" with file "{}"'.format(watch_episode, file_path)))
                                     break
                             else:
-                                self.stderr.write(self.style.ERROR('No media match for file "{}" and title "{}"'.format(file_name, title)))
+                                self.stderr.write(self.style.ERROR('No media match for file "{}" and title "{}"'.format(file_path, title)))
                         else:
-                            self.stderr.write(self.style.WARNING('No single episode title match for "{}"'.format(file_name)))
+                            pass
+                            #self.stderr.write(self.style.WARNING('No single episode title match for "{}"'.format(file_path)))
                     else:
-                        self.stderr.write(self.style.WARNING('No valid video file extension for "{}"'.format(file_name)))
+                        pass
+                        #self.stderr.write(self.style.WARNING('No valid video file extension for "{}"'.format(file_path)))
                 else:
-                    self.stderr.write(self.style.WARNING('No file extension for "{}"'.format(file_name)))
+                    pass
+                    #self.stderr.write(self.style.WARNING('No file extension for "{}"'.format(file_path)))
 
             # directory
-            elif self._is_dir(file_path) and self._ingest_depth(file_path) <= self.INGEST_DEPTH_MAX:
+            elif self._is_dir(file_path) and self._ingest_depth(file_path) < self.INGEST_DEPTH_MAX:
                 for sub_path in os.listdir(file_path):
                     self._ingest_path(file_path, sub_path)
         # no match so dig deeper
-        elif self._is_dir(file_path) and self._ingest_depth(file_path) <= self.INGEST_DEPTH_MAX:
+        elif self._is_dir(file_path) and self._ingest_depth(file_path) < self.INGEST_DEPTH_MAX:
             for sub_path in os.listdir(file_path):
                 self._ingest_path(file_path, sub_path)
         else:
-            self.stderr.write(self.style.NOTICE('Unknown file "{}"'.format(file_path)))
+            pass
+            #self.stderr.write(self.style.NOTICE('Unknown file "{}"'.format(file_path)))
 
     def _is_dir(self, path) -> bool:
         # is a directory and NOT a symlink
