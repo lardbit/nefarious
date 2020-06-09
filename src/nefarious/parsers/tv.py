@@ -8,6 +8,7 @@ from nefarious.parsers.base import ParserBase
 class TVParser(ParserBase):
 
     special_episode_word_regex = regex.compile(r"\b(part|special|edition|christmas)\b\s?", regex.I)
+    year_regex_string = r"\W?(?<year>(19|20)\d{2}(?!p|i|(19|20)\d{2}|\]|\W(19|20)\d{2}))\W?"
 
     media_regex_list = [
         # Multi-Part episodes without a title (S01E05.S01E06)
@@ -78,8 +79,9 @@ class TVParser(ParserBase):
 
         # Single episodes with a title (S01E05, 1x05, etc) and trailing info in slashes
         (
+            # *DIFF*: added year pattern
             'Single episodes with a title (S01E05, 1x05, etc) and trailing info in slashes',
-            regex.compile(r"^(?<title>.+?)(?:(?:[-_\W](?<![()\[!]))+S?(?<season>(?<!\d+)(?:\d{1,2})(?!\d+))(?:[ex]|\W[ex]|_){1,2}(?<episode>\d{2,3}(?!\d+|(?:[ex]|\W[ex]|_|-){1,2}\d+))).+?(?:\[.+?\])(?!\\)", regex.I),
+            regex.compile(r"^(?<title>.+?)%s(?:(?:[-_\W](?<![()\[!]))+S?(?<season>(?<!\d+)(?:\d{1,2})(?!\d+))(?:[ex]|\W[ex]|_){1,2}(?<episode>\d{2,3}(?!\d+|(?:[ex]|\W[ex]|_|-){1,2}\d+))).+?(?:\[.+?\])(?!\\)" % year_regex_string, regex.I),
         ),
 
         # Anime - Title Season EpisodeNumber + Absolute Episode Number [SubGroup]
@@ -120,8 +122,9 @@ class TVParser(ParserBase):
 
         # Episodes with a title, Single episodes (S01E05, 1x05, etc) & Multi-episode (S01E05E06, S01E05-06, S01E05 E06, etc)
         (
+            # *DIFF*: added year pattern
             'Episodes with a title, Single episodes (S01E05, 1x05, etc) & Multi-episode (S01E05E06, S01E05-06, S01E05 E06, etc)',
-            regex.compile(r"^(?<title>.+?)(?:(?:[-_\W](?<![()\[!]))+S?(?<season>(?<!\d+)(?:\d{1,2})(?!\d+))(?:[ex]|\W[ex]){1,2}(?<episode>\d{2,3}(?!\d+))(?:(?:\-|[ex]|\W[ex]|_){1,2}(?<episode>\d{2,3}(?!\d+)))*)\W?(?!\\)", regex.I),
+            regex.compile(r"^(?<title>.+?)%s(?:(?:[-_\W](?<![()\[!]))+S?(?<season>(?<!\d+)(?:\d{1,2})(?!\d+))(?:[ex]|\W[ex]){1,2}(?<episode>\d{2,3}(?!\d+))(?:(?:\-|[ex]|\W[ex]|_){1,2}(?<episode>\d{2,3}(?!\d+)))*)\W?(?!\\)" % year_regex_string, regex.I),
         ),
 
         # Episodes with a title, 4 digit season number, Single episodes (S2016E05, etc) & Multi-episode (S2016E05E06, S2016E05-06, S2016E05 E06, etc)

@@ -62,16 +62,16 @@ class Command(BaseCommand):
                             parser = TVParser(new_title)
                             title = parser.match['title']
                             if not parser.match['title']:
-                                self.stderr.write(self.style.WARNING('ERROR_NO_MATCH: Could not match nested file "{}"'.format(file_path)))
+                                self.stderr.write(self.style.WARNING('[ERROR_NO_MATCH_TITLE] Could not match nested file "{}"'.format(file_path)))
                                 return
                         else:
-                            self.stderr.write(self.style.WARNING('ERROR_NO_MATCH: Could not match file "{}"'.format(file_path)))
+                            self.stderr.write(self.style.WARNING('[ERROR_NO_MATCH_TITLE] Could not match file without title "{}"'.format(file_path)))
                             return
                     extension = extension_match.group()
                     if extension in video_extensions():
                         if parser.is_single_episode():
                             if WatchTVEpisode.objects.filter(download_path=file_path).exists():
-                                self.stderr.write(self.style.WARNING('SKIP: skipping already-processed file "{}"'.format(file_path)))
+                                self.stderr.write(self.style.WARNING('[SKIP] skipping already-processed file "{}"'.format(file_path)))
                                 return
                             # get or set tmdb search results for this title in the cache
                             results = cache.get(title)
@@ -79,7 +79,7 @@ class Command(BaseCommand):
                                 try:
                                     results = self.tmdb_search.tv(query=title, language=self.nefarious_settings.language)
                                 except HTTPError:
-                                    self.stderr.write(self.style.WARNING('ERROR_EXCEPTION: tmdb search exception for title {} on file "{}"'.format(title, file_path)))
+                                    self.stderr.write(self.style.WARNING('[ERROR_TMDB] tmdb search exception for title {} on file "{}"'.format(title, file_path)))
                                     return
                                 cache.set(title, results, 60 * 60)
                             # loop over results for the exact match
@@ -102,7 +102,7 @@ class Command(BaseCommand):
                                         episode_data = episode_result.info()
                                     except HTTPError:
                                         self.stderr.write(
-                                            self.style.WARNING('ERROR_EXCEPTION: tmdb episode exception for title {} on file "{}"'.format(title, file_path)))
+                                            self.style.WARNING('[ERROR_TMDB] tmdb episode exception for title {} on file "{}"'.format(title, file_path)))
                                         continue
                                     watch_episode, _ = WatchTVEpisode.objects.update_or_create(
                                         tmdb_episode_id=episode_data['id'],
@@ -117,16 +117,16 @@ class Command(BaseCommand):
                                         ),
                                     )
                                     self.stdout.write(
-                                        self.style.SUCCESS('MATCH: Saved episode "{}" from file "{}"'.format(watch_episode, file_path)))
+                                        self.style.SUCCESS('[MATCH] Saved episode "{}" from file "{}"'.format(watch_episode, file_path)))
                                     break
                             else:  # for/else
-                                self.stderr.write(self.style.ERROR('ERROR_NO_MATCH: No media match for file "{}" and title "{}"'.format(file_path, title)))
+                                self.stderr.write(self.style.ERROR('[ERROR_NO_MATCH] No media match for title "{}" and file "{}"'.format(title, file_path)))
                         else:
-                            self.stderr.write(self.style.WARNING('ERROR_NO_MATCH: No single episode title match for file "{}"'.format(file_path)))
+                            self.stderr.write(self.style.WARNING('[ERROR_NO_MATCH] No single episode title match for title "{}" and file "{}"'.format(title, file_path)))
                     else:
-                        self.stderr.write(self.style.WARNING('ERROR_NO_MATCH: No valid video file extension for file "{}"'.format(file_path)))
+                        self.stderr.write(self.style.WARNING('[ERROR_NO_MATCH_VIDEO] No valid video file extension for file "{}"'.format(file_path)))
                 else:
-                    self.stderr.write(self.style.WARNING('ERROR_NO_MATCH: No file extension for file "{}"'.format(file_path)))
+                    self.stderr.write(self.style.WARNING('[ERROR_NO_MATCH_EXTENSION] No file extension for file "{}"'.format(file_path)))
 
             # directory
             elif self._is_dir(file_path) and self._ingest_depth(file_path) < self.INGEST_DEPTH_MAX:
@@ -137,7 +137,7 @@ class Command(BaseCommand):
             for sub_path in os.listdir(file_path):
                 self._ingest_path(file_path, sub_path)
         else:
-            self.stderr.write(self.style.NOTICE('ERROR_NO_MATCH: Unknown file "{}"'.format(file_path)))
+            self.stderr.write(self.style.NOTICE('[ERROR_NO_MATCH_UNKNOWN] Unknown match for file "{}"'.format(file_path)))
 
     def _is_dir(self, path) -> bool:
         # is a directory and NOT a symlink
