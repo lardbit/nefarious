@@ -48,27 +48,32 @@ class Command(BaseCommand):
         if parser.match:
             # file
             if os.path.isfile(file_path):
-                extension_match = parser.file_extension_regex.search(file_name)
-                if extension_match:
+                file_extension_match = parser.file_extension_regex.search(file_name)
+                if file_extension_match:
                     title = parser.match['title']
-                    # could be a sub-directory like "show/season 01/e01.mkv" so we need to update the "title"
+                    # no title found so it could be a sub-directory like "show/season 01/s01e01.mkv" so we need to prepend the "title" from a parent directory
                     if not title:
                         if self._ingest_depth(file_path) > 1:
-                            # use one of the parent folders as the show and append it to the "title"
+                            # append one of the parent folders as the title, i.e "show/season 01/e01.mkv" would become "show - s01e01.mkv"
                             file_path_split = file_path.split(os.sep)
-                            new_title = '{} - {}'.format(
+                            parent_title = '{} - {}'.format(
                                 os.path.basename(os.sep.join(file_path_split[:-(self._ingest_depth(file_path) - 1)])), file_name)
-                            # re-parse to and define the title
-                            parser = TVParser(new_title)
-                            title = parser.match['title']
-                            if not parser.match['title']:
+                            parent_parser = TVParser(parent_title)
+                            if not parent_parser.match:
                                 self.stderr.write(self.style.WARNING('[ERROR_NO_MATCH_TITLE] Could not match nested file "{}"'.format(file_path)))
                                 return
+                            # re-parse to and define the title
+                            title = parent_parser.match['title']
+                            if not title:
+                                self.stderr.write(self.style.WARNING('[ERROR_NO_MATCH_TITLE] Could not match nested file "{}"'.format(file_path)))
+                                return
+                            # merge the parent and the file parser matches
+                            parser.match.update(parent_parser.match)
                         else:
                             self.stderr.write(self.style.WARNING('[ERROR_NO_MATCH_TITLE] Could not match file without title "{}"'.format(file_path)))
                             return
-                    extension = extension_match.group()
-                    if extension in video_extensions():
+                    file_extension = file_extension_match.group()
+                    if file_extension in video_extensions():
                         if parser.is_single_episode():
                             if WatchTVEpisode.objects.filter(download_path=file_path).exists():
                                 self.stderr.write(self.style.WARNING('[SKIP] skipping already-processed file "{}"'.format(file_path)))
@@ -103,7 +108,7 @@ class Command(BaseCommand):
                                     except HTTPError:
                                         self.stderr.write(
                                             self.style.WARNING('[ERROR_TMDB] tmdb episode exception for title {} on file "{}"'.format(title, file_path)))
-                                        continue
+                                        return
                                     watch_episode, _ = WatchTVEpisode.objects.update_or_create(
                                         tmdb_episode_id=episode_data['id'],
                                         defaults=dict(
