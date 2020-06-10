@@ -51,24 +51,33 @@ class Command(BaseCommand):
                 file_extension_match = parser.file_extension_regex.search(file_name)
                 if file_extension_match:
                     title = parser.match['title']
-                    # no title found so it could be a sub-directory like "show/season 01/s01e01.mkv" so we need to prepend the "title" from a parent directory
+                    # no title found so it could be sub-directories like:
+                    #   show/season 01/s01e01.mkv
+                    #   show - season 01/s01e01.mkv
                     if not title:
                         if self._ingest_depth(file_path) > 1:
-                            # append one of the parent folders as the title, i.e "show/season 01/e01.mkv" would become "show - s01e01.mkv"
+
+                            # append the top most parent folder as the title, i.e "show/season 01/s01e01.mkv" would become "show - s01e01.mkv"
                             file_path_split = file_path.split(os.sep)
-                            parent_title = '{} - {}'.format(
-                                os.path.basename(os.sep.join(file_path_split[:-(self._ingest_depth(file_path) - 1)])), file_name)
-                            parent_parser = TVParser(parent_title)
-                            if not parent_parser.match:
+
+                            # possible parent directories
+                            parent_titles = [
+                                # "show - season 01/s01e01.mkv" would define title as "show - season 01"
+                                os.path.basename(os.sep.join(file_path_split[:-(self._ingest_depth(file_path) - 1)])),
+                                # "show/season 01/s01e01.mkv" would define title as "show - s01e01.mkv"
+                                '{} - {}'.format(
+                                    os.path.basename(os.sep.join(file_path_split[:-(self._ingest_depth(file_path) - 1)])), file_name),
+                            ]
+                            for parent_title in parent_titles:
+                                parent_parser = TVParser(parent_title)
+                                # define the title and merge the parent and the file parser matches
+                                if parent_parser.match and parent_parser.match['title']:
+                                    title = parent_parser.match['title']
+                                    parser.match.update(parent_parser.match)
+                                    break
+                            else:  # for/else
                                 self.stderr.write(self.style.WARNING('[ERROR_NO_MATCH_TITLE] Could not match nested file "{}"'.format(file_path)))
                                 return
-                            # re-parse to and define the title
-                            title = parent_parser.match['title']
-                            if not title:
-                                self.stderr.write(self.style.WARNING('[ERROR_NO_MATCH_TITLE] Could not match nested file "{}"'.format(file_path)))
-                                return
-                            # merge the parent and the file parser matches
-                            parser.match.update(parent_parser.match)
                         else:
                             self.stderr.write(self.style.WARNING('[ERROR_NO_MATCH_TITLE] Could not match file without title "{}"'.format(file_path)))
                             return
@@ -125,9 +134,9 @@ class Command(BaseCommand):
                                         self.style.SUCCESS('[MATCH] Saved episode "{}" from file "{}"'.format(watch_episode, file_path)))
                                     break
                             else:  # for/else
-                                self.stderr.write(self.style.ERROR('[ERROR_NO_MATCH] No media match for title "{}" and file "{}"'.format(title, file_path)))
+                                self.stderr.write(self.style.ERROR('[ERROR_NO_MATCH_MEDIA] No media match for title "{}" and file "{}"'.format(title, file_path)))
                         else:
-                            self.stderr.write(self.style.WARNING('[ERROR_NO_MATCH] No single episode title match for title "{}" and file "{}"'.format(title, file_path)))
+                            self.stderr.write(self.style.WARNING('[ERROR_NO_MATCH_SINGLE_EPISODE] No single episode title match for title "{}" and file "{}"'.format(title, file_path)))
                     else:
                         self.stderr.write(self.style.WARNING('[ERROR_NO_MATCH_VIDEO] No valid video file extension for file "{}"'.format(file_path)))
                 else:
