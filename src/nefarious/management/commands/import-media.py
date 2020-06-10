@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
-from nefarious.tests.importer.TVImporter import TVImporter
+from nefarious.tests.importer.tv import TVImporter
 from nefarious.tmdb import get_tmdb_client
 from nefarious.models import NefariousSettings
 
@@ -40,4 +40,4 @@ class Command(BaseCommand):
                 tmdb_client=tmdb_client,
                 user=user,
             )
-            importer.ingest(tv_path)
+            importer.ingest_root(tv_path)

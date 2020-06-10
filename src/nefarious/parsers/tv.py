@@ -8,7 +8,7 @@ from nefarious.parsers.base import ParserBase
 class TVParser(ParserBase):
 
     special_episode_word_regex = regex.compile(r"\b(part|special|edition|christmas)\b\s?", regex.I)
-    year_regex_string = r"\W?(?<year>(19|20)\d{2}(?!p|i|(19|20)\d{2}|\]|\W(19|20)\d{2}))\W?"
+    year_regex_string = r"(\W?(?<year>(19|20)\d{2}(?!p|i|(19|20)\d{2}|\]|\W(19|20)\d{2}))\W?)?"
 
     media_regex_list = [
         # Multi-Part episodes without a title (S01E05.S01E06)
@@ -252,13 +252,14 @@ class TVParser(ParserBase):
         # Episodes with a title and season/episode in square brackets
         (
             'Episodes with a title and season/episode in square brackets',
-            regex.compile(r"^(?<title>.+?)(?:(?:[-_\W](?<![()\[!]))+\[S?(?<season>(?<!\d+)\d{1,2}(?!\d+))(?:(?:\-|[ex]|\W[ex]|_){1,2}(?<episode>(?<!\d+)\d{2}(?!\d+|i|p)))+\])\W?(?!\\)", regex.I),
+            regex.compile(r"^(?<title>.+?)%s(?:(?:[-_\W](?<![()\[!]))+\[S?(?<season>(?<!\d+)\d{1,2}(?!\d+))(?:(?:\-|[ex]|\W[ex]|_){1,2}(?<episode>(?<!\d+)\d{2}(?!\d+|i|p)))+\])\W?(?!\\)" % year_regex_string, regex.I),
         ),
 
         # Supports 103/113 naming
         (
+            # *DIFF* added year match
             'Supports 103/113 naming',
-            regex.compile(r"^(?<title>.+?)?(?:(?:[-_\W](?<![()\[!]))+(?<season>(?<!\d+)[1-9])(?<episode>[1-9][0-9]|[0][1-9])(?![a-z]|\d+))+", regex.I),
+            regex.compile(r"^(?<title>.+?)?%s(?:(?:[-_\W](?<![()\[!]))+(?<season>(?<!\d+)[1-9])(?<episode>[1-9][0-9]|[0][1-9])(?![a-z]|\d+))+" % year_regex_string, regex.I),
         ),
 
         # 4 digit episode number - Episodes without a title, Single (S01E05, 1x05) AND Multi (S01E04E05, 1x04x05, etc)
