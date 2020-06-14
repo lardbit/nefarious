@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from nefarious.models import WatchMovie
 from nefarious.parsers.movie import MovieParser
 from nefarious.importer.base import ImporterBase
@@ -23,6 +25,9 @@ class MovieImporter(ImporterBase):
                 user=self.user,
                 name=tmdb_result['title'],
                 poster_image_url=poster_path,
+                download_path=file_path,
+                collected=True,
+                collected_date=timezone.utc.localize(timezone.datetime.utcnow()),
             ),
         )
         return watch_movie
