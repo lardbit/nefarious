@@ -34,6 +34,8 @@ export class ApiService {
   API_URL_GENRES_TV = '/api/genres/tv/';
   API_URL_QUALITY_PROFILES = '/api/quality-profiles/';
   API_URL_GIT_COMMIT = '/api/git-commit/';
+  API_URL_IMPORT_MEDIA_TV = '/api/import/media/tv/';
+  API_URL_IMPORT_MEDIA_MOVIE = '/api/import/media/movie/';
 
   SEARCH_MEDIA_TYPE_TV = 'tv';
   SEARCH_MEDIA_TYPE_MOVIE = 'movie';
@@ -661,6 +663,15 @@ export class ApiService {
 
   public fetchGitCommit(): Observable<any> {
     return this.http.get(this.API_URL_GIT_COMMIT, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        return data;
+      }),
+    );
+  }
+
+  public importMedia(mediaType: string): Observable<any> {
+    const url = mediaType === this.SEARCH_MEDIA_TYPE_MOVIE ? this.API_URL_IMPORT_MEDIA_MOVIE : this.API_URL_IMPORT_MEDIA_TV;
+    return this.http.post(url, null, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
         return data;
       }),

@@ -10,12 +10,14 @@ from rest_framework import status
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework import views
+from rest_framework import exceptions
 from nefarious.api.serializers import (
     WatchMovieSerializer, WatchTVShowSerializer, WatchTVEpisodeSerializer, WatchTVSeasonRequestSerializer, WatchTVSeasonSerializer,
     TransmissionTorrentSerializer,)
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVShow, WatchTVEpisode, WatchTVSeasonRequest, WatchTVSeason
 from nefarious.search import MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrents
 from nefarious.quality import PROFILES
+from nefarious.tasks import import_library_task
 from nefarious.transmission import get_transmission_client
 from nefarious.tmdb import get_tmdb_client
 from nefarious.utils import trace_torrent_url, swap_jackett_host, is_magnet_url
@@ -420,3 +422,13 @@ class QualityProfilesView(views.APIView):
 
     def get(self, request):
         return Response({'profiles': [p.name for p in PROFILES]})
+
+
+class ImportMediaLibraryView(views.APIView):
+
+    def post(self, request, media_type):
+        if not settings.DOWNLOAD_PATH:
+            return exceptions.APIException('DOWNLOAD_PATH is not defined')
+        # create task to import library
+        import_library_task.delay(media_type, request.user.id)
+        return Response({'success': True})

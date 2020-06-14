@@ -202,4 +202,14 @@ export class SettingsComponent implements OnInit {
   public getLanguages() {
     return this.apiService.settings.tmdb_languages;
   }
+
+  public importLibrary(mediaType) {
+    this.apiService.importMedia(mediaType).subscribe(
+      (data) => {
+        this.toastr.success('Importing library...');
+      }, (error) => {
+        this.toastr.error('Error importing library');
+      }
+    );
+  }
 }
