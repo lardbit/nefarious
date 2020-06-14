@@ -8,7 +8,7 @@ from requests import HTTPError
 from nefarious.models import WatchTVEpisode, WatchTVShow
 from nefarious.parsers.tv import TVParser
 from nefarious.quality import video_extensions
-from nefarious.tests.importer.base import ImporterBase
+from nefarious.importer.base import ImporterBase
 
 
 class TVImporter(ImporterBase):

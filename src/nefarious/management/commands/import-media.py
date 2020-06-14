@@ -4,7 +4,8 @@ from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
-from nefarious.tests.importer.tv import TVImporter
+from nefarious.importer.movie import MovieImporter
+from nefarious.importer.tv import TVImporter
 from nefarious.tmdb import get_tmdb_client
 from nefarious.models import NefariousSettings
 
@@ -41,3 +42,14 @@ class Command(BaseCommand):
                 user=user,
             )
             importer.ingest_root(tv_path)
+        else:
+            movie_path = os.path.join(download_path, nefarious_settings.transmission_movie_download_dir)
+            importer = MovieImporter(
+                nefarious_settings=nefarious_settings,
+                download_path=movie_path,
+                tmdb_client=tmdb_client,
+                user=user,
+            )
+            importer.ingest_root(movie_path)
+
+

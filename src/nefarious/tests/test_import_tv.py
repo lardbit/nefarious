@@ -3,7 +3,7 @@ import os
 from django.contrib.auth.models import User
 from django.test import TestCase
 from nefarious.models import NefariousSettings, WatchTVShow, WatchTVEpisode
-from nefarious.tests.importer.tv import TVImporter
+from nefarious.importer.tv import TVImporter
 from nefarious.tmdb import get_tmdb_client
 
 
