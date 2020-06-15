@@ -18,7 +18,7 @@ jobs:
         # build image
         - docker build -t lardbit/nefarious:$tag .
         # run unit tests
-        - docker run --network tests --entrypoint /env/bin/python lardbit/nefarious:$tag manage.py test
+        - docker run --network tests -e REDIS_HOST=redis --entrypoint /env/bin/python lardbit/nefarious:$tag manage.py test
         # authenticate with docker
         - echo "$DOCKER_PASSWORD" | docker login -u "lardbit" --password-stdin
         # push image to docker hub
