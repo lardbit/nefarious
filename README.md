@@ -84,13 +84,22 @@ You must have **docker** and **docker-compose** already installed.  See [depende
 
 #### Part 1
     
-Clone the nefarious repository and start all the Docker containers:
+Clone the nefarious repository:
 
     git clone https://github.com/lardbit/nefarious.git
     cd nefarious
+    
+Copy the default environment file to make changes:
+
+    cp env.template .env
+    
+Edit `.env` as needed for your settings, at least defining *DOWNLOAD_PATH* to something like *DOWNLOAD_PATH=/path/to/downloads*.
+    
+Start all the containers:
+
     docker-compose up -d
     
-**NOTE: the first time you bring up nefarious can take a few minutes.**
+**NOTE: the first time you start nefarious can take a few minutes.**
 
 Your default local URLs for all the various services will be:
 
@@ -121,21 +130,6 @@ Finally, user accounts and passwords can be added or modified as well.  Feel fre
 Once all of your Settings are to your preference, first click `Save` then be sure to `Verify Settings`.
 
 ##### Transmission Configuration
-
-In order to change the download folder (which is set to `/tmp/transmission` by default) look for the `docker-compose.yml` file in your nefarious folder and edit 
-
-    /tmp/transmission:/downloads
-
-to be like
-
-    /Your/Desired/Folder:/downloads
-  
-Leave the right side alone and only change the left side.  The structure of the folder path is the same for both Linux and Windows.
-Once you've made your changes, save your `docker-compose.yml` file, open a terminal to your nefarious folder and type 
-
-    docker-compose up -d
-
-to update and apply your updates.
 
 There is no default transmission user/pass, but feel free to edit the `transmission-settings.json` beforehand following the [official settings](https://github.com/transmission/transmission/wiki/Editing-Configuration-Files) to make any changes you'd like.
 

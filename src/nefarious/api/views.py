@@ -428,7 +428,7 @@ class ImportMediaLibraryView(views.APIView):
 
     def post(self, request, media_type):
         if not settings.DOWNLOAD_PATH:
-            return exceptions.APIException('DOWNLOAD_PATH is not defined')
+            raise exceptions.APIException('DOWNLOAD_PATH is not defined')
         # create task to import library
         import_library_task.delay(media_type, request.user.id)
         return Response({'success': True})

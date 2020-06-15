@@ -208,8 +208,16 @@ export class SettingsComponent implements OnInit {
       (data) => {
         this.toastr.success('Importing library...');
       }, (error) => {
-        this.toastr.error('Error importing library');
+        let message = 'Error importing library.';
+        if (error.error && error.error.detail) {
+          message = `${message} ${error.error.detail}`;
+        }
+        this.toastr.error(message);
       }
     );
+  }
+
+  public hasDownloadPath(): boolean {
+    return this.apiService.settings.has_download_path;
   }
 }
