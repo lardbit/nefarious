@@ -1,5 +1,7 @@
 import os
 import logging
+
+from celery_once import AlreadyQueued
 from django.conf import settings
 from django.utils.dateparse import parse_date
 from django.utils.decorators import method_decorator
@@ -427,8 +429,14 @@ class QualityProfilesView(views.APIView):
 class ImportMediaLibraryView(views.APIView):
 
     def post(self, request, media_type):
-        if not settings.DOWNLOAD_PATH:
-            raise exceptions.APIException('DOWNLOAD_PATH is not defined')
-        # create task to import library
-        import_library_task.delay(media_type, request.user.id)
+        if not settings.HOST_DOWNLOAD_PATH:
+            raise exceptions.APIException('HOST_DOWNLOAD_PATH is not defined')
+        try:
+            # create task to import library
+            import_library_task.delay(media_type, request.user.id)
+        except AlreadyQueued as e:
+            logging.exception(e)
+            msg = 'Import task for {} already exists'.format(media_type)
+            logging.error(msg)
+            raise exceptions.APIException(msg)
         return Response({'success': True})

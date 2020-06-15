@@ -23,9 +23,13 @@ class ImporterBase:
         self.user = user
 
     def ingest_root(self, path):
+        scanned = 0
+        logging.info('Scanning {}'.format(path))
         for root, dirs, files in os.walk(path):
+            scanned += len(files)
             for file in files:
                 self.ingest_path(os.path.join(root, file))
+        logging.info('Scanned {} files'.format(scanned))
 
     def _handle_match(self, parser, tmdb_result, title, file_path):
         raise NotImplementedError

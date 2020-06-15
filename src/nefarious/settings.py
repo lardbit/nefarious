@@ -187,10 +187,16 @@ REST_FRAMEWORK = {
 # https://developers.themoviedb.org/3/getting-started/introduction
 #
 
-# rate limiting is supposedly per IP address (not per token) so this should be safe to use across all installations
+# rate limiting is supposedly per IP address (not per token) so this should be safe to use across all installations.
+# UPDATE: As of Dec 16, 2019 rate limiting is no longer enforced.
 # https://developers.themoviedb.org/3/getting-started/request-rate-limiting
 TMDB_API_TOKEN = '21c8985a267ac3f11ea75baf2c05c3ba'
 
 UNPROCESSED_PATH = '.nefarious-unprocessed-downloads'
 
-DOWNLOAD_PATH = os.environ.get('DOWNLOAD_PATH')
+# container download path (or will be host in development)
+DOWNLOAD_PATH = os.environ.get('DOWNLOAD_PATH', '/tmp')
+
+# this is really just an indication that the nefarious container wasn't volume mounted with access to the download path.
+# nefarious/celery will actually use the DOWNLOAD_PATH (container specific path) to scan for imported media
+HOST_DOWNLOAD_PATH = os.environ.get('HOST_DOWNLOAD_PATH')

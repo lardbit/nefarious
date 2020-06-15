@@ -217,7 +217,11 @@ export class SettingsComponent implements OnInit {
     );
   }
 
-  public hasDownloadPath(): boolean {
-    return this.apiService.settings.has_download_path;
+  public hostDownloadPath(): boolean {
+    return this.apiService.settings.host_download_path;
+  }
+
+  public hasHostDownloadPath(): boolean {
+    return Boolean(this.apiService.settings.host_download_path);
   }
 }

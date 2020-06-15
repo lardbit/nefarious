@@ -24,7 +24,7 @@ class NefariousSettingsSerializer(serializers.ModelSerializer):
     jackett_default_token = serializers.ReadOnlyField(default=NefariousSettings.JACKETT_TOKEN_DEFAULT)
     websocket_url = serializers.SerializerMethodField()
     is_debug = serializers.SerializerMethodField()
-    has_download_path = serializers.SerializerMethodField()
+    host_download_path = serializers.SerializerMethodField()
 
     def get_websocket_url(self, obj):
         return settings.WEBSOCKET_URL
@@ -32,8 +32,8 @@ class NefariousSettingsSerializer(serializers.ModelSerializer):
     def get_is_debug(self, obj):
         return settings.DEBUG
 
-    def get_has_download_path(self, obj):
-        return bool(settings.DOWNLOAD_PATH)
+    def get_host_download_path(self, obj):
+        return settings.HOST_DOWNLOAD_PATH
 
     class Meta:
         model = NefariousSettings

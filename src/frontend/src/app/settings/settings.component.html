@@ -201,12 +201,13 @@
           <div class="card-header">Import Library</div>
           <div class="card-body">
             <p>Import your existing library so everything you've previously downloaded will populate in nefarious.</p>
-            <div *ngIf="!hasDownloadPath()" class="alert alert-warning"><strong>DOWNLOAD_PATH</strong> isn't defined!  It must be defined to be able to import your existing library.  Update nefarious from github and follow the <a href="https://github.com/lardbit/nefarious#setup" target="_blank">Setup instructions</a>.</div>
+            <div *ngIf="!hasHostDownloadPath()" class="alert alert-warning"><strong>HOST_DOWNLOAD_PATH</strong> isn't defined!  It must be defined to be able to import your existing library.  Update nefarious from github and follow the <a href="https://github.com/lardbit/nefarious#setup" target="_blank">Setup instructions</a>.</div>
+            <p *ngIf="hasHostDownloadPath()" class="text-success">Host Download Path: <em>{{hostDownloadPath()}}</em></p>
             <div class="form-group">
-              <button type="button" (click)="importLibrary('movie')" class="btn btn-outline-default btn-sm" [disabled]="!hasDownloadPath()">Import Movies <span class="oi oi-folder"></span></button>
+              <button type="button" (click)="importLibrary('movie')" class="btn btn-outline-default btn-sm" [disabled]="!hasHostDownloadPath()">Import Movies <span class="oi oi-folder"></span></button>
             </div>
             <div class="form-group">
-              <button type="button" (click)="importLibrary('tv')" class="btn btn-outline-default btn-sm" [disabled]="!hasDownloadPath()">Import TV Shows <span class="oi oi-folder"></span></button>
+              <button type="button" (click)="importLibrary('tv')" class="btn btn-outline-default btn-sm" [disabled]="!hasHostDownloadPath()">Import TV Shows <span class="oi oi-folder"></span></button>
             </div>
           </div>
         </div>

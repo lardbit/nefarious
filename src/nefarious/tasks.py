@@ -353,27 +353,26 @@ def auto_watch_new_seasons_task():
             watch_show.save()
 
 
-@app.task(base=QueueOnce, once={'graceful': True})
+@app.task(base=QueueOnce)
 def import_library_task(media_type: str, user_id: int):
     user = get_object_or_404(User, pk=user_id)
     nefarious_settings = NefariousSettings.get()
     tmdb_client = get_tmdb_client(nefarious_settings=nefarious_settings)
 
     if media_type == 'movie':
-        movie_path = os.path.join(settings.DOWNLOAD_PATH, nefarious_settings.transmission_movie_download_dir)
+        download_path = os.path.join(settings.DOWNLOAD_PATH, nefarious_settings.transmission_movie_download_dir)
         importer = MovieImporter(
             nefarious_settings=nefarious_settings,
-            download_path=movie_path,
+            download_path=download_path,
             tmdb_client=tmdb_client,
             user=user,
         )
-        importer.ingest_root(movie_path)
-    elif media_type == 'tv':
-        tv_path = os.path.join(settings.DOWNLOAD_PATH, nefarious_settings.transmission_tv_download_dir)
+    else:
+        download_path = os.path.join(settings.DOWNLOAD_PATH, nefarious_settings.transmission_tv_download_dir)
         importer = TVImporter(
             nefarious_settings=nefarious_settings,
-            download_path=tv_path,
+            download_path=download_path,
             tmdb_client=tmdb_client,
             user=user,
         )
-        importer.ingest_root(tv_path)
+    importer.ingest_root(download_path)

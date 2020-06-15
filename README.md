@@ -93,7 +93,7 @@ Copy the default environment file to make changes:
 
     cp env.template .env
     
-Edit `.env` as needed for your settings, at least defining *DOWNLOAD_PATH* to something like *DOWNLOAD_PATH=/path/to/downloads*.
+Edit `.env` as needed for your settings, at least defining *HOST_DOWNLOAD_PATH* to something like *HOST_DOWNLOAD_PATH=/path/to/downloads*.
     
 Start all the containers:
 
