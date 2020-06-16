@@ -7,7 +7,7 @@ from nefarious.importer.tv import TVImporter
 from nefarious.tmdb import get_tmdb_client
 
 
-class TVImport(TestCase):
+class TVImportTest(TestCase):
     tv_tests = []
 
     def setUp(self):

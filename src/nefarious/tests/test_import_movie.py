@@ -7,7 +7,7 @@ from nefarious.importer.movie import MovieImporter
 from nefarious.tmdb import get_tmdb_client
 
 
-class MovieImport(TestCase):
+class MovieImportTest(TestCase):
     movie_tests = []
 
     def setUp(self):

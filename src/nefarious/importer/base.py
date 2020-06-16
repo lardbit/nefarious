@@ -88,7 +88,7 @@ class ImporterBase:
                             if self._is_result_match_title(parser, tmdb_result, title):
                                 watch_media = self._handle_match(parser, tmdb_result, title, file_path)
                                 if watch_media:
-                                    logging.info('[MATCH] Saved episode "{}" from file "{}"'.format(watch_media, file_path))
+                                    logging.info('[MATCH] Saved media "{}" from file "{}"'.format(watch_media, file_path))
                                     return watch_media
                         else:  # for/else
                             logging.warning('[NO_MATCH_MEDIA] No media match for title "{}" and file "{}"'.format(title, file_path))

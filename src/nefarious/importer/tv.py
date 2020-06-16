@@ -59,7 +59,7 @@ class TVImporter(ImporterBase):
         poster_path = self.nefarious_settings.get_tmdb_poster_url(tmdb_result['poster_path']) if tmdb_result['poster_path'] else ''
         season_number = parser.match['season'][0]
         episode_number = parser.match['episode'][0]
-        watch_show, _ = WatchTVShow.objects.get_or_create(
+        watch_show, _ = WatchTVShow.objects.update_or_create(
             tmdb_show_id=tmdb_result['id'],
             defaults=dict(
                 user=self.user,

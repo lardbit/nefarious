@@ -19,7 +19,7 @@ class MovieImporter(ImporterBase):
 
     def _handle_match(self, parser, tmdb_result, title, file_path):
         poster_path = self.nefarious_settings.get_tmdb_poster_url(tmdb_result['poster_path']) if tmdb_result['poster_path'] else ''
-        watch_movie, _ = WatchMovie.objects.get_or_create(
+        watch_movie, _ = WatchMovie.objects.update_or_create(
             tmdb_movie_id=tmdb_result['id'],
             defaults=dict(
                 user=self.user,
