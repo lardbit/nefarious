@@ -195,8 +195,8 @@ TMDB_API_TOKEN = '21c8985a267ac3f11ea75baf2c05c3ba'
 UNPROCESSED_PATH = '.nefarious-unprocessed-downloads'
 
 # container download path (or will be host in development)
-DOWNLOAD_PATH = os.environ.get('DOWNLOAD_PATH', '/tmp')
+INTERNAL_DOWNLOAD_PATH = os.environ.get('INTERNAL_DOWNLOAD_PATH', '/tmp')
 
-# this is really just an indication that the nefarious container wasn't volume mounted with access to the download path.
-# nefarious/celery will actually use the DOWNLOAD_PATH (container specific path) to scan for imported media
+# this is really just an indication to know if the nefarious container was volume mounted with access to the download path.
+# nefarious (celery) will actually use the INTERNAL_DOWNLOAD_PATH (container specific path) to scan for imported media
 HOST_DOWNLOAD_PATH = os.environ.get('HOST_DOWNLOAD_PATH')

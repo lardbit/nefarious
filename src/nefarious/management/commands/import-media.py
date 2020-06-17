@@ -21,14 +21,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         nefarious_settings = NefariousSettings.get()
-        download_path = settings.DOWNLOAD_PATH
+        download_path = settings.INTERNAL_DOWNLOAD_PATH
         tmdb_client = get_tmdb_client(nefarious_settings)
         # use the first super user account to assign media
         user = User.objects.filter(is_superuser=True).first()
 
         # validate
         if not download_path:
-            raise CommandError('DOWNLOAD_PATH environment variable is not defined')
+            raise CommandError('INTERNAL_DOWNLOAD_PATH environment variable is not defined')
         elif not os.path.exists(download_path):
             raise CommandError('Path "{}" does not exist'.format(download_path))
 

@@ -360,7 +360,7 @@ def import_library_task(media_type: str, user_id: int):
     tmdb_client = get_tmdb_client(nefarious_settings=nefarious_settings)
 
     if media_type == 'movie':
-        download_path = os.path.join(settings.DOWNLOAD_PATH, nefarious_settings.transmission_movie_download_dir)
+        download_path = os.path.join(settings.INTERNAL_DOWNLOAD_PATH, nefarious_settings.transmission_movie_download_dir)
         importer = MovieImporter(
             nefarious_settings=nefarious_settings,
             download_path=download_path,
@@ -368,7 +368,7 @@ def import_library_task(media_type: str, user_id: int):
             user=user,
         )
     else:
-        download_path = os.path.join(settings.DOWNLOAD_PATH, nefarious_settings.transmission_tv_download_dir)
+        download_path = os.path.join(settings.INTERNAL_DOWNLOAD_PATH, nefarious_settings.transmission_tv_download_dir)
         importer = TVImporter(
             nefarious_settings=nefarious_settings,
             download_path=download_path,

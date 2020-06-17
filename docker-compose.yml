@@ -16,6 +16,7 @@ services:
       REDIS_HOST: "redis"
       NEFARIOUS_USER: ${NEFARIOUS_USER:-admin}
       NEFARIOUS_PASS: ${NEFARIOUS_PASS:-admin}
+      HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp/}
     volumes:
       # persistent named volume for sqlite database
       - nefarious-db:/nefarious-db
@@ -38,6 +39,8 @@ services:
       # https://github.com/kennethreitz/dj-database-url
       DATABASE_URL: "sqlite:////nefarious-db/db.sqlite3"
       REDIS_HOST: "redis"
+      HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp}
+      INTERNAL_DOWNLOAD_PATH: /downloads/completed
     volumes:
       - ${HOST_DOWNLOAD_PATH:-/tmp}:/downloads
       # persistent named volume for sqlite database
