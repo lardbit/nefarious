@@ -75,11 +75,11 @@ class TVImporter(ImporterBase):
             return False
         watch_episode, _ = WatchTVEpisode.objects.update_or_create(
             tmdb_episode_id=episode_data['id'],
+            watch_tv_show=watch_show,
+            season_number=season_number,
+            episode_number=episode_number,
             defaults=dict(
                 user=self.user,
-                watch_tv_show=watch_show,
-                season_number=season_number,
-                episode_number=episode_number,
                 download_path=file_path,
                 collected=True,
                 collected_date=timezone.utc.localize(timezone.datetime.utcnow()),
