@@ -39,6 +39,7 @@ Features:
 - [Dependencies](#dependencies)
 - [Setup](#setup)
 - [Usage](#usage)
+- [Upgrading](#upgrading)
 - [Troubleshooting](#troubleshooting)
 - [Development](#development)
 
@@ -140,6 +141,12 @@ There is no default transmission user/pass, but feel free to edit the `transmiss
 ### Usage
 
 See [USAGE.md](docs/USAGE.md).
+
+### Upgrading
+
+If you're running nefarious via the default `docker-compose.yml` file then nefarious will automatically update to the newest versions as they release.
+However, occasionally the `docker-compose.yml` configuration file changes and you'll need to redo the steps in [Setup](#setup).
+*You will not lose your nefarious settings due to persistent docker volumes.  It's a safe operation.*
 
 ### Troubleshooting
 

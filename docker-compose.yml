@@ -55,6 +55,7 @@ services:
   redis:
     image: redis
     restart: always
+    mem_limit: 200m
     # TODO - use "expose" vs "ports" to limit external access when not in development
     ports:
     - "6379:6379"
