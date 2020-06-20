@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from django.contrib.auth.models import User
+from django.utils.decorators import method_decorator
+from django.views.decorators.gzip import gzip_page
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -22,6 +24,7 @@ from nefarious.utils import (
     fetch_jackett_indexers, destroy_transmission_result)
 
 
+@method_decorator(gzip_page, name='dispatch')
 class WatchMovieViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchMovie.objects.all()
     serializer_class = WatchMovieSerializer
@@ -42,6 +45,7 @@ class WatchMovieViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionRe
         watch_movie_task.delay(watch_media_id)
 
 
+@method_decorator(gzip_page, name='dispatch')
 class WatchTVShowViewSet(WebSocketMediaMessageUpdatedMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVShow.objects.all()
     serializer_class = WatchTVShowSerializer
@@ -75,6 +79,7 @@ class WatchTVShowViewSet(WebSocketMediaMessageUpdatedMixin, UserReferenceViewSet
         return super().perform_destroy(watch_tv_show)
 
 
+@method_decorator(gzip_page, name='dispatch')
 class WatchTVSeasonViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVSeason.objects.all()
     serializer_class = WatchTVSeasonSerializer
@@ -88,6 +93,7 @@ class WatchTVSeasonViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissio
         watch_tv_show_season_task.delay(watch_media_id)
 
 
+@method_decorator(gzip_page, name='dispatch')
 class WatchTVSeasonRequestViewSet(WebSocketMediaMessageUpdatedMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     """
     Special viewset to monitor the request of a season, not collection of the season/media itself
@@ -144,6 +150,7 @@ class WatchTVSeasonRequestViewSet(WebSocketMediaMessageUpdatedMixin, UserReferen
         return super().perform_destroy(watch_tv_season_request)
 
 
+@method_decorator(gzip_page, name='dispatch')
 class WatchTVEpisodeViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchTVEpisode.objects.all()
     serializer_class = WatchTVEpisodeSerializer
@@ -159,6 +166,7 @@ class WatchTVEpisodeViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissi
         watch_tv_episode_task.delay(serializer.instance.id)
 
 
+@method_decorator(gzip_page, name='dispatch')
 class SettingsViewSet(viewsets.ModelViewSet):
     queryset = NefariousSettings.objects.all()
 
@@ -193,12 +201,14 @@ class SettingsViewSet(viewsets.ModelViewSet):
         return Response(fetch_jackett_indexers(nefarious_settings))
 
 
+@method_decorator(gzip_page, name='dispatch')
 class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminUser,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
+@method_decorator(gzip_page, name='dispatch')
 class CurrentUserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
