@@ -23,6 +23,7 @@ export class AppComponent implements OnInit {
   logWhenPageVisible (): void {
     console.log('page visible, re-fetching data');
     this.apiService.fetchCoreData().subscribe();
+    this.apiService.fetchWatchMedia().subscribe();
   }
 
   public isStaff(): Boolean {

@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./watching.component.css']
 })
 export class WatchingComponent implements OnInit, OnDestroy {
-  public results: any[];
+  public results: any[] = [];
   public mediaType: string;
   public search: string;
 
