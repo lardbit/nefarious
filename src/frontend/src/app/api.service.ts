@@ -185,11 +185,7 @@ export class ApiService {
   }
 
   public fetchWatchMedia(): Observable<any> {
-    return forkJoin(this.getWatchMediaFetches());
-  }
-
-  public getWatchMediaFetches(): Array<Observable<any>> {
-    return [
+    return forkJoin([
       this.fetchWatchTVShows().pipe(
         tap((data) => {
           this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_SHOWS, data).subscribe();
@@ -215,7 +211,7 @@ export class ApiService {
           this.localStorage.setItem(this.STORAGE_KEY_WATCH_MOVIES, data).subscribe();
         })
       ),
-    ];
+    ]);
   }
 
   public fetchSettings() {

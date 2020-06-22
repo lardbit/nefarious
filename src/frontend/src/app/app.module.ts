@@ -13,7 +13,6 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { AngularPageVisibilityModule } from 'angular-page-visibility';
 
 
-
 import { AppComponent } from './app.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { SearchManualComponent } from './search/search-manual.component';
