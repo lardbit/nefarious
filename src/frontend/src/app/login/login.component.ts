@@ -33,10 +33,11 @@ export class LoginComponent implements OnInit {
     this.isSaving = true;
     this.apiService.login(this.form.value.username, this.form.value.password).pipe(
       mergeMap((data) => {
-        return forkJoin(
+        return forkJoin([
           this.apiService.fetchUser(),
           this.apiService.fetchCoreData(),
-        );
+          this.apiService.fetchWatchMedia(),
+        ]);
       }),
       first(),
       ).subscribe(

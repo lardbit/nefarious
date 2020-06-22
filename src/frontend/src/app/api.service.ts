@@ -121,35 +121,35 @@ export class ApiService {
       ),
       this.localStorage.getItem(this.STORAGE_KEY_WATCH_MOVIES).pipe(
         map(
-          (data) => {
+          (data: any[]) => {
             this.watchMovies = data;
             return this.watchMovies;
           }),
       ),
       this.localStorage.getItem(this.STORAGE_KEY_WATCH_TV_SHOWS).pipe(
         map(
-          (data) => {
+          (data: any[]) => {
             this.watchTVShows = data;
             return this.watchTVShows;
           }),
       ),
       this.localStorage.getItem(this.STORAGE_KEY_WATCH_TV_SEASONS).pipe(
         map(
-          (data) => {
+          (data: any[]) => {
             this.watchTVSeasons = data;
             return this.watchTVSeasons;
           }),
       ),
       this.localStorage.getItem(this.STORAGE_KEY_WATCH_TV_SEASON_REQUESTS).pipe(
         map(
-          (data) => {
+          (data: any[]) => {
             this.watchTVSeasonRequests = data;
             return this.watchTVSeasonRequests;
           }),
       ),
       this.localStorage.getItem(this.STORAGE_KEY_WATCH_TV_EPISODES).pipe(
         map(
-          (data) => {
+          (data: any[]) => {
             this.watchTVEpisodes = data;
             return this.watchTVEpisodes;
           }),
@@ -162,7 +162,7 @@ export class ApiService {
   }
 
   public fetchCoreData(): Observable<any> {
-    return forkJoin(
+    return forkJoin([
       this.fetchSettings().pipe(
         tap(() => {
           // only initialize when in production
@@ -172,7 +172,7 @@ export class ApiService {
         })
       ),
       this.fetchQualityProfiles(),
-    ).pipe(
+    ]).pipe(
       tap(() => {
         // alert any relevant components media has been updated
         this._alertMediaUpdated();
@@ -279,7 +279,7 @@ export class ApiService {
       tap((data: any) => {
         this.users.filter((user) => {
           return user.id !== id;
-        })
+        });
       }),
     );
   }
@@ -687,7 +687,8 @@ export class ApiService {
   }
 
   public blacklistRetryTVSeason(watchMediaId: number) {
-    return this.http.post(`${this.API_URL_WATCH_TV_SEASON}${watchMediaId}/blacklist-auto-retry/`, null, {headers: this._requestHeaders()}).pipe(
+    const url = `${this.API_URL_WATCH_TV_SEASON}${watchMediaId}/blacklist-auto-retry/`;
+    return this.http.post(url, null, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
         this.watchTVSeasons.forEach((watchSeason) => {
           if (data.id === watchSeason.id) {
@@ -699,7 +700,8 @@ export class ApiService {
   }
 
   public blacklistRetryTVEpisode(watchMediaId: number) {
-    return this.http.post(`${this.API_URL_WATCH_TV_EPISODE}${watchMediaId}/blacklist-auto-retry/`, null, {headers: this._requestHeaders()}).pipe(
+    const url = `${this.API_URL_WATCH_TV_EPISODE}${watchMediaId}/blacklist-auto-retry/`;
+    return this.http.post(url, null, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
         this.watchTVEpisodes.forEach((watchEpisode) => {
           if (data.id === watchEpisode.id) {
