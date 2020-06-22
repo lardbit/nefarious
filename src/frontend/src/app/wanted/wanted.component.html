@@ -24,7 +24,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let result of results | filter: search">
+        <tr *ngFor="let result of results | mediaFilter: search">
           <td><a [routerLink]="['/media', mediaType, getTMDBId(result)]">{{ result.name }}</a></td>
           <td>{{ result.date_added | date: 'shortDate' }}</td>
           <td>{{ result.requested_by }}</td>

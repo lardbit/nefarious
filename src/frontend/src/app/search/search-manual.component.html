@@ -44,7 +44,7 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let result of results | filter: filter">
+      <tr *ngFor="let result of results | mediaFilter: filter">
         <td>{{ result.Title }}</td>
         <td>{{ result.Tracker }}</td>
         <td>{{ result.Seeders }}</td>
