@@ -22,7 +22,7 @@
     "@angular/platform-browser-dynamic": "^8.2.14",
     "@angular/router": "^8.2.14",
     "@icon/open-iconic": "^1.1.1-2",
-    "@ng-bootstrap/ng-bootstrap": "^4.2.2",
+    "@ng-bootstrap/ng-bootstrap": "^6.1.0",
     "@ng-select/ng-select": "^4.0.1",
     "@ngx-pwa/local-storage": "^6.2.0",
     "@types/lodash": "^4.14.116",
