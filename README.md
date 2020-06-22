@@ -30,6 +30,7 @@ Features:
 - [x] Automatically renames media
 - [x] Supports multiple languages (TMDB supports internationalized Titles, Descriptions and Poster artwork)
 - [x] Webhook support (i.e can post to Slack, Telegram etc when media downloads)
+- [x] Imports existing libraries
 - [ ] Support user requests (i.e an unprivileged user must "request" to watch something)
 
 ### Contents
