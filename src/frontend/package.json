@@ -26,7 +26,7 @@
     "@ng-select/ng-select": "^4.0.1",
     "@ngx-pwa/local-storage": "^6.2.0",
     "@types/lodash": "^4.14.116",
-    "angular-page-visibility": "^6.1.4",
+    "angular-page-visibility": "^9.0.0",
     "bootstrap": "^4.1.3",
     "bootswatch": "^4.1.3",
     "core-js": "^2.5.4",
@@ -36,7 +36,7 @@
     "ngx-filesize": "^1.1.2",
     "ngx-loading": "^1.0.15",
     "ngx-moment": "^3.3.0",
-    "ngx-toastr": "^9.1.1",
+    "ngx-toastr": "^12.1.0",
     "rxjs": "^6.5.5",
     "tslib": "^1.9.0",
     "zone.js": "~0.9.1"
