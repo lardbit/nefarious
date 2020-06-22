@@ -23,7 +23,7 @@
     "@angular/router": "^8.2.14",
     "@icon/open-iconic": "^1.1.1-2",
     "@ng-bootstrap/ng-bootstrap": "^4.2.2",
-    "@ng-select/ng-select": "^2.20.5",
+    "@ng-select/ng-select": "^4.0.1",
     "@ngx-pwa/local-storage": "^6.2.0",
     "@types/lodash": "^4.14.116",
     "angular-page-visibility": "^6.1.4",
