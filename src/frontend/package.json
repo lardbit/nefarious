@@ -24,7 +24,7 @@
     "@icon/open-iconic": "^1.1.1-2",
     "@ng-bootstrap/ng-bootstrap": "^6.1.0",
     "@ng-select/ng-select": "^4.0.1",
-    "@ngx-pwa/local-storage": "^6.2.0",
+    "@ngx-pwa/local-storage": "^9.0.3",
     "@types/lodash": "^4.14.116",
     "angular-page-visibility": "^9.0.0",
     "bootstrap": "^4.1.3",
