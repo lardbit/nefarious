@@ -73,11 +73,11 @@ class TVImporter(ImporterBase):
             logging.error('[ERROR_TMDB] tmdb episode exception for title {} on file "{}"'.format(title, file_path))
             return False
         watch_episode, _ = WatchTVEpisode.objects.update_or_create(
-            tmdb_episode_id=episode_data['id'],
             watch_tv_show=watch_show,
             season_number=season_number,
             episode_number=episode_number,
             defaults=dict(
+                tmdb_episode_id=episode_data['id'],
                 user=self.user,
                 download_path=file_path,
                 collected=True,
