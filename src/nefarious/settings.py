@@ -200,4 +200,4 @@ INTERNAL_DOWNLOAD_PATH = os.environ.get('INTERNAL_DOWNLOAD_PATH', '/tmp')
 
 # this is really just an indication to know if the nefarious container was volume mounted with access to the download path.
 # nefarious (celery) will actually use the INTERNAL_DOWNLOAD_PATH (container specific path) to scan for imported media
-HOST_DOWNLOAD_PATH = os.environ.get('HOST_DOWNLOAD_PATH')
+HOST_DOWNLOAD_PATH = os.environ.get('HOST_DOWNLOAD_PATH', INTERNAL_DOWNLOAD_PATH if DEBUG else None)
