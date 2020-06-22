@@ -1,21 +1,26 @@
 import os
 import logging
+
+from celery_once import AlreadyQueued
 from django.conf import settings
 from django.utils.dateparse import parse_date
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from django.views.decorators.gzip import gzip_page
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAdminUser
 from rest_framework import status
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework import views
+from rest_framework import exceptions
 from nefarious.api.serializers import (
     WatchMovieSerializer, WatchTVShowSerializer, WatchTVEpisodeSerializer, WatchTVSeasonRequestSerializer, WatchTVSeasonSerializer,
     TransmissionTorrentSerializer,)
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVShow, WatchTVEpisode, WatchTVSeasonRequest, WatchTVSeason
 from nefarious.search import MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrents
 from nefarious.quality import PROFILES
+from nefarious.tasks import import_library_task
 from nefarious.transmission import get_transmission_client
 from nefarious.tmdb import get_tmdb_client
 from nefarious.utils import trace_torrent_url, swap_jackett_host, is_magnet_url
@@ -47,6 +52,7 @@ class GitCommitView(views.APIView):
         })
 
 
+@method_decorator(gzip_page, name='dispatch')
 class MediaDetailView(views.APIView):
 
     @method_decorator(cache_page(CACHE_DAY))
@@ -74,6 +80,7 @@ class MediaDetailView(views.APIView):
         return Response(response)
 
 
+@method_decorator(gzip_page, name='dispatch')
 class SearchMediaView(views.APIView):
 
     @method_decorator(cache_page(CACHE_DAY))
@@ -103,6 +110,7 @@ class SearchMediaView(views.APIView):
         return Response(results)
 
 
+@method_decorator(gzip_page, name='dispatch')
 class SearchSimilarMediaView(views.APIView):
 
     @method_decorator(cache_page(CACHE_DAY))
@@ -132,6 +140,7 @@ class SearchSimilarMediaView(views.APIView):
         return Response(similar_results)
 
 
+@method_decorator(gzip_page, name='dispatch')
 class SearchRecommendedMediaView(views.APIView):
 
     @method_decorator(cache_page(CACHE_DAY))
@@ -161,6 +170,7 @@ class SearchRecommendedMediaView(views.APIView):
         return Response(similar_results)
 
 
+@method_decorator(gzip_page, name='dispatch')
 class SearchTorrentsView(views.APIView):
 
     @method_decorator(cache_page(CACHE_HALF_DAY))
@@ -173,6 +183,7 @@ class SearchTorrentsView(views.APIView):
         return Response(search.results)
 
 
+@method_decorator(gzip_page, name='dispatch')
 class DownloadTorrentsView(views.APIView):
     permission_classes = (IsAdminUser,)
 
@@ -296,6 +307,7 @@ class DownloadTorrentsView(views.APIView):
         return Response(result)
 
 
+@method_decorator(gzip_page, name='dispatch')
 class CurrentTorrentsView(views.APIView):
 
     def get(self, request):
@@ -351,6 +363,7 @@ class CurrentTorrentsView(views.APIView):
         return Response(results)
 
 
+@method_decorator(gzip_page, name='dispatch')
 class DiscoverMediaView(views.APIView):
 
     @method_decorator(cache_page(CACHE_WEEK))
@@ -374,6 +387,7 @@ class DiscoverMediaView(views.APIView):
         return Response(results)
 
 
+@method_decorator(gzip_page, name='dispatch')
 class GenresView(views.APIView):
 
     @method_decorator(cache_page(CACHE_WEEK))
@@ -397,6 +411,7 @@ class GenresView(views.APIView):
         return Response(results)
 
 
+@method_decorator(gzip_page, name='dispatch')
 class VideosView(views.APIView):
 
     @method_decorator(cache_page(CACHE_DAY))
@@ -416,7 +431,24 @@ class VideosView(views.APIView):
         return Response(result.videos())
 
 
+@method_decorator(gzip_page, name='dispatch')
 class QualityProfilesView(views.APIView):
 
     def get(self, request):
         return Response({'profiles': [p.name for p in PROFILES]})
+
+
+class ImportMediaLibraryView(views.APIView):
+
+    def post(self, request, media_type):
+        if not settings.HOST_DOWNLOAD_PATH:
+            raise exceptions.APIException('HOST_DOWNLOAD_PATH is not defined')
+        try:
+            # create task to import library
+            import_library_task.delay(media_type, request.user.id)
+        except AlreadyQueued as e:
+            logging.exception(e)
+            msg = 'Import task for {} already exists'.format(media_type)
+            logging.error(msg)
+            raise exceptions.APIException(msg)
+        return Response({'success': True})

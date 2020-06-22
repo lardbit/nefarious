@@ -7,6 +7,10 @@ jobs:
     - stage: build default image and run unit tests
       script:
         - set -e
+        # create docker network to link containers
+        - docker network create tests
+        # run redis
+        - docker run --network tests --name redis --rm -d redis
         # store commit in image for version identification
         - echo "$TRAVIS_COMMIT" > src/.commit
         # derive the docker image tag name from the git branch name
@@ -14,7 +18,7 @@ jobs:
         # build image
         - docker build -t lardbit/nefarious:$tag .
         # run unit tests
-        - docker run --entrypoint /env/bin/python lardbit/nefarious:$tag manage.py test
+        - docker run --network tests -e REDIS_HOST=redis --entrypoint /env/bin/python lardbit/nefarious:$tag manage.py test
         # authenticate with docker
         - echo "$DOCKER_PASSWORD" | docker login -u "lardbit" --password-stdin
         # push image to docker hub

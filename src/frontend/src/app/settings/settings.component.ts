@@ -202,4 +202,26 @@ export class SettingsComponent implements OnInit {
   public getLanguages() {
     return this.apiService.settings.tmdb_languages;
   }
+
+  public importLibrary(mediaType) {
+    this.apiService.importMedia(mediaType).subscribe(
+      (data) => {
+        this.toastr.success('Importing library...');
+      }, (error) => {
+        let message = 'Error importing library.';
+        if (error.error && error.error.detail) {
+          message = `${message} ${error.error.detail}`;
+        }
+        this.toastr.error(message);
+      }
+    );
+  }
+
+  public hostDownloadPath(): boolean {
+    return this.apiService.settings.host_download_path;
+  }
+
+  public hasHostDownloadPath(): boolean {
+    return Boolean(this.apiService.settings.host_download_path);
+  }
 }

@@ -30,6 +30,7 @@ Features:
 - [x] Automatically renames media
 - [x] Supports multiple languages (TMDB supports internationalized Titles, Descriptions and Poster artwork)
 - [x] Webhook support (i.e can post to Slack, Telegram etc when media downloads)
+- [x] Imports existing libraries
 - [ ] Support user requests (i.e an unprivileged user must "request" to watch something)
 
 ### Contents
@@ -39,6 +40,7 @@ Features:
 - [Dependencies](#dependencies)
 - [Setup](#setup)
 - [Usage](#usage)
+- [Upgrading](#upgrading)
 - [Troubleshooting](#troubleshooting)
 - [Development](#development)
 
@@ -84,13 +86,22 @@ You must have **docker** and **docker-compose** already installed.  See [depende
 
 #### Part 1
     
-Clone the nefarious repository and start all the Docker containers:
+Clone the nefarious repository:
 
     git clone https://github.com/lardbit/nefarious.git
     cd nefarious
+    
+Copy the default environment file to make changes:
+
+    cp env.template .env
+    
+Edit `.env` as needed for your settings, at least defining *HOST_DOWNLOAD_PATH* to something like *HOST_DOWNLOAD_PATH=/path/to/downloads*.
+    
+Start all the containers:
+
     docker-compose up -d
     
-**NOTE: the first time you bring up nefarious can take a few minutes.**
+**NOTE: the first time you start nefarious can take a few minutes.**
 
 Your default local URLs for all the various services will be:
 
@@ -122,21 +133,6 @@ Once all of your Settings are to your preference, first click `Save` then be sur
 
 ##### Transmission Configuration
 
-In order to change the download folder (which is set to `/tmp/transmission` by default) look for the `docker-compose.yml` file in your nefarious folder and edit 
-
-    /tmp/transmission:/downloads
-
-to be like
-
-    /Your/Desired/Folder:/downloads
-  
-Leave the right side alone and only change the left side.  The structure of the folder path is the same for both Linux and Windows.
-Once you've made your changes, save your `docker-compose.yml` file, open a terminal to your nefarious folder and type 
-
-    docker-compose up -d
-
-to update and apply your updates.
-
 There is no default transmission user/pass, but feel free to edit the `transmission-settings.json` beforehand following the [official settings](https://github.com/transmission/transmission/wiki/Editing-Configuration-Files) to make any changes you'd like.
 
 **NOTE** if you make any changes to `transmission-settings.json` you'll have to recreate the transmission container for the changes to take place:
@@ -146,6 +142,12 @@ There is no default transmission user/pass, but feel free to edit the `transmiss
 ### Usage
 
 See [USAGE.md](docs/USAGE.md).
+
+### Upgrading
+
+If you're running nefarious via the default `docker-compose.yml` file then nefarious will automatically update to the newest versions as they release.
+However, occasionally the `docker-compose.yml` configuration file changes and you'll need to redo the steps in [Setup](#setup).
+*You will not lose your nefarious settings due to persistent docker volumes.  It's a safe operation.*
 
 ### Troubleshooting
 

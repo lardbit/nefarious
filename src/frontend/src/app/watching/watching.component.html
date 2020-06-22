@@ -1,8 +1,8 @@
-<div class="alert alert-success col-12 mt-3" *ngIf="results.length == 0">
+<div class="alert alert-success col-12 mt-3" *ngIf="!results || results.length == 0">
   You're not watching anything yet.
 </div>
 
-<div class="card" *ngIf="results.length">
+<div class="card" *ngIf="results && results.length">
   <div class="card-header">
     You're watching these
     <span *ngIf="mediaType == 'tv'">TV Shows</span>
@@ -13,6 +13,9 @@
       <input class="form-control form-control-sm w-25 mb-3" [(ngModel)]="search" required minlength="2" name="search" type="text" placeholder="Filter..." autocomplete="off">
     </div>
     <div class="table-responsive">
+      <div class="d-flex justify-content-end">
+        <ngb-pagination *ngIf="!search" [collectionSize]="results.length" [(page)]="page" [pageSize]="pageSize"></ngb-pagination>
+      </div>
       <table class="table table-striped">
         <thead>
         <tr>
@@ -23,7 +26,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let result of results | filter: search">
+        <tr *ngFor="let result of rows | mediaFilter: search">
           <td><a [routerLink]="['/media', mediaType, getTMDBId(result)]">{{ result.name }}</a></td>
           <td *ngIf="mediaType === 'movie'">{{ result.date_added | date: 'shortDate' }}</td>
           <td *ngIf="mediaType === 'movie'">{{ result.requested_by }}</td>
@@ -31,6 +34,9 @@
         </tr>
         </tbody>
       </table>
+      <div class="d-flex justify-content-end">
+        <ngb-pagination *ngIf="!search" [collectionSize]="results.length" [(page)]="page" [pageSize]="pageSize"></ngb-pagination>
+      </div>
     </div>
   </div>
 </div>

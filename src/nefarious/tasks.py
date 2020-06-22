@@ -4,11 +4,15 @@ from celery import chain
 from celery.signals import task_failure
 from datetime import datetime
 from celery_once import QueueOnce
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 
 from nefarious.celery import app
+from nefarious.importer.movie import MovieImporter
+from nefarious.importer.tv import TVImporter
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, WatchTVSeason, WatchTVSeasonRequest, WatchTVShow
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.tmdb import get_tmdb_client
@@ -347,3 +351,28 @@ def auto_watch_new_seasons_task():
             # update auto watch date requested
             watch_show.auto_watch_date_updated = datetime.utcnow().date()
             watch_show.save()
+
+
+@app.task(base=QueueOnce)
+def import_library_task(media_type: str, user_id: int):
+    user = get_object_or_404(User, pk=user_id)
+    nefarious_settings = NefariousSettings.get()
+    tmdb_client = get_tmdb_client(nefarious_settings=nefarious_settings)
+
+    if media_type == 'movie':
+        download_path = os.path.join(settings.INTERNAL_DOWNLOAD_PATH, nefarious_settings.transmission_movie_download_dir)
+        importer = MovieImporter(
+            nefarious_settings=nefarious_settings,
+            download_path=download_path,
+            tmdb_client=tmdb_client,
+            user=user,
+        )
+    else:
+        download_path = os.path.join(settings.INTERNAL_DOWNLOAD_PATH, nefarious_settings.transmission_tv_download_dir)
+        importer = TVImporter(
+            nefarious_settings=nefarious_settings,
+            download_path=download_path,
+            tmdb_client=tmdb_client,
+            user=user,
+        )
+    importer.ingest_root(download_path)

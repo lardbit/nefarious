@@ -176,13 +176,13 @@
         <div class="card">
           <div class="card-header">Webhook</div>
           <div class="card-body">
-            <p>The webhook will be called when any media is downloaded</p>
+            <p>Defining a webhook allows you to get notified when downloads are complete.  Some good examples are Slack, Telgram, etc.</p>
             <div class="form-group">
-              <label>URL</label>
+              <label>Webhook URL</label>
               <input type="text" class="form-control" placeholder="https://..." formControlName="webhook_url">
             </div>
             <div class="form-group">
-              <label>Key</label>
+              <label>Data Key</label>
               <input type="text" class="form-control" placeholder="text" formControlName="webhook_key">
             </div>
             <div *ngIf="form.get('webhook_url').value && form.get('webhook_key').value">
@@ -191,6 +191,26 @@
                   to
                 <div class="text-primary">{{form.get('webhook_url').value}}</div>
               </small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- import library -->
+      <div class="col-12 col-sm-6 col-md-4">
+        <div class="card">
+          <div class="card-header">Import Library</div>
+          <div class="card-body">
+            <p>Import your existing library so everything you've previously downloaded will populate in nefarious.</p>
+            <div *ngIf="!hasHostDownloadPath()" class="alert alert-warning">
+              <strong>HOST_DOWNLOAD_PATH</strong> isn't defined!  It's necessary to be able to import your existing libraries.  Follow the <a href="https://github.com/lardbit/nefarious#setup" target="_blank">Setup instructions</a>
+              and/or the <a href="https://github.com/lardbit/nefarious#upgrading" target="_blank">Upgrade instructions</a>.
+            </div>
+            <p *ngIf="hasHostDownloadPath()">Host Download Path: <em class="text-success">{{hostDownloadPath()}}</em></p>
+            <div class="form-group">
+              <button type="button" (click)="importLibrary('movie')" class="btn btn-outline-default btn-sm" [disabled]="!hasHostDownloadPath()">Import Movies <span class="oi oi-folder"></span></button>
+            </div>
+            <div class="form-group">
+              <button type="button" (click)="importLibrary('tv')" class="btn btn-outline-default btn-sm" [disabled]="!hasHostDownloadPath()">Import TV Shows <span class="oi oi-folder"></span></button>
             </div>
           </div>
         </div>

@@ -7,7 +7,7 @@
       <input class="form-control form-control-sm mb-3 w-25" [(ngModel)]="search" required minlength="2" name="search" type="text" placeholder="Filter..." autocomplete="off">
     </div>
     <div class="row">
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let result of results | filter: search">
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let result of results | mediaFilter: search">
         <div class="card" [ngClass]="{'border border-success rounded': isWatchingResult(result)}">
           <div class="result-watching">
             <div class="d-flex justify-content-end">

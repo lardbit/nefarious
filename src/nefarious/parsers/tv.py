@@ -8,6 +8,7 @@ from nefarious.parsers.base import ParserBase
 class TVParser(ParserBase):
 
     special_episode_word_regex = regex.compile(r"\b(part|special|edition|christmas)\b\s?", regex.I)
+    year_regex_string = r"(\W?(?<year>(19|20)\d{2}(?!p|i|(19|20)\d{2}|\]|\W(19|20)\d{2}))\W?)?"
 
     media_regex_list = [
         # Multi-Part episodes without a title (S01E05.S01E06)
@@ -78,8 +79,9 @@ class TVParser(ParserBase):
 
         # Single episodes with a title (S01E05, 1x05, etc) and trailing info in slashes
         (
+            # *DIFF*: added year pattern
             'Single episodes with a title (S01E05, 1x05, etc) and trailing info in slashes',
-            regex.compile(r"^(?<title>.+?)(?:(?:[-_\W](?<![()\[!]))+S?(?<season>(?<!\d+)(?:\d{1,2})(?!\d+))(?:[ex]|\W[ex]|_){1,2}(?<episode>\d{2,3}(?!\d+|(?:[ex]|\W[ex]|_|-){1,2}\d+))).+?(?:\[.+?\])(?!\\)", regex.I),
+            regex.compile(r"^(?<title>.+?)%s(?:(?:[-_\W](?<![()\[!]))+S?(?<season>(?<!\d+)(?:\d{1,2})(?!\d+))(?:[ex]|\W[ex]|_){1,2}(?<episode>\d{2,3}(?!\d+|(?:[ex]|\W[ex]|_|-){1,2}\d+))).+?(?:\[.+?\])(?!\\)" % year_regex_string, regex.I),
         ),
 
         # Anime - Title Season EpisodeNumber + Absolute Episode Number [SubGroup]
@@ -120,8 +122,9 @@ class TVParser(ParserBase):
 
         # Episodes with a title, Single episodes (S01E05, 1x05, etc) & Multi-episode (S01E05E06, S01E05-06, S01E05 E06, etc)
         (
+            # *DIFF*: added year pattern
             'Episodes with a title, Single episodes (S01E05, 1x05, etc) & Multi-episode (S01E05E06, S01E05-06, S01E05 E06, etc)',
-            regex.compile(r"^(?<title>.+?)(?:(?:[-_\W](?<![()\[!]))+S?(?<season>(?<!\d+)(?:\d{1,2})(?!\d+))(?:[ex]|\W[ex]){1,2}(?<episode>\d{2,3}(?!\d+))(?:(?:\-|[ex]|\W[ex]|_){1,2}(?<episode>\d{2,3}(?!\d+)))*)\W?(?!\\)", regex.I),
+            regex.compile(r"^(?<title>.+?)%s(?:(?:[-_\W](?<![()\[!]))+S?(?<season>(?<!\d+)(?:\d{1,2})(?!\d+))(?:[ex]|\W[ex]){1,2}(?<episode>\d{2,3}(?!\d+))(?:(?:\-|[ex]|\W[ex]|_){1,2}(?<episode>\d{2,3}(?!\d+)))*)\W?(?!\\)" % year_regex_string, regex.I),
         ),
 
         # Episodes with a title, 4 digit season number, Single episodes (S2016E05, etc) & Multi-episode (S2016E05E06, S2016E05-06, S2016E05 E06, etc)
@@ -249,13 +252,14 @@ class TVParser(ParserBase):
         # Episodes with a title and season/episode in square brackets
         (
             'Episodes with a title and season/episode in square brackets',
-            regex.compile(r"^(?<title>.+?)(?:(?:[-_\W](?<![()\[!]))+\[S?(?<season>(?<!\d+)\d{1,2}(?!\d+))(?:(?:\-|[ex]|\W[ex]|_){1,2}(?<episode>(?<!\d+)\d{2}(?!\d+|i|p)))+\])\W?(?!\\)", regex.I),
+            regex.compile(r"^(?<title>.+?)%s(?:(?:[-_\W](?<![()\[!]))+\[S?(?<season>(?<!\d+)\d{1,2}(?!\d+))(?:(?:\-|[ex]|\W[ex]|_){1,2}(?<episode>(?<!\d+)\d{2}(?!\d+|i|p)))+\])\W?(?!\\)" % year_regex_string, regex.I),
         ),
 
         # Supports 103/113 naming
         (
+            # *DIFF* added year match
             'Supports 103/113 naming',
-            regex.compile(r"^(?<title>.+?)?(?:(?:[-_\W](?<![()\[!]))+(?<season>(?<!\d+)[1-9])(?<episode>[1-9][0-9]|[0][1-9])(?![a-z]|\d+))+", regex.I),
+            regex.compile(r"^(?<title>.+?)?%s(?:(?:[-_\W](?<![()\[!]))+(?<season>(?<!\d+)[1-9])(?<episode>[1-9][0-9]|[0][1-9])(?![a-z]|\d+))+" % year_regex_string, regex.I),
         ),
 
         # 4 digit episode number - Episodes without a title, Single (S01E05, 1x05) AND Multi (S01E04E05, 1x04x05, etc)
@@ -383,24 +387,35 @@ class TVParser(ParserBase):
 
         return self.match
 
+    def is_full_season(self):
+        # verify no episode is in match
+        return self.match and 'title' in self.match and all([
+            self.match.get('season'),
+            'episode' not in self.match,
+        ])
+
+    def is_single_episode(self):
+        # must have season and episode
+        return self.match and 'title' in self.match and all([
+            self.match.get('season'),
+            self.match.get('episode'),
+        ])
+
     def _is_match(self, title, season_number, episode_number=None):
         if episode_number is not None:
-            return self._is_episode_match(title, season_number, episode_number)
+            return self._is_episode_match_test(title, season_number, episode_number)
         else:
-            return self._is_season_match(title, season_number)
+            return self._is_season_match_test(title, season_number)
 
-    def _is_season_match(self, title, season_number) -> bool:
-        # verify no "episode" in match
-        return self.match and 'title' in self.match and all([
-            season_number in self.match.get('season'),
-            'episode' not in self.match,
+    def _is_season_match_test(self, title, season_number) -> bool:
+        return self.is_full_season() and all([
+            season_number in self.match['season'],
             self.match['title'] == self.normalize_media_title(title),
         ])
 
-    def _is_episode_match(self, title, season_number, episode_number) -> bool:
-        # must match title, season and episode
-        return self.match and 'title' in self.match and all([
-            season_number in self.match.get('season', []),
-            episode_number in self.match.get('episode', []),
+    def _is_episode_match_test(self, title, season_number, episode_number) -> bool:
+        return self.is_single_episode() and all([
             self.match['title'] == self.normalize_media_title(title),
+            season_number in self.match.get('season'),
+            episode_number in self.match.get('episode'),
         ])

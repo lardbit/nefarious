@@ -3,6 +3,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
 import { Subscription } from 'rxjs';
+import {MediaFilterPipe} from '../filter.pipe';
 
 
 @Component({
@@ -11,16 +12,19 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./watching.component.css']
 })
 export class WatchingComponent implements OnInit, OnDestroy {
-  public results: any[];
+  public results: any[] = [];
   public mediaType: string;
   public search: string;
+  public page = 0;
+  public pageSize = 100;
 
   protected _changes: Subscription;
 
   constructor(
     private apiService: ApiService,
     private route: ActivatedRoute,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private mediaFilter: MediaFilterPipe,
   ) {}
 
   ngOnInit() {
@@ -44,6 +48,17 @@ export class WatchingComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this._changes.unsubscribe();
+  }
+
+  get rows() {
+    // return all results filtered by search query
+    if (this.search) {
+      return this.mediaFilter.transform(this.results, this.search);
+    }
+    // return paginated results
+    return this.results
+      .map((result, i) => ({id: i + 1, ...result}))
+      .slice((this.page - 1) * this.pageSize, (this.page - 1) * this.pageSize + this.pageSize);
   }
 
   public getTMDBId(result) {

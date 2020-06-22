@@ -14,9 +14,12 @@ services:
       # https://github.com/kennethreitz/dj-database-url
       DATABASE_URL: "sqlite:////nefarious-db/db.sqlite3"
       REDIS_HOST: "redis"
+      NEFARIOUS_USER: ${NEFARIOUS_USER:-admin}
+      NEFARIOUS_PASS: ${NEFARIOUS_PASS:-admin}
+      HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp/}
     volumes:
-    # persistent named volume for sqlite database
-    - nefarious-db:/nefarious-db
+      # persistent named volume for sqlite database
+      - nefarious-db:/nefarious-db
     logging:
       options:
         max-size: 10m
@@ -31,15 +34,17 @@ services:
       - com.centurylinklabs.watchtower.enable=true
     image: lardbit/nefarious
     restart: always
-    # the number of celery workers defaults to "0" which means it'll match the number of available CPUs
     entrypoint: /env/bin/celery -A nefarious worker --concurrency ${NUM_CELERY_WORKERS:-0} --beat --loglevel=INFO
     environment:
       # https://github.com/kennethreitz/dj-database-url
       DATABASE_URL: "sqlite:////nefarious-db/db.sqlite3"
       REDIS_HOST: "redis"
+      HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp}
+      INTERNAL_DOWNLOAD_PATH: /downloads/completed
     volumes:
-    # persistent named volume for sqlite database
-    - nefarious-db:/nefarious-db
+      - ${HOST_DOWNLOAD_PATH:-/tmp}:/downloads
+      # persistent named volume for sqlite database
+      - nefarious-db:/nefarious-db
     logging:
       options:
         max-size: 10m
@@ -50,6 +55,7 @@ services:
   redis:
     image: redis
     restart: always
+    mem_limit: 200m
     # TODO - use "expose" vs "ports" to limit external access when not in development
     ports:
     - "6379:6379"
@@ -72,13 +78,8 @@ services:
   transmission:
     image: linuxserver/transmission
     volumes:
-      # NOTE: the settings in this included file allow any IP to connect
-      - type: bind
-        source: ./transmission-settings.json
-        target: /config/settings.json
-        read_only: true
-      # NOTE: update the first part of this path to point to where you want things downloaded to
-      - /tmp/transmission:/downloads
+      - ${HOST_DOWNLOAD_PATH:-/tmp}:/downloads
+      - ./transmission-settings.json:/config/settings.json:ro
     ports:
       - "9091:9091"
 

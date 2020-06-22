@@ -15,7 +15,7 @@ import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./media-t-v.component.css']
 })
 export class MediaTVComponent implements OnInit, OnDestroy {
-  @ViewChild('tabsetEl') tabsetEl: NgbTabset;
+  @ViewChild('tabsetEl', {'static': true}) tabsetEl: NgbTabset;
   public result: any;
   public isManuallySearching = false;
   public isManualSearchEnabled = false;

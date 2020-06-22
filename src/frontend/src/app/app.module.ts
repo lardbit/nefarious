@@ -13,7 +13,6 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { AngularPageVisibilityModule } from 'angular-page-visibility';
 
 
-
 import { AppComponent } from './app.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { SearchManualComponent } from './search/search-manual.component';
@@ -31,7 +30,7 @@ import { WatchingComponent } from './watching/watching.component';
 import { TorrentDetailsComponent } from './torrent-details/torrent-details.component';
 import { DiscoverComponent } from './discover/discover.component';
 import { MediaResultsComponent } from './media-results/media-results.component';
-import { FilterPipe } from './filter.pipe';
+import { MediaFilterPipe } from './filter.pipe';
 import { WantedComponent } from './wanted/wanted.component';
 
 const appRoutes: Routes = [
@@ -76,7 +75,7 @@ export function init(apiService: ApiService) {
     TorrentDetailsComponent,
     DiscoverComponent,
     MediaResultsComponent,
-    FilterPipe,
+    MediaFilterPipe,
     WantedComponent,
   ],
   imports: [
@@ -102,6 +101,7 @@ export function init(apiService: ApiService) {
   entryComponents: [],
   providers: [
    { provide: APP_INITIALIZER, useFactory: init, deps: [ApiService], multi: true },
+    MediaFilterPipe,
   ],
   bootstrap: [AppComponent]
 })
