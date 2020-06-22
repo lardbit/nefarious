@@ -207,10 +207,10 @@
             </div>
             <p *ngIf="hasHostDownloadPath()">Host Download Path: <em class="text-success">{{hostDownloadPath()}}</em></p>
             <div class="form-group">
-              <button type="button" (click)="importLibrary('movie')" class="btn btn-outline-default btn-sm" [disabled]="!hasHostDownloadPath()">Import Movies <span class="oi oi-folder"></span></button>
+              <button type="button" (click)="importLibrary('movie')" class="btn btn-outline-primary btn-sm" [disabled]="!hasHostDownloadPath()">Import Movies <span class="oi oi-folder"></span></button>
             </div>
             <div class="form-group">
-              <button type="button" (click)="importLibrary('tv')" class="btn btn-outline-default btn-sm" [disabled]="!hasHostDownloadPath()">Import TV Shows <span class="oi oi-folder"></span></button>
+              <button type="button" (click)="importLibrary('tv')" class="btn btn-outline-primary btn-sm" [disabled]="!hasHostDownloadPath()">Import TV Shows <span class="oi oi-folder"></span></button>
             </div>
           </div>
         </div>

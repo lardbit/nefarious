@@ -20,6 +20,8 @@ class TVImporter(ImporterBase):
         return TVParser(file_name)
 
     def _is_result_match_title(self, parser, tmdb_result, title):
+        if not tmdb_result.get('name'):
+            return False
         return parser.normalize_media_title(tmdb_result['name']) == title and parser.is_single_episode()
 
     def _handle_missing_title(self, parser, file_path) -> tuple:

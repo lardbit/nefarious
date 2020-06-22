@@ -59,3 +59,13 @@ You can tell nefarious to blacklist & delete that torrent and search again to fi
 
 - click the **Status** tab on a movie or tv show
 - click the *Blacklist and Retry* icon
+
+## Importing existing libraries
+
+If you have existing TV and Movie libraries, nefarious can import them for you.
+Go to *Settings* and you'll see the **Import Library** section.  The process will be in the background and can take
+a while depending on the size of your libraries.
+
+If you want to see the logs you can run:
+
+    docker-compose logs -f celery
