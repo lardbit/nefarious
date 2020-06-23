@@ -8,6 +8,7 @@
       <th>Release Date</th>
       <th>Date Requested</th>
       <th>Last Attempt</th>
+      <th>Collected Date</th>
       <th>Downloaded</th>
       <th>Status</th>
       <th>Progress</th>
@@ -21,11 +22,12 @@
         <button type="button" class="btn btn-outline-success" *ngIf="result.torrent" placement="right" [ngbPopover]="result.torrent.name" popoverTitle="Torrent Name">
           {{ result.watchMedia.name }}
         </button>
-        <button *ngIf="!result.torrent" type="button" class="btn btn-outline-secondary">{{ result.watchMedia.name }}</button>
+        <button *ngIf="!result.torrent" type="button" class="btn" [ngClass]="{'btn-outline-success': result.watchMedia.collected, 'btn-outline-secondary': !result.watchMedia.collected}">{{ result.watchMedia.name }}</button>
       </td>
       <td><span *ngIf="result.watchMedia.release_date">{{ result.watchMedia.release_date | date | date: 'shortDate' }}</span></td>
       <td>{{ result.watchMedia.date_added | date | date: 'shortDate' }}</td>
       <td><span *ngIf="result.watchMedia.last_attempt_date">{{ result.watchMedia.last_attempt_date | amTimeAgo }}</span></td>
+      <td><span *ngIf="result.watchMedia.collected_date">{{ result.watchMedia.collected_date | date | date: 'shortDate' }}</span></td>
       <td>
         <span *ngIf="result.watchMedia.collected">
             <button class="btn btn-success" [ngbPopover]="result.watchMedia.collected_date"><span class="oi oi-circle-check"></span></button>
@@ -47,7 +49,7 @@
           <span *ngIf="result.torrent">{{ result.torrent.format_eta }}</span>
         </td>
         <td>
-          <span *ngIf="result.watchMedia.collected || result.torrent"><button class="btn btn-warning btn-sm" (click)="blacklistRetry(result.watchMedia)"><span class="oi oi-ban"></span></button></span>
+          <span *ngIf="result.torrent"><button class="btn btn-warning btn-sm" (click)="blacklistRetry(result.watchMedia)"><span class="oi oi-ban"></span></button></span>
         </td>
       </ng-container>
     </tr>
