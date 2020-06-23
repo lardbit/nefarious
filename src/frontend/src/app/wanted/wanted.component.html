@@ -17,7 +17,8 @@
         <thead>
         <tr>
           <th>Name</th>
-          <th>Requested</th>
+          <th>Release Date</th>
+          <th>Date Requested</th>
           <th>Requested By</th>
           <th>Last Attempt</th>
           <th>Torrent Found</th>
@@ -26,6 +27,7 @@
         <tbody>
         <tr *ngFor="let result of results | mediaFilter: search">
           <td><a [routerLink]="['/media', mediaType, getTMDBId(result)]">{{ result.name }}</a></td>
+          <td><span *ngIf="result.release_date">{{ result.release_date | date | date: 'shortDate' }}</span></td>
           <td>{{ result.date_added | date: 'shortDate' }}</td>
           <td>{{ result.requested_by }}</td>
           <td>{{ result.last_attempt_date | date: 'shortDate' }}</td>
