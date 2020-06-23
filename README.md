@@ -5,7 +5,7 @@
 [![Build Status](https://travis-ci.org/lardbit/nefarious.svg?branch=master)](https://travis-ci.org/lardbit/nefarious)
 [![Docker Pulls](https://img.shields.io/docker/pulls/lardbit/nefarious.svg?maxAge=60&style=flat-square)](https://hub.docker.com/r/lardbit/nefarious)
 
-It aims to combine features of [Sonarr](https://github.com/Sonarr/Sonarr/), [Radarr](https://github.com/Radarr/Radarr) and [Ombi](https://github.com/tidusjar/Ombi).
+It aims to combine features of [Sonarr](https://github.com/Sonarr/Sonarr/) and [Radarr](https://github.com/Radarr/Radarr).
 
 It uses [Jackett](https://github.com/Jackett/Jackett/) and [Transmission](https://transmissionbt.com/) under the hood.  Jackett searches for torrents and Transmission does the downloading.
 
@@ -31,7 +31,6 @@ Features:
 - [x] Supports multiple languages (TMDB supports internationalized Titles, Descriptions and Poster artwork)
 - [x] Webhook support (i.e can post to Slack, Telegram etc when media downloads)
 - [x] Imports existing libraries
-- [ ] Support user requests (i.e an unprivileged user must "request" to watch something)
 
 ### Contents
 
