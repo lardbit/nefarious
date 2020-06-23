@@ -509,6 +509,9 @@ export class ApiService {
         }
         return data;
       }),
+      tap(() => {
+        this._updateStorage().subscribe();
+      }),
     );
   }
 
@@ -523,6 +526,9 @@ export class ApiService {
           Object.assign(this.watchTVShows[showIndex], data);
         }
         return this.watchTVShows[showIndex];
+      }),
+      tap(() => {
+        this._updateStorage().subscribe();
       }),
     );
   }
@@ -545,6 +551,9 @@ export class ApiService {
         }
         return data;
       }),
+      tap(() => {
+        this._updateStorage().subscribe();
+      }),
     );
   }
 
@@ -563,6 +572,9 @@ export class ApiService {
           this.watchTVSeasonRequests.push(data);
         }
         return data;
+      }),
+      tap(() => {
+        this._updateStorage().subscribe();
       }),
     );
   }
@@ -583,6 +595,7 @@ export class ApiService {
         this.watchTVEpisodes = _.filter(this.watchTVEpisodes, (watch) => {
           return watch.watch_tv_show !== watchId;
         });
+        this._updateStorage().subscribe();
       })
     );
   }
@@ -597,7 +610,10 @@ export class ApiService {
           this.watchTVEpisodes.splice(foundIndex, 1);
         }
         return data;
-      })
+      }),
+      tap(() => {
+        this._updateStorage().subscribe();
+      }),
     );
   }
 
@@ -620,6 +636,9 @@ export class ApiService {
         }
         return data;
       }),
+      tap(() => {
+        this._updateStorage().subscribe();
+      }),
     );
   }
 
@@ -633,7 +652,10 @@ export class ApiService {
           this.watchMovies.splice(foundIndex, 1);
         }
         return data;
-      })
+      }),
+      tap(() => {
+        this._updateStorage().subscribe();
+      }),
     );
   }
 
@@ -662,7 +684,10 @@ export class ApiService {
         }
 
         return data;
-      })
+      }),
+      tap(() => {
+        this._updateStorage().subscribe();
+      }),
     );
   }
 
@@ -683,7 +708,11 @@ export class ApiService {
           }
         });
         return data;
-      }));
+      }),
+      tap(() => {
+        this._updateStorage().subscribe();
+      }),
+    );
   }
 
   public blacklistRetryTVSeason(watchMediaId: number) {
@@ -696,7 +725,11 @@ export class ApiService {
           }
         });
         return data;
-      }));
+      }),
+      tap(() => {
+        this._updateStorage().subscribe();
+      }),
+    );
   }
 
   public blacklistRetryTVEpisode(watchMediaId: number) {
@@ -709,7 +742,11 @@ export class ApiService {
           }
         });
         return data;
-      }));
+      }),
+      tap(() => {
+        this._updateStorage().subscribe();
+      }),
+    );
   }
 
   public discoverMovies(params: any) {
@@ -868,5 +905,15 @@ export class ApiService {
 
   protected _alertMediaUpdated() {
     this.mediaUpdated$.next(true);
+  }
+
+  protected _updateStorage(): Observable<any> {
+    return forkJoin([
+      this.localStorage.setItem(this.STORAGE_KEY_WATCH_MOVIES, this.watchMovies),
+      this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_SHOWS, this.watchTVShows),
+      this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_SEASONS, this.watchTVSeasons),
+      this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_SEASON_REQUESTS, this.watchTVSeasonRequests),
+      this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_EPISODES, this.watchTVEpisodes),
+    ]);
   }
 }
