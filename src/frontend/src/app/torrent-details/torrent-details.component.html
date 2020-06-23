@@ -5,6 +5,7 @@
     <thead>
     <tr>
       <th>Name</th>
+      <th>Release Date</th>
       <th>Date Requested</th>
       <th>Last Attempt</th>
       <th>Downloaded</th>
@@ -22,11 +23,12 @@
         </button>
         <button *ngIf="!result.torrent" type="button" class="btn btn-outline-secondary">{{ result.watchMedia.name }}</button>
       </td>
+      <td><span *ngIf="result.watchMedia.release_date">{{ result.watchMedia.release_date | date | date: 'shortDate' }}</span></td>
       <td>{{ result.watchMedia.date_added | date | date: 'shortDate' }}</td>
       <td><span *ngIf="result.watchMedia.last_attempt_date">{{ result.watchMedia.last_attempt_date | amTimeAgo }}</span></td>
       <td>
         <span *ngIf="result.watchMedia.collected">
-            <button class="btn btn-success btn-link" [ngbPopover]="result.watchMedia.collected_date"><span class="oi oi-circle-check"></span></button>
+            <button class="btn btn-success" [ngbPopover]="result.watchMedia.collected_date"><span class="oi oi-circle-check"></span></button>
         </span>
       </td>
       <ng-container *ngIf="isFetchingInitialTorrents">
