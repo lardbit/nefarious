@@ -32,9 +32,10 @@
       </div>
     </div>
     <div class="card-body">
-      <ngb-tabset #tabsetEl="ngbTabset">
-        <ngb-tab title="Details" id="main-tab">
-          <ng-template ngbTabContent>
+      <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="activeNav">
+        <li ngbNavItem="details">
+          <a ngbNavLink>Details</a>
+          <ng-template ngbNavContent>
             <div class="row">
               <div class="col-12 col-md-6 mb-3 position-relative">
                 <ngx-loading [show]="isSaving"></ngx-loading>
@@ -110,18 +111,21 @@
               </div>
             </div>
           </ng-template>
-        </ngb-tab>
-        <ngb-tab title="Status" *ngIf="isWatchingShow()">
-          <ng-template ngbTabContent>
+        </li>
+        <li ngbNavItem="status" [hidden]="!isWatchingShow()">
+          <a ngbNavLink>Status</a>
+          <ng-template ngbNavContent>
             <app-torrent-details mediaType="tv" [watchMedia]="getWatchMedia()"></app-torrent-details>
           </ng-template>
-        </ngb-tab>
-        <ngb-tab [title]="isManuallySearching ? 'Manual Search' : ''" id="manual-search-tab" *ngIf="userIsStaff()">
-          <ng-template ngbTabContent>
-            <app-search-manual [mediaType]="'tv'" [tmdbMedia]="result" [tmdbTVSeason]="manualSearchTmdbSeason" [tmdbTVEpisode]="manualSearchTmdbEpisode" (downloaded)="manuallyDownloadComplete()"></app-search-manual>
+        </li>
+        <li ngbNavItem="manual" [hidden]="!userIsStaff() || !isManuallySearching">
+          <a ngbNavLink>Manual Search</a>
+          <ng-template ngbNavContent>
+            <app-search-manual mediaType="tv" [tmdbMedia]="result" [tmdbTVSeason]="manualSearchTmdbSeason" [tmdbTVEpisode]="manualSearchTmdbEpisode" (downloaded)="manuallyDownloadComplete()"></app-search-manual>
           </ng-template>
-        </ngb-tab>
-      </ngb-tabset>
+        </li>
+      </ul>
+      <div [ngbNavOutlet]="nav" class="mt-2"></div>
     </div>
   </div>
 </div>

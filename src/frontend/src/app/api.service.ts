@@ -360,6 +360,9 @@ export class ApiService {
               this.watchTVEpisodes.push(data.watch_tv_episode);
             }
           }
+          // send event updates and update storage
+          this._alertMediaUpdated();
+          this._updateStorage();
         }
         return data;
       }),

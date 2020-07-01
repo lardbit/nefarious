@@ -2,6 +2,10 @@
 
   <ngx-loading [show]="isSearching || isDownloading"></ngx-loading>
 
+  <div class="d-flex justify-content-center mt-3">
+    <div class="alert alert-info">Manually downloaded torrents will be assigned to <span class="text-dark">{{getTmdbTitle()}}</span></div>
+  </div>
+
   <div class="d-flex justify-content-center my-1">
     <form (ngSubmit)="search()">
       <div class="d-flex">
@@ -11,10 +15,6 @@
         </button>
       </div>
     </form>
-  </div>
-
-  <div class="d-flex justify-content-center mt-3">
-    <div class="alert alert-warning">Manually downloading any torrent will be assigned to <span class="text-dark">{{getTmdbTitle()}}</span></div>
   </div>
 
   <div class="d-flex justify-content-end">

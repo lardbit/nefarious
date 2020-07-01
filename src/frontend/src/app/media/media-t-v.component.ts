@@ -1,12 +1,11 @@
 import { ChangeDetectorRef } from '@angular/core';
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
 import { ToastrService } from 'ngx-toastr';
 import * as _ from 'lodash';
 import {forkJoin, Observable, Subscription} from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 
 
 @Component({
@@ -15,7 +14,6 @@ import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./media-t-v.component.css']
 })
 export class MediaTVComponent implements OnInit, OnDestroy {
-  @ViewChild('tabsetEl', {'static': true}) tabsetEl: NgbTabset;
   public result: any;
   public isManuallySearching = false;
   public isManualSearchEnabled = false;
@@ -27,6 +25,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
   public manualSearchTmdbEpisode: any;
   public isLoading = true;
   public isSaving = false;
+  public activeNav = 'details';
 
   protected _changes: Subscription;
 
@@ -264,19 +263,19 @@ export class MediaTVComponent implements OnInit, OnDestroy {
   public manuallySearchSeason(season: any) {
     this.manualSearchTmdbSeason = season;
     this.isManuallySearching = true;
-    this.tabsetEl.select('manual-search-tab');
+    this.activeNav = 'manual';
   }
 
   public manuallySearchEpisode(season: any, episode: any) {
     this.manualSearchTmdbSeason = season;
     this.manualSearchTmdbEpisode = episode;
     this.isManuallySearching = true;
-    this.tabsetEl.select('manual-search-tab');
+    this.activeNav = 'manual';
   }
 
   public manuallyDownloadComplete() {
     this.isManuallySearching = false;
-    this.tabsetEl.select('main-tab');
+    this.activeNav = 'details';
     this._buildWatchOptions();
   }
 

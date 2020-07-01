@@ -9,9 +9,10 @@
         <span *ngIf="watchMovie?.collected" class="text-success" [ngbPopover]="watchMovie.collected_date"><span class="oi oi-circle-check"></span> Downloaded</span>
       </div>
       <div class="card-body">
-        <ngb-tabset>
-          <ngb-tab title="Details">
-            <ng-template ngbTabContent>
+        <ul #nav="ngbNav" ngbNav [(activeId)]="activeNav" class="nav-tabs">
+          <li ngbNavItem="details">
+            <a ngbNavLink>Details</a>
+            <ng-template ngbNavContent>
               <div class="mt-3">
                 <div class="d-flex justify-content-between">
                   <h6 class="card-title">{{ result.release_date | date:'y' }}</h6>
@@ -63,22 +64,24 @@
                 </div>
               </div>
             </ng-template>
-          </ngb-tab>
-          <ngb-tab title="Status" *ngIf="isWatchingMovie()">
-            <ng-template ngbTabContent>
+          </li>
+          <li ngbNavItem="status" *ngIf="isWatchingMovie()">
+            <a ngbNavLink>Status</a>
+            <ng-template ngbNavContent>
               <div *ngIf="isWatchingMovie() && watchMovie">
                 <app-torrent-details mediaType="movie" [watchMedia]="getWatchMovie()"></app-torrent-details>
               </div>
             </ng-template>
-          </ngb-tab>
-          <ngb-tab title="Manual Search" *ngIf="userIsStaff() && !isWatchingMovie()">
-            <ng-template ngbTabContent>
-              <app-search-manual [mediaType]="'movie'" [tmdbMedia]="result"></app-search-manual>
+          </li>
+          <li ngbNavItem="manual" [hidden]="!userIsStaff() || watchMovie">
+            <a ngbNavLink>Manually Search</a>
+            <ng-template ngbNavContent>
+              <app-search-manual (downloaded)="manuallyDownloaded()" [mediaType]="'movie'" [tmdbMedia]="result"></app-search-manual>
             </ng-template>
-          </ngb-tab>
-        </ngb-tabset>
+          </li>
+        </ul>
+        <div [ngbNavOutlet]="nav" class="mt-2"></div>
       </div>
     </div>
   </div>
-
 </div>

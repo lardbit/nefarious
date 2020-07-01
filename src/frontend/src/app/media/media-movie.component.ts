@@ -1,4 +1,4 @@
-import { ChangeDetectorRef } from '@angular/core';
+import {ChangeDetectorRef} from '@angular/core';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
@@ -20,6 +20,7 @@ export class MediaMovieComponent implements OnInit, OnDestroy {
   public isLoading = true;
   public isSaving = false;
   public trailerUrls$: Observable<any>;
+  public activeNav = 'details';
 
   protected _changes: Subscription;
 
@@ -137,5 +138,10 @@ export class MediaMovieComponent implements OnInit, OnDestroy {
 
   public canUnWatch() {
     return this.userIsStaff() || this.watchMovie.requested_by === this.apiService.user.username;
+  }
+
+  public manuallyDownloaded() {
+    // update the nav back to the main details
+    this.activeNav = 'details';
   }
 }
