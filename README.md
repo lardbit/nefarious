@@ -114,6 +114,15 @@ Your default local URLs for all the various services will be:
 
 See [ARM.md](ARM.md) for arm-based architectures like the raspberry pi, odroid, pine etc. 
 
+##### VPN
+To secure Transmission and Jackett traffic with vpn a seperate compose and env file are provided. `docker-compose.vpn.yml` and `env.vpn.template` respectivly.
+
+Additional environment variables may need to be specified in the jackett service in the `docker-compose.vpn.yml` file to work with your VPN provider.
+
+The documentation for supported providers and additonal configuration can be found at: [docker-transmission-openvpn](https://haugene.github.io/docker-transmission-openvpn/)
+
+**NOTE**: If using the VPN compose setup, the jackett host in **PART 2** should be changed to `transmission`
+
 #### Part 2
 
 The default nefarious user/password is `admin`/`admin`.  On first login you will be directed to the main nefarious settings and asked to configure your Jackett API token.
