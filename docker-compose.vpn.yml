@@ -1,0 +1,133 @@
+version: '2.4'
+
+services:
+
+  # main application
+  nefarious:
+    labels:
+    - com.centurylinklabs.watchtower.enable=true
+    image: lardbit/nefarious
+    restart: always
+    ports:
+    - "8000:80"
+    environment:
+      # https://github.com/kennethreitz/dj-database-url
+      DATABASE_URL: "sqlite:////nefarious-db/db.sqlite3"
+      REDIS_HOST: "redis"
+      NEFARIOUS_USER: ${NEFARIOUS_USER:-admin}
+      NEFARIOUS_PASS: ${NEFARIOUS_PASS:-admin}
+      HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp/}
+    volumes:
+      # persistent named volume for sqlite database
+      - nefarious-db:/nefarious-db
+    logging:
+      options:
+        max-size: 10m
+    depends_on:
+    - redis
+    - jackett
+    - celery
+
+  # background task queue
+  celery:
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    image: lardbit/nefarious
+    restart: always
+    entrypoint: /env/bin/celery -A nefarious worker --concurrency ${NUM_CELERY_WORKERS:-0} --beat --loglevel=INFO
+    environment:
+      # https://github.com/kennethreitz/dj-database-url
+      DATABASE_URL: "sqlite:////nefarious-db/db.sqlite3"
+      REDIS_HOST: "redis"
+      HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp}
+      INTERNAL_DOWNLOAD_PATH: /downloads/completed
+    volumes:
+      - ${HOST_DOWNLOAD_PATH:-/tmp}:/downloads
+      # persistent named volume for sqlite database
+      - nefarious-db:/nefarious-db
+    logging:
+      options:
+        max-size: 10m
+    depends_on:
+      - redis
+
+  # in-memory database for task queue
+  redis:
+    image: redis
+    restart: always
+    mem_limit: 200m
+    # TODO - use "expose" vs "ports" to limit external access when not in development
+    ports:
+    - "6379:6379"
+
+  # torrent indexer service
+  # See Documentation for additonal environment options that may be needed per
+  # your vpn provider
+  # VPN Docs: https://haugene.github.io/docker-transmission-openvpn/
+  jackett:
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    image: linuxserver/jackett
+    mem_limit: 200m
+    restart: always
+    ports:
+      - "9117:9117"
+    logging:
+      options:
+        max-size: 10m
+    volumes:
+      - jackett-config:/config
+
+  transmission:
+    image: haugene/transmission-openvpn:latest
+    container_name: transmission
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - "/dev/net/tun"
+    restart: unless-stopped
+    ports:
+      - 9091:9091/tcp # Transmission
+      - 9091:9091/udp # Transmission
+      - 9117:9117 # jackett
+    dns: # Bypass any dns issues by not using ISP provided DNS
+      - 1.1.1.1 # OpenDNS Primary
+      - 1.0.0.1 # OpenDNS Secondary
+    volumes:
+      - ${HOST_DOWNLOAD_PATH:-/tmp}:/data
+      - ./transmission-settings.json:/config/settings.json:ro
+      - '/etc/localtime:/etc/localtime:ro'
+    environment:
+      - OPENVPN_PROVIDER=${OPENVPN_PROVIDER}
+      - OPENVPN_USERNAME=${OPENVPN_USERNAME}
+      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+      - OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60
+      - LOCAL_NETWORK=${LOCAL_NETWORK:-192.168.1.0/24},172.17.0.0/16
+      - GLOBAL_APPLY_PERMISSIONS=true
+      - CREATE_TUN_DEVICE=true
+      # Additonal Options may need to be specified based on your VPN provider
+    logging:
+      driver: json-file
+      options:
+      max-size: 10m
+    
+
+  # auto update service
+  # https://github.com/v2tec/watchtower
+  watchtower:
+    image: v2tec/watchtower
+    restart: always
+    command: --label-enable --cleanup
+    logging:
+      options:
+        max-size: 10m
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  nefarious-db:
+    driver: local
+  jackett-config:
+    driver: local
