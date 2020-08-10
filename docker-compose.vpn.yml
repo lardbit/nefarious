@@ -70,8 +70,6 @@ services:
     image: linuxserver/jackett
     mem_limit: 200m
     restart: always
-    ports:
-      - "9117:9117"
     logging:
       options:
         max-size: 10m
