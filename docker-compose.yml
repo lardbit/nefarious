@@ -57,3 +57,7 @@ services:
         max-size: 10m
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  nefarious-db:
+  jackett-config:
