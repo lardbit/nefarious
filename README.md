@@ -117,7 +117,7 @@ See [ARM.md](ARM.md) for arm-based architectures like the raspberry pi, odroid, 
 
 ##### VPN
 
-To secure Transmission and Jackett traffic with a VPN you must use the separate `docker-compose.transmission-vpn.yml` compose is provided and populate the `.env` with your
+To secure Transmission and Jackett traffic with a VPN you must use the separate `docker-compose.transmission-vpn.yml` file and populate the `.env` with your
 VPN provider's details.
 
 The documentation for supported providers and additional configuration can be found at: [docker-transmission-openvpn](https://haugene.github.io/docker-transmission-openvpn/).
