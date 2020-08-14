@@ -70,6 +70,7 @@ services:
     image: linuxserver/jackett
     mem_limit: 200m
     restart: always
+    network_mode: service:transmission
     logging:
       options:
         max-size: 10m
