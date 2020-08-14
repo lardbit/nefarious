@@ -115,13 +115,19 @@ Your default local URLs for all the various services will be:
 See [ARM.md](ARM.md) for arm-based architectures like the raspberry pi, odroid, pine etc. 
 
 ##### VPN
-To secure Transmission and Jackett traffic with vpn a seperate compose and env file are provided. `docker-compose.vpn.yml` and `env.vpn.template` respectivly.
 
-Additional environment variables may need to be specified in the jackett service in the `docker-compose.vpn.yml` file to work with your VPN provider.
+To secure Transmission and Jackett traffic with a VPN you must use the separate `docker-compose.transmission-vpn.yml` compose is provided and populate the `.env` with your
+VPN provider's details.
 
-The documentation for supported providers and additonal configuration can be found at: [docker-transmission-openvpn](https://haugene.github.io/docker-transmission-openvpn/)
+The documentation for supported providers and additional configuration can be found at: [docker-transmission-openvpn](https://haugene.github.io/docker-transmission-openvpn/).
 
-**NOTE**: If using the VPN compose setup, the jackett host in **PART 2** should be changed to `transmission`
+All docker-compose commands must specify the `docker-compose.transmission-vpn.yml` file explicitly.
+
+For example, to bring up all the services, you'd run:
+
+    docker-compose -f docker-compose.transmission-vpn.yml up -d
+
+**NOTE**: You must also define the *jackett* host [Part 2](#part-2) as `transmission` vs `jackett` since the transmission service is also the VPN.
 
 #### Part 2
 
@@ -134,10 +140,10 @@ Entering both username and password in the nefarious settings should only be don
 The Download Subdirectories can also be configured here as well.  Bear in mind these are subdirectories, and that we will be configuring the parent download directory shortly.
 Leaving these as they are will be perfectly fine.  
 
-Global Language, Keyword Exclusions, Subtitles, and Picture Quality can also be configured here.
+*Global Language*, *Keyword Exclusions*, *Subtitles*, and *Quality Profiles* can also be configured here.
 TV and Movie quality profiles can be changed independently of each other if you wish to have differing profiles.
-Finally, user accounts and passwords can be added or modified as well.  Feel free to change the defaults now if you so desire, or add additional users on your PC/system.
-Once all of your Settings are to your preference, first click `Save` then be sure to `Verify Settings`.
+User accounts and passwords can be added or modified as well.
+Once all of your settings are updated, click `Save` then be sure to `Verify Settings` to make sure they're valid.
 
 ##### Transmission Configuration
 
