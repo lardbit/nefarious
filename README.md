@@ -31,6 +31,7 @@ Features:
 - [x] Supports multiple languages (TMDB supports internationalized Titles, Descriptions and Poster artwork)
 - [x] Webhook support (i.e can post to Slack, Telegram etc when media downloads)
 - [x] Imports existing libraries
+- [x] VPN integration (optional)
 
 ### Contents
 
