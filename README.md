@@ -31,6 +31,7 @@ Features:
 - [x] Supports multiple languages (TMDB supports internationalized Titles, Descriptions and Poster artwork)
 - [x] Webhook support (i.e can post to Slack, Telegram etc when media downloads)
 - [x] Imports existing libraries
+- [x] VPN integration (optional)
 
 ### Contents
 
@@ -114,6 +115,21 @@ Your default local URLs for all the various services will be:
 
 See [ARM.md](ARM.md) for arm-based architectures like the raspberry pi, odroid, pine etc. 
 
+##### VPN
+
+To secure Transmission and Jackett traffic with a VPN you must use the separate `docker-compose.transmission-vpn.yml` file and populate the `.env` with your
+VPN provider's details.
+
+The documentation for supported providers and additional configuration can be found at: [docker-transmission-openvpn](https://haugene.github.io/docker-transmission-openvpn/).
+
+All docker-compose commands must specify the `docker-compose.transmission-vpn.yml` file explicitly.
+
+For example, to bring up all the services, you'd run:
+
+    docker-compose -f docker-compose.transmission-vpn.yml up -d
+
+**NOTE**: You must also define the *jackett* host [Part 2](#part-2) as `transmission` vs `jackett` since the transmission service is also the VPN.
+
 #### Part 2
 
 The default nefarious user/password is `admin`/`admin`.  On first login you will be directed to the main nefarious settings and asked to configure your Jackett API token.
@@ -125,10 +141,10 @@ Entering both username and password in the nefarious settings should only be don
 The Download Subdirectories can also be configured here as well.  Bear in mind these are subdirectories, and that we will be configuring the parent download directory shortly.
 Leaving these as they are will be perfectly fine.  
 
-Global Language, Keyword Exclusions, Subtitles, and Picture Quality can also be configured here.
+*Global Language*, *Keyword Exclusions*, *Subtitles*, and *Quality Profiles* can also be configured here.
 TV and Movie quality profiles can be changed independently of each other if you wish to have differing profiles.
-Finally, user accounts and passwords can be added or modified as well.  Feel free to change the defaults now if you so desire, or add additional users on your PC/system.
-Once all of your Settings are to your preference, first click `Save` then be sure to `Verify Settings`.
+User accounts and passwords can be added or modified as well.
+Once all of your settings are updated, click `Save` then be sure to `Verify Settings` to make sure they're valid.
 
 ##### Transmission Configuration
 

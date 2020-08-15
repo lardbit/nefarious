@@ -2,79 +2,42 @@ version: '2.4'
 
 services:
 
-  # main application
+  # nefarious main application
   nefarious:
-    labels:
-    - com.centurylinklabs.watchtower.enable=true
-    image: lardbit/nefarious
-    restart: always
-    ports:
-    - "8000:80"
-    environment:
-      # https://github.com/kennethreitz/dj-database-url
-      DATABASE_URL: "sqlite:////nefarious-db/db.sqlite3"
-      REDIS_HOST: "redis"
-      NEFARIOUS_USER: ${NEFARIOUS_USER:-admin}
-      NEFARIOUS_PASS: ${NEFARIOUS_PASS:-admin}
-      HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp/}
-    volumes:
-      # persistent named volume for sqlite database
-      - nefarious-db:/nefarious-db
-    logging:
-      options:
-        max-size: 10m
+    extends:
+      service: nefarious-app-base
+      file: docker-compose.base.yml
     depends_on:
-    - redis
-    - jackett
-    - celery
+      - redis
+      - jackett
+      - celery
 
-  # background task queue
+  # nefarious background task queue
   celery:
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
-    image: lardbit/nefarious
-    restart: always
-    entrypoint: /env/bin/celery -A nefarious worker --concurrency ${NUM_CELERY_WORKERS:-0} --beat --loglevel=INFO
-    environment:
-      # https://github.com/kennethreitz/dj-database-url
-      DATABASE_URL: "sqlite:////nefarious-db/db.sqlite3"
-      REDIS_HOST: "redis"
-      HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp}
-      INTERNAL_DOWNLOAD_PATH: /downloads/completed
-    volumes:
-      - ${HOST_DOWNLOAD_PATH:-/tmp}:/downloads
-      # persistent named volume for sqlite database
-      - nefarious-db:/nefarious-db
-    logging:
-      options:
-        max-size: 10m
+    extends:
+      service: celery-base
+      file: docker-compose.base.yml
     depends_on:
       - redis
 
-  # in-memory database for task queue
+  # database for task queue
   redis:
     image: redis
     restart: always
     mem_limit: 200m
-    # TODO - use "expose" vs "ports" to limit external access when not in development
-    ports:
-    - "6379:6379"
+    # use "ports" when developing so local dev server can access redis
+    expose:
+      - 6379
 
   # torrent indexer service
   jackett:
-    labels:
-      - com.centurylinklabs.watchtower.enable=true
-    image: linuxserver/jackett
-    mem_limit: 200m
-    restart: always
+    extends:
+      service: jackett-base
+      file: docker-compose.base.yml
     ports:
       - "9117:9117"
-    logging:
-      options:
-        max-size: 10m
-    volumes:
-      - jackett-config:/config
 
+  # torrent server
   transmission:
     image: linuxserver/transmission
     volumes:
@@ -100,6 +63,4 @@ services:
 
 volumes:
   nefarious-db:
-    driver: local
   jackett-config:
-    driver: local

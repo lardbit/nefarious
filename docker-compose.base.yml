@@ -1,0 +1,69 @@
+version: '2.4'
+
+services:
+
+  # nefarious base service (to be extended)
+  nefarious-base:
+    image: lardbit/nefarious
+
+  # nefarious base app service (to be extended)
+  nefarious-app-base:
+    extends:
+      service: nefarious-base
+    ports:
+      - "8000:80"
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    restart: always
+    environment:
+      # https://github.com/kennethreitz/dj-database-url
+      DATABASE_URL: "sqlite:////nefarious-db/db.sqlite3"
+      REDIS_HOST: "redis"
+      NEFARIOUS_USER: ${NEFARIOUS_USER:-admin}
+      NEFARIOUS_PASS: ${NEFARIOUS_PASS:-admin}
+      HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp/}
+    volumes:
+      # persistent named volume for sqlite database
+      - nefarious-db:/nefarious-db
+    logging:
+      options:
+        max-size: 10m
+
+  # celery base service (to be extended)
+  celery-base:
+    extends:
+      service: nefarious-base
+    restart: always
+    entrypoint: /env/bin/celery -A nefarious worker --concurrency ${NUM_CELERY_WORKERS:-0} --beat --loglevel=INFO
+    environment:
+      # https://github.com/kennethreitz/dj-database-url
+      DATABASE_URL: "sqlite:////nefarious-db/db.sqlite3"
+      REDIS_HOST: "redis"
+      HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp}
+      INTERNAL_DOWNLOAD_PATH: /downloads/completed
+    volumes:
+      - ${HOST_DOWNLOAD_PATH:-/tmp}:/downloads
+      # persistent named volume for sqlite database
+      - nefarious-db:/nefarious-db
+    logging:
+      options:
+        max-size: 10m
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
+  # jackett base service (to be extended)
+  jackett-base:
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    image: linuxserver/jackett
+    mem_limit: 200m
+    restart: always
+    logging:
+      options:
+        max-size: 10m
+    volumes:
+      - jackett-config:/config
+
+volumes:
+  nefarious-db:
+  jackett-config:
