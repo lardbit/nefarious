@@ -83,8 +83,8 @@ services:
     ports:
       - "9091:9091"
     environment:
-      - PUID=${HOST_DOWNLOAD_UID}
-      - PGID=${HOST_DOWNLOAD_GID}
+      - PUID=${HOST_DOWNLOAD_UID:-1000}
+      - PGID=${HOST_DOWNLOAD_GID:-1000}
 
   # auto update service
   # https://github.com/v2tec/watchtower
