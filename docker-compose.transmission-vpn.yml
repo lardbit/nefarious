@@ -1,0 +1,72 @@
+version: '2.4'
+
+services:
+
+  nefarious:
+    extends:
+      file: docker-compose.base.yml
+      service: nefarious-app-base
+
+  celery:
+    extends:
+      file: docker-compose.base.yml
+      service: celery-base
+
+  redis:
+    extends:
+      file: docker-compose.yml
+      service: redis
+
+  # torrent server
+  transmission:
+    image: haugene/transmission-openvpn:latest
+    container_name: transmission
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    restart: unless-stopped
+    ports:
+      - 9091:9091
+      - 9117:9117 # jackett which shares this vpn network
+    dns: # bypass any dns issues by not using ISP's DNS
+      - 1.1.1.1 # cloudflare dns primary
+      - 1.0.0.1 # cloudflare dns secondary
+    volumes:
+      - ${HOST_DOWNLOAD_PATH:-/tmp}:/data
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - OPENVPN_PROVIDER=${OPENVPN_PROVIDER}
+      - OPENVPN_USERNAME=${OPENVPN_USERNAME}
+      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+      - OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60
+      - LOCAL_NETWORK=${LOCAL_NETWORK:-192.168.1.0/24},172.17.0.0/16
+      - GLOBAL_APPLY_PERMISSIONS=true
+      - CREATE_TUN_DEVICE=true
+      # additional options may need to be specified based on your VPN provider
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+
+  # torrent indexer service which gets routed through the transmission vpn
+  jackett:
+    extends:
+      file: docker-compose.base.yml
+      service: jackett-base
+    network_mode: service:transmission  # use transmission/vpn network
+    depends_on:
+      - transmission
+
+  watchtower:
+    extends:
+      file: docker-compose.yml
+      service: watchtower
+
+volumes:
+  nefarious-db:
+    driver: local
+  jackett-config:
+    driver: local
