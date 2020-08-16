@@ -11,4 +11,4 @@ For example, to bring up all the services, you'd run:
 
     docker-compose -f docker-compose.transmission-vpn.yml up -d
 
-**NOTE**: You must also define the *jackett* host [Part 2](../README.md#part-2) as `transmission` vs `jackett` since the transmission service is also the VPN.
+**NOTE**: You must also define the *jackett* host described in [Part 2](../README.md#part-2) as `transmission` vs `jackett` since the transmission service is also the VPN.
