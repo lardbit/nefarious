@@ -6,6 +6,7 @@ from datetime import datetime
 from celery_once import QueueOnce
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_date
@@ -264,15 +265,22 @@ def wanted_tv_season_task():
             if episode_air_date:
                 last_air_date = episode_air_date if not last_air_date or episode_air_date > last_air_date else last_air_date
 
-            watch_tv_episode, was_created = WatchTVEpisode.objects.get_or_create(
-                tmdb_episode_id=episode['id'],
-                defaults=dict(
-                    watch_tv_show=tv_season_request.watch_tv_show,
-                    season_number=tv_season_request.season_number,
-                    episode_number=episode['episode_number'],
-                    user=tv_season_request.user,
-                    release_date=episode_air_date,
-                ))
+            try:
+                watch_tv_episode, was_created = WatchTVEpisode.objects.get_or_create(
+                    tmdb_episode_id=episode['id'],
+                    defaults=dict(
+                        watch_tv_show=tv_season_request.watch_tv_show,
+                        season_number=tv_season_request.season_number,
+                        episode_number=episode['episode_number'],
+                        user=tv_season_request.user,
+                        release_date=episode_air_date,
+                    ))
+            except IntegrityError as e:
+                logging.exception(e)
+                logging.error('Failed creating tmdb episode {} when show {}, season #{} and episode #{} already exist'.format(
+                    episode['id'], tv_season_request.watch_tv_show.id, tv_season_request.season_number, episode['episode_number']))
+                continue
+
             if was_created:
 
                 logging.info('adding newly found episode {} for {}'.format(episode['episode_number'], tv_season_request))
