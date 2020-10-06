@@ -13,6 +13,9 @@ from nefarious.transmission import get_transmission_client
 from nefarious.utils import get_best_torrent_result, results_with_valid_urls
 
 
+logger = logging.getLogger('nefarious')
+
+
 class WatchProcessorBase:
     watch_media = None
     nefarious_settings: NefariousSettings = None
@@ -29,7 +32,7 @@ class WatchProcessorBase:
         self.tmdb_media = self._get_tmdb_media()
 
     def fetch(self):
-        logging.info('Processing request to watch {}'.format(self.watch_media))
+        logger.info('Processing request to watch {}'.format(self.watch_media))
         valid_search_results = []
         search = self._get_search_results()
 
@@ -43,7 +46,7 @@ class WatchProcessorBase:
                 if self.is_match(result['Title']):
                     valid_search_results.append(result)
                 else:
-                    logging.info('Not matched: {}'.format(result['Title']))
+                    logger.info('Not matched: {}'.format(result['Title']))
 
             if valid_search_results:
 
@@ -52,7 +55,7 @@ class WatchProcessorBase:
 
                 while valid_search_results:
 
-                    logging.info('Valid Search Results: {}'.format(len(valid_search_results)))
+                    logger.info('Valid Search Results: {}'.format(len(valid_search_results)))
 
                     # find the torrent result with the highest weight (i.e seeds)
                     best_result = self._get_best_torrent_result(valid_search_results)
@@ -69,9 +72,9 @@ class WatchProcessorBase:
 
                     # verify it's not blacklisted and save & start this torrent
                     if not TorrentBlacklist.objects.filter(hash=torrent.hashString).exists():
-                        logging.info('Adding torrent for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
-                        logging.info('Added torrent {} with {} seeders'.format(best_result['Title'], best_result['Seeders']))
-                        logging.info('Starting torrent id: {} and hash {}'.format(torrent.id, torrent.hashString))
+                        logger.info('Adding torrent for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
+                        logger.info('Added torrent {} with {} seeders'.format(best_result['Title'], best_result['Seeders']))
+                        logger.info('Starting torrent id: {} and hash {}'.format(torrent.id, torrent.hashString))
 
                         # save torrent details on our watch instance
                         self._save_torrent_details(torrent)
@@ -82,16 +85,16 @@ class WatchProcessorBase:
                         return True
                     else:
                         # remove the blacklisted/paused torrent and continue to the next result
-                        logging.info('BLACKLISTED: {} ({}) - trying next best result'.format(best_result['Title'], torrent.hashString))
+                        logger.info('BLACKLISTED: {} ({}) - trying next best result'.format(best_result['Title'], torrent.hashString))
                         transmission_client.remove_torrent([torrent.id])
                         valid_search_results.remove(best_result)
                         continue
             else:
-                logging.info('No valid search results for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
+                logger.info('No valid search results for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
         else:
-            logging.info('Search error: {}'.format(search.error_content))
+            logger.info('Search error: {}'.format(search.error_content))
 
-        logging.info('Unable to find any results for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
+        logger.info('Unable to find any results for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
 
         return False
 

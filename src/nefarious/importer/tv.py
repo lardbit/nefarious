@@ -10,6 +10,9 @@ from nefarious.parsers.tv import TVParser
 from nefarious.importer.base import ImporterBase
 
 
+logger = logging.getLogger('nefarious')
+
+
 class TVImporter(ImporterBase):
     media_class = WatchTVEpisode
     INGEST_DEPTH_MAX = 3
@@ -49,10 +52,10 @@ class TVImporter(ImporterBase):
                     parser.match.update(parent_parser.match)
                     return title, parser.match
             else:  # for/else
-                logging.warning('[NO_MATCH_TITLE] Could not match nested file "{}"'.format(file_path))
+                logger.warning('[NO_MATCH_TITLE] Could not match nested file "{}"'.format(file_path))
                 return False, False
         else:
-            logging.warning('[NO_MATCH_TITLE] Could not match file without title "{}"'.format(file_path))
+            logger.warning('[NO_MATCH_TITLE] Could not match file without title "{}"'.format(file_path))
             return False, False
 
     def _handle_match(self, parser, tmdb_result, title, file_path):
@@ -71,7 +74,7 @@ class TVImporter(ImporterBase):
         try:
             episode_data = episode_result.info()
         except HTTPError:
-            logging.error('[ERROR_TMDB] tmdb episode exception for title {} on file "{}"'.format(title, file_path))
+            logger.error('[ERROR_TMDB] tmdb episode exception for title {} on file "{}"'.format(title, file_path))
             return False
         watch_episode, _ = WatchTVEpisode.objects.update_or_create(
             watch_tv_show=watch_show,

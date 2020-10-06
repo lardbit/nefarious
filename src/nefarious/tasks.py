@@ -1,6 +1,6 @@
-import logging
 import os
 from celery import chain
+from celery.utils.log import get_task_logger
 from celery.signals import task_failure
 from datetime import datetime
 from celery_once import QueueOnce
@@ -21,6 +21,9 @@ from nefarious.transmission import get_transmission_client
 from nefarious.utils import get_media_new_path_and_name, update_media_release_date
 from nefarious import websocket
 from nefarious import webhook
+
+
+logger = get_task_logger('nefarious')
 
 
 app.conf.beat_schedule = {
@@ -53,7 +56,7 @@ app.conf.beat_schedule = {
 
 @task_failure.connect
 def log_exception(**kwargs):
-    logging.error('TASK EXCEPTION', exc_info=kwargs['exception'])
+    logger.error('TASK EXCEPTION', exc_info=kwargs['exception'])
 
 
 @app.task(base=QueueOnce, once={'graceful': True})
@@ -73,7 +76,7 @@ def watch_tv_show_season_task(watch_tv_season_id: int):
             season_request.save()
     # failed so delete season instance and fallback to trying individual episodes
     else:
-        logging.info('Failed fetching entire season {} - falling back to individual episodes'.format(watch_tv_season))
+        logger.info('Failed fetching entire season {} - falling back to individual episodes'.format(watch_tv_season))
         nefarious_settings = NefariousSettings.get()
         tmdb = get_tmdb_client(nefarious_settings)
         season_request = tmdb.TV_Seasons(watch_tv_season.watch_tv_show.tmdb_show_id, watch_tv_season.season_number)
@@ -119,7 +122,7 @@ def watch_movie_task(watch_movie_id: int):
 @app.task
 def refresh_tmdb_configuration():
 
-    logging.info('Refreshing TMDB Configuration')
+    logger.info('Refreshing TMDB Configuration')
 
     nefarious_settings = NefariousSettings.get()
 
@@ -151,7 +154,7 @@ def completed_media_task():
             torrent = transmission_client.get_torrent(media.transmission_torrent_hash)
         except KeyError:
             # media's torrent reference no longer exists so remove the reference
-            logging.info("Media's torrent no longer present, removing reference: {}".format(media))
+            logger.info("Media's torrent no longer present, removing reference: {}".format(media))
             media.transmission_torrent_hash = None
             media.save()
         else:
@@ -159,7 +162,7 @@ def completed_media_task():
             if torrent.progress == 100:
 
                 # flag media as completed
-                logging.info('Media completed: {}'.format(media))
+                logger.info('Media completed: {}'.format(media))
                 media.collected = True
                 media.collected_date = datetime.utcnow()
                 media.save()
@@ -188,11 +191,11 @@ def completed_media_task():
                     sub_path,
                     new_path or '',
                 )
-                logging.info('Moving torrent data to "{}"'.format(move_to_path))
+                logger.info('Moving torrent data to "{}"'.format(move_to_path))
                 torrent.move_data(move_to_path)
 
                 # rename the data
-                logging.info('Renaming torrent file from "{}" to "{}"'.format(torrent.name, new_name))
+                logger.info('Renaming torrent file from "{}" to "{}"'.format(torrent.name, new_name))
                 transmission_client.rename_torrent_path(torrent.id, torrent.name, new_name)
 
                 # send websocket message media was updated
@@ -234,11 +237,11 @@ def wanted_media_task():
         for media in data['query']:
             # media has been released (or it's missing it's release date so try anyway) so create a task to try and fetch it
             if not media.release_date or media.release_date <= today:
-                logging.info('Wanted {type}: {media}'.format(type=media_type, media=media))
+                logger.info('Wanted {type}: {media}'.format(type=media_type, media=media))
                 tasks.append(data['task'].si(media.id))
             # media has not been released so skip
             else:
-                logging.info("Skipping wanted {type} since it hasn't aired yet: {media} ".format(type=media_type, media=media))
+                logger.info("Skipping wanted {type} since it hasn't aired yet: {media} ".format(type=media_type, media=media))
 
     # execute tasks sequentially
     chain(*tasks)()
@@ -280,14 +283,14 @@ def wanted_tv_season_task():
                         release_date=episode_air_date,
                     ))
             except IntegrityError as e:
-                logging.exception(e)
-                logging.error('Failed creating tmdb episode {} when show {}, season #{} and episode #{} already exist'.format(
+                logger.exception(e)
+                logger.error('Failed creating tmdb episode {} when show {}, season #{} and episode #{} already exist'.format(
                     episode['id'], tv_season_request.watch_tv_show.id, tv_season_request.season_number, episode['episode_number']))
                 continue
 
             if was_created:
 
-                logging.info('adding newly found episode {} for {}'.format(episode['episode_number'], tv_season_request))
+                logger.info('adding newly found episode {} for {}'.format(episode['episode_number'], tv_season_request))
 
                 # add episode to task queue
                 tasks.append(watch_tv_episode_task.si(watch_tv_episode.id))
@@ -295,7 +298,7 @@ def wanted_tv_season_task():
         # assume there's no new episodes for anything that's aired this long ago
         days_since_aired = (now.date() - last_air_date).days if last_air_date else 0
         if days_since_aired > 30:
-            logging.warning('completing old tv season request {}'.format(tv_season_request))
+            logger.warning('completing old tv season request {}'.format(tv_season_request))
             tv_season_request.collected = True
             tv_season_request.save()
 
@@ -349,7 +352,7 @@ def auto_watch_new_seasons_task():
                 # season was created
                 if was_season_created:
                     added_season = True
-                    logging.info('Automatically watching newly aired season {}'.format(watch_tv_season))
+                    logger.info('Automatically watching newly aired season {}'.format(watch_tv_season))
                     # send a websocket message for this new season
                     media_type, data = websocket.get_media_type_and_serialized_watch_media(watch_tv_season)
                     send_websocket_message_task.delay(websocket.ACTION_UPDATED, media_type, data)
@@ -369,6 +372,8 @@ def import_library_task(media_type: str, user_id: int):
     user = get_object_or_404(User, pk=user_id)
     nefarious_settings = NefariousSettings.get()
     tmdb_client = get_tmdb_client(nefarious_settings=nefarious_settings)
+
+    logger.info('Importing {} library'.format(media_type))
 
     if media_type == 'movie':
         download_path = os.path.join(settings.INTERNAL_DOWNLOAD_PATH, nefarious_settings.transmission_movie_download_dir)
@@ -392,7 +397,7 @@ def import_library_task(media_type: str, user_id: int):
 @app.task
 def populate_release_dates_task():
 
-    logging.info('Populating release dates')
+    logger.info('Populating release dates')
 
     nefarious_settings = NefariousSettings.get()
     tmdb_client = get_tmdb_client(nefarious_settings)
@@ -406,7 +411,7 @@ def populate_release_dates_task():
             release_date = parse_date(data.get('release_date', ''))
             update_media_release_date(media, release_date)
         except Exception as e:
-            logging.exception(e)
+            logger.exception(e)
 
     for media in WatchTVSeason.objects.filter(**kwargs):
         try:
@@ -415,7 +420,7 @@ def populate_release_dates_task():
             release_date = parse_date(data.get('air_date', ''))
             update_media_release_date(media, release_date)
         except Exception as e:
-            logging.exception(e)
+            logger.exception(e)
 
     for media in WatchTVEpisode.objects.filter(**kwargs):
         try:
@@ -424,4 +429,4 @@ def populate_release_dates_task():
             release_date = parse_date(data.get('air_date', ''))
             update_media_release_date(media, release_date)
         except Exception as e:
-            logging.exception(e)
+            logger.exception(e)

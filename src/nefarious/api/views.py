@@ -25,6 +25,9 @@ from nefarious.transmission import get_transmission_client
 from nefarious.tmdb import get_tmdb_client
 from nefarious.utils import trace_torrent_url, swap_jackett_host, is_magnet_url
 
+
+logger = logging.getLogger('nefarious')
+
 CACHE_MINUTE = 60
 CACHE_HOUR = CACHE_MINUTE * 60
 CACHE_HALF_DAY = CACHE_HOUR * 12
@@ -215,7 +218,7 @@ class DownloadTorrentsView(views.APIView):
         except Exception as e:
             return Response({'success': False, 'error': 'An unknown error occurred', 'error_detail': str(e)})
 
-        logging.info('adding torrent: {}'.format(torrent_url))
+        logger.info('adding torrent: {}'.format(torrent_url))
 
         # add torrent
         transmission_client = get_transmission_client(nefarious_settings)
@@ -353,7 +356,7 @@ class CurrentTorrentsView(views.APIView):
                     except (KeyError, ValueError):  # torrent no longer exists or was invalid
                         pass
                     except Exception as e:
-                        logging.error(str(e))
+                        logger.error(str(e))
                         raise e
                     else:
                         result['torrent'] = TransmissionTorrentSerializer(torrent).data
@@ -447,8 +450,8 @@ class ImportMediaLibraryView(views.APIView):
             # create task to import library
             import_library_task.delay(media_type, request.user.id)
         except AlreadyQueued as e:
-            logging.exception(e)
+            logger.exception(e)
             msg = 'Import task for {} already exists'.format(media_type)
-            logging.error(msg)
+            logger.error(msg)
             raise exceptions.APIException(msg)
         return Response({'success': True})

@@ -7,6 +7,9 @@ from nefarious.api.serializers import (
     WatchMovieSerializer, WatchTVSeasonSerializer, WatchTVEpisodeSerializer, WatchTVSeasonRequestSerializer, WatchTVShowSerializer)
 from nefarious.models import WatchMovie, WatchTVEpisode, WatchTVSeason, WatchTVSeasonRequest, WatchMediaBase, WatchTVShow
 
+
+logger = logging.getLogger('nefarious')
+
 ACTION_UPDATED = 'UPDATED'
 ACTION_REMOVED = 'REMOVED'
 
@@ -18,7 +21,7 @@ MEDIA_TYPE_TV_EPISODE = 'TV_EPISODE'
 
 
 def send_message(action: str, media_type: str, data: dict):
-    logging.info('Sending "{}" websocket message for media type {}'.format(action, media_type))
+    logger.info('Sending "{}" websocket message for media type {}'.format(action, media_type))
     if not settings.DEBUG:
         try:
             ws = create_connection(settings.WEBSOCKET_URL, timeout=5)
@@ -28,8 +31,8 @@ def send_message(action: str, media_type: str, data: dict):
                 'data': data,
             }))
         except Exception as e:
-            logging.error('Failed connecting to websocket server: {}'.format(settings.WEBSOCKET_URL))
-            logging.exception(e)
+            logger.error('Failed connecting to websocket server: {}'.format(settings.WEBSOCKET_URL))
+            logger.exception(e)
 
 
 def send_media_message(action: str, media: WatchMediaBase):
