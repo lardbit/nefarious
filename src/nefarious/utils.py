@@ -205,3 +205,12 @@ def sanitize_final_media_title(title: str):
     if title:
         title = re.sub(r"\s*:+\s*", ' - ', title)
     return title
+
+
+def update_media_release_date(media, release_date):
+    if release_date:
+        logging.info('Adding release date {} for {}'.format(release_date, media))
+        media.release_date = release_date
+        media.save()
+    else:
+        logging.warning('Skipping empty release date for {}'.format(media))

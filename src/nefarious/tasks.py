@@ -18,7 +18,7 @@ from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, Watc
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
-from nefarious.utils import get_media_new_path_and_name
+from nefarious.utils import get_media_new_path_and_name, update_media_release_date
 from nefarious import websocket
 from nefarious import webhook
 
@@ -42,6 +42,10 @@ app.conf.beat_schedule = {
     },
     'Refresh TMDB Settings': {
         'task': 'nefarious.tasks.refresh_tmdb_configuration',
+        'schedule': 60 * 60 * 24 * 1,
+    },
+    'Populate Release Dates': {
+        'task': 'nefarious.tasks.populate_release_dates_task',
         'schedule': 60 * 60 * 24 * 1,
     },
 }
@@ -383,3 +387,41 @@ def import_library_task(media_type: str, user_id: int):
             user=user,
         )
     importer.ingest_root(download_path)
+
+
+@app.task
+def populate_release_dates_task():
+
+    logging.info('Populating release dates')
+
+    nefarious_settings = NefariousSettings.get()
+    tmdb_client = get_tmdb_client(nefarious_settings)
+
+    kwargs = dict(release_date=None)
+
+    for media in WatchMovie.objects.filter(**kwargs):
+        try:
+            movie_result = tmdb_client.Movies(media.tmdb_movie_id)
+            data = movie_result.info()
+            release_date = parse_date(data.get('release_date', ''))
+            update_media_release_date(media, release_date)
+        except Exception as e:
+            logging.exception(e)
+
+    for media in WatchTVSeason.objects.filter(**kwargs):
+        try:
+            season_result = tmdb_client.TV_Seasons(media.watch_tv_show.tmdb_show_id, media.season_number)
+            data = season_result.info()
+            release_date = parse_date(data.get('air_date', ''))
+            update_media_release_date(media, release_date)
+        except Exception as e:
+            logging.exception(e)
+
+    for media in WatchTVEpisode.objects.filter(**kwargs):
+        try:
+            episode_result = tmdb_client.TV_Episodes(media.watch_tv_show.tmdb_show_id, media.season_number, media.episode_number)
+            data = episode_result.info()
+            release_date = parse_date(data.get('air_date', ''))
+            update_media_release_date(media, release_date)
+        except Exception as e:
+            logging.exception(e)
