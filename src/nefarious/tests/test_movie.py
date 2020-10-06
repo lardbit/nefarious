@@ -6,7 +6,7 @@ class MovieMatch(TestCase):
     movie_tests = []
 
     def setUp(self):
-        # full season tests
+        # movie tests
         self.movie_tests = [
             ("The.Man.from.U.N.C.L.E.2015.1080p.BluRay.x264-SPARKS", "The Man from U.N.C.L.E."),
             ("1941.1979.EXTENDED.720p.BluRay.X264-AMIABLE", "1941"),

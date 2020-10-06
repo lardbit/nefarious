@@ -2,6 +2,7 @@ import logging
 import os
 
 from django.utils import timezone
+from django.utils.dateparse import parse_date
 from requests import HTTPError
 
 from nefarious.models import WatchTVEpisode, WatchTVShow
@@ -82,6 +83,7 @@ class TVImporter(ImporterBase):
                 download_path=file_path,
                 collected=True,
                 collected_date=timezone.utc.localize(timezone.datetime.utcnow()),
+                release_date=parse_date(episode_data.get('air_date', ''))
             ),
         )
         return watch_episode
