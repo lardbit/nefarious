@@ -26,7 +26,7 @@ from nefarious.utils import (
 
 @method_decorator(gzip_page, name='dispatch')
 class WatchMovieViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
-    queryset = WatchMovie.objects.all()
+    queryset = WatchMovie.objects.select_related('user').all()
     serializer_class = WatchMovieSerializer
     filter_fields = ('collected',)
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
@@ -81,7 +81,7 @@ class WatchTVShowViewSet(WebSocketMediaMessageUpdatedMixin, UserReferenceViewSet
 
 @method_decorator(gzip_page, name='dispatch')
 class WatchTVSeasonViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
-    queryset = WatchTVSeason.objects.all()
+    queryset = WatchTVSeason.objects.select_related('watch_tv_show').all()
     serializer_class = WatchTVSeasonSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
     filter_fields = ('collected',)
@@ -98,7 +98,7 @@ class WatchTVSeasonRequestViewSet(WebSocketMediaMessageUpdatedMixin, UserReferen
     """
     Special viewset to monitor the request of a season, not collection of the season/media itself
     """
-    queryset = WatchTVSeasonRequest.objects.all()
+    queryset = WatchTVSeasonRequest.objects.select_related('user').all()
     serializer_class = WatchTVSeasonRequestSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
     filter_fields = ('collected',)
@@ -152,7 +152,7 @@ class WatchTVSeasonRequestViewSet(WebSocketMediaMessageUpdatedMixin, UserReferen
 
 @method_decorator(gzip_page, name='dispatch')
 class WatchTVEpisodeViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
-    queryset = WatchTVEpisode.objects.all()
+    queryset = WatchTVEpisode.objects.select_related('user', 'watch_tv_show').all()
     serializer_class = WatchTVEpisodeSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
     filter_fields = ('collected',)
