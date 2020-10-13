@@ -16,10 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
+from nefarious import views
 
 urlpatterns = [
     path('', RedirectView.as_view(permanent=True, url='/static/index.html')),
     path('admin/', admin.site.urls),
     path('api/', include('nefarious.api.urls')),
     path('api-auth/', include('rest_framework.urls')),
+    path('view/logs', views.view_logs),
 ]
