@@ -123,6 +123,8 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = "staticfiles"
 
+NEFARIOUS_LOG_FILE = '/tmp/nefarious.log'
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -138,15 +140,18 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': NEFARIOUS_LOG_FILE,
+            'when': 'd',  # rotate log every day
+            'backupCount': 1,  # only keep a single backup which gets overwritten during rotation
+        },
     },
     'loggers': {
-        "": {
-            "handlers": ["console"],
-            "level": "INFO"
+        "nefarious": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
         },
     }
 }

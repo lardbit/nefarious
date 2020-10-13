@@ -13,6 +13,9 @@ from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
 
 
+logger = logging.getLogger('nefarious')
+
+
 def is_magnet_url(url: str) -> bool:
     return url.startswith('magnet:')
 
@@ -48,7 +51,7 @@ def verify_settings_tmdb(nefarious_settings: NefariousSettings):
         configuration = tmdb_client.Configuration()
         configuration.info()
     except Exception as e:
-        logging.error(str(e))
+        logger.error(str(e))
         raise Exception('Could not fetch TMDB configuration')
 
 
@@ -72,7 +75,7 @@ def verify_settings_jackett(nefarious_settings: NefariousSettings):
         response.raise_for_status()
         return response.json()
     except Exception as e:
-        logging.error(str(e))
+        logger.error(str(e))
         raise Exception('Could not connect to jackett')
 
 
@@ -108,7 +111,7 @@ def get_best_torrent_result(results: list):
                 best_result = result
 
     else:
-        logging.info('No valid best search result')
+        logger.info('No valid best search result')
 
     return best_result
 
@@ -124,11 +127,11 @@ def results_with_valid_urls(results: list, nefarious_settings: NefariousSettings
             result['torrent_url'] = result['MagnetUri'] or trace_torrent_url(
                 swap_jackett_host(result['Link'], nefarious_settings))
         except Exception as e:
-            logging.info('Exception tracing torrent url: {}'.format(e))
+            logger.info('Exception tracing torrent url: {}'.format(e))
             continue
 
         # add torrent to valid search results
-        logging.info('Valid Match: {} with {} Seeders'.format(result['Title'], result['Seeders']))
+        logger.info('Valid Match: {} with {} Seeders'.format(result['Title'], result['Seeders']))
         populated_results.append(result)
 
     return populated_results
@@ -194,8 +197,8 @@ def destroy_transmission_result(instance: WatchMediaBase):
         transmission_client = get_transmission_client(nefarious_settings)
         transmission_client.remove_torrent([instance.transmission_torrent_hash], delete_data=True, timeout=10)
     except Exception as e:
-        logging.warning(str(e))
-        logging.warning('could not destroy torrent in transmission')
+        logger.warning(str(e))
+        logger.warning('could not destroy torrent in transmission')
 
 
 def sanitize_final_media_title(title: str):
@@ -209,8 +212,8 @@ def sanitize_final_media_title(title: str):
 
 def update_media_release_date(media, release_date):
     if release_date:
-        logging.info('Adding release date {} for {}'.format(release_date, media))
+        logger.info('Adding release date {} for {}'.format(release_date, media))
         media.release_date = release_date
         media.save()
     else:
-        logging.warning('Skipping empty release date for {}'.format(media))
+        logger.warning('Skipping empty release date for {}'.format(media))
