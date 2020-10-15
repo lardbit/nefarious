@@ -1,4 +1,3 @@
-import logging
 import os
 
 from django.utils import timezone
@@ -8,9 +7,7 @@ from requests import HTTPError
 from nefarious.models import WatchTVEpisode, WatchTVShow
 from nefarious.parsers.tv import TVParser
 from nefarious.importer.base import ImporterBase
-
-
-logger = logging.getLogger('nefarious')
+from nefarious.utils import logger_background
 
 
 class TVImporter(ImporterBase):
@@ -52,10 +49,10 @@ class TVImporter(ImporterBase):
                     parser.match.update(parent_parser.match)
                     return title, parser.match
             else:  # for/else
-                logger.warning('[NO_MATCH_TITLE] Could not match nested file "{}"'.format(file_path))
+                logger_background.warning('[NO_MATCH_TITLE] Could not match nested file "{}"'.format(file_path))
                 return False, False
         else:
-            logger.warning('[NO_MATCH_TITLE] Could not match file without title "{}"'.format(file_path))
+            logger_background.warning('[NO_MATCH_TITLE] Could not match file without title "{}"'.format(file_path))
             return False, False
 
     def _handle_match(self, parser, tmdb_result, title, file_path):
@@ -74,7 +71,7 @@ class TVImporter(ImporterBase):
         try:
             episode_data = episode_result.info()
         except HTTPError:
-            logger.error('[ERROR_TMDB] tmdb episode exception for title {} on file "{}"'.format(title, file_path))
+            logger_background.error('[ERROR_TMDB] tmdb episode exception for title {} on file "{}"'.format(title, file_path))
             return False
         watch_episode, _ = WatchTVEpisode.objects.update_or_create(
             watch_tv_show=watch_show,

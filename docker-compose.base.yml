@@ -22,6 +22,7 @@ services:
       NEFARIOUS_USER: ${NEFARIOUS_USER:-admin}
       NEFARIOUS_PASS: ${NEFARIOUS_PASS:-admin}
       HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp/}
+      CONFIG_PATH: /nefarious-db
     volumes:
       # persistent named volume for sqlite database
       - nefarious-db:/nefarious-db

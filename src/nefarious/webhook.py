@@ -1,9 +1,6 @@
-import logging
 import requests
 from nefarious.models import NefariousSettings
-
-
-logger = logging.getLogger('nefarious')
+from nefarious.utils import logger_background
 
 
 def send_message(message: str):
@@ -12,5 +9,5 @@ def send_message(message: str):
     try:
         response.raise_for_status()
     except Exception as e:
-        logger.warning('webhook error for url {} and data key "{}"'.format(nefarious_settings.webhook_url, nefarious_settings.webhook_key))
-        logger.exception(e)
+        logger_background.warning('webhook error for url {} and data key "{}"'.format(nefarious_settings.webhook_url, nefarious_settings.webhook_key))
+        logger_background.exception(e)
