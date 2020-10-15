@@ -1,12 +1,10 @@
-import logging
 import os
 
 from django.core.cache import cache
 from requests import HTTPError
 
 from nefarious.quality import video_extensions
-
-logger = logging.getLogger('nefarious')
+from nefarious.utils import logger_background
 
 
 class ImporterBase:
@@ -26,12 +24,12 @@ class ImporterBase:
 
     def ingest_root(self, path):
         scanned = 0
-        logger.info('Scanning {}'.format(path))
+        logger_background.info('Scanning {}'.format(path))
         for root, dirs, files in os.walk(path):
             scanned += len(files)
             for file in files:
                 self.ingest_path(os.path.join(root, file))
-        logger.info('Scanned {} files'.format(scanned))
+        logger_background.info('Scanned {} files'.format(scanned))
 
     def _handle_match(self, parser, tmdb_result, title, file_path):
         raise NotImplementedError
@@ -67,13 +65,13 @@ class ImporterBase:
                         title = new_title
                         parser.match.update(parser_match)
                     else:
-                        logger.warning('[NO_MATCH_TITLE] Could not match file without title "{}"'.format(file_path))
+                        logger_background.warning('[NO_MATCH_TITLE] Could not match file without title "{}"'.format(file_path))
                         return False
                 file_extension = file_extension_match.group()
                 if file_extension in video_extensions():
                     if self._is_parser_exact_match(parser):
                         if self.media_class.objects.filter(download_path=file_path).exists():
-                            logger.info('[SKIP] skipping already-processed file "{}"'.format(file_path))
+                            logger_background.info('[SKIP] skipping already-processed file "{}"'.format(file_path))
                             return False
                         # get or set tmdb search results for this title in the cache
                         tmdb_results = cache.get(title)
@@ -81,7 +79,7 @@ class ImporterBase:
                             try:
                                 tmdb_results = self._get_tmdb_search_results(title)
                             except HTTPError:
-                                logger.error('[ERROR_TMDB] tmdb search exception for title {} on file "{}"'.format(title, file_path))
+                                logger_background.error('[ERROR_TMDB] tmdb search exception for title {} on file "{}"'.format(title, file_path))
                                 return False
                             cache.set(title, tmdb_results, 60 * 60)
                         # loop over results for the exact match
@@ -90,18 +88,18 @@ class ImporterBase:
                             if self._is_result_match_title(parser, tmdb_result, title):
                                 watch_media = self._handle_match(parser, tmdb_result, title, file_path)
                                 if watch_media:
-                                    logger.info('[MATCH] Saved media "{}" from file "{}"'.format(watch_media, file_path))
+                                    logger_background.info('[MATCH] Saved media "{}" from file "{}"'.format(watch_media, file_path))
                                     return watch_media
                         else:  # for/else
-                            logger.warning('[NO_MATCH_MEDIA] No media match for title "{}" and file "{}"'.format(title, file_path))
+                            logger_background.warning('[NO_MATCH_MEDIA] No media match for title "{}" and file "{}"'.format(title, file_path))
                     else:
-                        logger.warning('[NO_MATCH_EXACT] No exact title match for title "{}" and file "{}"'.format(title, file_path))
+                        logger_background.warning('[NO_MATCH_EXACT] No exact title match for title "{}" and file "{}"'.format(title, file_path))
                 else:
-                    logger.warning('[NO_MATCH_VIDEO] No valid video file extension for file "{}"'.format(file_path))
+                    logger_background.warning('[NO_MATCH_VIDEO] No valid video file extension for file "{}"'.format(file_path))
             else:
-                logger.warning('[NO_MATCH_EXTENSION] No file extension for file "{}"'.format(file_path))
+                logger_background.warning('[NO_MATCH_EXTENSION] No file extension for file "{}"'.format(file_path))
         else:
-            logger.info('[NO_MATCH_UNKNOWN] Unknown match for file "{}"'.format(file_path))
+            logger_background.info('[NO_MATCH_UNKNOWN] Unknown match for file "{}"'.format(file_path))
         return False
 
     def _ingest_depth(self, path) -> int:

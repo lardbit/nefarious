@@ -23,5 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('nefarious.api.urls')),
     path('api-auth/', include('rest_framework.urls')),
-    path('view/logs', views.view_logs),
+    path('view/logs/foreground', views.view_logs, {'log_type': 'foreground'}),
+    path('view/logs/background', views.view_logs, {'log_type': 'background'}),
 ]

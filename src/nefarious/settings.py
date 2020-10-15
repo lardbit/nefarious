@@ -123,39 +123,6 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = "staticfiles"
 
-NEFARIOUS_LOG_FILE = '/tmp/nefarious.log'
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        'verbose': {
-            'format': '%(levelname)s  %(asctime)s  %(module)s '
-                      '%(process)d  %(thread)d  %(message)s'
-        },
-    },
-    "handlers": {
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
-        },
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': NEFARIOUS_LOG_FILE,
-            'when': 'd',  # rotate log every day
-            'backupCount': 1,  # only keep a single backup which gets overwritten during rotation
-        },
-    },
-    'loggers': {
-        "nefarious": {
-            "handlers": ["console", "file"],
-            "level": "INFO",
-        },
-    }
-}
-
 
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
 REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
@@ -206,3 +173,50 @@ INTERNAL_DOWNLOAD_PATH = os.environ.get('INTERNAL_DOWNLOAD_PATH', '/tmp')
 # this is really just an indication to know if the nefarious container was volume mounted with access to the download path.
 # nefarious (celery) will actually use the INTERNAL_DOWNLOAD_PATH (container specific path) to scan for imported media
 HOST_DOWNLOAD_PATH = os.environ.get('HOST_DOWNLOAD_PATH', INTERNAL_DOWNLOAD_PATH if DEBUG else None)
+
+NEFARIOUS_LOG_FILE_FOREGROUND = os.path.join(HOST_DOWNLOAD_PATH or INTERNAL_DOWNLOAD_PATH, 'nefarious-foreground.log')
+NEFARIOUS_LOG_FILE_BACKGROUND = os.path.join(HOST_DOWNLOAD_PATH or INTERNAL_DOWNLOAD_PATH, 'nefarious-background.log')
+
+MAX_LOG_BYTES = 1024 ** 2 * 10
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        'verbose': {
+            'format': '%(levelname)s  %(asctime)s  %(module)s '
+                      '%(process)d  %(thread)d  %(message)s'
+        },
+    },
+    "handlers": {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file-background': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': NEFARIOUS_LOG_FILE_BACKGROUND,
+            'maxBytes': MAX_LOG_BYTES,
+            'backupCount': 1,  # only keep a single backup which gets overwritten during rotation
+        },
+        'file-foreground': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': NEFARIOUS_LOG_FILE_FOREGROUND,
+            'maxBytes': MAX_LOG_BYTES,
+            'backupCount': 1,  # only keep a single backup which gets overwritten during rotation
+        },
+    },
+    'loggers': {
+        "nefarious-background": {
+            "handlers": ["console", "file-background"],
+            "level": "INFO",
+        },
+        "nefarious-foreground": {
+            "handlers": ["console", "file-foreground"],
+            "level": "INFO",
+        },
+    }
+}

@@ -16,9 +16,6 @@ from starlette.routing import Route, WebSocketRoute
 from starlette.endpoints import WebSocketEndpoint
 from django.core.asgi import get_asgi_application
 
-
-logger = logging.getLogger('nefarious')
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'nefarious.settings')
 
 
@@ -37,15 +34,15 @@ class WS(WebSocketEndpoint):
                 await ws.send_json(data)
             # failed communicating with this websocket so remove it from the pool
             except Exception as e:
-                logger.exception(e)
+                logging.exception(e)
                 self.websockets.remove(websocket)
 
     async def on_disconnect(self, websocket, close_code):
         if websocket in self.websockets:
-            logger.info('removing disconnected websocket')
+            logging.info('removing disconnected websocket')
             self.websockets.remove(websocket)
         else:
-            logger.info('disconnected websocket not found')
+            logging.info('disconnected websocket not found')
 
 
 application = Starlette(

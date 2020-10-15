@@ -1,6 +1,4 @@
 import os
-import logging
-
 from celery_once import AlreadyQueued
 from django.conf import settings
 from django.utils.dateparse import parse_date
@@ -23,10 +21,8 @@ from nefarious.quality import PROFILES
 from nefarious.tasks import import_library_task
 from nefarious.transmission import get_transmission_client
 from nefarious.tmdb import get_tmdb_client
-from nefarious.utils import trace_torrent_url, swap_jackett_host, is_magnet_url
+from nefarious.utils import trace_torrent_url, swap_jackett_host, is_magnet_url, logger_foreground
 
-
-logger = logging.getLogger('nefarious')
 
 CACHE_MINUTE = 60
 CACHE_HOUR = CACHE_MINUTE * 60
@@ -218,7 +214,7 @@ class DownloadTorrentsView(views.APIView):
         except Exception as e:
             return Response({'success': False, 'error': 'An unknown error occurred', 'error_detail': str(e)})
 
-        logger.info('adding torrent: {}'.format(torrent_url))
+        logger_foreground.info('adding torrent: {}'.format(torrent_url))
 
         # add torrent
         transmission_client = get_transmission_client(nefarious_settings)
@@ -356,7 +352,7 @@ class CurrentTorrentsView(views.APIView):
                     except (KeyError, ValueError):  # torrent no longer exists or was invalid
                         pass
                     except Exception as e:
-                        logger.error(str(e))
+                        logger_foreground.error(str(e))
                         raise e
                     else:
                         result['torrent'] = TransmissionTorrentSerializer(torrent).data
@@ -450,8 +446,8 @@ class ImportMediaLibraryView(views.APIView):
             # create task to import library
             import_library_task.delay(media_type, request.user.id)
         except AlreadyQueued as e:
-            logger.exception(e)
+            logger_foreground.exception(e)
             msg = 'Import task for {} already exists'.format(media_type)
-            logger.error(msg)
+            logger_foreground.error(msg)
             raise exceptions.APIException(msg)
         return Response({'success': True})

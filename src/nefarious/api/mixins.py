@@ -1,4 +1,3 @@
-import logging
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -7,9 +6,7 @@ from nefarious.tasks import send_websocket_message_task
 from nefarious.transmission import get_transmission_client
 from nefarious.utils import destroy_transmission_result
 from nefarious import websocket
-
-
-logger = logging.getLogger('nefarious')
+from nefarious.utils import logger_foreground
 
 
 class UserReferenceViewSetMixin:
@@ -40,7 +37,7 @@ class BlacklistAndRetryMixin:
         nefarious_settings = NefariousSettings.get()
 
         # add to blacklist
-        logger.info('Blacklisting {}'.format(watch_media.transmission_torrent_hash))
+        logger_foreground.info('Blacklisting {}'.format(watch_media.transmission_torrent_hash))
         TorrentBlacklist.objects.get_or_create(hash=watch_media.transmission_torrent_hash)
 
         # unset previous details
@@ -54,7 +51,7 @@ class BlacklistAndRetryMixin:
         self._watch_media_task(watch_media_id=watch_media.id)
 
         # remove torrent and delete data
-        logger.info('Removing blacklisted torrent hash: {}'.format(del_transmission_torrent_hash))
+        logger_foreground.info('Removing blacklisted torrent hash: {}'.format(del_transmission_torrent_hash))
         transmission_client = get_transmission_client(nefarious_settings=nefarious_settings)
         transmission_client.remove_torrent([del_transmission_torrent_hash], delete_data=True)
 

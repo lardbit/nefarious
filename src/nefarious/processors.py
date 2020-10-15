@@ -1,5 +1,4 @@
 import os
-import logging
 from django.conf import settings
 from datetime import datetime
 from django.utils import dateparse
@@ -10,10 +9,7 @@ from nefarious.quality import Profile
 from nefarious.search import SearchTorrents, MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrentsCombined
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
-from nefarious.utils import get_best_torrent_result, results_with_valid_urls
-
-
-logger = logging.getLogger('nefarious')
+from nefarious.utils import get_best_torrent_result, results_with_valid_urls, logger_background
 
 
 class WatchProcessorBase:
@@ -32,7 +28,7 @@ class WatchProcessorBase:
         self.tmdb_media = self._get_tmdb_media()
 
     def fetch(self):
-        logger.info('Processing request to watch {}'.format(self.watch_media))
+        logger_background.info('Processing request to watch {}'.format(self.watch_media))
         valid_search_results = []
         search = self._get_search_results()
 
@@ -46,7 +42,7 @@ class WatchProcessorBase:
                 if self.is_match(result['Title']):
                     valid_search_results.append(result)
                 else:
-                    logger.info('Not matched: {}'.format(result['Title']))
+                    logger_background.info('Not matched: {}'.format(result['Title']))
 
             if valid_search_results:
 
@@ -55,7 +51,7 @@ class WatchProcessorBase:
 
                 while valid_search_results:
 
-                    logger.info('Valid Search Results: {}'.format(len(valid_search_results)))
+                    logger_background.info('Valid Search Results: {}'.format(len(valid_search_results)))
 
                     # find the torrent result with the highest weight (i.e seeds)
                     best_result = self._get_best_torrent_result(valid_search_results)
@@ -72,9 +68,9 @@ class WatchProcessorBase:
 
                     # verify it's not blacklisted and save & start this torrent
                     if not TorrentBlacklist.objects.filter(hash=torrent.hashString).exists():
-                        logger.info('Adding torrent for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
-                        logger.info('Added torrent {} with {} seeders'.format(best_result['Title'], best_result['Seeders']))
-                        logger.info('Starting torrent id: {} and hash {}'.format(torrent.id, torrent.hashString))
+                        logger_background.info('Adding torrent for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
+                        logger_background.info('Added torrent {} with {} seeders'.format(best_result['Title'], best_result['Seeders']))
+                        logger_background.info('Starting torrent id: {} and hash {}'.format(torrent.id, torrent.hashString))
 
                         # save torrent details on our watch instance
                         self._save_torrent_details(torrent)
@@ -85,16 +81,16 @@ class WatchProcessorBase:
                         return True
                     else:
                         # remove the blacklisted/paused torrent and continue to the next result
-                        logger.info('BLACKLISTED: {} ({}) - trying next best result'.format(best_result['Title'], torrent.hashString))
+                        logger_background.info('BLACKLISTED: {} ({}) - trying next best result'.format(best_result['Title'], torrent.hashString))
                         transmission_client.remove_torrent([torrent.id])
                         valid_search_results.remove(best_result)
                         continue
             else:
-                logger.info('No valid search results for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
+                logger_background.info('No valid search results for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
         else:
-            logger.info('Search error: {}'.format(search.error_content))
+            logger_background.info('Search error: {}'.format(search.error_content))
 
-        logger.info('Unable to find any results for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
+        logger_background.info('Unable to find any results for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
 
         return False
 
