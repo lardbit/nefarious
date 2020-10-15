@@ -174,8 +174,10 @@ INTERNAL_DOWNLOAD_PATH = os.environ.get('INTERNAL_DOWNLOAD_PATH', '/tmp')
 # nefarious (celery) will actually use the INTERNAL_DOWNLOAD_PATH (container specific path) to scan for imported media
 HOST_DOWNLOAD_PATH = os.environ.get('HOST_DOWNLOAD_PATH', INTERNAL_DOWNLOAD_PATH if DEBUG else None)
 
-NEFARIOUS_LOG_FILE_FOREGROUND = os.path.join(INTERNAL_DOWNLOAD_PATH, '.nefarious-foreground.log')
-NEFARIOUS_LOG_FILE_BACKGROUND = os.path.join(INTERNAL_DOWNLOAD_PATH, '.nefarious-background.log')
+# log to shared /nefarious-db path when using default container configuration, otherwise fallback to /tmp
+log_path = '/nefarious-db' if os.path.exists('/nefarious-db') else '/tmp'
+NEFARIOUS_LOG_FILE_FOREGROUND = os.path.join(log_path, '.nefarious-foreground.log')
+NEFARIOUS_LOG_FILE_BACKGROUND = os.path.join(log_path, '.nefarious-background.log')
 
 MAX_LOG_BYTES = 1024 ** 2 * 10
 
