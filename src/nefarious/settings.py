@@ -181,7 +181,7 @@ log_path = CONFIG_PATH if os.path.exists(CONFIG_PATH) else '/tmp'
 NEFARIOUS_LOG_FILE_FOREGROUND = os.path.join(log_path, '.nefarious-foreground.log')
 NEFARIOUS_LOG_FILE_BACKGROUND = os.path.join(log_path, '.nefarious-background.log')
 
-MAX_LOG_BYTES = 1024 ** 2 * 10
+MAX_LOG_BYTES = 1024 ** 2 * 5
 
 LOGGING = {
     "version": 1,
