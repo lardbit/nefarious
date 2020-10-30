@@ -27,6 +27,7 @@ class WatchTVSeasonInline(admin.TabularInline):
 class TVShowAdmin(admin.ModelAdmin):
     list_filter = ('user',)
     list_display = ('name', 'user',)
+    search_fields = ['name']
     inlines = (
         WatchTVEpisodeInline,
         WatchTVSeasonInline,
@@ -39,12 +40,20 @@ class TVEpisodeAdmin(admin.ModelAdmin):
     list_display = ('name', 'watch_tv_show', 'user',)
 
 
-@admin.register(WatchMovie, WatchTVSeason)
-class MediaAdmin(admin.ModelAdmin):
+@admin.register(WatchMovie)
+class MovieAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+    list_filter = ('user',)
+    list_display = ('name', 'user',)
+
+
+@admin.register(WatchTVSeason)
+class TVSeasonAdmin(admin.ModelAdmin):
+    search_fields = ['watch_tv_show__name']
     list_filter = ('user',)
     list_display = ('name', 'user',)
 
 
 @admin.register(WatchTVSeasonRequest)
 class WatchTVSeasonRequestAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['watch_tv_show__name']
