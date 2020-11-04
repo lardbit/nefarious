@@ -77,9 +77,12 @@ export class ApiService {
           return this.fetchUser().pipe(
             mergeMap(() => {
               console.log('fetching core data');
-              // fetch watch media in the background since we loaded from storage already
-              this.fetchWatchMedia().subscribe();
-              return this.fetchCoreData();
+              return this.fetchCoreData().pipe(
+                tap(() => {
+                  // fetch watch media in the background since we loaded from storage already
+                  this.fetchWatchMedia().subscribe();
+                })
+              );
             }),
             catchError((error) => {
               // unauthorized response, remove existing user and token
