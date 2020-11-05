@@ -5,7 +5,7 @@
   <div class="card">
     <div *ngIf="!isLoading">
       <div class="card-header d-flex justify-content-between">
-        <div>{{ result.title }}</div>
+        <h3 class="media-title">{{ result.title }}</h3>
         <span *ngIf="watchMovie?.collected" class="text-success" [ngbPopover]="watchMovie.collected_date"><span class="oi oi-circle-check"></span> Downloaded</span>
       </div>
       <div class="card-body">

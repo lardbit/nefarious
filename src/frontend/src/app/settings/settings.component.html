@@ -37,6 +37,33 @@
             </div>
           </div>
         </div>
+        <!-- logs -->
+        <div class="card">
+          <div class="card-header">Logs</div>
+          <div class="card-body">
+            <p>View all logs generated from nefarious.</p>
+            <a href="/view/logs/foreground" target="_blank" class="btn btn-info btn-sm ml-1">Foreground <span class="oi oi-file"></span></a>
+            <a href="/view/logs/background" target="_blank" class="btn btn-info btn-sm ml-1">Background <span class="oi oi-file"></span></a>
+          </div>
+        </div>
+        <!-- hardcoded subs -->
+        <div class="card">
+          <div class="card-header">Hardcoded Subtitles</div>
+          <div class="card-body">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" [value]="true" formControlName="allow_hardcoded_subs" id="hc-true">
+              <label class="form-check-label" for="hc-true">
+                Allow
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" [value]="false" formControlName="allow_hardcoded_subs" id="hc-false">
+              <label class="form-check-label" for="hc-false">
+                Prevent
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
       <!-- transmission -->
       <div class="col-12 col-sm-6 col-md-4">
@@ -113,24 +140,6 @@
             <div class="form-group">
               <ng-select [multiple]="true" [items]="[]" [addTag]="true" formControlName="exclusions"></ng-select>
               <small *ngIf="hasExclusions()" class="form-text text-muted">Avoiding search results with keywords: {{ form.get('exclusions').value }}</small>
-            </div>
-          </div>
-        </div>
-        <!-- hardcoded subs -->
-        <div class="card">
-          <div class="card-header">Hardcoded Subtitles</div>
-          <div class="card-body">
-            <div class="form-check">
-              <input class="form-check-input" type="radio" [value]="true" formControlName="allow_hardcoded_subs" id="hc-true">
-              <label class="form-check-label" for="hc-true">
-                Allow
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" [value]="false" formControlName="allow_hardcoded_subs" id="hc-false">
-              <label class="form-check-label" for="hc-false">
-                Prevent
-              </label>
             </div>
           </div>
         </div>
@@ -212,17 +221,6 @@
             <div class="form-group">
               <button type="button" (click)="importLibrary('tv')" class="btn btn-outline-primary btn-sm" [disabled]="!hasHostDownloadPath()">Import TV Shows <span class="oi oi-folder"></span></button>
             </div>
-          </div>
-        </div>
-      </div>
-      <!-- logs -->
-      <div class="col-12 col-sm-6 col-md-4">
-        <div class="card">
-          <div class="card-header">Logs</div>
-          <div class="card-body">
-            <p>View all logs generated from nefarious.</p>
-            <a href="/view/logs/foreground" target="_blank" class="btn btn-info btn-sm ml-1">Foreground <span class="oi oi-file"></span></a>
-            <a href="/view/logs/background" target="_blank" class="btn btn-info btn-sm ml-1">Background <span class="oi oi-file"></span></a>
           </div>
         </div>
       </div>

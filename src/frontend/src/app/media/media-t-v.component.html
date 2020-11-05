@@ -2,7 +2,7 @@
   <ngx-loading [show]="isLoading"></ngx-loading>
   <div *ngIf="!isLoading">
     <div class="card-header d-flex justify-content-between">
-      <div>{{ result.name }}</div>
+      <h3 class="media-title">{{ result.name }}</h3>
       <div class="d-flex justify-content-between">
         <a [routerLink]="['/search/auto']" [queryParams]="{type: 'tv', q: 'similar-to:' + result.id}" class="btn btn-link">
           <span class="oi oi-sun"></span> <span class="d-none d-sm-block">Similar</span>
