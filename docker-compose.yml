@@ -55,6 +55,8 @@ services:
     image: v2tec/watchtower
     restart: always
     command: --label-enable --cleanup
+    environment:
+      - WATCHTOWER_POLL_INTERVAL=3600
     logging:
       options:
         max-size: 10m
