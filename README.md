@@ -96,6 +96,8 @@ Copy the default environment file to make changes:
     cp env.template .env
     
 Edit `.env` as needed for your settings, at least defining *HOST_DOWNLOAD_PATH* to something like *HOST_DOWNLOAD_PATH=/path/to/downloads*.
+
+**You should *never* need to edit the `docker-compose.yml` file since all settings are read from `.env`.**
     
 Start all the containers:
 
