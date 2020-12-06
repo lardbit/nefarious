@@ -38,7 +38,12 @@ class BlacklistAndRetryMixin:
 
         # add to blacklist
         logger_foreground.info('Blacklisting {}'.format(watch_media.transmission_torrent_hash))
-        TorrentBlacklist.objects.get_or_create(hash=watch_media.transmission_torrent_hash)
+        TorrentBlacklist.objects.get_or_create(
+            hash=watch_media.transmission_torrent_hash,
+            defaults=dict(
+                name=str(watch_media),
+            )
+        )
 
         # unset previous details
         del_transmission_torrent_hash = watch_media.transmission_torrent_hash

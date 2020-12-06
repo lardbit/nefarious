@@ -168,6 +168,7 @@ class WatchTVEpisode(WatchMediaBase):
 
 class TorrentBlacklist(models.Model):
     hash = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.hash
+        return '{}: {}'.format(self.name or '<unknown>', self.hash)

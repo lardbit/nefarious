@@ -25,7 +25,9 @@ services:
     image: redis
     restart: always
     mem_limit: 200m
-    # use "ports" when developing so local dev server can access redis
+    # NOTE: use "ports" when developing so local dev server can access redis
+    #ports:
+    #  - "6379:6379"
     expose:
       - 6379
 
