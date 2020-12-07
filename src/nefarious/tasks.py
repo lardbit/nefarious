@@ -1,5 +1,4 @@
 import os
-from celery import chain
 from celery.signals import task_failure
 from datetime import datetime
 from celery_once import QueueOnce
@@ -78,9 +77,8 @@ def watch_tv_show_season_task(watch_tv_season_id: int):
         season_request = tmdb.TV_Seasons(watch_tv_season.watch_tv_show.tmdb_show_id, watch_tv_season.season_number)
         season = season_request.info()
 
-        # save individual episode watches
-        watch_tv_episodes_tasks = []
         for episode in season['episodes']:
+            # save individual episode watches
             watch_tv_episode, was_created = WatchTVEpisode.objects.get_or_create(
                 tmdb_episode_id=episode['id'],
                 # add non-unique constraint fields for the default values
@@ -92,15 +90,11 @@ def watch_tv_show_season_task(watch_tv_season_id: int):
                     release_date=parse_date(episode.get('air_date') or ''),
                 )
             )
-
-            # build list of tasks to execute
-            watch_tv_episodes_tasks.append(watch_tv_episode_task.si(watch_tv_episode.id))
+            # queue task to watch episode
+            watch_tv_episode_task.delay(watch_tv_episode.id)
 
         # remove the "watch season" now that we've requested to fetch all individual episodes
         watch_tv_season.delete()
-
-        # execute tasks sequentially
-        chain(*watch_tv_episodes_tasks)()
 
 
 @app.task(base=QueueOnce, once={'graceful': True})
@@ -205,7 +199,6 @@ def completed_media_task():
 @app.task
 def wanted_media_task():
 
-    tasks = []
     wanted_kwargs = dict(collected=False, transmission_torrent_hash__isnull=True)
 
     #
@@ -234,18 +227,15 @@ def wanted_media_task():
             # media has been released (or it's missing it's release date so try anyway) so create a task to try and fetch it
             if not media.release_date or media.release_date <= today:
                 logger_background.info('Wanted {type}: {media}'.format(type=media_type, media=media))
-                tasks.append(data['task'].si(media.id))
+                # queue task for wanted media
+                data['task'].delay(media.id)
             # media has not been released so skip
             else:
                 logger_background.info("Skipping wanted {type} since it hasn't aired yet: {media} ".format(type=media_type, media=media))
 
-    # execute tasks sequentially
-    chain(*tasks)()
-
 
 @app.task
 def wanted_tv_season_task():
-    tasks = []
     nefarious_settings = NefariousSettings.get()
     tmdb = get_tmdb_client(nefarious_settings)
 
@@ -288,8 +278,8 @@ def wanted_tv_season_task():
 
                 logger_background.info('adding newly found episode {} for {}'.format(episode['episode_number'], tv_season_request))
 
-                # add episode to task queue
-                tasks.append(watch_tv_episode_task.si(watch_tv_episode.id))
+                # queue task to watch episode
+                watch_tv_episode_task.delay(watch_tv_episode.id)
 
         # assume there's no new episodes for anything that's aired this long ago
         days_since_aired = (now.date() - last_air_date).days if last_air_date else 0
@@ -297,9 +287,6 @@ def wanted_tv_season_task():
             logger_background.warning('completing old tv season request {}'.format(tv_season_request))
             tv_season_request.collected = True
             tv_season_request.save()
-
-    # execute tasks sequentially
-    chain(*tasks)()
 
 
 @app.task
