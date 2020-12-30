@@ -68,7 +68,7 @@ class WatchProcessorBase:
 
                     # verify it's not blacklisted and save & start this torrent
                     if not TorrentBlacklist.objects.filter(hash=torrent.hashString).exists():
-                        logger_background.info('Adding torrent for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
+                        logger_background.info('Adding torrent for {}'.format(self.watch_media))
                         logger_background.info('Added torrent {} with {} seeders'.format(best_result['Title'], best_result['Seeders']))
                         logger_background.info('Starting torrent id: {} and hash {}'.format(torrent.id, torrent.hashString))
 
@@ -86,11 +86,11 @@ class WatchProcessorBase:
                         valid_search_results.remove(best_result)
                         continue
             else:
-                logger_background.info('No valid search results for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
+                logger_background.info('No valid search results for {}'.format(self.watch_media))
         else:
             logger_background.info('Search error: {}'.format(search.error_content))
 
-        logger_background.info('Unable to find any results for {}'.format(self.tmdb_media[self._get_tmdb_title_key()]))
+        logger_background.info('Unable to find any results for {}'.format(self.watch_media))
 
         return False
 

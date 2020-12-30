@@ -1,4 +1,5 @@
 import regex
+from unidecode import unidecode
 from nefarious import quality
 from nefarious.quality import Resolution, Profile
 
@@ -220,6 +221,7 @@ class ParserBase:
         return Resolution.Unknown
 
     def matches(self, name):
+
         results = []
         for match_name, match_re in self.media_regex_list:
             match = match_re.search(name)
@@ -230,6 +232,7 @@ class ParserBase:
         return results
 
     def normalize_media_title(self, title: str):
+        title = self._transliterate(title)
         title = self.word_delimiter_regex.sub(' ', title)
         title = self.punctuation_regex.sub('', title)
         title = self.common_word_regex.sub('', title)
@@ -237,6 +240,7 @@ class ParserBase:
         return title.strip().lower()
 
     def normalize_title(self, title: str):
+        title = self._transliterate(title)
         title = self.website_prefix_regex.sub('', title)
         title = self.clean_torrent_suffix_regex.sub('', title)
 
@@ -280,6 +284,12 @@ class ParserBase:
         if match:
             result = match.group().lower()
         return result
+
+    @staticmethod
+    def _transliterate(title: str):
+        # ascii 'good enough' transliteration of unicode
+        # https://github.com/avian2/unidecode
+        return unidecode(title)
 
     @staticmethod
     def _parse_number_word(number: str):
