@@ -21,10 +21,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg \
     curl \
     git \
+    authbind \
     && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
     && apt-get install nodejs -y \
     && npm --prefix frontend install \
     && mkdir -p staticassets \
+    && mkdir -p /nefarious-db \
     && npm --prefix frontend run build-prod \
     && python3.8 -m venv /env \
     && /env/bin/pip install --no-cache-dir -r requirements.txt \
@@ -42,5 +44,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
     && true
+
+
+# create user "nefarious" and set folder permissions
+RUN groupadd -r nefarious && useradd -r -g nefarious nefarious
+RUN chown -R nefarious:nefarious /nefarious-db
+
+# allow user "nefarious" to bind to port 80
+RUN touch /etc/authbind/byport/80
+RUN chmod 500 /etc/authbind/byport/80
+RUN chown nefarious /etc/authbind/byport/80
+
+# run as user "nefarious"
+USER nefarious:nefarious
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
