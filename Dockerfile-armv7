@@ -34,7 +34,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && true
 
 # create non-root user and set folder permissions
-RUN addgroup -g 10000 -S nonroot && adduser -u 10000 -S -G nonroot -h /home/nonroot nonroot
+RUN groupadd -g 10000 nonroot && useradd -g 10000 nonroot
 RUN mkdir -p /nefarious-db && chown -R 10000:10000 /nefarious-db
 
 # allow user "nefarious" to bind to port 80
