@@ -49,7 +49,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN groupadd -g 10000 nonroot && useradd -g 10000 nonroot
 RUN mkdir -p /nefarious-db && chown -R 10000:10000 /nefarious-db
 
-# allow user "nefarious" to bind to port 80
+# allow user to bind to port 80
 RUN touch /etc/authbind/byport/80
 RUN chmod 500 /etc/authbind/byport/80
 RUN chown 10000 /etc/authbind/byport/80
