@@ -1,14 +1,14 @@
-# accept an image tag build argument to define a "copy_from_app_image" FROM image to copy the prebuilt app from
+# accept an image tag build argument to define the FROM image to copy the prebuilt app from
 ARG copy_from_tag=latest
-FROM lardbit/nefarious:${copy_from_tag} as copy_from_app_image
+FROM lardbit/nefarious:${copy_from_tag} as app_image
 
 # base image
 FROM balenalib/armv7hf-ubuntu
 
 WORKDIR /app
 
-# copy pre-built app from "copy_from_app_image" image
-COPY --from=copy_from_app_image /app .
+# copy pre-built app from "app_image" image
+COPY --from=app_image /app .
 
 RUN ["cross-build-start"]
 
@@ -42,10 +42,10 @@ RUN touch /etc/authbind/byport/80
 RUN chmod 500 /etc/authbind/byport/80
 RUN chown 10000 /etc/authbind/byport/80
 
+RUN ["cross-build-end"]
+
 # run as non-root user
 USER 10000:10000
-
-RUN ["cross-build-end"]
 
 EXPOSE 80
 
