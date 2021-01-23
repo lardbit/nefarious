@@ -5,6 +5,8 @@ FROM lardbit/nefarious:${copy_from_tag} as app_image
 # base image
 FROM balenalib/armv7hf-ubuntu
 
+EXPOSE 80
+
 WORKDIR /app
 
 # copy pre-built app from "app_image" image
@@ -23,6 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     authbind \
     && python3.8 -m venv /env \
     && /env/bin/pip install -r requirements.txt \
+    && mkdir -p /nefarious-db \
     && apt-get remove -y \
         build-essential \
         python3.8-venv \
@@ -33,20 +36,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && true
 
-# create non-root user and set folder permissions
-RUN groupadd -g 10000 nonroot && useradd -g 10000 nonroot
-RUN mkdir -p /nefarious-db && chown -R 10000:10000 /nefarious-db
+# create non-root user
+RUN groupadd -g 10000 nonroot
+RUN useradd -g 10000 -u 10000 nonroot
+# set file permissions and ownership
+RUN chown -R nonroot:nonroot .
 
-# allow user to bind to port 80
+# allow non-root user to bind to port 80
 RUN touch /etc/authbind/byport/80
 RUN chmod 500 /etc/authbind/byport/80
-RUN chown 10000 /etc/authbind/byport/80
+RUN chown nonroot /etc/authbind/byport/80
 
 RUN ["cross-build-end"]
 
-# run as non-root user
-USER 10000:10000
-
-EXPOSE 80
-
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint-app.sh"]

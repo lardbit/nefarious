@@ -177,7 +177,7 @@ HOST_DOWNLOAD_PATH = os.environ.get('HOST_DOWNLOAD_PATH', INTERNAL_DOWNLOAD_PATH
 CONFIG_PATH = os.environ.get('CONFIG_PATH', '/nefarious-db')
 
 # log to shared config path when using default container configuration, otherwise fallback to /tmp
-log_path = '/tmp'
+log_path = CONFIG_PATH
 NEFARIOUS_LOG_FILE_FOREGROUND = os.path.join(log_path, '.nefarious-foreground.log')
 NEFARIOUS_LOG_FILE_BACKGROUND = os.path.join(log_path, '.nefarious-background.log')
 

@@ -2,11 +2,12 @@ FROM ubuntu:18.04
 
 EXPOSE 80
 
-# add the main app
+# add main app
 ADD src /app
 
-# add the docker entrypoint
-ADD docker-entrypoint.sh /app
+# add entrypoints
+ADD entrypoint-app.sh /app
+ADD entrypoint-celery.sh /app
 
 WORKDIR /app
 
@@ -29,6 +30,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && npm --prefix frontend run build-prod \
     && python3.8 -m venv /env \
     && /env/bin/pip install --no-cache-dir -r requirements.txt \
+    && mkdir -p /nefarious-db \
     && /env/bin/python manage.py collectstatic --no-input \
     && rm -rf frontend/node_modules \
     && apt-get remove -y \
@@ -44,17 +46,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && true
 
+# create non-root user
+RUN groupadd -g 10000 nonroot
+RUN useradd -g 10000 -u 10000 nonroot
+# set file permissions and ownership
+RUN chown -R nonroot:nonroot .
 
-# create non-root user and set folder permissions
-RUN groupadd -g 10000 nonroot && useradd -g 10000 nonroot
-RUN mkdir -p /nefarious-db && chown -R 10000:10000 /nefarious-db
-
-# allow user to bind to port 80
+# allow non-root user to bind to port 80
 RUN touch /etc/authbind/byport/80
 RUN chmod 500 /etc/authbind/byport/80
-RUN chown 10000 /etc/authbind/byport/80
+RUN chown nonroot /etc/authbind/byport/80
 
-# run as non-root user
-USER 10000:10000
-
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint-app.sh"]
