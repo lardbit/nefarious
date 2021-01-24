@@ -5,9 +5,8 @@ EXPOSE 80
 # add main app
 ADD src /app
 
-# add entrypoints
-ADD entrypoint-app.sh /app
-ADD entrypoint-celery.sh /app
+# add entrypoint
+ADD entrypoint.sh /app
 
 WORKDIR /app
 
@@ -57,4 +56,4 @@ RUN touch /etc/authbind/byport/80
 RUN chmod 500 /etc/authbind/byport/80
 RUN chown nonroot /etc/authbind/byport/80
 
-ENTRYPOINT ["/app/entrypoint-app.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]
