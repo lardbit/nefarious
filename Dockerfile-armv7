@@ -1,14 +1,16 @@
-# accept an image tag build argument to define a "copy_from_app_image" FROM image to copy the prebuilt app from
+# accept an image tag build argument to define the FROM image to copy the prebuilt app from
 ARG copy_from_tag=latest
-FROM lardbit/nefarious:${copy_from_tag} as copy_from_app_image
+FROM lardbit/nefarious:${copy_from_tag} as app_image
 
 # base image
-FROM resin/armv7hf-ubuntu
+FROM balenalib/armv7hf-ubuntu
+
+EXPOSE 80
 
 WORKDIR /app
 
-# copy pre-built app from "copy_from_app_image" image
-COPY --from=copy_from_app_image /app .
+# copy pre-built app from "app_image" image
+COPY --from=app_image /app .
 
 RUN ["cross-build-start"]
 
@@ -20,8 +22,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.8-gdbm \
     python3-venv \
     git \
+    authbind \
     && python3.8 -m venv /env \
     && /env/bin/pip install -r requirements.txt \
+    && mkdir -p /nefarious-db \
     && apt-get remove -y \
         build-essential \
         python3.8-venv \
@@ -32,8 +36,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && true
 
+# create non-root user
+RUN groupadd -g 10000 nonroot
+RUN useradd -g 10000 -u 10000 nonroot
+# set file permissions and ownership
+RUN chown -R nonroot:nonroot .
+
+# allow non-root user to bind to port 80
+RUN touch /etc/authbind/byport/80
+RUN chmod 500 /etc/authbind/byport/80
+RUN chown nonroot /etc/authbind/byport/80
+
 RUN ["cross-build-end"]
 
-EXPOSE 80
-
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]
