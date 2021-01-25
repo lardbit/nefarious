@@ -49,4 +49,6 @@ RUN chown nonroot /etc/authbind/byport/80
 
 RUN ["cross-build-end"]
 
+USER nonroot:nonroot
+
 ENTRYPOINT ["/app/entrypoint.sh"]

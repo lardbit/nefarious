@@ -56,4 +56,6 @@ RUN touch /etc/authbind/byport/80
 RUN chmod 500 /etc/authbind/byport/80
 RUN chown nonroot /etc/authbind/byport/80
 
+USER nonroot:nonroot
+
 ENTRYPOINT ["/app/entrypoint.sh"]
