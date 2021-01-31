@@ -49,11 +49,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN groupadd -g 10000 nonroot
 RUN useradd -g 10000 -u 10000 nonroot
 # set file permissions and ownership
-RUN chown -R nonroot:nonroot .
+RUN chown -R nonroot:nonroot . /nefarious-db
 
 # allow non-root user to bind to port 80
 RUN touch /etc/authbind/byport/80
 RUN chmod 500 /etc/authbind/byport/80
 RUN chown nonroot /etc/authbind/byport/80
+
+USER nonroot:nonroot
 
 ENTRYPOINT ["/app/entrypoint.sh"]
