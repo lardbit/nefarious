@@ -4,8 +4,9 @@ import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
 import { ToastrService } from 'ngx-toastr';
 import * as _ from 'lodash';
-import {forkJoin, Observable, Subscription} from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { Observable, Subscription } from 'rxjs';
+import {catchError, concatMap, tap} from 'rxjs/operators';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
 
 @Component({
@@ -18,9 +19,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
   public isManuallySearching = false;
   public isManualSearchEnabled = false;
   public autoWatchFutureSeasons = false;
-  public watchEpisodesOptions: {
-    [param: number]: boolean,
-  };
+  public watchEpisodesFormGroup: FormGroup;
   public manualSearchTmdbSeason: any;
   public manualSearchTmdbEpisode: any;
   public isLoading = true;
@@ -33,7 +32,8 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private apiService: ApiService,
     private toastr: ToastrService,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private fb: FormBuilder,
   ) {
   }
 
@@ -69,21 +69,6 @@ export class MediaTVComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this._changes.unsubscribe();
-  }
-
-  public submitForSeason(seasonNumber: number) {
-
-    // watch show if not already
-    if (!this.isWatchingShow()) {
-      console.log('not already watching show %s', this.result.id);
-      this._watchShow().subscribe(
-        (data) => {
-          this._watchEpisodesForSeason(seasonNumber);
-        },
-      );
-    } else {
-      this._watchEpisodesForSeason(seasonNumber);
-    }
   }
 
   public mediaPosterURL(result) {
@@ -147,7 +132,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
         (error) => {
           this.isSaving = false;
           this.toastr.error('An unknown error occurred');
-          console.log(error);
+          console.error(error);
         }
       );
     }
@@ -347,32 +332,35 @@ export class MediaTVComponent implements OnInit, OnDestroy {
   }
 
   protected _buildWatchOptions() {
-    const watchingOptions: any = {};
+    // build episode form
+    const watchingControls: any = {};
     for (const season of this.result.seasons) {
       for (const episode of season.episodes) {
-        watchingOptions[episode.id] = this.isWatchingEpisode(episode.id) || this.isWatchingSeason(season.season_number);
+
+        // episode form control
+        const control = new FormControl(
+          this.isWatchingEpisode(episode.id) || this.isWatchingSeason(season.season_number));
+
+        // handle change events for individual episodes
+        control.valueChanges.subscribe((shouldWatch: boolean) => {
+          control.disable({emitEvent: false});
+          this._updateWatchEpisode(episode.id, shouldWatch).subscribe(() => {
+            control.enable({emitEvent: false});
+          });
+        });
+
+        watchingControls[episode.id] = control;
       }
     }
-    this.watchEpisodesOptions = watchingOptions;
+
+    // set episode form
+    this.watchEpisodesFormGroup = this.fb.group(watchingControls);
   }
 
   protected _getWatchEpisode(episodeId) {
     return _.find(this.apiService.watchTVEpisodes, (watch) => {
       return watch.tmdb_episode_id === episodeId;
     });
-  }
-
-  protected _getSeasonFromEpisodeId(episodeId) {
-    let result = null;
-    _.each(this.result.seasons, (season) => {
-      _.each(season.episodes, (episode) => {
-        if (episode.id === episodeId) {
-          result = season;
-          return;
-        }
-      });
-    });
-    return result;
   }
 
   protected _getEpisode(episodeId) {
@@ -394,43 +382,34 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected _watchEpisodesForSeason(seasonNumber: number) {
+  protected _updateWatchEpisode(episodeId: number, shouldWatch: boolean): Observable<any> {
+    const episode = this._getEpisode(episodeId);
+    let observable: Observable<any>;
 
-    const observables = [];
-
-    _.forOwn(this.watchEpisodesOptions, (shouldWatch: boolean, episodeIdString: string) => {
-      const episodeId = Number(episodeIdString);
-      const episode = this._getEpisode(episodeId);
-
-      // requested to watch
-      if (shouldWatch) {
-        // make sure the episode is for the supplied season and they're not already watching it
-        if (seasonNumber === episode.season_number && !this.isWatchingEpisode(episodeId)) {
-          const season = this._getSeasonFromEpisodeId(episodeId);
-          const watchShow = this._getWatchShow();
-          if (episode && season && watchShow) {
-            observables.push(
-              this.apiService.watchTVEpisode(
-                watchShow.id, Number(episodeId), episode.season_number, episode.episode_number, episode.air_date));
-          } else {
-            console.log('ERROR: episode %s not found in results', episodeId);
-          }
-        }
-      } else { // stop watching
-        if (this.isWatchingEpisode(episodeId)) {
-          const watch = this._getWatchEpisode(episodeId);
-          observables.push(this.apiService.unWatchTVEpisode(watch.id));
-        }
+    if (shouldWatch) {
+      const watchShow = this._getWatchShow();
+      if (!watchShow) {
+        // start watching show first and then watch requested episode
+        observable = this._watchShow(false).pipe(
+          concatMap((show) => {
+            return this.apiService.watchTVEpisode(
+              show.id, Number(episodeId), episode.season_number, episode.episode_number, episode.air_date);
+          }),
+        );
+      } else {
+       observable = this.apiService.watchTVEpisode(
+          watchShow.id, Number(episodeId), episode.season_number, episode.episode_number, episode.air_date);
       }
-    });
+    } else {
+      const watchEpisode = this._getWatchEpisode(episodeId);
+      observable = this.apiService.unWatchTVEpisode(watchEpisode.id);
+    }
 
-    // run any updates
-    if (observables.length) {
-      this.isSaving = true;
-      forkJoin(observables).subscribe(
-        (data) => {
+    return observable.pipe(
+      tap(() => {
           this.isSaving = false;
-          this.toastr.success('Saved');
+          this.toastr.success(
+            shouldWatch ? `Started watching episode ${episode.episode_number}` : `Stopped watching episode ${episode.episode_number}`);
         },
         (error) => {
           this.isSaving = false;
@@ -438,9 +417,6 @@ export class MediaTVComponent implements OnInit, OnDestroy {
         },
         () => {
           this._buildWatchOptions();
-        }
-      );
-    }
-
+        }));
   }
 }
