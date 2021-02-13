@@ -15,17 +15,17 @@
     <div class="card-body">
       <p class="card-text">{{ result.overview }}</p>
       <div class="d-flex flex-wrap justify-content-end">
-        <button type="button" class="btn btn-success m-1" *ngIf="!isWatchingAllSeasons()" (click)="watchAllSeasons()">
-          <span class="oi oi-video"></span> Watch all seasons
+        <button type="button" class="btn btn-light m-1" *ngIf="!isWatchingAllSeasons()" (click)="watchAllSeasons()" ngbTooltip="Start watching all seasons in show" placement="left">
+          <span class="oi oi-video"></span>
         </button>
-        <button type="button" class="btn btn-danger m-1" *ngIf="isWatchingShow()" (click)="stopWatchingShow()" [disabled]="!canUnWatchShow()">
-          <span class="oi oi-x"></span> Stop watching show
+        <button type="button" class="btn btn-danger m-1" *ngIf="isWatchingShow()" (click)="stopWatchingShow()" [disabled]="!canUnWatchShow()" ngbTooltip="Stop watching show" placement="left">
+          <span class="oi oi-x"></span>
         </button>
       </div>
       <div class="d-flex justify-content-end" *ngIf="isWatchingShow()">
         <div class="form-check text-muted form-control-sm">
           <input class="form-check-input" type="checkbox" id="auto-watch" [(ngModel)]="autoWatchFutureSeasons" (ngModelChange)="autoWatchUpdate()">
-          <label class="form-check-label" for="auto-watch" placement="top" ngbTooltip="When new seasons air, this setting will automatically start watching them">
+          <label class="form-check-label" for="auto-watch" placement="left" ngbTooltip="When new seasons air, this setting will automatically start watching them">
             Automatically watch future seasons
           </label>
         </div>
@@ -42,45 +42,51 @@
                 <ul class="list-group" *ngFor="let season of result.seasons">
                   <ngb-accordion>
                     <ngb-panel>
-                      <ng-template ngbPanelTitle>
-                        Season {{ season.season_number }}
-                        &nbsp;&nbsp;&nbsp;
-                        <span [ngSwitch]="hasCollectedAllEpisodesInSeason(season)">
-                          <!-- downloaded everything -->
-                          <span *ngSwitchCase="true">
-                            <span class="oi oi-check"></span>
-                          </span>
-                          <!-- not downloaded everything -->
-                          <span *ngSwitchCase="false">
-                            <span [ngSwitch]="isWatchingSeason(season.season_number) || isWatchingAllEpisodesInSeason(season)">
-                              <!-- watching whole season -->
-                              <span *ngSwitchCase="true"> <span class="oi oi-eye"></span></span>
-                              <span *ngSwitchCase="false">
-                              <!-- watching some episodes -->
-                                <span [ngSwitch]="isWatchingAnyEpisodeInSeason(season)">
-                                  <span *ngSwitchCase="true"> <span class="oi oi-ellipses"></span></span>
-                                </span>
-                              </span>
-                            </span>
-                          </span>
-                        </span>
+                      <ng-template ngbPanelHeader>
+                         <div class="d-flex align-items-center justify-content-between">
+                           <!-- header left -->
+                           <div>
+                             <button class="btn btn-link" ngbPanelToggle>Season {{ season.season_number }}</button>
+                           </div>
+                           <!-- header right -->
+                           <div class="d-flex justify-content-between">
+                             <!-- legend -->
+                             <div [ngSwitch]="hasCollectedAllEpisodesInSeason(season)" class="mx-2">
+                               <!-- downloaded everything -->
+                               <div *ngSwitchCase="true">
+                                 <span class="oi oi-check" ngbTooltip="All episodes are downloaded" placement="left"></span>
+                               </div>
+                               <!-- not downloaded everything -->
+                               <div *ngSwitchCase="false">
+                                 <div [ngSwitch]="isWatchingSeason(season.season_number) || isWatchingAllEpisodesInSeason(season)">
+                                   <!-- watching whole season -->
+                                   <div *ngSwitchCase="true"> <span class="oi oi-eye" ngbTooltip="Watching entire season" placement="left"></span></div>
+                                   <div *ngSwitchCase="false">
+                                     <!-- watching some episodes -->
+                                     <div [ngSwitch]="isWatchingAnyEpisodeInSeason(season)" ngbTooltip="Watching some episodes" placement="left">
+                                       <span *ngSwitchCase="true"> <span class="oi oi-ellipses"></span></span>
+                                     </div>
+                                   </div>
+                                 </div>
+                               </div>
+                             </div>
+                             <!-- watch/unwatch season -->
+                             <button *ngIf="!isWatchingSeason(season.season_number)" type="button" class="btn btn-sm btn-light mx-2" (click)="watchEntireSeason(season)" ngbTooltip="Watch entire season" placement="left">
+                               <span class="oi oi-video"></span>
+                             </button>
+                             <button *ngIf="isWatchingSeason(season.season_number)" type="button" class="btn btn-sm btn-success mx-2" (click)="stopWatchingEntireSeason(season)" [disabled]="!canUnWatchSeason(season.season_number)" ngbTooltip="Stop watching season" placement="left">
+                               <span class="oi oi-video"></span>
+                             </button>
+                             <!-- manual search -->
+                             <div *ngIf="!isWatchingSeason(season.season_number) && userIsStaff() && isManualSearchEnabled">
+                               <button class="btn btn-sm btn-link" ngbTooltip="Manually search torrents for this season" placement="left" (click)="manuallySearchSeason(season)"><span class="oi oi-magnifying-glass"></span></button>
+                             </div>
+                           </div>
+                         </div>
                       </ng-template>
                       <ng-template ngbPanelContent>
                         <!-- season overview -->
                         <p *ngIf="season.overview">{{ season.overview }}</p>
-                        <div class="my-3 d-flex justify-content-between">
-                          <button *ngIf="!isWatchingSeason(season.season_number)" type="button" class="btn btn-primary" (click)="watchEntireSeason(season)">
-                            <span class="oi oi-video"></span> Watch entire season
-                          </button>
-                          <button *ngIf="isWatchingSeason(season.season_number)" type="button" class="btn btn-warning" (click)="stopWatchingEntireSeason(season)" [disabled]="!canUnWatchSeason(season.season_number)">
-                            <span class="oi oi-x"></span> Stop watching season
-                          </button>
-                          <!-- manual search -->
-                          <div *ngIf="!isWatchingSeason(season.season_number) && userIsStaff() && isManualSearchEnabled">
-                            <button class="btn btn-sm btn-link" placement="top" ngbTooltip="Manually search torrents for this season" (click)="manuallySearchSeason(season)"><span class="oi oi-magnifying-glass"></span></button>
-                          </div>
-                        </div>
-                        <hr>
                         <form class="form" *ngIf="watchEpisodesFormGroup" [formGroup]="watchEpisodesFormGroup">
                           <!-- episode checklist -->
                           <div *ngFor="let episode of season.episodes" class="form-check d-flex justify-content-between">
@@ -90,14 +96,14 @@
                             </div>
                             <!-- manual search episode -->
                             <div *ngIf="isManualSearchEnabled && !(isWatchingSeason(season.season_number) || isWatchingEpisode(episode.id))">
-                              <button class="btn btn-sm btn-link" placement="top" ngbTooltip="Manually search torrents for this episode" (click)="manuallySearchEpisode(season, episode)"><span class="oi oi-magnifying-glass"></span></button>
+                              <button class="btn btn-sm btn-link" placement="left" ngbTooltip="Manually search torrents for this episode" (click)="manuallySearchEpisode(season, episode)"><span class="oi oi-magnifying-glass"></span></button>
                             </div>
                           </div>
                           <!-- manual search toggle -->
-                          <div class="d-flex justify-content-end mt-2" *ngIf="userIsStaff() && !isWatchingSeason(season.season_number)">
+                          <div class="d-flex justify-content-end my-2" *ngIf="userIsStaff() && !isWatchingSeason(season.season_number)">
                             <form class="form">
                               <input class="form-check-input" type="checkbox" [(ngModel)]="isManualSearchEnabled" name="manualSearch" id="toggle-manual-search">
-                              <label class="form-check-label" for="toggle-manual-search" placement="top" ngbTooltip="Enable option to manually search torrents vs automatically downloading them">Manual</label>
+                              <label class="form-check-label" for="toggle-manual-search" placement="left" ngbTooltip="Enable option to manually search torrents vs automatically downloading them">Manual</label>
                             </form>
                           </div>
                         </form>
