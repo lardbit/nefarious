@@ -666,6 +666,7 @@ export class ApiService {
   }
 
   public unWatchTVSeason(watchTVSeasonRequestId) {
+
     return this.http.delete(`${this.API_URL_WATCH_TV_SEASON_REQUEST}${watchTVSeasonRequestId}/`, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
 
@@ -688,6 +689,11 @@ export class ApiService {
         if (foundWatchIndex >= 0) {
           this.watchTVSeasons.splice(foundWatchIndex, 1);
         }
+
+        // find and remove individual episodes
+        this.watchTVEpisodes = _.filter(this.watchTVEpisodes, (watch) => {
+          return watch.watch_tv_show !== foundWatchRequest.watch_tv_show;
+        });
 
         return data;
       }),

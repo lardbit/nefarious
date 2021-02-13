@@ -88,6 +88,7 @@
                               <input class="form-check-input" type="checkbox" [formControlName]="episode.id" [name]="episode.id" [id]="episode.id">
                               <label class="form-check-label" [for]="episode.id">#{{ episode.episode_number }} - {{ episode.name }}</label>
                             </div>
+                            <!-- manual search episode -->
                             <div *ngIf="isManualSearchEnabled && !(isWatchingSeason(season.season_number) || isWatchingEpisode(episode.id))">
                               <button class="btn btn-sm btn-link" placement="top" ngbTooltip="Manually search torrents for this episode" (click)="manuallySearchEpisode(season, episode)"><span class="oi oi-magnifying-glass"></span></button>
                             </div>

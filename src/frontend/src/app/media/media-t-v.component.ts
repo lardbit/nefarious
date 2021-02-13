@@ -43,7 +43,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
       (data) => {
         // set result and build the watching options
         this.result = data;
-        this._buildWatchOptions();
+        this._buildWatchEpisodesForm();
 
         // populate "auto watch" settings
         const watchShow = this._getWatchShow();
@@ -61,7 +61,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     // watch for updated media
     this._changes = this.apiService.mediaUpdated$.subscribe(
       () => {
-        this._buildWatchOptions();
+        this._buildWatchEpisodesForm();
         this.changeDetectorRef.detectChanges();
       }
     );
@@ -124,10 +124,10 @@ export class MediaTVComponent implements OnInit, OnDestroy {
       const watchTvShow = this._getWatchShow();
 
       this.apiService.watchTVSeasonRequest(watchTvShow.id, season.season_number, season.air_date).subscribe(
-        (data) => {
+        () => {
           this.isSaving = false;
           this.toastr.success(`Watching season ${season.season_number}`);
-          this._buildWatchOptions();
+          this._buildWatchEpisodesForm();
         },
         (error) => {
           this.isSaving = false;
@@ -151,7 +151,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
       this.apiService.unWatchTVShow(watchShow.id).subscribe(
         (data) => {
           this.toastr.success('Stopped watching show');
-          this._buildWatchOptions();
+          this._buildWatchEpisodesForm();
           this.autoWatchFutureSeasons = false;
           this.isSaving = false;
         },
@@ -229,7 +229,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
       this.apiService.unWatchTVSeason(watchSeasonRequest.id).subscribe(
         (data) => {
           this.toastr.success(`Stopped watching ${this.result.name} - Season ${watchSeasonRequest.season_number}`);
-          this._buildWatchOptions();
+          this._buildWatchEpisodesForm();
           this.isSaving = false;
         },
         (error) => {
@@ -261,7 +261,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
   public manuallyDownloadComplete() {
     this.isManuallySearching = false;
     this.activeNav = 'details';
-    this._buildWatchOptions();
+    this._buildWatchEpisodesForm();
   }
 
   public canUnWatchSeason(seasonNumber: number) {
@@ -331,18 +331,22 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     return null;
   }
 
-  protected _buildWatchOptions() {
+  protected _buildWatchEpisodesForm() {
     // build episode form
     const watchingControls: any = {};
     for (const season of this.result.seasons) {
       for (const episode of season.episodes) {
 
         // episode form control
-        const control = new FormControl(
-          this.isWatchingEpisode(episode.id) || this.isWatchingSeason(season.season_number));
+        const control = new FormControl({
+          value: this.isWatchingEpisode(episode.id) || this.isWatchingSeason(season.season_number),
+          disabled: this.isWatchingSeason(season.season_number) || (
+            this.isWatchingEpisode(episode.id) && !this.canUnWatchEpisode(episode.id)),
+        });
 
         // handle change events for individual episodes
         control.valueChanges.subscribe((shouldWatch: boolean) => {
+          // disable/enable input while it's saving
           control.disable({emitEvent: false});
           this._updateWatchEpisode(episode.id, shouldWatch).subscribe(() => {
             control.enable({emitEvent: false});
@@ -353,8 +357,22 @@ export class MediaTVComponent implements OnInit, OnDestroy {
       }
     }
 
-    // set episode form
-    this.watchEpisodesFormGroup = this.fb.group(watchingControls);
+    // update episode form
+    if (this.watchEpisodesFormGroup) {
+      Object.keys(this.watchEpisodesFormGroup.controls).forEach((name) => {
+        const existingControl = <FormControl>this.watchEpisodesFormGroup.controls[name];
+        const newControl = watchingControls[name];
+        existingControl.setValue(newControl.value, {emitEvent: false});
+        if (newControl.enabled) {
+          existingControl.enable({emitEvent: false});
+        } else {
+          existingControl.disable({emitEvent: false});
+        }
+      });
+    } else {
+      // create episode form
+      this.watchEpisodesFormGroup = this.fb.group(watchingControls);
+    }
   }
 
   protected _getWatchEpisode(episodeId) {
@@ -414,9 +432,9 @@ export class MediaTVComponent implements OnInit, OnDestroy {
         (error) => {
           this.isSaving = false;
           this.toastr.error('An unknown error occurred');
+          console.error(error);
         },
-        () => {
-          this._buildWatchOptions();
-        }));
+      )
+    );
   }
 }
