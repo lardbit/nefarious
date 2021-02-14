@@ -15,6 +15,11 @@ class UserReferenceSerializerMixin(serializers.ModelSerializer):
     user = serializers.HiddenField(
         default=serializers.CurrentUserDefault()
     )
+    # necessary for outputting the user since this mixin automatically includes "user" as an input/hidden field
+    requested_by = serializers.SerializerMethodField()
+
+    def get_requested_by(self, watch_media):
+        return watch_media.user.username
 
 
 class NefariousSettingsSerializer(serializers.ModelSerializer):
@@ -51,11 +56,6 @@ class NefariousPartialSettingsSerializer(NefariousSettingsSerializer):
 
 
 class WatchMovieSerializer(UserReferenceSerializerMixin, serializers.ModelSerializer):
-    # necessary for outputting the user since UserReferenceSerializerMixin automatically includes "user" as an input/hidden field for convenience
-    requested_by = serializers.SerializerMethodField()
-
-    def get_requested_by(self, watch_movie: WatchMovie):
-        return watch_movie.user.username
 
     class Meta:
         model = WatchMovie
@@ -90,11 +90,6 @@ class WatchTVSeasonSerializer(UserReferenceSerializerMixin, serializers.ModelSer
 
 class WatchTVSeasonRequestSerializer(UserReferenceSerializerMixin, serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
-    # necessary for outputting the user since UserReferenceSerializerMixin automatically includes "user" as an input/hidden field for convenience
-    requested_by = serializers.SerializerMethodField()
-
-    def get_requested_by(self, watch_tv_season_request: WatchTVSeasonRequest):
-        return watch_tv_season_request.user.username
 
     def get_name(self, obj: WatchTVSeasonRequest):
         return str(obj)
@@ -108,7 +103,6 @@ class WatchTVEpisodeSerializer(UserReferenceSerializerMixin, serializers.ModelSe
     name = serializers.SerializerMethodField()
     poster_image_url = serializers.SerializerMethodField()
     tmdb_show_id = serializers.SerializerMethodField()
-    requested_by = serializers.SerializerMethodField()
 
     def get_name(self, obj: WatchTVEpisode):
         return str(obj)
@@ -118,9 +112,6 @@ class WatchTVEpisodeSerializer(UserReferenceSerializerMixin, serializers.ModelSe
 
     def get_tmdb_show_id(self, obj: WatchTVEpisode):
         return obj.watch_tv_show.tmdb_show_id
-
-    def get_requested_by(self, obj: WatchTVEpisode):
-        return obj.user.username
 
     class Meta:
         model = WatchTVEpisode
