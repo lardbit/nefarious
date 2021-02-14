@@ -15,12 +15,16 @@
     <div class="card-body">
       <p class="card-text">{{ result.overview }}</p>
       <div class="d-flex flex-wrap justify-content-end">
-        <button type="button" class="btn btn-light m-1" *ngIf="!isWatchingAllSeasons()" (click)="watchAllSeasons()" ngbTooltip="Start watching all seasons in show" placement="left">
-          <span class="oi oi-video"></span>
-        </button>
-        <button type="button" class="btn btn-danger m-1" *ngIf="isWatchingShow()" (click)="stopWatchingShow()" [disabled]="!canUnWatchShow()" ngbTooltip="Stop watching show" placement="left">
-          <span class="oi oi-x"></span>
-        </button>
+        <div ngbDropdown class="d-inline-block">
+          <button class="btn" [ngClass]="{'btn-outline-success': isWatchingShow(), 'btn-outline-primary': !isWatchingShow()}" id="dropdownBasic1" ngbDropdownToggle>
+            <span *ngIf="!isWatchingShow()">Not watching</span>
+            <span *ngIf="isWatchingShow()">Watching</span>
+          </button>
+          <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+            <button *ngIf="!isWatchingAllSeasons()" (click)="watchAllSeasons()" ngbDropdownItem>Watch all seasons</button>
+            <button *ngIf="isWatchingShow()" (click)="stopWatchingShow()" ngbDropdownItem>Stop watching show</button>
+          </div>
+        </div>
       </div>
       <div class="d-flex justify-content-end" *ngIf="isWatchingShow()">
         <div class="form-check text-muted form-control-sm">
@@ -71,7 +75,7 @@
                                </div>
                              </div>
                              <!-- watch/unwatch season -->
-                             <button *ngIf="!isWatchingSeason(season.season_number)" type="button" class="btn btn-sm btn-light mx-2" (click)="watchEntireSeason(season)" ngbTooltip="Watch entire season" placement="left">
+                             <button *ngIf="!isWatchingSeason(season.season_number)" type="button" class="btn btn-sm btn-outline-primary mx-2" (click)="watchEntireSeason(season)" ngbTooltip="Watch entire season" placement="left">
                                <span class="oi oi-video"></span>
                              </button>
                              <button *ngIf="isWatchingSeason(season.season_number)" type="button" class="btn btn-sm btn-success mx-2" (click)="stopWatchingEntireSeason(season)" [disabled]="!canUnWatchSeason(season.season_number)" ngbTooltip="Stop watching season" placement="left">
