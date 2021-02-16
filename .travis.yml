@@ -7,6 +7,8 @@ jobs:
     - stage: build default image and run unit tests
       script:
         - set -e
+        # authenticate with docker
+        - echo "$DOCKER_PASSWORD" | docker login -u "lardbit" --password-stdin
         # create docker network to link containers
         - docker network create tests
         # run redis
@@ -19,13 +21,13 @@ jobs:
         - docker build -t lardbit/nefarious:$tag .
         # run unit tests
         - docker run --network tests -e REDIS_HOST=redis --entrypoint /env/bin/python lardbit/nefarious:$tag manage.py test
-        # authenticate with docker
-        - echo "$DOCKER_PASSWORD" | docker login -u "lardbit" --password-stdin
         # push image to docker hub
         - docker push lardbit/nefarious:$tag
     - stage: build ARM image
       script:
         - set -e
+        # authenticate with docker
+        - echo "$DOCKER_PASSWORD" | docker login -u "lardbit" --password-stdin
         # store commit in image for version identification
         - echo "$TRAVIS_COMMIT" > src/.commit
         # derive the docker ARM image tag name from the git branch name
@@ -36,7 +38,5 @@ jobs:
         # NOTE: using "travis_wait" which produces output every minute to prevent the build from timing out
         # https://docs.travis-ci.com/user/common-build-problems/#build-times-out-because-no-output-was-received
         - travis_wait 45 docker build -f Dockerfile-armv7 --build-arg copy_from_tag=$copy_from_tag -t lardbit/nefarious:$tag .
-        # authenticate with docker
-        - echo "$DOCKER_PASSWORD" | docker login -u "lardbit" --password-stdin
         # push ARM image to docker hub
         - docker push lardbit/nefarious:$tag
