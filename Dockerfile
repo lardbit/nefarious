@@ -25,11 +25,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
     && apt-get install nodejs -y \
     && npm --prefix frontend install \
-    && mkdir -p staticassets \
     && npm --prefix frontend run build-prod \
+    && mkdir -p staticassets \
+    && mkdir -p /nefarious-db \
     && python3.8 -m venv /env \
     && /env/bin/pip install --no-cache-dir -r requirements.txt \
-    && mkdir -p /nefarious-db \
     && /env/bin/python manage.py collectstatic --no-input \
     && rm -rf frontend/node_modules \
     && apt-get remove -y \

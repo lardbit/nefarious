@@ -22,7 +22,7 @@
           </button>
           <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
             <button *ngIf="!isWatchingAllSeasons()" (click)="watchAllSeasons()" ngbDropdownItem>Watch all seasons</button>
-            <button *ngIf="isWatchingShow()" (click)="stopWatchingShow()" ngbDropdownItem>Stop watching show</button>
+            <button *ngIf="isWatchingShow()" (click)="stopWatchingShow()" [disabled]="!canUnWatchShow()" ngbDropdownItem>Stop watching show</button>
           </div>
         </div>
       </div>

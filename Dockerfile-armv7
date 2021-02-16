@@ -1,16 +1,13 @@
-# accept an image tag build argument to define the FROM image to copy the prebuilt app from
-ARG copy_from_tag=latest
-FROM lardbit/nefarious:${copy_from_tag} as app_image
-
-# base image
 FROM balenalib/armv7hf-ubuntu
 
 EXPOSE 80
 
-WORKDIR /app
+# add main app
+ADD src /app
 
-# copy pre-built app from "app_image" image
-COPY --from=app_image /app .
+ADD entrypoint.sh /app
+
+WORKDIR /app
 
 RUN ["cross-build-start"]
 
@@ -21,16 +18,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.8-dev \
     python3.8-gdbm \
     python3-venv \
+    gnupg \
+    curl \
     git \
     authbind \
-    && python3.8 -m venv /env \
-    && /env/bin/pip install -r requirements.txt \
+    && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+    && apt-get install nodejs -y \
+    && npm --prefix frontend install \
+    && npm --prefix frontend run build-prod \
+    && mkdir -p staticassets \
     && mkdir -p /nefarious-db \
+    && python3.8 -m venv /env \
+    && /env/bin/pip install --no-cache-dir -r requirements.txt \
+    && /env/bin/python manage.py collectstatic --no-input \
     && apt-get remove -y \
         build-essential \
         python3.8-venv \
         python3.8-dev \
         python3-venv \
+        curl \
+        gnupg \
         git \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
