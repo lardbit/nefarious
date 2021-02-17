@@ -24,6 +24,8 @@ jobs:
         shell: bash
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
       - name: Build
+        env:
+          branch: ${{ steps.extract_branch.outputs.branch }}
         run: |
           # create docker network to link containers
           docker network create tests
@@ -35,7 +37,7 @@ jobs:
           echo "$GITHUB_SHA" > src/.commit
 
           # derive the docker image tag name from the git branch name
-          if [[ ${{ steps.extract_branch.outputs.branch }} == 'master' ]]; then tag='latest'; else tag="${{ steps.extract_branch.outputs.branch }}"; fi
+          if [[ $branch == 'master' ]]; then tag='latest'; else tag="$branch"; fi
 
           echo $tag
 
