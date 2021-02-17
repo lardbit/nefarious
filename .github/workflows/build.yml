@@ -45,9 +45,9 @@ jobs:
           docker buildx build \
             --platform linux/amd64,linux/arm/v7,linux/arm64 \
             --output "type=image,push=false" \
-            --cache-from "type=local,src=/tmp/.buildx-cache"
+            --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            --tag lardbit/nefarious:multi-arch-${tag}
+            --tag lardbit/nefarious:multi-arch-${tag} \
             --file Dockerfile .
 
           # run unit tests
@@ -57,7 +57,7 @@ jobs:
           docker buildx build \
             --platform linux/amd64,linux/arm/v7,linux/arm64 \
             --output "type=image,push=true" \
-            --cache-from "type=local,src=/tmp/.buildx-cache"
+            --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            --tag lardbit/nefarious:multi-arch-${tag}
+            --tag lardbit/nefarious:multi-arch-${tag} \
             --file Dockerfile .
