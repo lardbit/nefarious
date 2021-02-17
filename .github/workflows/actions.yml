@@ -17,7 +17,7 @@ jobs:
           run: |
             set -e
             # authenticate with docker
-            echo "$DOCKER_PASSWORD" | docker login -u "lardbit" --password-stdin
+            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
             # create docker network to link containers
             docker network create tests
             # run redis
@@ -37,7 +37,7 @@ jobs:
       - name: push
         run: |
           # authenticate with docker
-          echo "$DOCKER_PASSWORD" | docker login -u "lardbit" --password-stdin
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
           # push image to docker hub
           docker push lardbit/nefarious:$tag-TEST
 
