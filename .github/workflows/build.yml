@@ -1,12 +1,10 @@
-name: buildx
+name: CI
 
 on:
   push:
-    branches:
-      - github-actions
 
 jobs:
-  buildx:
+  build:
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
@@ -17,17 +15,47 @@ jobs:
         # https://github.com/docker/setup-buildx-action
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-      - name: Available platforms
-        run: echo ${{ steps.buildx.outputs.platforms }}
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
-      - name: Run Buildx
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      - name: Build
         run: |
+          # create docker network to link containers
+          docker network create tests
+
+          # run redis
+          docker run --network tests --name redis --rm -d redis
+
+          # store git commit in image for version identification
+          echo "$GITHUB_SHA" > src/.commit
+
+          # derive the docker image tag name from the git branch name
+          if [[ ${{ steps.extract_branch.outputs.branch }} == 'master' ]]; then tag='latest'; else tag="${{ steps.extract_branch.outputs.branch }}"; fi
+
+          echo $tag
+
+          # build image (cache result)
+          docker buildx build \
+            --platform linux/amd64,linux/arm/v7,linux/arm64 \
+            --output "type=image,push=false" \
+            --cache-from "type=local,src=/tmp/.buildx-cache"
+            --cache-to "type=local,dest=/tmp/.buildx-cache" \
+            --tag lardbit/nefarious:multi-arch-${tag}
+            --file Dockerfile .
+
+          # run unit tests
+          docker run --network tests -e REDIS_HOST=redis --entrypoint /env/bin/python lardbit/nefarious:$tag manage.py test
+
+          # push (from cache)
           docker buildx build \
             --platform linux/amd64,linux/arm/v7,linux/arm64 \
             --output "type=image,push=true" \
+            --cache-from "type=local,src=/tmp/.buildx-cache"
+            --cache-to "type=local,dest=/tmp/.buildx-cache" \
+            --tag lardbit/nefarious:multi-arch-${tag}
             --file Dockerfile .
-
