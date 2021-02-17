@@ -13,6 +13,7 @@ jobs:
       - uses: uraimo/run-on-arch-action@v2.0.8
         with:
           arch: armv7
+          distro: ubuntu18.04
           run: |
             set -e
             # authenticate with docker
