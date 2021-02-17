@@ -11,6 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: uraimo/run-on-arch-action@v2.0.8
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         with:
           arch: armv7
           distro: ubuntu18.04
