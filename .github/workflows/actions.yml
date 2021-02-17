@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     name: run unit tests and build images
-    runs-on: ubuntu-18.04
+    #runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
       - uses: uraimo/run-on-arch-action@v2.0.8
