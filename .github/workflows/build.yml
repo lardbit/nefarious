@@ -27,6 +27,8 @@ jobs:
         env:
           branch: ${{ steps.extract_branch.outputs.branch }}
         run: |
+          set -e
+
           # create docker network to link containers
           docker network create tests
 
@@ -37,27 +39,29 @@ jobs:
           echo "$GITHUB_SHA" > src/.commit
 
           # derive the docker image tag name from the git branch name
-          if [[ $branch == 'master' ]]; then tag='latest'; else tag="$branch"; fi
-
-          echo $tag
+          if [[ $branch == 'master' ]]; then
+            tag='multi-arch-latest'
+          else
+            tag="multi-arch-$branch"
+          fi
 
           # build image (cache result)
           docker buildx build \
-            --platform linux/amd64,linux/arm/v7,linux/arm64 \
+            #--platform linux/amd64,linux/arm/v7,linux/arm64 \
+            --platform linux/arm/v7
             --output "type=image,push=false" \
-            --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            --tag lardbit/nefarious:multi-arch-${tag} \
+            --tag lardbit/nefarious:${tag} \
             --file Dockerfile .
 
           # run unit tests
           docker run --network tests -e REDIS_HOST=redis --entrypoint /env/bin/python lardbit/nefarious:$tag manage.py test
 
-          # push (from cache)
+          # push image (from cached result)
           docker buildx build \
-            --platform linux/amd64,linux/arm/v7,linux/arm64 \
+            #--platform linux/amd64,linux/arm/v7,linux/arm64 \
+            --platform linux/arm/v7
             --output "type=image,push=true" \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
-            --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            --tag lardbit/nefarious:multi-arch-${tag} \
+            --tag lardbit/nefarious:${tag} \
             --file Dockerfile .
