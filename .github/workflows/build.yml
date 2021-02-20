@@ -25,10 +25,11 @@ jobs:
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
       - name: Build
-        env:
-          branch: ${{ steps.extract_branch.outputs.branch }}
         run: |
           set -e
+
+          echo branch name is ${{ steps.extract_branch.outputs.branch }}
+          branch=${{ steps.extract_branch.outputs.branch }}
 
           # create docker network to link containers
           docker network create tests
