@@ -53,10 +53,10 @@ services:
     image: linuxserver/transmission
 
   # auto update service
-  # https://github.com/v2tec/watchtower
   watchtower:
     extends:
       service: watchtower-base
+      file: docker-compose.base.yml
 
 volumes:
   nefarious-db:

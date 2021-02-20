@@ -86,7 +86,7 @@ services:
       - ./transmission-settings.json:/config/settings.json:ro
 
   # auto update service (to be extended)
-  # https://github.com/v2tec/watchtower
+  # https://github.com/containrrr/watchtower
   watchtower-base:
     image: containrrr/watchtower
     restart: always
