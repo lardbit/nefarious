@@ -55,16 +55,8 @@ services:
   # auto update service
   # https://github.com/v2tec/watchtower
   watchtower:
-    image: v2tec/watchtower
-    restart: always
-    command: --label-enable --cleanup
-    environment:
-      - WATCHTOWER_POLL_INTERVAL=3600
-    logging:
-      options:
-        max-size: 10m
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    extends:
+      service: watchtower-base
 
 volumes:
   nefarious-db:

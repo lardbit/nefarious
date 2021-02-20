@@ -1,4 +1,4 @@
-name: CI
+name: nefarious ci/cd
 
 on:
   push:
@@ -20,16 +20,34 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
-      - name: Extract branch name
+      # TODO remove "multi-arch" test tag
+      - name: Set tag name
+        id: tag_name
         shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        id: extract_branch
-      - name: Build
+        run: |
+          # get and sanitize branch name
+          branch=${GITHUB_REF#refs/heads/}
+          branch=${branch//\//-}
+          # derive the docker image tag name from the git branch name
+          if [[ $branch == 'master' ]]; then
+            tag='multi-arch-latest'
+          else
+            tag="multi-arch-$branch"
+          fi
+          echo "##[set-output name=tag;]$(echo ${tag})"
+      # TODO - first build on amd64, then copy frontend app output to other architecture builds to avoid doing it multiple times
+      # TODO add all architectures to platform parameter
+      - name: Test
         run: |
           set -e
 
-          echo branch name is ${{ steps.extract_branch.outputs.branch }}
-          branch=${{ steps.extract_branch.outputs.branch }}
+          # get tag name
+          tag=${{ steps.tag_name.outputs.tag }}
+
+          echo tag=$tag
+          test ! -z $tag
+
+          docker build -t lardbit/nefarious:$tag .
 
           # create docker network to link containers
           docker network create tests
@@ -37,30 +55,30 @@ jobs:
           # run redis
           docker run --network tests --name redis --rm -d redis
 
+          # run unit tests
+          docker run --network tests -e REDIS_HOST=redis --entrypoint /env/bin/python lardbit/nefarious:$tag manage.py test
+
+      - name: Build
+        run: |
+          set -e
+
+          # get tag name
+          tag=${{ steps.tag_name.outputs.tag }}
+
           # store git commit in image for version identification
           echo "$GITHUB_SHA" > src/.commit
 
-          # derive the docker image tag name from the git branch name
-          if [[ $branch == 'master' ]]; then
-            tag='multi-arch-latest'
-          else
-            tag="multi-arch-$branch"
-          fi
-
           # build image (cache result)
           docker buildx build \
-            --platform linux/arm/v7 \
+            --platform linux/amd64,linux/arm/v7 \
             --output "type=image,push=false" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
             --tag lardbit/nefarious:${tag} \
             --file Dockerfile .
 
-          # run unit tests
-          docker run --network tests -e REDIS_HOST=redis --entrypoint /env/bin/python lardbit/nefarious:$tag manage.py test
-
           # push image (from cached result)
           docker buildx build \
-            --platform linux/arm/v7 \
+            --platform linux/amd64,linux/arm/v7 \
             --output "type=image,push=true" \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --tag lardbit/nefarious:${tag} \
