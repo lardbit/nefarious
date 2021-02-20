@@ -113,9 +113,9 @@ Your default local URLs for all the various services will be:
 
 **See** [Part 2](#part-2) for finalizing the configuration.
 
-##### ARM devices
+##### Low powered systems
 
-See [ARM.md](docs/ARM.md) for arm-based architectures like the raspberry pi, odroid, pine etc. 
+See [SBC.md](docs/SBC.md) for low powered / single board computers (sbc) like the raspberry pi, odroid, pine etc. 
 
 ##### VPN
 

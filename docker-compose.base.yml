@@ -85,6 +85,20 @@ services:
       - ${HOST_DOWNLOAD_PATH:-/tmp}:/downloads
       - ./transmission-settings.json:/config/settings.json:ro
 
+  # auto update service (to be extended)
+  # https://github.com/containrrr/watchtower
+  watchtower-base:
+    image: containrrr/watchtower
+    restart: always
+    command: --label-enable --cleanup
+    environment:
+      - WATCHTOWER_POLL_INTERVAL=3600
+    logging:
+      options:
+        max-size: 10m
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
 volumes:
   nefarious-db:
   jackett-config:
