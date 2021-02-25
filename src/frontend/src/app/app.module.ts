@@ -32,6 +32,7 @@ import { DiscoverComponent } from './discover/discover.component';
 import { MediaResultsComponent } from './media-results/media-results.component';
 import { MediaFilterPipe } from './filter.pipe';
 import { WantedComponent } from './wanted/wanted.component';
+import { RottenTomatoesComponent } from './rotten-tomatoes/rotten-tomatoes.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'search/auto', pathMatch: 'full' },  // redirects
@@ -77,6 +78,7 @@ export function init(apiService: ApiService) {
     MediaResultsComponent,
     MediaFilterPipe,
     WantedComponent,
+    RottenTomatoesComponent,
   ],
   imports: [
     RouterModule.forRoot(

@@ -171,3 +171,11 @@ class TransmissionTorrentSerializer(serializers.Serializer):
 
     def get_format_eta(self, torrent):
         return torrent.format_eta()
+
+
+class RottenTomatoesSearchResultsSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    overview = serializers.CharField(source='synopsis', required=False)
+    release_date = serializers.CharField(source='theaterReleaseDate', required=False)
+    poster_path = serializers.CharField(source='posters.primary')

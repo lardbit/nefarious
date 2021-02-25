@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, Validators} from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
@@ -7,6 +7,7 @@ import * as _ from 'lodash';
 import { tap } from 'rxjs/operators';
 import { Observable, zip } from 'rxjs';
 import * as moment from 'moment';
+import { NgbNav } from '@ng-bootstrap/ng-bootstrap';
 
 
 @Component({
@@ -26,6 +27,7 @@ export class DiscoverComponent implements OnInit {
     id: number,
     name: string
   }[];
+  @ViewChild('nav', {static: true}) navEl: NgbNav;
 
   public DEFAULT_SORT = 'popularity.desc';
   public OPTIONS_SORT = [
@@ -49,6 +51,13 @@ export class DiscoverComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    // handle rotten tomatoes nav
+    this.route.fragment.subscribe((fragment) => {
+      if (fragment === 'rt') {
+        this.navEl.select('rt');
+      }
+    });
 
     this.route.params.subscribe(
       (params) => {

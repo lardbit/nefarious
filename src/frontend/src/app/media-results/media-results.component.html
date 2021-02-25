@@ -30,7 +30,7 @@
                 <h4 class="card-title">{{ result.name }}</h4>
               </a>
             </ng-container>
-            <p class="card-text">{{ result.overview }}</p>
+            <p class="card-text"[innerHTML]="result.overview"></p>
           </div>
         </div>
       </div>

@@ -1,0 +1,27 @@
+<form [formGroup]="form">
+  <div class="card">
+    <div class="card-header">
+      Filters
+    </div>
+    <div class="card-body">
+      <form  [formGroup]="form">
+        <input type="hidden" formControlName="page">
+        <div class="row">
+          <div class="col-12 col-md-6 col-lg-3">
+            <label for="type">Type</label>
+            <select class="form-control" id="type" formControlName="type">
+              <option *ngFor="let type of types | keyvalue" [value]="type.value">{{ type.key }}</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <label for="type">Sort By</label>
+            <select class="form-control" formControlName="sortBy">
+              <option *ngFor="let sort of sortBy | keyvalue" [value]="sort.value">{{ sort.key }}</option>
+            </select>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</form>
+<app-media-results [results]="results" [mediaType]="'movie'"></app-media-results>
