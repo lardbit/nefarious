@@ -442,9 +442,9 @@ class DiscoverRottenTomatoesMediaView(views.APIView):
     def get(self, request, media_type: str):
         assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
         params = dict(
-            minTomato=request.query_params.get('minTomato', 70),
-            sortBy=request.query_params.get('sortBy', 'release'),
-            type=request.query_params.get('type', 'opening'),
+            #minTomato=request.query_params.get('minTomato', 70),
+            sortBy=request.query_params.get('sortBy', 'popularity'),
+            type=request.query_params.get('type', 'in-theaters'),
         )
 
         # get results

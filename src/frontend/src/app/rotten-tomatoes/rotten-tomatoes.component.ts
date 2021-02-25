@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { debounceTime } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
+
 
 @Component({
   selector: 'app-rotten-tomatoes',
@@ -9,6 +12,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 })
 export class RottenTomatoesComponent implements OnInit {
   public results: any[] = [];
+  public isLoading = false;
   public form: FormGroup;
   public sortBy = {
     'Release': 'release',
@@ -30,6 +34,7 @@ export class RottenTomatoesComponent implements OnInit {
   constructor(
     private apiService: ApiService,
     private fb: FormBuilder,
+    private toastr: ToastrService,
   ) {
   }
 
@@ -37,13 +42,16 @@ export class RottenTomatoesComponent implements OnInit {
 
     // build form
     this.form = this.fb.group({
-      type: this.types['Opening'],
-      sortBy: this.sortBy['Release'],
+      type: this.types['In Theaters'],
+      sortBy: this.sortBy['Popularity'],
       page: 1,
+      minTomato: 70,
     });
 
     // react to changes
-    this.form.valueChanges.subscribe((type) => {
+    this.form.valueChanges.pipe(
+      debounceTime(250),
+    ).subscribe((type) => {
       this._search();
     });
 
@@ -51,9 +59,16 @@ export class RottenTomatoesComponent implements OnInit {
   }
 
   protected _search() {
+    this.isLoading = true;
     this.apiService.discoverRottenTomatoesMedia('movie', this.form.value).subscribe(
       (data: any) => {
         this.results = data.results || [];
+      },
+      (error) => {
+        this.toastr.error('An unknown error occurred');
+        this.isLoading = false;
+      }, () => {
+        this.isLoading = false;
       }
     );
 

@@ -30,6 +30,14 @@
                 <h4 class="card-title">{{ result.name }}</h4>
               </a>
             </ng-container>
+            <div class="d-flex justify-content-end rotten-tomato">
+              <div>
+                <img *ngIf="result.tomato_icon === 'certified_fresh'" src="/static/assets/rt-fresh.png">
+                <img *ngIf="result.tomato_icon === 'fresh'" src="/static/assets/rt-regular.png">
+                <img *ngIf="result.tomato_icon === 'rotten'" src="/static/assets/rt-splat.png">
+                <span class="score ml-1">{{ result.tomato_score }}</span>
+              </div>
+            </div>
             <p class="card-text"[innerHTML]="result.overview"></p>
           </div>
         </div>

@@ -177,5 +177,6 @@ class RottenTomatoesSearchResultsSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     title = serializers.CharField()
     overview = serializers.CharField(source='synopsis', required=False)
-    release_date = serializers.CharField(source='theaterReleaseDate', required=False)
+    tomato_score = serializers.CharField(source='tomatoScore', required=False)
+    tomato_icon = serializers.CharField(source='tomatoIcon', required=False)
     poster_path = serializers.CharField(source='posters.primary')
