@@ -435,17 +435,22 @@ class VideosView(views.APIView):
         return Response(result.videos())
 
 
-#@method_decorator(gzip_page, name='dispatch')
+@method_decorator(gzip_page, name='dispatch')
 class DiscoverRottenTomatoesMediaView(views.APIView):
 
-    #@method_decorator(cache_page(CACHE_WEEK))
+    @method_decorator(cache_page(CACHE_WEEK))
     def get(self, request, media_type: str):
         assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
+        # default params
         params = dict(
-            #minTomato=request.query_params.get('minTomato', 70),
             sortBy=request.query_params.get('sortBy', 'popularity'),
             type=request.query_params.get('type', 'in-theaters'),
         )
+
+        # min score
+        min_tomato = request.query_params.get('minTomato', 70),
+        if min_tomato:
+            params['minTomato'] = min_tomato
 
         # get results
         response = requests.get(ROTTEN_TOMATOES_API_URL, params=params)

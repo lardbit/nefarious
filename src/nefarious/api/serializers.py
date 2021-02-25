@@ -180,3 +180,4 @@ class RottenTomatoesSearchResultsSerializer(serializers.Serializer):
     tomato_score = serializers.CharField(source='tomatoScore', required=False)
     tomato_icon = serializers.CharField(source='tomatoIcon', required=False)
     poster_path = serializers.CharField(source='posters.primary')
+    provider = serializers.CharField(default='rotten-tomatoes')
