@@ -29,7 +29,7 @@
       <div class="d-flex justify-content-end" *ngIf="isWatchingShow()">
         <div class="form-check text-muted form-control-sm">
           <input class="form-check-input" type="checkbox" id="auto-watch" [(ngModel)]="autoWatchFutureSeasons" (ngModelChange)="autoWatchUpdate()">
-          <label class="form-check-label" for="auto-watch" placement="left" ngbTooltip="When new seasons air, this setting will automatically start watching them">
+          <label class="form-check-label" for="auto-watch" container="body" ngbTooltip="When new seasons air, this setting will automatically start watching them">
             Automatically watch future seasons
           </label>
         </div>
@@ -78,7 +78,7 @@
                              <button *ngIf="!isWatchingSeason(season.season_number)" type="button" class="btn btn-sm btn-outline-primary mx-2" (click)="watchEntireSeason(season)" ngbTooltip="Watch entire season" placement="left">
                                <span class="oi oi-video"></span>
                              </button>
-                             <button *ngIf="isWatchingSeason(season.season_number)" type="button" class="btn btn-sm btn-success mx-2" (click)="stopWatchingEntireSeason(season)" [disabled]="!canUnWatchSeason(season.season_number)" ngbTooltip="Stop watching season" placement="left">
+                             <button *ngIf="isWatchingSeason(season.season_number)" type="button" class="btn btn-sm btn-success mx-2" (click)="stopWatchingEntireSeason(season)" [disabled]="!canUnWatchSeason(season.season_number)" ngbTooltip="Stop watching season" container="body">
                                <span class="oi oi-video"></span>
                              </button>
                              <!-- manual search -->
