@@ -51,6 +51,12 @@ services:
       service: transmission-base
       file: docker-compose.base.yml
     image: linuxserver/transmission
+    environment:
+      - PUID=${HOST_DOWNLOAD_UID:-1000}
+      - PGID=${HOST_DOWNLOAD_GID:-1000}
+    volumes:
+      - ${HOST_DOWNLOAD_PATH:-/tmp}:/downloads
+      - ./transmission-settings.json:/config/settings.json:ro
 
   # auto update service
   watchtower:
