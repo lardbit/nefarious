@@ -1,3 +1,4 @@
+import { ActivatedRoute, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
@@ -35,6 +36,8 @@ export class RottenTomatoesComponent implements OnInit {
     private apiService: ApiService,
     private fb: FormBuilder,
     private toastr: ToastrService,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {
   }
 
@@ -48,18 +51,31 @@ export class RottenTomatoesComponent implements OnInit {
       minTomato: 70,
     });
 
+    this.route.queryParams.subscribe((params) => {
+      this.form.patchValue(params, {emitEvent: false});
+      this.search();
+    });
+
     // react to changes
     this.form.valueChanges.pipe(
       debounceTime(250),
     ).subscribe((type) => {
-      this._search();
+      this._setPage(1);
+      this.search();
     });
 
-    this._search();
+    this.search();
   }
 
-  protected _search() {
+  public search(next?: boolean) {
     this.isLoading = true;
+    this._handleCertifiedFresh();
+    if (next) {
+      this._setPage(this.form.get('page').value + 1);
+    }
+
+    this.router.navigate([], {queryParams: this.form.value, preserveFragment: true});
+
     this.apiService.discoverRottenTomatoesMedia('movie', this.form.value).subscribe(
       (data: any) => {
         this.results = data.results || [];
@@ -71,6 +87,23 @@ export class RottenTomatoesComponent implements OnInit {
         this.isLoading = false;
       }
     );
+  }
 
+  protected _handleCertifiedFresh() {
+    if (this._isCertifiedFresh()) {
+      this.form.get('minTomato').setValue(75, {emitEvent: false});
+      this.form.get('minTomato').disable({emitEvent: false});
+    } else {
+      this.form.get('minTomato').enable({emitEvent: false});
+    }
+  }
+
+  protected _isCertifiedFresh(): boolean {
+    const type = this.form.get('type').value;
+    return /^cf-/.test(type);
+  }
+
+  protected _setPage(page: number) {
+    this.form.get('page').setValue(page, {emitEvent: false});
   }
 }

@@ -445,10 +445,11 @@ class DiscoverRottenTomatoesMediaView(views.APIView):
         params = dict(
             sortBy=request.query_params.get('sortBy', 'popularity'),
             type=request.query_params.get('type', 'in-theaters'),
+            page=request.query_params.get('page', '1'),
         )
 
         # min score
-        min_tomato = request.query_params.get('minTomato', 70),
+        min_tomato = request.query_params.get('minTomato'),
         if min_tomato:
             params['minTomato'] = min_tomato
 

@@ -1,7 +1,7 @@
 <div class="card">
   <ngx-loading [show]="isLoading"></ngx-loading>
   <div class="card-header">Filters</div>
-  <div class="card-body">
+  <div class="card-body" *ngIf="form">
     <form  [formGroup]="form">
       <input type="hidden" formControlName="page">
       <div class="row">
@@ -19,10 +19,13 @@
         </div>
         <div class="col-12 col-md-6 col-lg-3">
           <label for="minTomato">Min Score <span class="badge badge-light">{{ form.controls['minTomato'].value }}</span></label>
-          <input type="range" step="5" formControlName="minTomato" id="minTomato">
+          <input class="form-control" type="range" step="5" formControlName="minTomato" id="minTomato">
         </div>
       </div>
     </form>
   </div>
 </div>
 <app-media-results [results]="results" [mediaType]="'movie'"></app-media-results>
+<div class="row justify-content-end my-3 mr-2">
+  <button class="btn btn-info" type="button" (click)="search(true)">Next</button>
+</div>
