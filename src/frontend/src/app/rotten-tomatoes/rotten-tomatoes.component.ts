@@ -94,24 +94,21 @@ export class RottenTomatoesComponent implements OnInit {
     );
   }
 
+  public isCertifiedFresh(): boolean {
+    // "certified" fresh start with "cf-"
+    return /^cf-/.test(this.form.get('type').value);
+  }
+
   protected _updateRoute() {
     this.router.navigate(['/discover'], {queryParams: this.form.value, preserveFragment: true});
     this.search();
   }
 
   protected _handleCertifiedFresh() {
-    // disable score filter since "certified" means over 75
-    if (this._isCertifiedFresh()) {
+    // update minimum tomato score since "certified" means over 75
+    if (this.isCertifiedFresh()) {
       this.form.get('minTomato').setValue(75, {emitEvent: false});
-      this.form.get('minTomato').disable({emitEvent: false});
-    } else {
-      this.form.get('minTomato').enable({emitEvent: false});
     }
-  }
-
-  protected _isCertifiedFresh(): boolean {
-    // "certified" fresh start with "cf-"
-    return /^cf-/.test(this.form.get('type').value);
   }
 
   protected _setPage(page: number) {

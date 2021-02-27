@@ -18,7 +18,7 @@
               <option *ngFor="let sort of sortBy | keyvalue" [value]="sort.value">{{ sort.key }}</option>
             </select>
           </div>
-          <div class="col-12 col-md-6 col-lg-3">
+          <div class="col-12 col-md-6 col-lg-3" *ngIf="!isCertifiedFresh()">
             <label for="minTomato">Min Score <span class="badge badge-light">{{ form.controls['minTomato'].value }}</span></label>
             <input class="form-control" type="range" step="5" formControlName="minTomato" id="minTomato">
           </div>
