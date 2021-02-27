@@ -1,31 +1,34 @@
-<div class="card">
+<div class="position-relative">
   <ngx-loading [show]="isLoading"></ngx-loading>
-  <div class="card-header">Filters</div>
-  <div class="card-body" *ngIf="form">
-    <form  [formGroup]="form">
-      <input type="hidden" formControlName="page">
-      <div class="row">
-        <div class="col-12 col-md-6 col-lg-3">
-          <label>Type</label>
-          <select class="form-control" formControlName="type">
-            <option *ngFor="let type of types | keyvalue" [value]="type.value">{{ type.key }}</option>
-          </select>
+  <div class="card">
+    <div class="card-header">Filters</div>
+    <div class="card-body" *ngIf="form">
+      <form  [formGroup]="form">
+        <input type="hidden" formControlName="page">
+        <div class="row">
+          <div class="col-12 col-md-6 col-lg-3">
+            <label>Type</label>
+            <select class="form-control" formControlName="type">
+              <option *ngFor="let type of types | keyvalue" [value]="type.value">{{ type.key }}</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <label for="sortBy">Sort By</label>
+            <select class="form-control" formControlName="sortBy" id="sortBy">
+              <option *ngFor="let sort of sortBy | keyvalue" [value]="sort.value">{{ sort.key }}</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <label for="minTomato">Min Score <span class="badge badge-light">{{ form.controls['minTomato'].value }}</span></label>
+            <input class="form-control" type="range" step="5" formControlName="minTomato" id="minTomato">
+          </div>
         </div>
-        <div class="col-12 col-md-6 col-lg-3">
-          <label for="sortBy">Sort By</label>
-          <select class="form-control" formControlName="sortBy" id="sortBy">
-            <option *ngFor="let sort of sortBy | keyvalue" [value]="sort.value">{{ sort.key }}</option>
-          </select>
-        </div>
-        <div class="col-12 col-md-6 col-lg-3">
-          <label for="minTomato">Min Score <span class="badge badge-light">{{ form.controls['minTomato'].value }}</span></label>
-          <input class="form-control" type="range" step="5" formControlName="minTomato" id="minTomato">
-        </div>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
-</div>
-<app-media-results [results]="results" [mediaType]="'movie'"></app-media-results>
-<div class="row justify-content-end my-3 mr-2">
-  <button class="btn btn-info" type="button" (click)="search(true)">Next</button>
+  <app-media-results [results]="results" [mediaType]="'movie'"></app-media-results>
+  <div class="row justify-content-between my-3 mr-2">
+    <button class="btn btn-info" type="button" [disabled]="form.get('page').value <= 1" (click)="previous()">Previous</button>
+    <button class="btn btn-info" type="button" (click)="next()">Next</button>
+  </div>
 </div>

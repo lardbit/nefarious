@@ -45,15 +45,15 @@ export class RottenTomatoesComponent implements OnInit {
 
     // build form
     this.form = this.fb.group({
-      type: this.types['In Theaters'],
-      sortBy: this.sortBy['Popularity'],
-      page: 1,
-      minTomato: 70,
+      type: this.route.snapshot.queryParams['type'] || this.types['In Theaters'],
+      sortBy: this.route.snapshot.queryParams['sortBy'] || this.sortBy['Popularity'],
+      page: parseInt(this.route.snapshot.queryParams['page'], 10) || 1,
+      minTomato: this.route.snapshot.queryParams['minTomato'] || 70,
     });
 
     this.route.queryParams.subscribe((params) => {
       this.form.patchValue(params, {emitEvent: false});
-      this.search();
+      this._updateRoute();
     });
 
     // react to changes
@@ -61,20 +61,25 @@ export class RottenTomatoesComponent implements OnInit {
       debounceTime(250),
     ).subscribe((type) => {
       this._setPage(1);
-      this.search();
+      this._updateRoute();
     });
-
-    this.search();
   }
 
-  public search(next?: boolean) {
+  public next() {
+    this._setPage(parseInt(this.form.get('page').value, 10) + 1);
+    this._updateRoute();
+  }
+
+  public previous() {
+    if (this.form.get('page').value > 0) {
+      this._setPage(parseInt(this.form.get('page').value, 10) - 1);
+    }
+    this._updateRoute();
+  }
+
+  public search() {
     this.isLoading = true;
     this._handleCertifiedFresh();
-    if (next) {
-      this._setPage(this.form.get('page').value + 1);
-    }
-
-    this.router.navigate([], {queryParams: this.form.value, preserveFragment: true});
 
     this.apiService.discoverRottenTomatoesMedia('movie', this.form.value).subscribe(
       (data: any) => {
@@ -89,7 +94,13 @@ export class RottenTomatoesComponent implements OnInit {
     );
   }
 
+  protected _updateRoute() {
+    this.router.navigate(['/discover'], {queryParams: this.form.value, preserveFragment: true});
+    this.search();
+  }
+
   protected _handleCertifiedFresh() {
+    // disable score filter since "certified" means over 75
     if (this._isCertifiedFresh()) {
       this.form.get('minTomato').setValue(75, {emitEvent: false});
       this.form.get('minTomato').disable({emitEvent: false});
@@ -99,8 +110,8 @@ export class RottenTomatoesComponent implements OnInit {
   }
 
   protected _isCertifiedFresh(): boolean {
-    const type = this.form.get('type').value;
-    return /^cf-/.test(type);
+    // "certified" fresh start with "cf-"
+    return /^cf-/.test(this.form.get('type').value);
   }
 
   protected _setPage(page: number) {
