@@ -54,8 +54,6 @@ export class RottenTomatoesComponent implements OnInit {
     // TODO - there's a duplicate fetch when we paginate
     // TODO - "sacrifice" movie listed on page 1 and 2
     //        http://elguapo.crabdance.com:8000/static/index.html#/discover?type=in-theaters&sortBy=popularity&page=2&minTomato=70#rt
-    // TODO - move tomato score on same level as title
-    // TODO - rt be it's own url navigated component? the discover page is loading tmdb results before switching to rt frag
 
     this.route.queryParams.subscribe((params) => {
       this.form.patchValue(params, {emitEvent: false});

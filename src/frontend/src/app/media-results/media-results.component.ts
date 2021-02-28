@@ -51,6 +51,7 @@ export class MediaResultsComponent implements OnInit {
   }
 
   public navigateToMedia(result: any) {
+    // rotten tomato results must be searched against tmdb and then routed
     if (this.isRottenTomatoResult(result)) {
       this.isLoading = true;
       this.apiService.searchMedia(result.title, this.mediaType).subscribe(
@@ -70,6 +71,8 @@ export class MediaResultsComponent implements OnInit {
           this.isLoading = false;
         },
       );
+    } else {
+      this.router.navigate(['/media', this.mediaType, result.id]);
     }
   }
 
