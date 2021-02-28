@@ -1,0 +1,58 @@
+<div class="position-relative">
+  <ngx-loading [show]="isLoading"></ngx-loading>
+  <div class="card">
+    <div class="card-header">
+      Filters
+    </div>
+    <div class="card-body">
+      <form  [formGroup]="form" (ngSubmit)="search()">
+        <input type="hidden" formControlName="page">
+        <div class="row">
+          <div class="col-12 col-md-6 col-lg-3">
+            <label for="media-type">Type</label>
+            <select class="form-control" id="media-type" formControlName="mediaType">
+              <option value="movie">Movies</option>
+              <option value="tv">TV</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <label for="sort">Sort</label>
+            <select class="form-control" id="sort" formControlName="sort_by">
+              <option *ngFor="let option of OPTIONS_SORT" [value]="option.value">{{ option.name }}</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <label for="release_date_gte">Release Year Min</label>
+            <input class="form-control" type="number" min="1800" step="1" formControlName="primary_release_date.gte" id="release_date_gte">
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <label for="release_date_lte">Release Year Max</label>
+            <input class="form-control" type="number" min="1800" step="1" formControlName="primary_release_date.lte" id="release_date_lte">
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <label for="genre">Genre</label>
+            <select class="form-control" formControlName="with_genres" id="genre">
+              <option></option>
+              <ng-container *ngIf="form.value.mediaType == 'tv'">
+                <option *ngFor="let genre of tvGenres" [value]="genre.id">{{ genre.name }}</option>
+              </ng-container>
+              <ng-container *ngIf="form.value.mediaType == 'movie'">
+                <option *ngFor="let genre of movieGenres" [value]="genre.id">{{ genre.name }}</option>
+              </ng-container>
+            </select>
+          </div>
+        </div>
+        <div class="row justify-content-end mt-3">
+          <button class="btn btn-primary">Search</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="results">
+  <app-media-results [results]="results" [mediaType]="form.value.mediaType"></app-media-results>
+  <div class="row justify-content-end my-3 mr-2">
+    <button class="btn btn-info" type="button" (click)="search(true)">Next</button>
+  </div>
+</div>

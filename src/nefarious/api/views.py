@@ -438,7 +438,7 @@ class VideosView(views.APIView):
 @method_decorator(gzip_page, name='dispatch')
 class DiscoverRottenTomatoesMediaView(views.APIView):
 
-    @method_decorator(cache_page(CACHE_WEEK))
+    @method_decorator(cache_page(CACHE_DAY))
     def get(self, request, media_type: str):
         assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
         # default params

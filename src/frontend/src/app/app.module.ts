@@ -33,6 +33,7 @@ import { MediaResultsComponent } from './media-results/media-results.component';
 import { MediaFilterPipe } from './filter.pipe';
 import { WantedComponent } from './wanted/wanted.component';
 import { RottenTomatoesComponent } from './rotten-tomatoes/rotten-tomatoes.component';
+import { TmdbComponent } from './tmdb/tmdb.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'search/auto', pathMatch: 'full' },  // redirects
@@ -45,7 +46,16 @@ const appRoutes: Routes = [
   { path: 'watching/:type', component: WatchingComponent, canActivate: [LoginGuard, SettingsGuard] },
   { path: 'wanted/:type', component: WantedComponent, canActivate: [LoginGuard, SettingsGuard] },
   { path: 'settings', component: SettingsComponent, canActivate: [LoginGuard, StaffGuard] },
-  { path: 'discover', component: DiscoverComponent, canActivate: [LoginGuard, SettingsGuard] },
+  {
+    path: 'discover',
+    component: DiscoverComponent,
+    canActivate: [LoginGuard, SettingsGuard],
+    children: [
+      { path: '',   redirectTo: '/discover/tmdb', pathMatch: 'full' },
+      { path: 'tmdb', component: TmdbComponent },
+      { path: 'rt', component: RottenTomatoesComponent },
+    ],
+  },
   { path: 'page-not-found', component: PageNotFoundComponent },
   { path: '**', component: PageNotFoundComponent }
 ];
@@ -79,6 +89,7 @@ export function init(apiService: ApiService) {
     MediaFilterPipe,
     WantedComponent,
     RottenTomatoesComponent,
+    TmdbComponent,
   ],
   imports: [
     RouterModule.forRoot(
