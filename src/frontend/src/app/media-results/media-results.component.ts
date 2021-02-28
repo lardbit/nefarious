@@ -1,3 +1,5 @@
+import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
 import { Component, OnInit, Input } from '@angular/core';
 import { ApiService } from '../api.service';
 import * as _ from 'lodash';
@@ -11,9 +13,12 @@ export class MediaResultsComponent implements OnInit {
   @Input() results: any[];
   @Input() mediaType: string;
   public search = '';
+  public isLoading = false;
 
   constructor(
     private apiService: ApiService,
+    private router: Router,
+    private toastr: ToastrService,
   ) {
   }
 
@@ -38,11 +43,38 @@ export class MediaResultsComponent implements OnInit {
   }
 
   public mediaPosterURL(result) {
-    if (/^http/.test(result.poster_path)) {
+    if (this.isRottenTomatoResult(result)) {
       return result.poster_path;
     } else {
       return `${this.apiService.settings.tmdb_configuration.images.secure_base_url}/original/${result.poster_path}`;
     }
+  }
+
+  public navigateToMedia(result: any) {
+    if (this.isRottenTomatoResult(result)) {
+      this.isLoading = true;
+      this.apiService.searchMedia(result.title, this.mediaType).subscribe(
+        (data) => {
+          if (data.results && data.results.length > 0) {
+            this.router.navigate(['/media', this.mediaType, data.results[0].id]);
+          } else {
+            this.toastr.error('No results found for title in TMDB');
+          }
+        },
+        (error) => {
+          console.error(error);
+          this.toastr.error('An unknown error occurred');
+          this.isLoading = false;
+        },
+        () => {
+          this.isLoading = false;
+        },
+      );
+    }
+  }
+
+  public isRottenTomatoResult(result): boolean {
+    return result.provider === 'rotten-tomatoes';
   }
 
   protected _watchingResult(result: any) {

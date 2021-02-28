@@ -10,3 +10,7 @@
 .rotten-tomato img {
   width: 20px;
 }
+
+.result:hover {
+    cursor: pointer;
+}

@@ -174,7 +174,6 @@ class TransmissionTorrentSerializer(serializers.Serializer):
 
 
 class RottenTomatoesSearchResultsSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
     title = serializers.CharField()
     overview = serializers.CharField(source='synopsis', required=False)
     tomato_score = serializers.CharField(source='tomatoScore', required=False)
