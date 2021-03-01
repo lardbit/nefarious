@@ -802,7 +802,6 @@ export class ApiService {
   public discoverRottenTomatoesMedia(mediaType: string, params: any) {
     params = _.assign(params, this._defaultParams());
     const httpParams = new HttpParams({fromObject: params});
-    // const url = mediaType === this.SEARCH_MEDIA_TYPE_MOVIE ? this.API_URL_DISCOVER_RT_MOVIES : this.API_URL_DISCOVER_ROTTEN_TOMATOES_TV;
     const url = this.API_URL_DISCOVER_RT_MOVIES;
     return this.http.get(url, {params: httpParams, headers: this._requestHeaders()});
   }
