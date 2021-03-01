@@ -57,7 +57,14 @@ export class MediaResultsComponent implements OnInit {
       this.apiService.searchMedia(result.title, this.mediaType).subscribe(
         (data) => {
           if (data.results && data.results.length > 0) {
-            this.router.navigate(['/media', this.mediaType, data.results[0].id]);
+            // try and find an exact match, otherwise fallback to first result
+            let match = data.results.find((movie) => {
+              return movie.title === result.title;
+            });
+            if (!match) {
+              match = data.results[0];
+            }
+            this.router.navigate(['/media', this.mediaType, match.id]);
           } else {
             this.toastr.error('No results found for title in TMDB');
           }
