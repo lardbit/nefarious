@@ -32,6 +32,7 @@ Features:
 - [x] Webhook support (i.e can post to Slack, Telegram etc when media downloads)
 - [x] Imports existing libraries
 - [x] VPN integration (optional)
+- [x] Rotten Tomatoes integration
 
 ### Contents
 
