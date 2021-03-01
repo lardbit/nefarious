@@ -1,5 +1,5 @@
 <div class="position-relative">
-  <ngx-loading [show]="isSaving"></ngx-loading>
+  <ngx-loading [show]="isSaving" [config]="{fullScreenBackdrop: true}"></ngx-loading>
   <form class="was-validated" [formGroup]="form" (ngSubmit)="submit()">
     <div class="d-flex justify-content-end my-3">
       <button type="button" class="btn btn-sm btn-info mx-1" (click)="verifySettings()">

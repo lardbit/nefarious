@@ -5,9 +5,10 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule, Routes} from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { FileSizeModule } from 'ngx-filesize';
 import { ToastrModule } from 'ngx-toastr';
-import { LoadingModule } from 'ngx-loading';
+import { NgxLoadingModule } from 'ngx-loading';
 import { MomentModule } from 'ngx-moment';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { AngularPageVisibilityModule } from 'angular-page-visibility';
@@ -104,9 +105,10 @@ export function init(apiService: ApiService) {
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
+    CommonModule,
     FileSizeModule,
     ToastrModule.forRoot(),
-    LoadingModule,
+    NgxLoadingModule.forRoot({}),
     MomentModule,
     NgSelectModule,
     AngularPageVisibilityModule,
