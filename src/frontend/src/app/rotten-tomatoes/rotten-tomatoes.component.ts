@@ -6,6 +6,9 @@ import { debounceTime } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
 
+const RESULTS_PER_PAGE = 32;
+
+
 @Component({
   selector: 'app-rotten-tomatoes',
   templateUrl: './rotten-tomatoes.component.html',
@@ -51,13 +54,9 @@ export class RottenTomatoesComponent implements OnInit {
       minTomato: this.route.snapshot.queryParams['minTomato'] || 70,
     });
 
-    // TODO - there's a duplicate fetch when we paginate
-    // TODO - "sacrifice" movie listed on page 1 and 2
-    //        http://elguapo.crabdance.com:8000/static/index.html#/discover?type=in-theaters&sortBy=popularity&page=2&minTomato=70#rt
-
     this.route.queryParams.subscribe((params) => {
       this.form.patchValue(params, {emitEvent: false});
-      this._updateRoute();
+      this._search();
     });
 
     // react to changes
@@ -66,7 +65,12 @@ export class RottenTomatoesComponent implements OnInit {
     ).subscribe((type) => {
       this._setPage(1);
       this._updateRoute();
+      this._search();
     });
+  }
+
+  public hasNextPage(): boolean {
+    return this.results.length >= RESULTS_PER_PAGE;
   }
 
   public next() {
@@ -75,13 +79,18 @@ export class RottenTomatoesComponent implements OnInit {
   }
 
   public previous() {
-    if (this.form.get('page').value > 0) {
+    if (this.form.get('page').value > 1) {
       this._setPage(parseInt(this.form.get('page').value, 10) - 1);
     }
     this._updateRoute();
   }
 
-  public search() {
+  public isCertifiedFresh(): boolean {
+    // "certified" fresh start with "cf-"
+    return /^cf-/.test(this.form.get('type').value);
+  }
+
+  protected _search() {
     this.isLoading = true;
     this._handleCertifiedFresh();
 
@@ -98,14 +107,8 @@ export class RottenTomatoesComponent implements OnInit {
     );
   }
 
-  public isCertifiedFresh(): boolean {
-    // "certified" fresh start with "cf-"
-    return /^cf-/.test(this.form.get('type').value);
-  }
-
   protected _updateRoute() {
     this.router.navigate([], {queryParams: this.form.value});
-    this.search();
   }
 
   protected _handleCertifiedFresh() {

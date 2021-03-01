@@ -29,6 +29,6 @@
   <app-media-results [results]="results" [mediaType]="'movie'"></app-media-results>
   <div class="row justify-content-between my-3 mx-2">
     <button class="btn btn-info" type="button" [disabled]="form.get('page').value <= 1" (click)="previous()">Previous</button>
-    <button class="btn btn-info" type="button" (click)="next()">Next</button>
+    <button class="btn btn-info" type="button" [disabled]="!hasNextPage()" (click)="next()">Next</button>
   </div>
 </div>
