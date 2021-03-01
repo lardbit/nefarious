@@ -36,6 +36,7 @@ export class ApiService {
   API_URL_CURRENT_TORRENTS = '/api/current/torrents/';
   API_URL_DISCOVER_MOVIES = '/api/discover/media/movie/';
   API_URL_DISCOVER_TV = '/api/discover/media/tv/';
+  API_URL_DISCOVER_RT_MOVIES = '/api/discover/rotten-tomatoes/media/movie/';
   API_URL_GENRES_MOVIE = '/api/genres/movie/';
   API_URL_GENRES_TV = '/api/genres/tv/';
   API_URL_QUALITY_PROFILES = '/api/quality-profiles/';
@@ -797,6 +798,15 @@ export class ApiService {
       }),
     );
   }
+
+  public discoverRottenTomatoesMedia(mediaType: string, params: any) {
+    params = _.assign(params, this._defaultParams());
+    const httpParams = new HttpParams({fromObject: params});
+    // const url = mediaType === this.SEARCH_MEDIA_TYPE_MOVIE ? this.API_URL_DISCOVER_RT_MOVIES : this.API_URL_DISCOVER_ROTTEN_TOMATOES_TV;
+    const url = this.API_URL_DISCOVER_RT_MOVIES;
+    return this.http.get(url, {params: httpParams, headers: this._requestHeaders()});
+  }
+
 
   protected _initWebSocket() {
 

@@ -3,3 +3,14 @@
   top: 0;
   right: 0;
 }
+
+.rotten-tomato {
+  font-size: 15px;
+}
+.rotten-tomato img {
+  width: 20px;
+}
+
+.result:hover {
+    cursor: pointer;
+}

@@ -1,4 +1,6 @@
 import os
+
+import requests
 from celery_once import AlreadyQueued
 from django.conf import settings
 from django.utils.dateparse import parse_date
@@ -14,7 +16,7 @@ from rest_framework import views
 from rest_framework import exceptions
 from nefarious.api.serializers import (
     WatchMovieSerializer, WatchTVShowSerializer, WatchTVEpisodeSerializer, WatchTVSeasonRequestSerializer, WatchTVSeasonSerializer,
-    TransmissionTorrentSerializer,)
+    TransmissionTorrentSerializer, RottenTomatoesSearchResultsSerializer, )
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVShow, WatchTVEpisode, WatchTVSeasonRequest, WatchTVSeason
 from nefarious.search import MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrents
 from nefarious.quality import PROFILES
@@ -29,6 +31,9 @@ CACHE_HOUR = CACHE_MINUTE * 60
 CACHE_HALF_DAY = CACHE_HOUR * 12
 CACHE_DAY = CACHE_HALF_DAY * 2
 CACHE_WEEK = CACHE_DAY * 7
+
+
+ROTTEN_TOMATOES_API_URL = 'https://www.rottentomatoes.com/api/private/v2.0/browse'
 
 
 class ObtainAuthTokenView(ObtainAuthToken):
@@ -428,6 +433,36 @@ class VideosView(views.APIView):
             result = tmdb.TV(media_id)
 
         return Response(result.videos())
+
+
+@method_decorator(gzip_page, name='dispatch')
+class DiscoverRottenTomatoesMediaView(views.APIView):
+
+    @method_decorator(cache_page(CACHE_DAY))
+    def get(self, request, media_type: str):
+        assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
+        # default params
+        params = dict(
+            sortBy=request.query_params.get('sortBy', 'popularity'),
+            type=request.query_params.get('type', 'in-theaters'),
+            page=request.query_params.get('page', '1'),
+        )
+
+        # min score
+        min_tomato = request.query_params.get('minTomato'),
+        if min_tomato:
+            params['minTomato'] = min_tomato
+
+        # get results
+        response = requests.get(ROTTEN_TOMATOES_API_URL, params=params)
+        response.raise_for_status()
+        logger_foreground.info(response.url)
+        body = response.json()
+
+        # serialize results
+        body['results'] = RottenTomatoesSearchResultsSerializer(body['results'], many=True).data
+
+        return Response(body)
 
 
 @method_decorator(gzip_page, name='dispatch')

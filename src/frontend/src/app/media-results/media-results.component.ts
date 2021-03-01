@@ -1,3 +1,5 @@
+import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
 import { Component, OnInit, Input } from '@angular/core';
 import { ApiService } from '../api.service';
 import * as _ from 'lodash';
@@ -11,9 +13,12 @@ export class MediaResultsComponent implements OnInit {
   @Input() results: any[];
   @Input() mediaType: string;
   public search = '';
+  public isLoading = false;
 
   constructor(
     private apiService: ApiService,
+    private router: Router,
+    private toastr: ToastrService,
   ) {
   }
 
@@ -38,7 +43,48 @@ export class MediaResultsComponent implements OnInit {
   }
 
   public mediaPosterURL(result) {
-    return `${this.apiService.settings.tmdb_configuration.images.secure_base_url}/original/${result.poster_path}`;
+    if (this.isRottenTomatoResult(result)) {
+      return result.poster_path;
+    } else {
+      return `${this.apiService.settings.tmdb_configuration.images.secure_base_url}/original/${result.poster_path}`;
+    }
+  }
+
+  public navigateToMedia(result: any) {
+    // rotten tomato results must be searched against tmdb and then routed
+    if (this.isRottenTomatoResult(result)) {
+      this.isLoading = true;
+      this.apiService.searchMedia(result.title, this.mediaType).subscribe(
+        (data) => {
+          if (data.results && data.results.length > 0) {
+            // try and find an exact match, otherwise fallback to first result
+            let match = data.results.find((movie) => {
+              return movie.title === result.title;
+            });
+            if (!match) {
+              match = data.results[0];
+            }
+            this.router.navigate(['/media', this.mediaType, match.id]);
+          } else {
+            this.toastr.error('No results found for title in TMDB');
+          }
+        },
+        (error) => {
+          console.error(error);
+          this.toastr.error('An unknown error occurred');
+          this.isLoading = false;
+        },
+        () => {
+          this.isLoading = false;
+        },
+      );
+    } else {
+      this.router.navigate(['/media', this.mediaType, result.id]);
+    }
+  }
+
+  public isRottenTomatoResult(result): boolean {
+    return result.provider === 'rotten-tomatoes';
   }
 
   protected _watchingResult(result: any) {

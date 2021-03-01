@@ -7,7 +7,8 @@
       <input class="form-control form-control-sm mb-3 w-25" [(ngModel)]="search" required minlength="2" name="search" type="text" placeholder="Filter..." autocomplete="off">
     </div>
     <div class="row">
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let result of results | mediaFilter: search">
+      <ngx-loading [show]="isLoading"></ngx-loading>
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3 result" *ngFor="let result of results | mediaFilter: search" (click)="navigateToMedia(result)">
         <div class="card" [ngClass]="{'border border-success rounded': isWatchingResult(result)}">
           <div class="result-watching">
             <div class="d-flex justify-content-end">
@@ -15,22 +16,24 @@
               <div *ngIf="hasDownloadedResult(result)" class="ml-2 text-success" ngbTooltip="Downloaded"><span class="oi oi-check"></span></div>
             </div>
           </div>
-          <a [routerLink]="['/media', mediaType, result.id]">
-            <img class="card-img-top" [src]="mediaPosterURL(result)" alt="">
-          </a>
+          <img class="card-img-top" [src]="mediaPosterURL(result)" alt="">
           <div class="card-body">
             <ng-container *ngIf="isSearchingMovies()">
-              <a [routerLink]="['/media', mediaType, result.id]">
-                <h4 class="card-title">{{ result.title }}</h4>
-              </a>
+              <h4 class="card-title">{{ result.title }}</h4>
               <h6 class="card-title">{{ result.release_date | date: 'y' }}</h6>
             </ng-container>
             <ng-container *ngIf="isSearchingTV()">
-              <a [routerLink]="['/media', mediaType, result.id]">
-                <h4 class="card-title">{{ result.name }}</h4>
-              </a>
+              <h4 class="card-title">{{ result.name }}</h4>
             </ng-container>
-            <p class="card-text">{{ result.overview }}</p>
+            <div class="d-flex justify-content-end rotten-tomato" *ngIf="isRottenTomatoResult(result)">
+              <div>
+                <img *ngIf="result.tomato_icon === 'certified_fresh'" src="/static/assets/rt-fresh.png">
+                <img *ngIf="result.tomato_icon === 'fresh'" src="/static/assets/rt-regular.png">
+                <img *ngIf="result.tomato_icon === 'rotten'" src="/static/assets/rt-splat.png">
+                <span class="score ml-1">{{ result.tomato_score }}</span>
+              </div>
+            </div>
+            <p class="card-text"[innerHTML]="result.overview"></p>
           </div>
         </div>
       </div>
