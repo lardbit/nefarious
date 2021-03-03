@@ -456,7 +456,6 @@ class DiscoverRottenTomatoesMediaView(views.APIView):
         # get results
         response = requests.get(ROTTEN_TOMATOES_API_URL, params=params)
         response.raise_for_status()
-        logger_foreground.info(response.url)
         body = response.json()
 
         # serialize results
