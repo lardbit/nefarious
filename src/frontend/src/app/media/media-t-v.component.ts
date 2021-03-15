@@ -1,4 +1,4 @@
-import { ChangeDetectorRef } from '@angular/core';
+import { NgZone } from '@angular/core';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
@@ -32,7 +32,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private apiService: ApiService,
     private toastr: ToastrService,
-    private changeDetectorRef: ChangeDetectorRef,
+    private ngZone: NgZone,
     private fb: FormBuilder,
   ) {
   }
@@ -61,8 +61,9 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     // watch for updated media
     this._changes = this.apiService.mediaUpdated$.subscribe(
       () => {
-        this._buildWatchEpisodesForm();
-        this.changeDetectorRef.detectChanges();
+        this.ngZone.run(() => {
+          this._buildWatchEpisodesForm();
+        });
       }
     );
   }

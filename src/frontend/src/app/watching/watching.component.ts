@@ -1,9 +1,9 @@
-import { ChangeDetectorRef } from '@angular/core';
+import { NgZone } from '@angular/core';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
 import { Subscription } from 'rxjs';
-import {MediaFilterPipe} from '../filter.pipe';
+import { MediaFilterPipe } from '../filter.pipe';
 
 
 @Component({
@@ -23,8 +23,8 @@ export class WatchingComponent implements OnInit, OnDestroy {
   constructor(
     private apiService: ApiService,
     private route: ActivatedRoute,
-    private changeDetectorRef: ChangeDetectorRef,
     private mediaFilter: MediaFilterPipe,
+    private ngZone: NgZone,
   ) {}
 
   ngOnInit() {
@@ -32,8 +32,9 @@ export class WatchingComponent implements OnInit, OnDestroy {
     // watch for updated media
     this._changes = this.apiService.mediaUpdated$.subscribe(
       () => {
-        this._buildResults(this.mediaType);
-        this.changeDetectorRef.detectChanges();
+        this.ngZone.run(() => {
+          this._buildResults(this.mediaType);
+        });
       }
     );
 

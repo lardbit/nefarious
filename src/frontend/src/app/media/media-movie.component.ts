@@ -1,4 +1,4 @@
-import {ChangeDetectorRef} from '@angular/core';
+import { NgZone } from '@angular/core';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
@@ -28,7 +28,7 @@ export class MediaMovieComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private apiService: ApiService,
     private toastr: ToastrService,
-    private changeDetectorRef: ChangeDetectorRef
+    private ngZone: NgZone,
   ) {
   }
 
@@ -66,8 +66,9 @@ export class MediaMovieComponent implements OnInit, OnDestroy {
     // watch for updated media
     this._changes = this.apiService.mediaUpdated$.subscribe(
       () => {
-        this.watchMovie = this.getWatchMovie();
-        this.changeDetectorRef.detectChanges();
+        this.ngZone.run(() => {
+          this.watchMovie = this.getWatchMovie();
+        });
       }
     );
   }

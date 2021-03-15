@@ -3,8 +3,8 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 import * as _ from 'lodash';
-import {forkJoin, Observable, of, Subject, zip} from 'rxjs';
-import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
+import { forkJoin, Observable, of, Subject, zip } from 'rxjs';
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
 
 @Injectable({
@@ -177,10 +177,6 @@ export class ApiService {
       ),
       this.fetchQualityProfiles(),
     ]).pipe(
-      tap(() => {
-        // alert any relevant components media has been updated
-        this._alertMediaUpdated();
-      }),
       catchError((error) => {
         console.error(error);
         return of(error);
@@ -190,32 +186,16 @@ export class ApiService {
 
   public fetchWatchMedia(): Observable<any> {
     return forkJoin([
-      this.fetchWatchTVShows().pipe(
-        tap((data) => {
-          this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_SHOWS, data).subscribe();
-        })
-      ),
-      this.fetchWatchTVSeasons().pipe(
-        tap((data) => {
-          this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_SEASONS, data).subscribe();
-        })
-      ),
-      this.fetchWatchTVSeasonRequests().pipe(
-        tap((data) => {
-          this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_SEASON_REQUESTS, data).subscribe();
-        })
-      ),
-      this.fetchWatchTVEpisodes().pipe(
-        tap((data) => {
-          this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_EPISODES, data).subscribe();
-        })
-      ),
-      this.fetchWatchMovies().pipe(
-        tap((data) => {
-          this.localStorage.setItem(this.STORAGE_KEY_WATCH_MOVIES, data).subscribe();
-        })
-      ),
-    ]);
+      this.fetchWatchTVShows(),
+      this.fetchWatchTVSeasons(),
+      this.fetchWatchTVSeasonRequests(),
+      this.fetchWatchTVEpisodes(),
+      this.fetchWatchMovies(),
+    ]).pipe(
+      tap(() => {
+        this._updateStorage().subscribe();
+      }),
+    );
   }
 
   public fetchSettings() {
@@ -364,9 +344,7 @@ export class ApiService {
               this.watchTVEpisodes.push(data.watch_tv_episode);
             }
           }
-          // send event updates and update storage
-          this._alertMediaUpdated();
-          this._updateStorage();
+          this._updateStorage().subscribe();
         }
         return data;
       }),
@@ -730,7 +708,8 @@ export class ApiService {
 
   public blacklistRetryTVSeason(watchMediaId: number) {
     const url = `${this.API_URL_WATCH_TV_SEASON}${watchMediaId}/blacklist-auto-retry/`;
-    return this.http.post(url, null, {headers: this._requestHeaders()}).pipe(
+    const options = {headers: this._requestHeaders()};
+    return this.http.post(url, null, options).pipe(
       map((data: any) => {
         this.watchTVSeasons.forEach((watchSeason) => {
           if (data.id === watchSeason.id) {
@@ -893,8 +872,7 @@ export class ApiService {
       }
     }
 
-    // alert any relevant components media has been updated
-    this._alertMediaUpdated();
+    this._updateStorage().subscribe();
   }
 
   protected _fetchGenres(mediaType: string) {
@@ -924,17 +902,44 @@ export class ApiService {
     });
   }
 
-  protected _alertMediaUpdated() {
-    this.mediaUpdated$.next(true);
-  }
-
   protected _updateStorage(): Observable<any> {
+
+    // sort media
+    this.watchMovies.sort(this._sortWatchMediaByName);
+    this.watchTVShows.sort(this._sortWatchMediaByName);
+    this.watchTVSeasons.sort(this._sortWatchMediaByName);
+    this.watchTVSeasonRequests.sort(this._sortWatchMediaByName);
+    this.watchTVEpisodes.sort(this._sortWatchMediaByName);
+
+    // set in storage
     return forkJoin([
       this.localStorage.setItem(this.STORAGE_KEY_WATCH_MOVIES, this.watchMovies),
       this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_SHOWS, this.watchTVShows),
       this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_SEASONS, this.watchTVSeasons),
       this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_SEASON_REQUESTS, this.watchTVSeasonRequests),
       this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_EPISODES, this.watchTVEpisodes),
-    ]);
+    ]).pipe(
+      tap(() => {
+        // send event updates
+        this._alertMediaUpdated();
+      })
+    );
+  }
+
+  protected _alertMediaUpdated() {
+    this.mediaUpdated$.next(true);
+  }
+
+  protected _sortWatchMediaByName(watchA: any, watchB: any) {
+    const nameA = watchA.name.toLowerCase();
+    const nameB = watchB.name.toLowerCase();
+    if (nameA < nameB) {
+      return -1;
+    }
+    if (nameA > nameB) {
+      return 1;
+    }
+    // equal
+    return 0;
   }
 }

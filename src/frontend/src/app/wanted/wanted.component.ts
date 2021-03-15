@@ -1,5 +1,5 @@
-import { ChangeDetectorRef } from '@angular/core';
-import {Component, OnInit, OnDestroy } from '@angular/core';
+import { NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
 import { ActivatedRoute } from '@angular/router';
@@ -22,7 +22,7 @@ export class WantedComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private toastr: ToastrService,
     private route: ActivatedRoute,
-    private changeDetectorRef: ChangeDetectorRef
+    private ngZone: NgZone,
   ) {}
 
   ngOnInit() {
@@ -30,8 +30,9 @@ export class WantedComponent implements OnInit, OnDestroy {
     // watch for updated media
     this._changes = this.apiService.mediaUpdated$.subscribe(
       () => {
-        this._buildResults(this.mediaType);
-        this.changeDetectorRef.detectChanges();
+        this.ngZone.run(() => {
+          this._buildResults(this.mediaType);
+        });
       }
     );
 
