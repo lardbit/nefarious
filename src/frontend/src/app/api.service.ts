@@ -907,9 +907,6 @@ export class ApiService {
     // sort media
     this.watchMovies.sort(this._sortWatchMediaByName);
     this.watchTVShows.sort(this._sortWatchMediaByName);
-    this.watchTVSeasons.sort(this._sortWatchMediaByName);
-    this.watchTVSeasonRequests.sort(this._sortWatchMediaByName);
-    this.watchTVEpisodes.sort(this._sortWatchMediaByName);
 
     // set in storage
     return forkJoin([
