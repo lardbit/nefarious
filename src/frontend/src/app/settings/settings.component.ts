@@ -1,7 +1,8 @@
+import { ChangeDetectorRef } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
 import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterContentChecked } from '@angular/core';
 import * as _ from 'lodash';
 
 @Component({
@@ -9,7 +10,7 @@ import * as _ from 'lodash';
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css']
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, AfterContentChecked {
   public users: any[];
   public form;
   public isSaving = false;
@@ -20,7 +21,13 @@ export class SettingsComponent implements OnInit {
     private toastr: ToastrService,
     private apiService: ApiService,
     private fb: FormBuilder,
+    private changeDectorRef: ChangeDetectorRef
   ) { }
+
+  ngAfterContentChecked() {
+    // handles form "required" dynamically changing after lifecycle check
+    this.changeDectorRef.detectChanges();
+  }
 
   ngOnInit() {
     const settings = this.apiService.settings || {};
@@ -34,6 +41,9 @@ export class SettingsComponent implements OnInit {
       'transmission_pass': [settings['transmission_pass']],
       'transmission_tv_download_dir': [settings['transmission_tv_download_dir'], Validators.required],
       'transmission_movie_download_dir': [settings['transmission_movie_download_dir'], Validators.required],
+      'open_subtitles_username': [settings['open_subtitles_username']],
+      'open_subtitles_password': [settings['open_subtitles_password']],
+      'open_subtitles_auto': [settings['open_subtitles_auto']],
       'quality_profile_tv': [settings['quality_profile_tv'], Validators.required],
       'quality_profile_movies': [settings['quality_profile_movies'], Validators.required],
       'allow_hardcoded_subs': [settings['allow_hardcoded_subs'], Validators.required],
@@ -66,6 +76,23 @@ export class SettingsComponent implements OnInit {
 
   public submit() {
     this.isSaving = true;
+
+    // validate form and display errors
+    if (!this.form.valid) {
+      console.log(this.form);
+      Object.keys(this.form.controls).forEach((key) => {
+        const control = this.form.get(key);
+        if (control.errors) {
+          const errors = [];
+          Object.keys(control.errors).forEach((errorKey) => {
+            errors.push(`${errorKey}: ${control.errors[errorKey]}`);
+          });
+          this.toastr.error(`${key}: ${errors.join(', ')}`);
+        }
+      });
+      this.isSaving = false;
+      return false;
+    }
 
     // create a copy of the form data so we can modify it
     const formData = _.assign({}, this.form.value);

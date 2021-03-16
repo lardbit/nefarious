@@ -1,6 +1,5 @@
 import re
 import os
-import struct
 import logging
 import regex
 import requests
@@ -219,39 +218,3 @@ def update_media_release_date(media, release_date):
         media.save()
     else:
         logger_background.warning('Skipping empty release date for {}'.format(media))
-
-
-def media_hash(path: str):
-    """
-    Media hash used for matching in Open Subtitles
-    https://trac.opensubtitles.org/projects/opensubtitles/wiki/HashSourceCodes
-    """
-
-    long_long_format = '<q'  # little-endian long long
-    byte_size = struct.calcsize(long_long_format)
-
-    f = open(path, "rb")
-
-    filesize = os.path.getsize(path)
-    hash_str = filesize
-
-    if filesize < 65536 * 2:
-        raise Exception('Hash size error')
-
-    for x in range(int(65536 / byte_size)):
-        buffer = f.read(byte_size)
-        (l_value,) = struct.unpack(long_long_format, buffer)
-        hash_str += l_value
-        hash_str = hash_str & 0xFFFFFFFFFFFFFFFF  # to remain as 64bit number
-
-    f.seek(max(0, filesize - 65536), 0)
-    for x in range(int(65536 / byte_size)):
-        buffer = f.read(byte_size)
-        (l_value,) = struct.unpack(long_long_format, buffer)
-        hash_str += l_value
-        hash_str = hash_str & 0xFFFFFFFFFFFFFFFF
-
-    f.close()
-    returned_hash = "%016x" % hash_str
-
-    return returned_hash
