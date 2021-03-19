@@ -245,6 +245,17 @@
                 <label>Password</label>
                 <input type="password" class="form-control" formControlName="open_subtitles_password" [required]="form.controls['open_subtitles_auto'].value">
               </div>
+              <button type="button" class="btn btn-sm btn-info mx-1" (click)="authenticateOpenSubtitles()">
+                <ngx-loading [show]="authenticateOpenSubtitles$ && !authenticateOpenSubtitles$.closed"></ngx-loading>
+                <span *ngIf="apiService.settings.open_subtitles_user_token">
+                  Re-authenticate
+                  <span class="oi oi-link-intact"></span>
+                </span>
+                <span *ngIf="!apiService.settings.open_subtitles_user_token">
+                  Authenticate
+                  <span class="oi oi-link-broken"></span>
+                </span>
+              </button>
             </div>
           </div>
         </div>

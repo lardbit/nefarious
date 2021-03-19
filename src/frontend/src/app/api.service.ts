@@ -43,6 +43,7 @@ export class ApiService {
   API_URL_GIT_COMMIT = '/api/git-commit/';
   API_URL_IMPORT_MEDIA_TV = '/api/import/media/tv/';
   API_URL_IMPORT_MEDIA_MOVIE = '/api/import/media/movie/';
+  API_URL_OPEN_SUBTITLES_AUTH = '/api/open-subtitles/auth/';
 
   SEARCH_MEDIA_TYPE_TV = 'tv';
   SEARCH_MEDIA_TYPE_MOVIE = 'movie';
@@ -785,6 +786,10 @@ export class ApiService {
     return this.http.get(url, {params: httpParams, headers: this._requestHeaders()});
   }
 
+  public openSubtitlesAuth() {
+    const url = this.API_URL_OPEN_SUBTITLES_AUTH;
+    return this.http.post(url, null, {headers: this._requestHeaders()});
+  }
 
   protected _initWebSocket() {
 

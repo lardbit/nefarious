@@ -4,6 +4,8 @@ import { ApiService } from '../api.service';
 import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { Component, OnInit, AfterContentChecked } from '@angular/core';
 import * as _ from 'lodash';
+import { concat, Subscription } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-settings',
@@ -16,10 +18,11 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
   public isSaving = false;
   public isVeryingJackettIndexers = false;
   public gitCommit = '';
+  public authenticateOpenSubtitles$: Subscription;
 
   constructor(
+    public apiService: ApiService,
     private toastr: ToastrService,
-    private apiService: ApiService,
     private fb: FormBuilder,
     private changeDectorRef: ChangeDetectorRef
   ) { }
@@ -79,7 +82,6 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
 
     // validate form and display errors
     if (!this.form.valid) {
-      console.log(this.form);
       Object.keys(this.form.controls).forEach((key) => {
         const control = this.form.get(key);
         if (control.errors) {
@@ -111,7 +113,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
         this.isSaving = false;
       },
       (error) => {
-        console.log(error);
+        console.error(error);
         this.toastr.error(JSON.stringify(error.error));
         this.isSaving = false;
       }
@@ -190,7 +192,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
         },
         (error) => {
           this.toastr.error(`An unknown error occurred updating user ${userControl.value.username}`);
-          console.log(error);
+          console.error(error);
         }
       );
     } else {  // new user
@@ -201,7 +203,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
         },
         (error) => {
           this.toastr.error(`An unknown error occurred adding user ${userControl.value.username}`);
-          console.log(error);
+          console.error(error);
         }
       );
     }
@@ -216,7 +218,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       },
       (error) => {
         this.toastr.error(`An unknown error occurred deleting user ${userControl.value.username}`);
-        console.log(error);
+        console.error(error);
       }
     );
   }
@@ -250,5 +252,40 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
 
   public hasHostDownloadPath(): boolean {
     return Boolean(this.apiService.settings.host_download_path);
+  }
+
+  public authenticateOpenSubtitles(): Subscription {
+    const error_message = 'An unknown error occurred';
+    const params = {};
+    [
+      'open_subtitles_auto',
+      'open_subtitles_username',
+      'open_subtitles_password',
+    ].
+    forEach((key) => {
+      params[key] = this.form.value[key];
+    });
+
+    // save settings, auth with open subtitles, then fetch updated settings to get new user token
+    this.authenticateOpenSubtitles$ = concat(
+      this.apiService.updateSettings(this.apiService.settings.id, params),
+      this.apiService.openSubtitlesAuth().pipe(
+        tap((data: any) => {
+          if (data.success) {
+            this.toastr.success('Successfully authenticated with Open Subtitles');
+          } else {
+            this.toastr.error(data.error || error_message);
+          }
+        }),
+      ),
+      this.apiService.fetchSettings(),
+    ).subscribe(
+        (data: any) => {
+        }, (error) => {
+          console.error(error);
+          this.toastr.error(error_message);
+        }
+      );
+    return this.authenticateOpenSubtitles$;
   }
 }

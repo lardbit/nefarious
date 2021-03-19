@@ -5,6 +5,9 @@ from typing import Union
 from nefarious.models import NefariousSettings
 
 
+# TODO - query by language
+
+
 class OpenSubtitles:
     API_URL_BASE = 'https://www.opensubtitles.com/api/v1'
     API_URL_AUTH = '{base}/login'.format(base=API_URL_BASE)
@@ -17,10 +20,13 @@ class OpenSubtitles:
     def __init__(self):
         self.nefarious_settings = NefariousSettings.get()
 
-    def auth(self, username: str, password: str):
+    def auth(self):
         self._response = requests.post(
             self.API_URL_AUTH,
-            data={'username': username, 'password': password},
+            data={
+                'username': self.nefarious_settings.open_subtitles_username,
+                'password': self.nefarious_settings.open_subtitles_password,
+            },
             headers={'Api-Key': self.nefarious_settings.open_subtitles_api_key},
             timeout=30,
         )
@@ -38,7 +44,7 @@ class OpenSubtitles:
             self.nefarious_settings.open_subtitles_user_token = self.user_token
             self.nefarious_settings.save()
         else:
-            self.error_message = 'could not authenticate'
+            self.error_message = 'Unable to authenticate with provided credentials'
         return self._response.ok
 
     def search(self, tmdb_id: int, path: str) -> Union[dict, bool]:
@@ -82,8 +88,8 @@ class OpenSubtitles:
 
     @staticmethod
     def _sort_results(results: list):
-        # sort by "points"
-        results.sort(key=lambda x: x.get('attributes', {}).get('points', 0))
+        # sort by "points" desc
+        results.sort(key=lambda x: x.get('attributes', {}).get('points', 0), reverse=True)
         return results
 
     @staticmethod
