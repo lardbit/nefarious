@@ -13,6 +13,7 @@ from nefarious.celery import app
 from nefarious.importer.movie import MovieImporter
 from nefarious.importer.tv import TVImporter
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, WatchTVSeason, WatchTVSeasonRequest, WatchTVShow
+from nefarious.opensubtitles import OpenSubtitles
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
@@ -194,6 +195,10 @@ def completed_media_task():
 
                 # send complete message through webhook
                 webhook.send_message('{} was downloaded'.format(media))
+
+                # download subtitles
+                if nefarious_settings.should_save_subtitles():
+                    download_subtitles_task.delay(media.id)
 
 
 @app.task
@@ -413,3 +418,14 @@ def populate_release_dates_task():
             update_media_release_date(media, release_date)
         except Exception as e:
             logger_background.exception(e)
+
+
+@app.task
+def download_subtitles_task(media_type: str, watch_media_id: int):
+    if media_type == 'movie':
+        watch_movie = WatchMovie.objects.get(id=watch_media_id)
+        open_subtitles = OpenSubtitles()
+        open_subtitles.download(watch_movie)
+    else:
+        # TODO - handle TV
+        pass

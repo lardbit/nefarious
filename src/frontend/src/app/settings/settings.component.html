@@ -33,6 +33,7 @@
               <button type="button" class="btn btn-sm btn-secondary position-relative" (click)="verifyJackettIndexers()">
                 <ngx-loading [show]="isVeryingJackettIndexers"></ngx-loading>
                 Verify Indexers
+                <span class="oi oi-pulse"></span>
               </button>
             </div>
           </div>
@@ -245,7 +246,7 @@
                 <label>Password</label>
                 <input type="password" class="form-control" formControlName="open_subtitles_password" [required]="form.controls['open_subtitles_auto'].value">
               </div>
-              <button type="button" class="btn btn-sm btn-info mx-1" (click)="authenticateOpenSubtitles()">
+              <button type="button" class="btn btn-sm mx-1" [ngClass]="{'btn-info': apiService.settings.open_subtitles_user_token, 'btn-primary': !apiService.settings.open_subtitles_user_token}" (click)="authenticateOpenSubtitles()">
                 <ngx-loading [show]="authenticateOpenSubtitles$ && !authenticateOpenSubtitles$.closed"></ngx-loading>
                 <span *ngIf="apiService.settings.open_subtitles_user_token">
                   Re-authenticate

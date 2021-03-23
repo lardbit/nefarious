@@ -254,7 +254,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
     return Boolean(this.apiService.settings.host_download_path);
   }
 
-  public authenticateOpenSubtitles(): Subscription {
+  public authenticateOpenSubtitles() {
     const error_message = 'An unknown error occurred';
     const params = {};
     [
@@ -286,6 +286,5 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
           this.toastr.error(error_message);
         }
       );
-    return this.authenticateOpenSubtitles$;
   }
 }

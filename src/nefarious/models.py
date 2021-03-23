@@ -64,6 +64,13 @@ class NefariousSettings(models.Model):
             poster_path.lstrip('/'),
         )
 
+    def should_save_subtitles(self):
+        return all([
+            self.open_subtitles_auto,
+            self.open_subtitles_user_token,
+            settings.HOST_DOWNLOAD_PATH,
+        ])
+
 
 class WatchMediaBase(models.Model):
     """

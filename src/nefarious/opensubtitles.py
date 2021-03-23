@@ -2,10 +2,9 @@ import os
 import struct
 import requests
 from typing import Union
-from nefarious.models import NefariousSettings
-
-
-# TODO - query by language
+from nefarious.models import NefariousSettings, WatchMovie
+from nefarious.parsers.base import ParserBase
+from nefarious.utils import logger_background
 
 
 class OpenSubtitles:
@@ -55,6 +54,7 @@ class OpenSubtitles:
                 'type': 'movie',  # TODO - handle TV
                 'tmdb_id': tmdb_id,
                 'moviehash': media_hash,
+                'languages': self.nefarious_settings.language,
             },
             headers={'Api-Key': self.nefarious_settings.open_subtitles_api_key},
             timeout=30,
@@ -69,6 +69,7 @@ class OpenSubtitles:
         data = self._response.json()
         if 'data' in data and len(data['data']) > 0:
             results = self._sort_results(data['data'])
+            results = self._single_file_results(results)
             hash_matched_results = self._hash_match_results(results)
             # has direct hash matches
             if hash_matched_results:
@@ -79,6 +80,38 @@ class OpenSubtitles:
         else:
             self.error_message = 'No results found'
             return False
+
+    def download(self, watch_media: WatchMovie):
+        # TODO - handle TV vs Movie w/ tmdb_id
+        # downloads the matching subtitle to the media's path
+
+        # download subtitle
+        result = self.search(watch_media.tmdb_movie_id, watch_media.download_path)
+        response = requests.get(result['link'], timeout=30)
+        response.raise_for_status()
+
+        # define subtitle extension
+        extension = '.srt'
+        file_extension_match = ParserBase.file_extension_regex.search(result['file_name'])
+        if file_extension_match:
+            extension = file_extension_match.group().lower()
+
+        # define subtitle download path
+        subtitle_path = os.path.join(watch_media.download_path, '{}.{}'.format(watch_media, extension))
+
+        logger_background.info('downloading subtitle {} to {}'.format(result['file_name'], subtitle_path))
+
+        # save subtitle
+        with open(subtitle_path, 'rb') as fh:
+            fh.write(response.content)
+
+    @staticmethod
+    def _single_file_results(results: list):
+        # only include results with a single subtitle file since
+        # media apps like Plex only expect a single file
+        # https://support.plex.tv/articles/200471133-adding-local-subtitles-to-your-media/
+        results = [r for r in results if len(r.get('attributes', {}).get('files', [])) == 1]
+        return results
 
     @staticmethod
     def _hash_match_results(results: list):
