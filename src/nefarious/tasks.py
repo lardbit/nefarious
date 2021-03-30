@@ -154,9 +154,6 @@ def completed_media_task():
 
                 # flag media as completed
                 logger_background.info('Media completed: {}'.format(media))
-                media.collected = True
-                media.collected_date = datetime.utcnow()
-                media.save()
 
                 # special handling for tv seasons
                 if isinstance(media, WatchTVSeason):
@@ -179,7 +176,7 @@ def completed_media_task():
                 transmission_session = transmission_client.session_stats()
                 move_to_path = os.path.join(
                     transmission_session.download_dir,
-                    sub_path,
+                    sub_path,  # i.e "movies" or "tv"
                     new_path or '',
                 )
                 logger_background.info('Moving torrent data to "{}"'.format(move_to_path))
@@ -188,6 +185,13 @@ def completed_media_task():
                 # rename the data
                 logger_background.info('Renaming torrent file from "{}" to "{}"'.format(torrent.name, new_name))
                 transmission_client.rename_torrent_path(torrent.id, torrent.name, new_name)
+
+                # save media's new path and that it was successfully collected
+                media.collected = True
+                media.collected_date = datetime.utcnow()
+                # TODO - needs to be path to actual video file
+                media.download_path = os.path.join(sub_path, new_name)  # relative path
+                media.save()
 
                 # send websocket message media was updated
                 media_type, data = websocket.get_media_type_and_serialized_watch_media(media)
@@ -198,7 +202,7 @@ def completed_media_task():
 
                 # download subtitles
                 if nefarious_settings.should_save_subtitles():
-                    download_subtitles_task.delay(media.id)
+                    download_subtitles_task.delay(media_type, media.id)
 
 
 @app.task
@@ -423,7 +427,8 @@ def populate_release_dates_task():
 @app.task
 def download_subtitles_task(media_type: str, watch_media_id: int):
     if media_type == 'movie':
-        watch_movie = WatchMovie.objects.get(id=watch_media_id)
+        watch_movie = get_object_or_404(WatchMovie, pk=watch_media_id)
+        logger_background.info('downloading subtitles for {}'.format(watch_movie))
         open_subtitles = OpenSubtitles()
         open_subtitles.download(watch_movie)
     else:

@@ -47,7 +47,7 @@ services:
       DATABASE_URL: "sqlite:////nefarious-db/db.sqlite3"
       REDIS_HOST: "redis"
       HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp}
-      INTERNAL_DOWNLOAD_PATH: /downloads/completed
+      INTERNAL_DOWNLOAD_PATH: /downloads
     volumes:
       - ${HOST_DOWNLOAD_PATH:-/tmp}:/downloads
       # persistent named volume for sqlite database

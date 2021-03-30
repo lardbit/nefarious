@@ -68,7 +68,6 @@ class NefariousSettings(models.Model):
         return all([
             self.open_subtitles_auto,
             self.open_subtitles_user_token,
-            settings.HOST_DOWNLOAD_PATH,
         ])
 
 
@@ -85,6 +84,9 @@ class WatchMediaBase(models.Model):
     last_attempt_date = models.DateTimeField(blank=True, null=True)
     transmission_torrent_hash = models.CharField(max_length=100, null=True, blank=True)
     release_date = models.DateField(null=True, blank=True)
+
+    def abs_download_path(self):
+        return os.path.join(settings.INTERNAL_DOWNLOAD_PATH, self.download_path)
 
     class Meta:
         abstract = True

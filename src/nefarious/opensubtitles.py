@@ -6,11 +6,15 @@ from nefarious.models import NefariousSettings, WatchMovie
 from nefarious.parsers.base import ParserBase
 from nefarious.utils import logger_background
 
+# api documentation
+# https://opensubtitles.stoplight.io/docs/opensubtitles-api/open_api.json
+
 
 class OpenSubtitles:
     API_URL_BASE = 'https://www.opensubtitles.com/api/v1'
     API_URL_AUTH = '{base}/login'.format(base=API_URL_BASE)
     API_URL_SEARCH = '{base}/subtitles'.format(base=API_URL_BASE)
+    API_URL_DOWNLOAD = '{base}/download'.format(base=API_URL_BASE)
 
     user_token: str = None
     error_message: str = None
@@ -85,24 +89,55 @@ class OpenSubtitles:
         # TODO - handle TV vs Movie w/ tmdb_id
         # downloads the matching subtitle to the media's path
 
+        logger_background.info('downloading subtitles for {}'.format(watch_media))
+
         # download subtitle
-        result = self.search(watch_media.tmdb_movie_id, watch_media.download_path)
-        response = requests.get(result['link'], timeout=30)
+        search_result = self.search(watch_media.tmdb_movie_id, watch_media.abs_download_path())
+
+        # retrieve the file id (guaranteed to have a single file from previous validation)
+        file_id = search_result['attributes']['files'][0]['file_id']
+
+        response = requests.post(
+            self.API_URL_DOWNLOAD,
+            data={
+                'file_id': file_id,
+            },
+            headers={
+                'Api-Key': self.nefarious_settings.open_subtitles_api_key,
+                'Authorization': 'Bearer: {}'.format(self.nefarious_settings.open_subtitles_user_token),
+            },
+            timeout=30,
+        )
         response.raise_for_status()
+        download_result = response.json()
+
+        response = requests.get(download_result['link'], timeout=30)
+        response.raise_for_status()
+
+        logger_background.info('found subtitle {} for {}'.format(
+            search_result.get('attributes', {}).get('url'),
+            watch_media,
+        ))
 
         # define subtitle extension
         extension = '.srt'
-        file_extension_match = ParserBase.file_extension_regex.search(result['file_name'])
+        file_extension_match = ParserBase.file_extension_regex.search(download_result['file_name'])
         if file_extension_match:
             extension = file_extension_match.group().lower()
 
-        # define subtitle download path
-        subtitle_path = os.path.join(watch_media.download_path, '{}.{}'.format(watch_media, extension))
+        # subtitle download path, .ie "movies/The.Movie/The.Movie.srt"
+        subtitle_path = os.path.join(
+            os.path.dirname(watch_media.abs_download_path()),
+            '{name}.{language}{extension}'.format(
+                name=watch_media,
+                language=self.nefarious_settings.language,
+                extension=extension,
+            ))
 
-        logger_background.info('downloading subtitle {} to {}'.format(result['file_name'], subtitle_path))
+        logger_background.info('downloading subtitle {} to {}'.format(download_result['file_name'], subtitle_path))
 
         # save subtitle
-        with open(subtitle_path, 'rb') as fh:
+        with open(subtitle_path, 'wb') as fh:
             fh.write(response.content)
 
     @staticmethod
