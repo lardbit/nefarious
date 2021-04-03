@@ -58,6 +58,10 @@ class ImporterBase:
         if parser.match:
             file_extension_match = parser.file_extension_regex.search(file_name)
             if file_extension_match:
+                # skip sample files
+                if parser.sample_file_regex.search(file_name):
+                    logger_background.warning('[NO_MATCH_SAMPLE] Not matching sample file "{}"'.format(file_path))
+                    return False
                 title = parser.match['title']
                 if not title:
                     new_title, parser_match = self._handle_missing_title(parser, file_path)

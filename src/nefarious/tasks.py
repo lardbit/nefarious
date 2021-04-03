@@ -1,4 +1,6 @@
 import os
+
+from celery import chain
 from celery.signals import task_failure
 from datetime import datetime
 from celery_once import QueueOnce
@@ -186,11 +188,9 @@ def completed_media_task():
                 logger_background.info('Renaming torrent file from "{}" to "{}"'.format(torrent.name, new_name))
                 transmission_client.rename_torrent_path(torrent.id, torrent.name, new_name)
 
-                # save media's new path and that it was successfully collected
+                # save media as collected
                 media.collected = True
                 media.collected_date = datetime.utcnow()
-                # TODO - needs to be path to actual video file
-                media.download_path = os.path.join(sub_path, new_name)  # relative path
                 media.save()
 
                 # send websocket message media was updated
@@ -200,9 +200,22 @@ def completed_media_task():
                 # send complete message through webhook
                 webhook.send_message('{} was downloaded'.format(media))
 
-                # download subtitles
+                # post-tasks
+                post_tasks = [
+                    # queue import of media to save the actual media paths
+                    import_library_task.si(
+                        'movie' if isinstance(media, WatchMovie) else 'tv',  # media type
+                        media.user_id,  # user id
+                        os.path.join(settings.INTERNAL_DOWNLOAD_PATH, sub_path, new_name),  # import path
+                    ),
+                ]
+
+                # conditionally add subtitles task to post-tasks
                 if nefarious_settings.should_save_subtitles():
-                    download_subtitles_task.delay(media_type, media.id)
+                    post_tasks.append(download_subtitles_task.si(media_type.lower(), media.id))
+
+                # queue post-tasks
+                chain(*post_tasks)()
 
 
 @app.task
@@ -360,7 +373,7 @@ def auto_watch_new_seasons_task():
 
 
 @app.task(base=QueueOnce)
-def import_library_task(media_type: str, user_id: int):
+def import_library_task(media_type: str, user_id: int, sub_path: str = None):
     user = get_object_or_404(User, pk=user_id)
     nefarious_settings = NefariousSettings.get()
     tmdb_client = get_tmdb_client(nefarious_settings=nefarious_settings)
@@ -368,22 +381,24 @@ def import_library_task(media_type: str, user_id: int):
     logger_background.info('Importing {} library'.format(media_type))
 
     if media_type == 'movie':
-        download_path = os.path.join(settings.INTERNAL_DOWNLOAD_PATH, nefarious_settings.transmission_movie_download_dir)
+        root_path = os.path.join(settings.INTERNAL_DOWNLOAD_PATH, nefarious_settings.transmission_movie_download_dir)
         importer = MovieImporter(
             nefarious_settings=nefarious_settings,
-            download_path=download_path,
+            download_path=root_path,
             tmdb_client=tmdb_client,
             user=user,
         )
     else:
-        download_path = os.path.join(settings.INTERNAL_DOWNLOAD_PATH, nefarious_settings.transmission_tv_download_dir)
+        root_path = os.path.join(settings.INTERNAL_DOWNLOAD_PATH, nefarious_settings.transmission_tv_download_dir)
         importer = TVImporter(
             nefarious_settings=nefarious_settings,
-            download_path=download_path,
+            download_path=root_path,
             tmdb_client=tmdb_client,
             user=user,
         )
-    importer.ingest_root(download_path)
+
+    # ingest
+    importer.ingest_root(sub_path or root_path)
 
 
 @app.task
@@ -426,7 +441,8 @@ def populate_release_dates_task():
 
 @app.task
 def download_subtitles_task(media_type: str, watch_media_id: int):
-    if media_type == 'movie':
+    logger_background.info('download subtitles task: {} and {}'.format(media_type, watch_media_id))
+    if media_type:
         watch_movie = get_object_or_404(WatchMovie, pk=watch_media_id)
         logger_background.info('downloading subtitles for {}'.format(watch_movie))
         open_subtitles = OpenSubtitles()
