@@ -38,7 +38,7 @@ class MovieImportTest(TestCase):
         # import
         importer = MovieImporter(
             nefarious_settings=nefarious_settings,
-            download_path='/test-download',
+            root_path='/test-download',
             tmdb_client=tmdb_client,
             user=user,
         )
