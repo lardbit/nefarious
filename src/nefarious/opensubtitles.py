@@ -2,7 +2,7 @@ import os
 import struct
 import requests
 from typing import Union
-from nefarious.models import NefariousSettings, WatchMovie
+from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode
 from nefarious.parsers.base import ParserBase
 from nefarious.utils import logger_background
 
@@ -50,12 +50,12 @@ class OpenSubtitles:
             self.error_message = 'Unable to authenticate with provided credentials'
         return self._response.ok
 
-    def search(self, tmdb_id: int, path: str) -> Union[dict, bool]:
+    def search(self, open_subtitle_type: str, tmdb_id: int, path: str) -> Union[dict, bool]:
         media_hash = self.media_hash(path)
         self._response = requests.get(
             self.API_URL_SEARCH,
             params={
-                'type': 'movie',  # TODO - handle TV
+                'type': open_subtitle_type,  # movie|episode
                 'tmdb_id': tmdb_id,
                 'moviehash': media_hash,
                 'languages': self.nefarious_settings.language,
@@ -85,14 +85,26 @@ class OpenSubtitles:
             self.error_message = 'No results found'
             return False
 
-    def download(self, watch_media: WatchMovie):
-        # TODO - handle TV vs Movie w/ tmdb_id
+    def download(self, watch_media):
         # downloads the matching subtitle to the media's path
+
+        if not watch_media.download_path:
+            logger_background.warning(
+                'skipping subtitles for media {} since it does not have a download path populated'.format(watch_media))
+            return
+        if not isinstance(watch_media, (WatchMovie, WatchTVEpisode)):
+            msg = 'error collecting subtitles for media {}: unknown media type'.format(watch_media)
+            logger_background.warning(msg)
+            raise Exception(msg)
 
         logger_background.info('downloading subtitles for {}'.format(watch_media))
 
         # download subtitle
-        search_result = self.search(watch_media.tmdb_movie_id, watch_media.abs_download_path())
+        search_result = self.search(
+            'movie' if isinstance(watch_media, WatchMovie) else 'episode',
+            watch_media.tmdb_movie_id if isinstance(watch_media, WatchMovie) else watch_media.tmdb_episode_id,
+            watch_media.abs_download_path(),
+        )
 
         # retrieve the file id (guaranteed to have a single file from previous validation)
         file_id = search_result['attributes']['files'][0]['file_id']
@@ -150,7 +162,6 @@ class OpenSubtitles:
 
     @staticmethod
     def _hash_match_results(results: list):
-        # TODO - TV probably doesn't use "moviehash_match" param?
         results = [r for r in results if r.get('attributes', {}).get('moviehash_match')]
         return results
 
