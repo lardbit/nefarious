@@ -88,6 +88,8 @@ class OpenSubtitles:
     def download(self, watch_media):
         # downloads the matching subtitle to the media's path
 
+        logger_background.info('downloading subtitles for {}'.format(watch_media))
+
         if not watch_media.download_path:
             logger_background.warning(
                 'skipping subtitles for media {} since it does not have a download path populated'.format(watch_media))
@@ -96,8 +98,6 @@ class OpenSubtitles:
             msg = 'error collecting subtitles for media {}: unknown media type'.format(watch_media)
             logger_background.warning(msg)
             raise Exception(msg)
-
-        logger_background.info('downloading subtitles for {}'.format(watch_media))
 
         # download subtitle
         search_result = self.search(

@@ -193,7 +193,7 @@ def completed_media_task():
 
                 # save media as collected
                 media.collected = True
-                media.collected_date = datetime.utcnow()
+                media.collected_date = timezone.now()
                 media.save()
 
                 # send websocket message media was updated
@@ -207,6 +207,8 @@ def completed_media_task():
                 import_path = os.path.join(
                     settings.INTERNAL_DOWNLOAD_PATH,
                     relative_path,
+                    # new_path will be None if the torrent is already a directory so fall back to the new name
+                    new_path or new_name,
                 )
 
                 # post-tasks
@@ -458,8 +460,6 @@ def download_subtitles_task(media_type: str, watch_media_id: int):
         watch_media = get_object_or_404(WatchMovie, pk=watch_media_id)
     else:
         watch_media = get_object_or_404(WatchTVEpisode, pk=watch_media_id)
-
-    logger_background.info('downloading subtitles for {}'.format(watch_media))
 
     open_subtitles = OpenSubtitles()
     open_subtitles.download(watch_media)
