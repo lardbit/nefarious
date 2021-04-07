@@ -454,7 +454,6 @@ def populate_release_dates_task():
 @app.task
 def download_subtitles_task(media_type: str, watch_media_id: int):
     # download subtitles for a movie or an episode
-    logger_background.info('download subtitles task: {} and {}'.format(media_type, watch_media_id))
     if media_type == 'movie':
         watch_media = get_object_or_404(WatchMovie, pk=watch_media_id)
     else:

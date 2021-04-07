@@ -106,6 +106,12 @@ class OpenSubtitles:
             watch_media.abs_download_path(),
         )
 
+        # verify a result was found
+        if not search_result:
+            logger_background.warning(
+                'no valid subtitles found for media {}: {}'.format(watch_media, self.error_message))
+            return
+
         # retrieve the file id (guaranteed to have a single file from previous validation)
         file_id = search_result['attributes']['files'][0]['file_id']
 
