@@ -46,8 +46,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && true
 
 # create non-root user
-RUN groupadd -g 10000 nonroot
-RUN useradd -g 10000 -u 10000 nonroot
+RUN groupadd -g 1000 nonroot
+RUN useradd -g 1000 -u 1000 nonroot
 # set file permissions and ownership
 RUN chown -R nonroot:nonroot . /nefarious-db
 
