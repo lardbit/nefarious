@@ -1,4 +1,6 @@
 import os
+
+from celery import chain
 from celery.signals import task_failure
 from datetime import datetime
 from celery_once import QueueOnce
@@ -13,6 +15,7 @@ from nefarious.celery import app
 from nefarious.importer.movie import MovieImporter
 from nefarious.importer.tv import TVImporter
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, WatchTVSeason, WatchTVSeasonRequest, WatchTVShow
+from nefarious.opensubtitles import OpenSubtitles
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
@@ -153,9 +156,6 @@ def completed_media_task():
 
                 # flag media as completed
                 logger_background.info('Media completed: {}'.format(media))
-                media.collected = True
-                media.collected_date = datetime.utcnow()
-                media.save()
 
                 # special handling for tv seasons
                 if isinstance(media, WatchTVSeason):
@@ -173,20 +173,28 @@ def completed_media_task():
 
                 # get the path and updated name for the data
                 new_path, new_name = get_media_new_path_and_name(media, torrent.name, len(torrent.files()) == 1)
-
-                # move the data
-                transmission_session = transmission_client.session_stats()
-                move_to_path = os.path.join(
-                    transmission_session.download_dir,
-                    sub_path,
+                relative_path = os.path.join(
+                    sub_path,  # i.e "movies" or "tv"
                     new_path or '',
                 )
-                logger_background.info('Moving torrent data to "{}"'.format(move_to_path))
-                torrent.move_data(move_to_path)
+
+                # move the data to a new location
+                transmission_session = transmission_client.session_stats()
+                transmission_move_to_path = os.path.join(
+                    transmission_session.download_dir,
+                    relative_path,
+                )
+                logger_background.info('Moving torrent data to "{}"'.format(transmission_move_to_path))
+                torrent.move_data(transmission_move_to_path)
 
                 # rename the data
                 logger_background.info('Renaming torrent file from "{}" to "{}"'.format(torrent.name, new_name))
                 transmission_client.rename_torrent_path(torrent.id, torrent.name, new_name)
+
+                # save media as collected
+                media.collected = True
+                media.collected_date = timezone.now()
+                media.save()
 
                 # send websocket message media was updated
                 media_type, data = websocket.get_media_type_and_serialized_watch_media(media)
@@ -194,6 +202,31 @@ def completed_media_task():
 
                 # send complete message through webhook
                 webhook.send_message('{} was downloaded'.format(media))
+
+                # define the import path
+                import_path = os.path.join(
+                    settings.INTERNAL_DOWNLOAD_PATH,
+                    relative_path,
+                    # new_path will be None if the torrent is already a directory so fall back to the new name
+                    new_path or new_name,
+                )
+
+                # post-tasks
+                post_tasks = [
+                    # queue import of media to save the actual media paths
+                    import_library_task.si(
+                        'movie' if isinstance(media, WatchMovie) else 'tv',  # media type
+                        media.user_id,  # user id
+                        import_path,
+                    ),
+                ]
+
+                # conditionally add subtitles task to post-tasks
+                if nefarious_settings.should_save_subtitles() and isinstance(media, (WatchMovie, WatchTVEpisode)):
+                    post_tasks.append(download_subtitles_task.si(media_type.lower(), media.id))
+
+                # queue post-tasks
+                chain(*post_tasks)()
 
 
 @app.task
@@ -351,30 +384,35 @@ def auto_watch_new_seasons_task():
 
 
 @app.task(base=QueueOnce)
-def import_library_task(media_type: str, user_id: int):
+def import_library_task(media_type: str, user_id: int, sub_path: str = None):
     user = get_object_or_404(User, pk=user_id)
     nefarious_settings = NefariousSettings.get()
     tmdb_client = get_tmdb_client(nefarious_settings=nefarious_settings)
 
-    logger_background.info('Importing {} library'.format(media_type))
-
     if media_type == 'movie':
-        download_path = os.path.join(settings.INTERNAL_DOWNLOAD_PATH, nefarious_settings.transmission_movie_download_dir)
+        root_path = os.path.join(settings.INTERNAL_DOWNLOAD_PATH, nefarious_settings.transmission_movie_download_dir)
         importer = MovieImporter(
             nefarious_settings=nefarious_settings,
-            download_path=download_path,
+            root_path=root_path,
             tmdb_client=tmdb_client,
             user=user,
         )
     else:
-        download_path = os.path.join(settings.INTERNAL_DOWNLOAD_PATH, nefarious_settings.transmission_tv_download_dir)
+        root_path = os.path.join(settings.INTERNAL_DOWNLOAD_PATH, nefarious_settings.transmission_tv_download_dir)
         importer = TVImporter(
             nefarious_settings=nefarious_settings,
-            download_path=download_path,
+            root_path=root_path,
             tmdb_client=tmdb_client,
             user=user,
         )
-    importer.ingest_root(download_path)
+
+    # prefer supplied sub path and fallback to root path
+    path = sub_path or root_path
+
+    logger_background.info('Importing {} library at {}'.format(media_type, path))
+
+    # ingest
+    importer.ingest_root(path)
 
 
 @app.task
@@ -413,3 +451,15 @@ def populate_release_dates_task():
             update_media_release_date(media, release_date)
         except Exception as e:
             logger_background.exception(e)
+
+
+@app.task
+def download_subtitles_task(media_type: str, watch_media_id: int):
+    # download subtitles for a movie or an episode
+    if media_type == 'movie':
+        watch_media = get_object_or_404(WatchMovie, pk=watch_media_id)
+    else:
+        watch_media = get_object_or_404(WatchTVEpisode, pk=watch_media_id)
+
+    open_subtitles = OpenSubtitles()
+    open_subtitles.download(watch_media)

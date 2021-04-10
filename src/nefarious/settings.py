@@ -165,6 +165,10 @@ REST_FRAMEWORK = {
 # https://developers.themoviedb.org/3/getting-started/request-rate-limiting
 TMDB_API_TOKEN = '21c8985a267ac3f11ea75baf2c05c3ba'
 
+# OpenSubtitles - this is only the api key; authenticated users get 100 subtitles/day
+# https://opensubtitles.stoplight.io/docs/opensubtitles-api/open_api.json
+OPENSUBTITLES_API_KEY = 'LG7LMRIL9zfVmF537mxnQDEfN4V7LLqX'
+
 UNPROCESSED_PATH = '.nefarious-unprocessed-downloads'
 
 # container download path (or will be host in development)

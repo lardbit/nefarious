@@ -8,16 +8,16 @@ from nefarious.utils import logger_background
 
 
 class ImporterBase:
-    download_path = None
+    root_path = None
     nefarious_settings = None
     tmdb_client = None
     tmdb_search = None
     user = None
     media_class = None
 
-    def __init__(self, nefarious_settings, download_path, tmdb_client, user):
+    def __init__(self, nefarious_settings, root_path, tmdb_client, user):
         self.nefarious_settings = nefarious_settings
-        self.download_path = download_path
+        self.root_path = root_path
         self.tmdb_client = tmdb_client
         self.tmdb_search = tmdb_client.Search()
         self.user = user
@@ -58,6 +58,10 @@ class ImporterBase:
         if parser.match:
             file_extension_match = parser.file_extension_regex.search(file_name)
             if file_extension_match:
+                # skip sample files
+                if parser.sample_file_regex.search(file_name):
+                    logger_background.warning('[NO_MATCH_SAMPLE] Not matching sample file "{}"'.format(file_path))
+                    return False
                 title = parser.match['title']
                 if not title:
                     new_title, parser_match = self._handle_missing_title(parser, file_path)
@@ -103,7 +107,7 @@ class ImporterBase:
         return False
 
     def _ingest_depth(self, path) -> int:
-        root_depth = len(os.path.normpath(self.download_path).split(os.sep))
+        root_depth = len(os.path.normpath(self.root_path).split(os.sep))
         path_depth = len(os.path.normpath(path).split(os.sep))
         # subtract 1 to account for the movies and tv subdirectories, i.e /download/path/tv & /download/path/movies
         return path_depth - root_depth - 1

@@ -5,8 +5,8 @@ EXPOSE 80
 # add main app
 ADD src /app
 
-# add entrypoint
-ADD entrypoint.sh /app
+# add entrypoints
+ADD entrypoint*.sh /app/
 
 WORKDIR /app
 
@@ -44,18 +44,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
     && true
-
-# create non-root user
-RUN groupadd -g 10000 nonroot
-RUN useradd -g 10000 -u 10000 nonroot
-# set file permissions and ownership
-RUN chown -R nonroot:nonroot . /nefarious-db
-
-# allow non-root user to bind to port 80
-RUN touch /etc/authbind/byport/80
-RUN chmod 500 /etc/authbind/byport/80
-RUN chown nonroot /etc/authbind/byport/80
-
-USER nonroot:nonroot
 
 ENTRYPOINT ["/app/entrypoint.sh"]

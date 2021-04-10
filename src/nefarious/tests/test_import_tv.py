@@ -44,7 +44,7 @@ class TVImportTest(TestCase):
         # import
         importer = TVImporter(
             nefarious_settings=nefarious_settings,
-            download_path='/test-download',
+            root_path='/test-download',
             tmdb_client=tmdb_client,
             user=user,
         )

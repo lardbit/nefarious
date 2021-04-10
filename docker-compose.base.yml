@@ -41,13 +41,13 @@ services:
     extends:
       service: nefarious-base
     restart: always
-    entrypoint: /env/bin/celery -A nefarious worker --concurrency ${NUM_CELERY_WORKERS:-0} --beat --loglevel=INFO
+    entrypoint: /app/entrypoint-celery.sh
     environment:
       # https://github.com/kennethreitz/dj-database-url
       DATABASE_URL: "sqlite:////nefarious-db/db.sqlite3"
       REDIS_HOST: "redis"
       HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp}
-      INTERNAL_DOWNLOAD_PATH: /downloads/completed
+      INTERNAL_DOWNLOAD_PATH: /downloads
     volumes:
       - ${HOST_DOWNLOAD_PATH:-/tmp}:/downloads
       # persistent named volume for sqlite database

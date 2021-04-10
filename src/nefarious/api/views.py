@@ -18,6 +18,7 @@ from nefarious.api.serializers import (
     WatchMovieSerializer, WatchTVShowSerializer, WatchTVEpisodeSerializer, WatchTVSeasonRequestSerializer, WatchTVSeasonSerializer,
     TransmissionTorrentSerializer, RottenTomatoesSearchResultsSerializer, )
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVShow, WatchTVEpisode, WatchTVSeasonRequest, WatchTVSeason
+from nefarious.opensubtitles import OpenSubtitles
 from nefarious.search import MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrents
 from nefarious.quality import PROFILES
 from nefarious.tasks import import_library_task
@@ -484,4 +485,14 @@ class ImportMediaLibraryView(views.APIView):
             msg = 'Import task for {} already exists'.format(media_type)
             logger_foreground.error(msg)
             raise exceptions.APIException(msg)
+        return Response({'success': True})
+
+
+class OpenSubtitlesAuth(views.APIView):
+
+    def post(self, request):
+        open_subtitles = OpenSubtitles()
+        authed = open_subtitles.auth()
+        if not authed:
+            return Response({'success': False, 'error': open_subtitles.error_message})
         return Response({'success': True})

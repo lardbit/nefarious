@@ -4,6 +4,7 @@ from nefarious import quality
 from nefarious.quality import Resolution, Profile
 
 
+# regex parsing taken from:
 # https://github.com/Sonarr/Sonarr/blob/537e4d7c39e839e75e7a7ad84e95cd582ec1d20e/src/NzbDrone.Core/Parser/QualityParser.cs
 # https://github.com/Radarr/Radarr/blob/e01900628f86696469875dcb79f60071278100ba/src/NzbDrone.Core/Parser/QualityParser.cs
 
@@ -22,6 +23,8 @@ class ParserBase:
     website_prefix_regex = regex.compile(r"^\[\s*[a-z]+(\.[a-z]+)+\s*\][- ]*|^www\.[a-z]+\.(?:com|net)[ -]*", regex.I)
     clean_torrent_suffix_regex = regex.compile(r"\[(?:ettv|rartv|rarbg|cttv)\]$", regex.I)
     clean_quality_brackets_regex = regex.compile(r"\[[a-z0-9 ._-]+\]$")
+    sample_file_regex = regex.compile(r"-sample\.\w{2,4}+$", regex.I)  # "sample" media file, i.e Mission.Impossible-sample.mp4
+
     resolution_regex = regex.compile(
         r"\b(?:"
         r"(?<R480p>480p|640x480|848x480)|"
@@ -260,6 +263,8 @@ class ParserBase:
         return title.strip().lower()
 
     def is_match(self, title, *args, **kwargs) -> bool:
+        if not self.match:
+            return False
         return self._is_match(title, *args, **kwargs)
 
     def is_quality_match(self, profile: Profile) -> bool:

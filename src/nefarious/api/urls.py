@@ -34,4 +34,5 @@ urlpatterns = [
     path('quality-profiles/', views.QualityProfilesView.as_view()),
     path('auth/', views.ObtainAuthTokenView.as_view()),  # authenticates user and returns token
     path('git-commit/', views.GitCommitView.as_view()),  # returns this app's git commit
+    path('open-subtitles/auth/', views.OpenSubtitlesAuth.as_view()),  # auths against open subtitles
 ]

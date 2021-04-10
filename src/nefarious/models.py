@@ -14,10 +14,12 @@ class NefariousSettings(models.Model):
 
     language = models.CharField(max_length=2, default='en')  # chosen language
 
+    # jackett
     jackett_host = models.CharField(max_length=500, default='jackett')
     jackett_port = models.IntegerField(default=9117)
     jackett_token = models.CharField(max_length=500, default=JACKETT_TOKEN_DEFAULT)
 
+    # transmission
     transmission_host = models.CharField(max_length=500, default='transmission')
     transmission_port = models.IntegerField(default=9091)
     transmission_user = models.CharField(max_length=500, blank=True, default='')  # credentials aren't required for transmission
@@ -25,9 +27,17 @@ class NefariousSettings(models.Model):
     transmission_tv_download_dir = models.CharField(max_length=500, default='tv/', help_text='Relative to download path')
     transmission_movie_download_dir = models.CharField(max_length=500, default='movies/', help_text='Relative to download path')
 
+    # tmbd - the movie database
     tmdb_token = models.CharField(max_length=500, default=settings.TMDB_API_TOKEN)
     tmdb_configuration = JSONField(blank=True, null=True)
     tmdb_languages = JSONField(blank=True, null=True)  # type: list
+
+    # open subtitles
+    open_subtitles_api_key = models.CharField(max_length=500, default=settings.OPENSUBTITLES_API_KEY, help_text='OpenSubtitles API Key')  # static value
+    open_subtitles_username = models.CharField(max_length=500, blank=True, null=True, help_text='OpenSubtitles username')
+    open_subtitles_password = models.CharField(max_length=500, blank=True, null=True, help_text='OpenSubtitles password')
+    open_subtitles_user_token = models.CharField(max_length=500, blank=True, null=True, help_text='OpenSubtitles user auth token')  # generated in auth flow
+    open_subtitles_auto = models.BooleanField(default=False, help_text='Whether to automatically download subtitles')
 
     quality_profile_tv = models.CharField(max_length=500, default=quality.PROFILE_ANY.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     quality_profile_movies = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
@@ -54,6 +64,12 @@ class NefariousSettings(models.Model):
             poster_path.lstrip('/'),
         )
 
+    def should_save_subtitles(self):
+        return all([
+            self.open_subtitles_auto,
+            self.open_subtitles_user_token,
+        ])
+
 
 class WatchMediaBase(models.Model):
     """
@@ -68,6 +84,9 @@ class WatchMediaBase(models.Model):
     last_attempt_date = models.DateTimeField(blank=True, null=True)
     transmission_torrent_hash = models.CharField(max_length=100, null=True, blank=True)
     release_date = models.DateField(null=True, blank=True)
+
+    def abs_download_path(self):
+        return os.path.join(settings.INTERNAL_DOWNLOAD_PATH, self.download_path)
 
     class Meta:
         abstract = True

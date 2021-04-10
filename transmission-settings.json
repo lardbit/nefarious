@@ -1,6 +1,7 @@
 {
-    "download-dir": "/downloads/completed",
-    "incomplete-dir": "/downloads/incomplete",
+    "download-dir": "/downloads/",
+    "incomplete-dir": "/downloads/.incomplete",
+    "incomplete-dir-enabled": "true",
     "rpc-whitelist": "*",
     "rpc-host-whitelist-enabled": "false"
 }

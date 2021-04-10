@@ -33,6 +33,7 @@
               <button type="button" class="btn btn-sm btn-secondary position-relative" (click)="verifyJackettIndexers()">
                 <ngx-loading [show]="isVeryingJackettIndexers"></ngx-loading>
                 Verify Indexers
+                <span class="oi oi-pulse"></span>
               </button>
             </div>
           </div>
@@ -211,6 +212,51 @@
             </div>
             <div class="form-group">
               <button type="button" (click)="importLibrary('tv')" class="btn btn-outline-primary btn-sm" [disabled]="!hasHostDownloadPath()">Import TV Shows <span class="oi oi-folder"></span></button>
+            </div>
+          </div>
+        </div>
+        <!-- open subtitles -->
+        <div class="card">
+          <div class="card-header">OpenSubtitles</div>
+          <div class="card-body">
+            <div class="card-title">
+              Do you want subtitles to be automatically downloaded?
+            </div>
+            <div class="card-subtitle">
+              Create an account on <a href="https://www.opensubtitles.org/" target="_blank">opensubtitles.org</a> and include your username and password.
+            </div>
+            <div class="form-check mt-3">
+              <input class="form-check-input" type="radio" [value]="true" formControlName="open_subtitles_auto" id="os-true">
+              <label class="form-check-label" for="os-true">
+                Enabled
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" [value]="false" formControlName="open_subtitles_auto" id="os-false">
+              <label class="form-check-label" for="os-false">
+                Disabled
+              </label>
+            </div>
+            <div [hidden]="!form.controls['open_subtitles_auto'].value">
+              <div class="form-group">
+                <label>Username</label>
+                <input type="text" class="form-control" formControlName="open_subtitles_username" [required]="form.controls['open_subtitles_auto'].value">
+              </div>
+              <div class="form-group">
+                <label>Password</label>
+                <input type="password" class="form-control" formControlName="open_subtitles_password" [required]="form.controls['open_subtitles_auto'].value">
+              </div>
+              <button type="button" class="btn btn-sm mx-1" [ngClass]="{'btn-info': apiService.settings.open_subtitles_user_token, 'btn-primary': !apiService.settings.open_subtitles_user_token}" (click)="authenticateOpenSubtitles()">
+                <ngx-loading [show]="authenticateOpenSubtitles$ && !authenticateOpenSubtitles$.closed"></ngx-loading>
+                <span *ngIf="apiService.settings.open_subtitles_user_token">
+                  Re-authenticate
+                  <span class="oi oi-link-intact"></span>
+                </span>
+                <span *ngIf="!apiService.settings.open_subtitles_user_token">
+                  Authenticate
+                  <span class="oi oi-link-broken"></span>
+                </span>
+              </button>
             </div>
           </div>
         </div>
