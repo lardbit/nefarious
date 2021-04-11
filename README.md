@@ -29,10 +29,11 @@ Features:
 - [x] Movie trailers
 - [x] Automatically renames media
 - [x] Supports multiple languages (TMDB supports internationalized Titles, Descriptions and Poster artwork)
-- [x] Webhook support (i.e can post to Slack, Telegram etc when media downloads)
+- [x] Webhook support (i.e. can post to Slack, Telegram etc when media downloads)
 - [x] Imports existing libraries
 - [x] VPN integration (optional)
-- [x] Rotten Tomatoes integration
+- [x] Rotten Tomatoes integration for discovery
+- [x] Auto download subtitles
 
 ### Contents
 
