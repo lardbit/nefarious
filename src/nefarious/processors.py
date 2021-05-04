@@ -1,4 +1,5 @@
 import os
+import regex
 from django.conf import settings
 from datetime import datetime
 from django.utils import dateparse
@@ -15,6 +16,8 @@ from nefarious.utils import get_best_torrent_result, results_with_valid_urls, lo
 class WatchProcessorBase:
     watch_media = None
     nefarious_settings: NefariousSettings = None
+    _reprocess_without_possessive_apostrophes = False
+    _possessive_apostrophes_regex = regex.compile(r"(?!\w)'s\b", regex.I)
 
     tmdb_media = None
     tmdb_client = None
@@ -28,7 +31,7 @@ class WatchProcessorBase:
         self.tmdb_media = self._get_tmdb_media()
 
     def fetch(self):
-        logger_background.info('Processing request to watch {}'.format(self.watch_media))
+        logger_background.info('Processing request to watch {}'.format(self._sanitize_title(str(self.watch_media))))
         valid_search_results = []
         search = self._get_search_results()
 
@@ -86,11 +89,16 @@ class WatchProcessorBase:
                         valid_search_results.remove(best_result)
                         continue
             else:
-                logger_background.info('No valid search results for {}'.format(self.watch_media))
+                logger_background.info('No valid search results for {}'.format(self._sanitize_title(str(self.watch_media))))
+                # try again without possessive apostrophes (ie. The Handmaids Tale vs The Handmaid's Tale)
+                if not self._reprocess_without_possessive_apostrophes and self._possessive_apostrophes_regex.search(str(self.watch_media)):
+                    self._reprocess_without_possessive_apostrophes = True
+                    logger_background.warning('Retrying without possessive apostrophes: "{}"'.format(self._sanitize_title(str(self.watch_media))))
+                    return self.fetch()
         else:
             logger_background.info('Search error: {}'.format(search.error_content))
 
-        logger_background.info('Unable to find any results for {}'.format(self.watch_media))
+        logger_background.info('Unable to find any results for media {}'.format(self.watch_media))
 
         return False
 
@@ -113,6 +121,12 @@ class WatchProcessorBase:
                 self.nefarious_settings.keyword_search_filters.keys() if self.nefarious_settings.keyword_search_filters else []
             )
         )
+
+    def _sanitize_title(self, title: str):
+        # conditionally remove possessive apostrophes
+        if self._reprocess_without_possessive_apostrophes:
+            return self._possessive_apostrophes_regex.sub('s', title)
+        return title
 
     def _results_with_valid_urls(self, results: list):
         return results_with_valid_urls(results, self.nefarious_settings)
@@ -191,7 +205,7 @@ class WatchMovieProcessor(WatchProcessorBase):
 
     def _get_search_results(self):
         media = self.tmdb_media
-        return SearchTorrents(MEDIA_TYPE_MOVIE, media[self._get_tmdb_title_key()])
+        return SearchTorrents(MEDIA_TYPE_MOVIE, self._sanitize_title(media[self._get_tmdb_title_key()]))
 
 
 class WatchTVProcessorBase(WatchProcessorBase):
@@ -253,12 +267,14 @@ class WatchTVEpisodeProcessor(WatchTVProcessorBase):
         }
         show = show_result.info(**params)
 
+        media_title = self._sanitize_title(show['name'])
+
         return SearchTorrentsCombined([
             # search the show name
-            SearchTorrents(MEDIA_TYPE_TV, show['name']),
+            SearchTorrents(MEDIA_TYPE_TV, media_title),
             # search the show name and the season/episode combination
             SearchTorrents(MEDIA_TYPE_TV, '{} s{:02d}e{:02d}'.format(
-                show['name'],
+                media_title,
                 self.tmdb_media['season_number'],
                 self.tmdb_media['episode_number'],
             )),
@@ -290,4 +306,4 @@ class WatchTVSeasonProcessor(WatchTVProcessorBase):
 
     def _get_search_results(self):
         media = self.tmdb_media
-        return SearchTorrents(MEDIA_TYPE_TV, media[self._get_tmdb_title_key()])
+        return SearchTorrents(MEDIA_TYPE_TV, self._sanitize_title(media[self._get_tmdb_title_key()]))
