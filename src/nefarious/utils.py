@@ -132,7 +132,7 @@ def results_with_valid_urls(results: list, nefarious_settings: NefariousSettings
             continue
 
         # add torrent to valid search results
-        logger_background.info('Valid Match: {} with {} Seeders'.format(result['Title'], result['Seeders']))
+        logger_background.info('Valid Match: "{}" with {} Seeders'.format(result['Title'], result['Seeders']))
         populated_results.append(result)
 
     return populated_results
