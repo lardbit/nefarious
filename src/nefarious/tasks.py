@@ -278,7 +278,12 @@ def wanted_tv_season_task():
 
     for tv_season_request in WatchTVSeasonRequest.objects.filter(collected=False):
         season_request = tmdb.TV_Seasons(tv_season_request.watch_tv_show.tmdb_show_id, tv_season_request.season_number)
-        season = season_request.info()
+        try:
+            season = season_request.info()
+        except Exception as e:
+            logger_background.exception(e)
+            logger_background.warning('(skipping) tmdb error for season request: {}'.format(tv_season_request))
+            continue
 
         now = datetime.utcnow()
         last_air_date = parse_date(season.get('air_date') or '')  # season air date
