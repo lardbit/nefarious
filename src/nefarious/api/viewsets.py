@@ -23,6 +23,9 @@ from nefarious.utils import (
     verify_settings_jackett, verify_settings_transmission, verify_settings_tmdb,
     fetch_jackett_indexers, destroy_transmission_result)
 
+# TODO - last attempt should only populate after an actual attempt
+# TODO - click media should be actual href so you can open a new tab
+
 
 @method_decorator(gzip_page, name='dispatch')
 class WatchMovieViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):

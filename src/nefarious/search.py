@@ -2,10 +2,9 @@ import requests
 from typing import List
 from nefarious.jackett import get_jackett_search_url
 from nefarious.models import NefariousSettings
-from nefarious.utils import fetch_jackett_indexers
 
-MEDIA_TYPE_TV = 'tv'
-MEDIA_TYPE_MOVIE = 'movie'
+SEARCH_MEDIA_TYPE_TV = 'tv'
+SEARCH_MEDIA_TYPE_MOVIE = 'movie'
 
 
 class SearchTorrents:
@@ -15,7 +14,7 @@ class SearchTorrents:
     nefarious_settings: NefariousSettings
 
     def __init__(self, media_type: str, query: str):
-        assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
+        assert media_type in [SEARCH_MEDIA_TYPE_TV, SEARCH_MEDIA_TYPE_MOVIE]
         self.nefarious_settings = NefariousSettings.get()
 
         params = {
@@ -37,7 +36,7 @@ class SearchTorrents:
         # https://github.com/nZEDb/nZEDb/blob/dev/docs/newznab_api_specification.txt
         cat_movies = [2000, 2010, 2030, 2040, 2050, 2060, 2070]
         cat_tv = [5000, 5010, 5020, 5030, 5040, 5060, 5070, 5080]
-        if media_type == MEDIA_TYPE_MOVIE:
+        if media_type == SEARCH_MEDIA_TYPE_MOVIE:
             return cat_movies
         else:
             return cat_tv

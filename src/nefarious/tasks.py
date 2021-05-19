@@ -14,7 +14,10 @@ from django.utils.dateparse import parse_date
 from nefarious.celery import app
 from nefarious.importer.movie import MovieImporter
 from nefarious.importer.tv import TVImporter
-from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, WatchTVSeason, WatchTVSeasonRequest, WatchTVShow
+from nefarious.models import (
+    NefariousSettings, WatchMovie, WatchTVEpisode, WatchTVSeason, WatchTVSeasonRequest, WatchTVShow,
+    MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV_SEASON_REQUEST, MEDIA_TYPE_TV_EPISODE,
+)
 from nefarious.opensubtitles import OpenSubtitles
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.tmdb import get_tmdb_client
@@ -222,8 +225,8 @@ def completed_media_task():
                 ]
 
                 # conditionally add subtitles task to post-tasks
-                if nefarious_settings.should_save_subtitles() and isinstance(media, (WatchMovie, WatchTVEpisode)):
-                    post_tasks.append(download_subtitles_task.si(media_type.lower(), media.id))
+                if nefarious_settings.should_save_subtitles() and media_type in [MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV_EPISODE, MEDIA_TYPE_TV_SEASON_REQUEST]:
+                    post_tasks.append(download_subtitles_task.si(media_type, media.id))
 
                 # queue post-tasks
                 chain(*post_tasks)()
@@ -460,11 +463,19 @@ def populate_release_dates_task():
 
 @app.task
 def download_subtitles_task(media_type: str, watch_media_id: int):
-    # download subtitles for a movie or an episode
-    if media_type == 'movie':
-        watch_media = get_object_or_404(WatchMovie, pk=watch_media_id)
-    else:
-        watch_media = get_object_or_404(WatchTVEpisode, pk=watch_media_id)
 
+    # movie
+    if media_type == MEDIA_TYPE_MOVIE:
+        watch_media = get_object_or_404(WatchMovie, pk=watch_media_id)
+    # episode
+    elif media_type == MEDIA_TYPE_TV_EPISODE:
+        watch_media = get_object_or_404(WatchTVEpisode, pk=watch_media_id)
+    # season request
+    elif media_type == MEDIA_TYPE_TV_SEASON_REQUEST:
+        watch_media = get_object_or_404(WatchTVSeasonRequest, pk=watch_media_id)
+    else:
+        raise Exception('unknown media_type {} and media_id {} combination'.format(media_type, watch_media_id))
+
+    # download subtitles
     open_subtitles = OpenSubtitles()
     open_subtitles.download(watch_media)

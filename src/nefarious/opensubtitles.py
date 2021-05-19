@@ -2,7 +2,7 @@ import os
 import struct
 import requests
 from typing import Union
-from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode
+from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, WatchTVSeasonRequest
 from nefarious.parsers.base import ParserBase
 from nefarious.utils import logger_background
 
@@ -87,6 +87,8 @@ class OpenSubtitles:
 
     def download(self, watch_media):
         # downloads the matching subtitle to the media's path
+
+        # TODO - handle tv season request
 
         logger_background.info('downloading subtitles for {}'.format(watch_media))
 
