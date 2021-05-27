@@ -88,8 +88,6 @@ class OpenSubtitles:
     def download(self, watch_media):
         # downloads the matching subtitle to the media's path
 
-        # TODO - handle tv season request
-
         logger_background.info('downloading subtitles for {}'.format(watch_media))
 
         if not watch_media.download_path:
