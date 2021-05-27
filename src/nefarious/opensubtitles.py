@@ -128,7 +128,11 @@ class OpenSubtitles:
             },
             timeout=30,
         )
+        # validate
+        if not response.ok:
+            logger_background.warning('error received from opensubtitles: code={}, message={}'.format(response.status_code, response.content))
         response.raise_for_status()
+
         download_result = response.json()
 
         response = requests.get(download_result['link'], timeout=30)
