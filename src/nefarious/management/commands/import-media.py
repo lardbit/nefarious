@@ -37,7 +37,7 @@ class Command(BaseCommand):
             tv_path = os.path.join(download_path, nefarious_settings.transmission_tv_download_dir)
             importer = TVImporter(
                 nefarious_settings=nefarious_settings,
-                download_path=tv_path,
+                root_path=tv_path,
                 tmdb_client=tmdb_client,
                 user=user,
             )
@@ -46,7 +46,7 @@ class Command(BaseCommand):
             movie_path = os.path.join(download_path, nefarious_settings.transmission_movie_download_dir)
             importer = MovieImporter(
                 nefarious_settings=nefarious_settings,
-                download_path=movie_path,
+                root_path=movie_path,
                 tmdb_client=tmdb_client,
                 user=user,
             )

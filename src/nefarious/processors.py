@@ -7,7 +7,7 @@ from nefarious.models import WatchMovie, NefariousSettings, TorrentBlacklist, Wa
 from nefarious.parsers.movie import MovieParser
 from nefarious.parsers.tv import TVParser
 from nefarious.quality import Profile
-from nefarious.search import SearchTorrents, MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrentsCombined
+from nefarious.search import SearchTorrents, SEARCH_MEDIA_TYPE_MOVIE, SEARCH_MEDIA_TYPE_TV, SearchTorrentsCombined
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
 from nefarious.utils import get_best_torrent_result, results_with_valid_urls, logger_background
@@ -35,6 +35,7 @@ class WatchProcessorBase:
         valid_search_results = []
         search = self._get_search_results()
 
+        # TODO - last attempt should only populate _after_ an actual attempt
         # save this attempt date
         self.watch_media.last_attempt_date = datetime.utcnow()
         self.watch_media.save()
@@ -182,7 +183,7 @@ class WatchMovieProcessor(WatchProcessorBase):
         )
 
     def _get_media_type(self) -> str:
-        return MEDIA_TYPE_MOVIE
+        return SEARCH_MEDIA_TYPE_MOVIE
 
     def _get_download_dir(self, transmission_session):
         return os.path.join(
@@ -205,7 +206,7 @@ class WatchMovieProcessor(WatchProcessorBase):
 
     def _get_search_results(self):
         media = self.tmdb_media
-        return SearchTorrents(MEDIA_TYPE_MOVIE, self._sanitize_title(media[self._get_tmdb_title_key()]))
+        return SearchTorrents(SEARCH_MEDIA_TYPE_MOVIE, self._sanitize_title(media[self._get_tmdb_title_key()]))
 
 
 class WatchTVProcessorBase(WatchProcessorBase):
@@ -217,7 +218,7 @@ class WatchTVProcessorBase(WatchProcessorBase):
         return TVParser(title)
 
     def _get_media_type(self) -> str:
-        return MEDIA_TYPE_TV
+        return SEARCH_MEDIA_TYPE_TV
 
     def _get_download_dir(self, transmission_session):
         return os.path.join(
@@ -271,9 +272,9 @@ class WatchTVEpisodeProcessor(WatchTVProcessorBase):
 
         return SearchTorrentsCombined([
             # search the show name
-            SearchTorrents(MEDIA_TYPE_TV, media_title),
+            SearchTorrents(SEARCH_MEDIA_TYPE_TV, media_title),
             # search the show name and the season/episode combination
-            SearchTorrents(MEDIA_TYPE_TV, '{} s{:02d}e{:02d}'.format(
+            SearchTorrents(SEARCH_MEDIA_TYPE_TV, '{} s{:02d}e{:02d}'.format(
                 media_title,
                 self.tmdb_media['season_number'],
                 self.tmdb_media['episode_number'],
@@ -306,4 +307,4 @@ class WatchTVSeasonProcessor(WatchTVProcessorBase):
 
     def _get_search_results(self):
         media = self.tmdb_media
-        return SearchTorrents(MEDIA_TYPE_TV, self._sanitize_title(media[self._get_tmdb_title_key()]))
+        return SearchTorrents(SEARCH_MEDIA_TYPE_TV, self._sanitize_title(media[self._get_tmdb_title_key()]))

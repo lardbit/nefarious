@@ -14,7 +14,10 @@ from django.utils.dateparse import parse_date
 from nefarious.celery import app
 from nefarious.importer.movie import MovieImporter
 from nefarious.importer.tv import TVImporter
-from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, WatchTVSeason, WatchTVSeasonRequest, WatchTVShow
+from nefarious.models import (
+    NefariousSettings, WatchMovie, WatchTVEpisode, WatchTVSeason, WatchTVSeasonRequest, WatchTVShow,
+    MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV_SEASON, MEDIA_TYPE_TV_EPISODE,
+)
 from nefarious.opensubtitles import OpenSubtitles
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.tmdb import get_tmdb_client
@@ -207,8 +210,9 @@ def completed_media_task():
                 import_path = os.path.join(
                     settings.INTERNAL_DOWNLOAD_PATH,
                     relative_path,
-                    # new_path will be None if the torrent is already a directory so fall back to the new name
-                    new_path or new_name,
+                    # for movies: new_path will be None if the torrent is already a directory so fall back to the new name
+                    # for tv: new_path will be the show, so we really want the new_name which will be the season
+                    new_path or new_name if isinstance(media, WatchMovie) else new_name,
                 )
 
                 # post-tasks
@@ -222,8 +226,11 @@ def completed_media_task():
                 ]
 
                 # conditionally add subtitles task to post-tasks
-                if nefarious_settings.should_save_subtitles() and isinstance(media, (WatchMovie, WatchTVEpisode)):
-                    post_tasks.append(download_subtitles_task.si(media_type.lower(), media.id))
+                if nefarious_settings.should_save_subtitles() and media_type in [MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV_EPISODE]:
+                    post_tasks.append(download_subtitles_task.si(media_type, media.id))
+                # queue task to download subtitles for every episode in the season (which the import task would have already created for this season)
+                elif nefarious_settings.should_save_subtitles() and media_type == MEDIA_TYPE_TV_SEASON:
+                    post_tasks.append(queue_download_subtitles_for_season_task.si(media.id))
 
                 # queue post-tasks
                 chain(*post_tasks)()
@@ -460,11 +467,24 @@ def populate_release_dates_task():
 
 @app.task
 def download_subtitles_task(media_type: str, watch_media_id: int):
-    # download subtitles for a movie or an episode
-    if media_type == 'movie':
-        watch_media = get_object_or_404(WatchMovie, pk=watch_media_id)
-    else:
-        watch_media = get_object_or_404(WatchTVEpisode, pk=watch_media_id)
 
+    # movie
+    if media_type == MEDIA_TYPE_MOVIE:
+        watch_media = get_object_or_404(WatchMovie, pk=watch_media_id)
+    # episode
+    elif media_type == MEDIA_TYPE_TV_EPISODE:
+        watch_media = get_object_or_404(WatchTVEpisode, pk=watch_media_id)
+    else:
+        raise Exception('unknown media_type {} and media_id {} combination'.format(media_type, watch_media_id))
+
+    # download subtitles
     open_subtitles = OpenSubtitles()
     open_subtitles.download(watch_media)
+
+
+@app.task
+def queue_download_subtitles_for_season_task(watch_season_id: int):
+    # queue tasks to download subtitles for every episode in a season
+    watch_season = get_object_or_404(WatchTVSeason, id=watch_season_id)  # type: WatchTVSeason
+    for watch_episode in watch_season.watch_tv_show.watchtvepisode_set.filter(season_number=watch_season.season_number):
+        download_subtitles_task.delay(MEDIA_TYPE_TV_EPISODE, watch_episode.id)

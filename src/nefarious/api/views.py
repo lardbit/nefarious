@@ -19,7 +19,7 @@ from nefarious.api.serializers import (
     TransmissionTorrentSerializer, RottenTomatoesSearchResultsSerializer, )
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVShow, WatchTVEpisode, WatchTVSeasonRequest, WatchTVSeason
 from nefarious.opensubtitles import OpenSubtitles
-from nefarious.search import MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV, SearchTorrents
+from nefarious.search import SEARCH_MEDIA_TYPE_MOVIE, SEARCH_MEDIA_TYPE_TV, SearchTorrents
 from nefarious.quality import PROFILES
 from nefarious.tasks import import_library_task
 from nefarious.transmission import get_transmission_client
@@ -69,7 +69,7 @@ class MediaDetailView(views.APIView):
             'language': nefarious_settings.language,
         }
 
-        if media_type == MEDIA_TYPE_MOVIE:
+        if media_type == SEARCH_MEDIA_TYPE_MOVIE:
             movie = tmdb.Movies(media_id)
             response = movie.info(**params)
         else:
@@ -90,8 +90,8 @@ class SearchMediaView(views.APIView):
 
     @method_decorator(cache_page(CACHE_DAY))
     def get(self, request):
-        media_type = request.query_params.get('media_type', MEDIA_TYPE_TV)
-        assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
+        media_type = request.query_params.get('media_type', SEARCH_MEDIA_TYPE_TV)
+        assert media_type in [SEARCH_MEDIA_TYPE_TV, SEARCH_MEDIA_TYPE_MOVIE]
 
         nefarious_settings = NefariousSettings.get()
 
@@ -107,7 +107,7 @@ class SearchMediaView(views.APIView):
         # search for media
         search = tmdb.Search()
 
-        if media_type == MEDIA_TYPE_MOVIE:
+        if media_type == SEARCH_MEDIA_TYPE_MOVIE:
             results = search.movie(**params)
         else:
             results = search.tv(**params)
@@ -120,8 +120,8 @@ class SearchSimilarMediaView(views.APIView):
 
     @method_decorator(cache_page(CACHE_DAY))
     def get(self, request):
-        media_type = request.query_params.get('media_type', MEDIA_TYPE_TV)
-        assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
+        media_type = request.query_params.get('media_type', SEARCH_MEDIA_TYPE_TV)
+        assert media_type in [SEARCH_MEDIA_TYPE_TV, SEARCH_MEDIA_TYPE_MOVIE]
 
         if 'tmdb_media_id' not in request.query_params:
             raise ValidationError({'tmdb_media_id': ['required parameter']})
@@ -137,7 +137,7 @@ class SearchSimilarMediaView(views.APIView):
         tmdb_media_id = request.query_params.get('tmdb_media_id')
 
         # search for media
-        if media_type == MEDIA_TYPE_MOVIE:
+        if media_type == SEARCH_MEDIA_TYPE_MOVIE:
             similar_results = tmdb.Movies(id=tmdb_media_id).similar_movies(**params)
         else:
             similar_results = tmdb.TV(id=tmdb_media_id).similar(**params)
@@ -150,8 +150,8 @@ class SearchRecommendedMediaView(views.APIView):
 
     @method_decorator(cache_page(CACHE_DAY))
     def get(self, request):
-        media_type = request.query_params.get('media_type', MEDIA_TYPE_TV)
-        assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
+        media_type = request.query_params.get('media_type', SEARCH_MEDIA_TYPE_TV)
+        assert media_type in [SEARCH_MEDIA_TYPE_TV, SEARCH_MEDIA_TYPE_MOVIE]
 
         if 'tmdb_media_id' not in request.query_params:
             raise ValidationError({'tmdb_media_id': ['required parameter']})
@@ -167,7 +167,7 @@ class SearchRecommendedMediaView(views.APIView):
         tmdb_media_id = request.query_params.get('tmdb_media_id')
 
         # search for media
-        if media_type == MEDIA_TYPE_MOVIE:
+        if media_type == SEARCH_MEDIA_TYPE_MOVIE:
             similar_results = tmdb.Movies(id=tmdb_media_id).recommendations(**params)
         else:
             similar_results = tmdb.TV(id=tmdb_media_id).recommendations(**params)
@@ -181,7 +181,7 @@ class SearchTorrentsView(views.APIView):
     @method_decorator(cache_page(CACHE_HALF_DAY))
     def get(self, request):
         query = request.query_params.get('q')
-        media_type = request.query_params.get('media_type', MEDIA_TYPE_MOVIE)
+        media_type = request.query_params.get('media_type', SEARCH_MEDIA_TYPE_MOVIE)
         search = SearchTorrents(media_type, query)
         if not search.ok:
             return Response({'error': search.error_content}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -205,10 +205,10 @@ class DownloadTorrentsView(views.APIView):
         if not torrent_url:
             return Response({'success': False, 'error': 'Missing torrent link'})
 
-        media_type = request.data.get('media_type', MEDIA_TYPE_TV)
+        media_type = request.data.get('media_type', SEARCH_MEDIA_TYPE_TV)
 
         # validate tv
-        if media_type == MEDIA_TYPE_TV:
+        if media_type == SEARCH_MEDIA_TYPE_TV:
             if 'season_number' not in request.data:
                 return Response({'success': False, 'error': 'Missing season_number'})
 
@@ -229,7 +229,7 @@ class DownloadTorrentsView(views.APIView):
         tmdb = get_tmdb_client(nefarious_settings)
 
         # set download paths and associate torrent with watch instance
-        if media_type == MEDIA_TYPE_MOVIE:
+        if media_type == SEARCH_MEDIA_TYPE_MOVIE:
             tmdb_request = tmdb.Movies(tmdb_media['id'])
             tmdb_movie = tmdb_request.info()
             watch_media = WatchMovie(
@@ -373,7 +373,7 @@ class DiscoverMediaView(views.APIView):
 
     @method_decorator(cache_page(CACHE_WEEK))
     def get(self, request, media_type):
-        assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
+        assert media_type in [SEARCH_MEDIA_TYPE_TV, SEARCH_MEDIA_TYPE_MOVIE]
 
         nefarious_settings = NefariousSettings.get()
 
@@ -384,7 +384,7 @@ class DiscoverMediaView(views.APIView):
 
         discover = tmdb.Discover()
 
-        if media_type == MEDIA_TYPE_MOVIE:
+        if media_type == SEARCH_MEDIA_TYPE_MOVIE:
             results = discover.movie(**args)
         else:
             results = discover.tv(**args)
@@ -397,7 +397,7 @@ class GenresView(views.APIView):
 
     @method_decorator(cache_page(CACHE_WEEK))
     def get(self, request, media_type):
-        assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
+        assert media_type in [SEARCH_MEDIA_TYPE_TV, SEARCH_MEDIA_TYPE_MOVIE]
 
         nefarious_settings = NefariousSettings.get()
 
@@ -408,7 +408,7 @@ class GenresView(views.APIView):
 
         genres = tmdb.Genres()
 
-        if media_type == MEDIA_TYPE_MOVIE:
+        if media_type == SEARCH_MEDIA_TYPE_MOVIE:
             results = genres.movie_list(**args)
         else:
             results = genres.tv_list(**args)
@@ -421,14 +421,14 @@ class VideosView(views.APIView):
 
     @method_decorator(cache_page(CACHE_DAY))
     def get(self, request, media_type, media_id):
-        assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
+        assert media_type in [SEARCH_MEDIA_TYPE_TV, SEARCH_MEDIA_TYPE_MOVIE]
 
         nefarious_settings = NefariousSettings.get()
 
         # prepare query
         tmdb = get_tmdb_client(nefarious_settings)
 
-        if media_type == MEDIA_TYPE_MOVIE:
+        if media_type == SEARCH_MEDIA_TYPE_MOVIE:
             result = tmdb.Movies(media_id)
         else:
             result = tmdb.TV(media_id)
@@ -441,7 +441,7 @@ class DiscoverRottenTomatoesMediaView(views.APIView):
 
     @method_decorator(cache_page(CACHE_DAY))
     def get(self, request, media_type: str):
-        assert media_type in [MEDIA_TYPE_TV, MEDIA_TYPE_MOVIE]
+        assert media_type in [SEARCH_MEDIA_TYPE_TV, SEARCH_MEDIA_TYPE_MOVIE]
         # default params
         params = dict(
             sortBy=request.query_params.get('sortBy', 'popularity'),

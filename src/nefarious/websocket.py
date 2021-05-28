@@ -5,17 +5,11 @@ from websocket import create_connection
 
 from nefarious.api.serializers import (
     WatchMovieSerializer, WatchTVSeasonSerializer, WatchTVEpisodeSerializer, WatchTVSeasonRequestSerializer, WatchTVShowSerializer)
-from nefarious.models import WatchMovie, WatchTVEpisode, WatchTVSeason, WatchTVSeasonRequest, WatchMediaBase, WatchTVShow
-
+from nefarious.models import WatchMovie, WatchTVEpisode, WatchTVSeason, WatchTVSeasonRequest, WatchMediaBase, WatchTVShow, MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV_SHOW, \
+    MEDIA_TYPE_TV_SEASON, MEDIA_TYPE_TV_SEASON_REQUEST, MEDIA_TYPE_TV_EPISODE
 
 ACTION_UPDATED = 'UPDATED'
 ACTION_REMOVED = 'REMOVED'
-
-MEDIA_TYPE_MOVIE = 'MOVIE'
-MEDIA_TYPE_TV_SHOW = 'TV_SHOW'
-MEDIA_TYPE_TV_SEASON = 'TV_SEASON'
-MEDIA_TYPE_TV_SEASON_REQUEST = 'TV_SEASON_REQUEST'
-MEDIA_TYPE_TV_EPISODE = 'TV_EPISODE'
 
 
 def send_message(action: str, media_type: str, data: dict):
