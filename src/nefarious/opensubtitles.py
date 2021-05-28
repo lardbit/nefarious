@@ -2,7 +2,7 @@ import os
 import struct
 import requests
 from typing import Union
-from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode, WatchTVSeasonRequest
+from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode
 from nefarious.parsers.base import ParserBase
 from nefarious.utils import logger_background
 
