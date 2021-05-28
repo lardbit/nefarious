@@ -8,6 +8,7 @@
     </div>
     <div class="row">
       <ngx-loading [show]="isLoading"></ngx-loading>
+      <!-- TODO - clicking result should be an href so you can open a new tab (use href/routerLink that does a redirect once it handles rotten tomato results) -->
       <div class="col-12 col-sm-6 col-md-4 col-lg-3 result" *ngFor="let result of results | mediaFilter: search" (click)="navigateToMedia(result)">
         <div class="card" [ngClass]="{'border border-success rounded': isWatchingResult(result)}">
           <div class="result-watching">

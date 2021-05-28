@@ -35,6 +35,7 @@ class WatchProcessorBase:
         valid_search_results = []
         search = self._get_search_results()
 
+        # TODO - last attempt should only populate _after_ an actual attempt
         # save this attempt date
         self.watch_media.last_attempt_date = datetime.utcnow()
         self.watch_media.save()
