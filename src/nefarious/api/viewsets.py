@@ -174,12 +174,14 @@ class SettingsViewSet(viewsets.ModelViewSet):
     def verify(self, request, pk):
         nefarious_settings = self.queryset.get(id=pk)
         try:
-            verify_settings_jackett(nefarious_settings)
+            jackett_result = verify_settings_jackett(nefarious_settings)
             verify_settings_tmdb(nefarious_settings)
             verify_settings_transmission(nefarious_settings)
         except Exception as e:
             raise ValidationError(str(e))
-        return Response()
+        return Response({
+            'jackett': jackett_result,
+        })
 
     @action(methods=['get'], detail=True, url_path='verify-jackett-indexers', permission_classes=(IsAdminUser,))
     def verify_jackett_indexers(self, request, pk):

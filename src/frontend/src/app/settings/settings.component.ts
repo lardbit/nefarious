@@ -129,7 +129,20 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
     this.isSaving = true;
     this.apiService.verifySettings().subscribe(
       (data) => {
-        this.toastr.success('Settings are valid');
+        let hasErrors = false;
+        data.jackett.Indexers.forEach((indexer) => {
+          if (indexer.Error) {
+            hasErrors = true;
+            this.toastr.error(
+              `Indexer "${indexer.Name}" returned an error.  See browser console and/or reconfigure Jackett for this indexer`);
+            console.error(indexer.Error);
+          }
+        });
+        if (hasErrors) {
+          this.toastr.error('Settings are invalid');
+        } else {
+          this.toastr.success('Settings are valid');
+        }
         this.isSaving = false;
       },
       (error) => {
