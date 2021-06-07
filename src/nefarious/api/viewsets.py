@@ -96,7 +96,7 @@ class WatchTVSeasonViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissio
 @method_decorator(gzip_page, name='dispatch')
 class WatchTVSeasonRequestViewSet(WebSocketMediaMessageUpdatedMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     """
-    Special viewset to monitor the request of a season, not collection of the season/media itself
+    Special viewset to monitor the request of a season, not collection of the season/media itself (see WatchTVSeasonViewSet for that)
     """
     queryset = WatchTVSeasonRequest.objects.select_related('user').all()
     serializer_class = WatchTVSeasonRequestSerializer
@@ -134,19 +134,21 @@ class WatchTVSeasonRequestViewSet(WebSocketMediaMessageUpdatedMixin, UserReferen
         watch_tv_show_season_task.delay(watch_tv_season.id)
 
     def perform_destroy(self, watch_tv_season_request: WatchTVSeasonRequest):
-        # destroy watch tv season instances as well, including any related torrents in transmission
+
+        # destroy tv season & episode instances as well, including any related torrents in transmission
         query_args = dict(
             watch_tv_show=watch_tv_season_request.watch_tv_show,
             season_number=watch_tv_season_request.season_number,
         )
-        for season in WatchTVSeason.objects.filter(**query_args):
-            # send a websocket message that this season was removed
-            media_type, data = websocket.get_media_type_and_serialized_watch_media(season)
-            send_websocket_message_task.delay(websocket.ACTION_REMOVED, media_type, data)
-            # delete from transmission
-            destroy_transmission_result(season)
-            # delete the season
-            season.delete()
+        for watch_model in (WatchTVSeason, WatchTVEpisode):
+            for media in watch_model.objects.filter(**query_args):
+                # send a websocket message that this media was removed
+                media_type, data = websocket.get_media_type_and_serialized_watch_media(media)
+                send_websocket_message_task.delay(websocket.ACTION_REMOVED, media_type, data)
+                # delete from transmission
+                destroy_transmission_result(media)
+                # delete the media
+                media.delete()
         return super().perform_destroy(watch_tv_season_request)
 
 

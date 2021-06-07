@@ -1,10 +1,11 @@
+import { EMPTY } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
 import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { Component, OnInit, AfterContentChecked } from '@angular/core';
 import * as _ from 'lodash';
-import { concat, Subscription } from 'rxjs';
+import {concat, Observable, Subscription} from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 @Component({
@@ -77,47 +78,8 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
     });
   }
 
-  public submit() {
-    this.isSaving = true;
-
-    // validate form and display errors
-    if (!this.form.valid) {
-      Object.keys(this.form.controls).forEach((key) => {
-        const control = this.form.get(key);
-        if (control.errors) {
-          const errors = [];
-          Object.keys(control.errors).forEach((errorKey) => {
-            errors.push(`${errorKey}: ${control.errors[errorKey]}`);
-          });
-          this.toastr.error(`${key}: ${errors.join(', ')}`);
-        }
-      });
-      this.isSaving = false;
-      return false;
-    }
-
-    // create a copy of the form data so we can modify it
-    const formData = _.assign({}, this.form.value);
-
-    // handle keyword exclusions
-    const exclusions = {};
-    _.forEach(formData['exclusions'], (exclusion) => {
-      exclusions[exclusion] = false;
-    });
-    formData['keyword_search_filters'] = exclusions;
-    delete formData['exclusions'];
-
-    this.apiService.updateSettings(this.apiService.settings.id, formData).subscribe(
-      (data) => {
-        this.toastr.success('Updated settings');
-        this.isSaving = false;
-      },
-      (error) => {
-        console.error(error);
-        this.toastr.error(JSON.stringify(error.error));
-        this.isSaving = false;
-      }
-    );
+  public submit(): void {
+    this._saveSettings().subscribe();
   }
 
   public hasExclusions(): boolean {
@@ -125,59 +87,24 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
     return exclusions && exclusions.length;
   }
 
-  public verifySettings() {
-    this.isSaving = true;
-    this.apiService.verifySettings().subscribe(
-      (data) => {
-        let hasErrors = false;
-        data.jackett.Indexers.forEach((indexer) => {
-          if (indexer.Error) {
-            hasErrors = true;
-            this.toastr.error(
-              `Indexer "${indexer.Name}" returned an error.  See browser console and/or reconfigure Jackett for this indexer`);
-            console.error(indexer.Error);
-          }
-        });
-        if (hasErrors) {
-          this.toastr.error('Settings are invalid');
-        } else {
-          this.toastr.success('Settings are valid');
-        }
-        this.isSaving = false;
-      },
-      (error) => {
-        console.error(error);
-        this.toastr.error(JSON.stringify(error.error));
-        this.isSaving = false;
-      },
-    );
+  public saveAndVerifySettings() {
+    this._saveSettings().pipe(
+      tap((data) => {
+        this._verifySettings();
+      })
+    ).subscribe();
+  }
+
+  public saveAndVerifyJackettIndexers() {
+    this._saveSettings().pipe(
+      tap((data) => {
+        this._verifyJackettIndexers();
+      })
+    ).subscribe();
   }
 
   public qualityProfiles(): string[] {
     return this.apiService.qualityProfiles;
-  }
-
-  public verifyJackettIndexers() {
-    this.isVeryingJackettIndexers = true;
-    this.apiService.verifyJackettIndexers().subscribe(
-      (data: any[]) => {
-        const failedIndexers = data.filter((indexer: any) => {
-          return indexer.Error;
-        });
-        if (failedIndexers.length) {
-          failedIndexers.forEach((failedIndexer: any) => {
-            this.toastr.error(failedIndexer.Error.substring(0, 200), failedIndexer.Name);
-          });
-        } else {
-          this.toastr.success('All indexers were successful');
-        }
-        this.isVeryingJackettIndexers = false;
-      },
-      (error) => {
-        this.toastr.error('An unknown error occurred verifying jackett indexers');
-        this.isVeryingJackettIndexers = false;
-      },
-    );
   }
 
   public addUser() {
@@ -299,5 +226,102 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
           this.toastr.error(error_message);
         }
       );
+  }
+
+  protected _saveSettings(): Observable<any> {
+    this.isSaving = true;
+
+    // validate form and display errors
+    if (!this.form.valid) {
+      Object.keys(this.form.controls).forEach((key) => {
+        const control = this.form.get(key);
+        if (control.errors) {
+          const errors = [];
+          Object.keys(control.errors).forEach((errorKey) => {
+            errors.push(`${errorKey}: ${control.errors[errorKey]}`);
+          });
+          this.toastr.error(`${key}: ${errors.join(', ')}`);
+        }
+      });
+      this.isSaving = false;
+      return EMPTY;
+    }
+
+    // create a copy of the form data so we can modify it
+    const formData = _.assign({}, this.form.value);
+
+    // handle keyword exclusions
+    const exclusions = {};
+    _.forEach(formData['exclusions'], (exclusion) => {
+      exclusions[exclusion] = false;
+    });
+    formData['keyword_search_filters'] = exclusions;
+    delete formData['exclusions'];
+
+    return this.apiService.updateSettings(this.apiService.settings.id, formData).pipe(
+      tap(
+        (data) => {
+          this.toastr.success('Updated settings');
+          this.isSaving = false;
+        },
+        (error) => {
+          console.error(error);
+          this.toastr.error(JSON.stringify(error.error));
+          this.isSaving = false;
+        }
+      ),
+    );
+  }
+
+  protected _verifySettings(): void {
+    this.isSaving = true;
+    this.apiService.verifySettings().subscribe(
+      (data) => {
+        let hasErrors = false;
+        // verify individual indexers
+        data.jackett.Indexers.forEach((indexer) => {
+          if (indexer.Error) {
+            hasErrors = true;
+            this.toastr.error(
+              `Indexer "${indexer.Name}" returned an error.  See browser console and/or reconfigure Jackett for this indexer`);
+            console.error(indexer.Error);
+          }
+        });
+        if (hasErrors) {
+          this.toastr.error('Settings are invalid');
+        } else {
+          this.toastr.success('Settings are valid');
+        }
+        this.isSaving = false;
+      },
+      (error) => {
+        console.error(error);
+        this.toastr.error(JSON.stringify(error.error));
+        this.isSaving = false;
+      },
+    );
+  }
+
+  protected _verifyJackettIndexers() {
+    this.isVeryingJackettIndexers = true;
+    this.apiService.verifyJackettIndexers().subscribe(
+      (data: any[]) => {
+        const failedIndexers = data.filter((indexer: any) => {
+          return indexer.Error;
+        });
+        if (failedIndexers.length) {
+          failedIndexers.forEach((failedIndexer: any) => {
+            this.toastr.error(failedIndexer.Error.substring(0, 200), failedIndexer.Name);
+          });
+        } else {
+          this.toastr.success('All indexers were successful');
+        }
+        this.isVeryingJackettIndexers = false;
+      },
+      (error) => {
+        this.toastr.error('An unknown error occurred verifying jackett indexers');
+        this.isVeryingJackettIndexers = false;
+      },
+    );
   }
 }
