@@ -2,8 +2,8 @@
   <ngx-loading [show]="isSaving" [config]="{fullScreenBackdrop: true}"></ngx-loading>
   <form class="was-validated" [formGroup]="form" (ngSubmit)="submit()">
     <div class="d-flex justify-content-end my-3">
-      <button type="button" class="btn btn-sm btn-info mx-1" (click)="verifySettings()">
-        Verify Settings
+      <button type="button" class="btn btn-sm btn-info mx-1" (click)="saveAndVerifySettings()">
+        Save & Verify Settings
         <span class="oi oi-pulse"></span>
       </button>
       <button class="btn btn-success mx-1" [ngClass]="{'btn-success': form.valid, 'btn-danger': !form.valid}">
@@ -30,9 +30,9 @@
               <input type="text" class="form-control" placeholder="" formControlName="jackett_token" required>
             </div>
             <div class="form-group d-flex justify-content-between">
-              <button type="button" class="btn btn-sm btn-secondary position-relative" (click)="verifyJackettIndexers()">
+              <button type="button" class="btn btn-sm btn-secondary position-relative" (click)="saveAndVerifyJackettIndexers()">
                 <ngx-loading [show]="isVeryingJackettIndexers"></ngx-loading>
-                Verify Indexers
+                Save & Verify Indexers
                 <span class="oi oi-pulse"></span>
               </button>
             </div>
