@@ -3,8 +3,10 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.views.decorators.gzip import gzip_page
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAdminUser
@@ -28,6 +30,7 @@ from nefarious.utils import (
 class WatchMovieViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionResultMixin, BlacklistAndRetryMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
     queryset = WatchMovie.objects.select_related('user').all()
     serializer_class = WatchMovieSerializer
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     filter_fields = ('collected',)
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
 
@@ -84,6 +87,7 @@ class WatchTVSeasonViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissio
     queryset = WatchTVSeason.objects.select_related('watch_tv_show').all()
     serializer_class = WatchTVSeasonSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     filter_fields = ('collected',)
 
     def _watch_media_task(self, watch_media_id: int):
@@ -157,6 +161,7 @@ class WatchTVEpisodeViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissi
     queryset = WatchTVEpisode.objects.select_related('user', 'watch_tv_show').all()
     serializer_class = WatchTVEpisodeSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     filter_fields = ('collected',)
 
     def _watch_media_task(self, watch_media_id: int):
