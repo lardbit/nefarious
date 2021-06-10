@@ -38,7 +38,7 @@ import { TmdbComponent } from './tmdb/tmdb.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'search/auto', pathMatch: 'full' },  // redirects
-  { path: 'search', redirectTo: 'search/auto', pathMatch: 'full', canActivate: [LoginGuard] },
+  { path: 'search', redirectTo: 'search/auto', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'search/auto', component: SearchAutoComponent, canActivate: [LoginGuard, SettingsGuard] },
   { path: 'search/manual', component: SearchManualComponent, canActivate: [LoginGuard, SettingsGuard] },
@@ -96,8 +96,9 @@ export function init(apiService: ApiService) {
     RouterModule.forRoot(
       appRoutes,
       {
-        useHash: true,
-      }
+    useHash: true,
+    relativeLinkResolution: 'legacy'
+}
     ),
     BrowserModule,
     BrowserAnimationsModule,
