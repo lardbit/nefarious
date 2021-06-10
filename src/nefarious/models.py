@@ -96,6 +96,10 @@ class WatchMediaBase(models.Model):
 
     class Meta:
         abstract = True
+        indexes = [
+            models.Index(fields=['collected']),
+            models.Index(fields=['collected_date']),
+        ]
 
 
 class WatchMovie(WatchMediaBase):
@@ -153,6 +157,9 @@ class WatchTVSeasonRequest(models.Model):
 
     class Meta:
         unique_together = ('watch_tv_show', 'season_number',)
+        indexes = [
+            models.Index(fields=['collected']),
+        ]
 
     def __str__(self):
         return '{} - Season {:02d}'.format(self.watch_tv_show, self.season_number)
@@ -164,6 +171,9 @@ class WatchTVSeason(WatchMediaBase):
 
     class Meta:
         unique_together = ('watch_tv_show', 'season_number',)
+        indexes = [
+            models.Index(fields=['season_number']),
+        ]
 
     def __str__(self):
         return '{} - Season {:02d}'.format(self.watch_tv_show, self.season_number)
@@ -181,6 +191,10 @@ class WatchTVEpisode(WatchMediaBase):
 
     class Meta:
         unique_together = ('watch_tv_show', 'season_number', 'episode_number')
+        indexes = [
+            models.Index(fields=['season_number']),
+            models.Index(fields=['episode_number']),
+        ]
 
     def __str__(self):
         # i.e "Broad City - S01E04"
