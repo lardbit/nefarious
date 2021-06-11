@@ -26,6 +26,7 @@
     "@ng-bootstrap/ng-bootstrap": "^8.0.4",
     "@ng-select/ng-select": "^6.1.0",
     "@ngx-pwa/local-storage": "^9.0.3",
+    "@swimlane/ngx-datatable": "^19.0.0",
     "@types/lodash": "^4.14.162",
     "angular-page-visibility": "^9.0.6",
     "bootstrap": "^4.5.2",

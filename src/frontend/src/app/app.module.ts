@@ -35,6 +35,7 @@ import { MediaFilterPipe } from './filter.pipe';
 import { WantedComponent } from './wanted/wanted.component';
 import { RottenTomatoesComponent } from './rotten-tomatoes/rotten-tomatoes.component';
 import { TmdbComponent } from './tmdb/tmdb.component';
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'search/auto', pathMatch: 'full' },  // redirects
@@ -113,6 +114,7 @@ export function init(apiService: ApiService) {
     MomentModule,
     NgSelectModule,
     AngularPageVisibilityModule,
+    NgxDatatableModule,
   ],
   entryComponents: [],
   providers: [

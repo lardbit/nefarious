@@ -50,7 +50,7 @@ export class ApiService {
 
   public user: any;
   public userToken: string;
-  public users: any; // staff only list of all users
+  public users: any; // staff-only list of all users
   public settings: any;
   public qualityProfiles: string[];
   public watchTVSeasons: any[] = [];
