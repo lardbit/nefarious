@@ -73,10 +73,12 @@ export class WatchingComponent implements OnInit, OnDestroy {
         result.date_added = this.datePipe.transform(result.date_added, 'yyyy-MM-dd');
       }
     });
-    // return all results filtered by search query
+
+    // filter by search query
     if (this.search) {
       return this.mediaFilter.transform(this.results, this.search);
     }
+
     return this.results;
   }
 
