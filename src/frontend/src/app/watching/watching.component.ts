@@ -90,13 +90,13 @@ export class WatchingComponent implements OnInit, OnDestroy {
     const seasons = this.apiService.watchTVSeasons.filter((season) => {
       return season.watch_tv_show === watchShow.id;
     });
-    // sort by collected date
-    episodes.map((episode) => {
-      return episode.collected_date;
-    }).sort();
-    seasons.map((season) => {
-      return season.collected_date;
-    }).sort();
+    // sort by collected date desc
+    seasons.sort((a, b) => {
+      return (a.collected_date > b.collected_date) ? 1 : -1;
+    }).reverse();
+    episodes.sort((a, b) => {
+      return (a.collected_date > b.collected_date) ? 1 : -1;
+    }).reverse();
 
     let last_download_date = '';
 
