@@ -97,10 +97,12 @@ class SearchMediaView(views.APIView):
 
         # prepare query
         tmdb = get_tmdb_client(nefarious_settings)
+        page = request.query_params.get('page', 1)
         query = request.query_params.get('q')
 
         params = {
             'query': query,
+            'page': page,
             'language': nefarious_settings.language,
         }
 

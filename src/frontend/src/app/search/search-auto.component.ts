@@ -9,10 +9,20 @@ import { ApiService } from '../api.service';
   styleUrls: ['./search-auto.component.css']
 })
 export class SearchAutoComponent implements OnInit {
-  public results: any[] = [];
+  public page = 1;
+  public searchResults: {
+    page: number,
+    results: any[],
+    total_pages: number,
+  } = {
+    page: 0,
+    results: [],
+    total_pages: 0,
+  };
   public isSearching = false;
   public errorMessage: string;
   public type: string;
+  public q = '';
 
   constructor(
     private apiService: ApiService,
@@ -23,10 +33,12 @@ export class SearchAutoComponent implements OnInit {
   }
 
   ngOnInit() {
-    // auto search on load if query params exist
-    if (this.route.snapshot.queryParams['q'] && this.route.snapshot.queryParams['type']) {
-      this.search(this.route.snapshot.queryParams);
-    }
+    // search when query params change
+    this.route.queryParams.subscribe((params) => {
+      if (params['q'] && params['type']) {
+        this.search(params);
+      }
+    });
   }
 
   public searchMediaType() {
@@ -38,7 +50,10 @@ export class SearchAutoComponent implements OnInit {
   }
 
   public search(queryParams: any) {
+
     this.type = queryParams.type;
+    this.q = queryParams.q;
+    this.page = parseInt(queryParams.page || 1, 10);
 
     // add the search query to the route parameters
     this.router.navigate(
@@ -50,10 +65,10 @@ export class SearchAutoComponent implements OnInit {
     );
 
     this.errorMessage = null;
-    this.results = [];
+    this.searchResults.results = [];
     this.isSearching = true;
 
-    console.log('Searching %s for %s', queryParams.type, queryParams.q);
+    console.log('Searching %s for "%s"', queryParams.type, queryParams.q);
 
     let query;
 
@@ -66,13 +81,14 @@ export class SearchAutoComponent implements OnInit {
     } else if (recommendedToMediaQueryRegEx.test(queryParams['q'])) {
       query = this.apiService.searchRecommendedMedia(queryParams['q'].match(recommendedToMediaQueryRegEx)[1], queryParams.type);
     } else {
-      query = this.apiService.searchMedia(queryParams.q, queryParams.type);
+      query = this.apiService.searchMedia(queryParams.q, queryParams.type, this.page);
     }
 
     query.subscribe(
       (data) => {
+        this.searchResults = data;
         // remove results without a poster image
-        this.results = data.results.filter((result) => {
+        this.searchResults.results = data.results.filter((result) => {
           return result.poster_path;
         });
         this.isSearching = false;
@@ -83,10 +99,15 @@ export class SearchAutoComponent implements OnInit {
         console.error(error);
       },
       () => {
-        if (this.results.length <= 0) {
+        if (this.searchResults.results.length <= 0) {
           this.errorMessage = 'No results';
         }
       }
     );
+  }
+
+  public nextPage(pageForward: number) {
+    this.page += pageForward;
+    this.search({type: this.type, q: this.q, page: this.page});
   }
 }

@@ -352,10 +352,11 @@ export class ApiService {
     );
   }
 
-  public searchMedia(query: string, mediaType: string) {
+  public searchMedia(query: string, mediaType: string, page = 1) {
     let params = {
       q: query,
       media_type: mediaType,
+      page: page.toString(),
     };
     params = _.assign(params, this._defaultParams());
     const httpParams = new HttpParams({fromObject: params});
