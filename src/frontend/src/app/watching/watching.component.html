@@ -13,30 +13,43 @@
       <input class="form-control form-control-sm w-25 mb-3" [(ngModel)]="search" required minlength="2" name="search" type="text" placeholder="Filter..." autocomplete="off">
     </div>
     <div class="table-responsive">
-      <div class="d-flex justify-content-end">
-        <ngb-pagination *ngIf="!search" [collectionSize]="results.length" [(page)]="page" [pageSize]="pageSize"></ngb-pagination>
-      </div>
-      <table class="table table-striped">
-        <thead>
-        <tr>
-          <th>Name</th>
-          <th *ngIf="mediaType === 'movie'">Requested</th>
-          <th *ngIf="mediaType === 'movie'">Requested By</th>
-          <th *ngIf="mediaType === 'movie'">Downloaded</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let result of rows | mediaFilter: search">
-          <td><a [routerLink]="['/media', mediaType, getTMDBId(result)]">{{ result.name }}</a></td>
-          <td *ngIf="mediaType === 'movie'">{{ result.date_added | date: 'shortDate' }}</td>
-          <td *ngIf="mediaType === 'movie'">{{ result.requested_by }}</td>
-          <td *ngIf="mediaType === 'movie'"><span *ngIf="result.collected" class="oi oi-check text-success"></span></td>
-        </tr>
-        </tbody>
-      </table>
-      <div class="d-flex justify-content-end">
-        <ngb-pagination *ngIf="!search" [collectionSize]="results.length" [(page)]="page" [pageSize]="pageSize"></ngb-pagination>
-      </div>
+
+      <!-- datatable -->
+      <ngx-datatable
+        class="bootstrap"
+        [rows]="rows"
+        [columnMode]="ColumnMode.force"
+        [headerHeight]="50"
+        [footerHeight]="50"
+        [rowHeight]="50"
+        [scrollbarH]="true"
+        [limit]="25"
+      >
+        <!-- name column -->
+        <ngx-datatable-column name="Name">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <a [routerLink]="['/media', mediaType, getTMDBId(row)]">{{ row.name }}</a>
+          </ng-template>
+        </ngx-datatable-column>
+
+        <!-- movies columns -->
+        <ng-container *ngIf="mediaType === 'movie'">
+          <ngx-datatable-column prop="date_added" name="Date Added"></ngx-datatable-column>
+          <ngx-datatable-column prop="requested_by" name="Requested By"></ngx-datatable-column>
+          <ngx-datatable-column prop="collected" name="Downloaded">
+            <ng-template let-value="value" ngx-datatable-cell-template>
+              <span *ngIf="value" class="oi oi-check text-success"></span>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="collected_date" name="Download Date"></ngx-datatable-column>
+        </ng-container>
+
+        <!-- tv columns -->
+        <ng-container *ngIf="mediaType === 'tv'">
+          <ngx-datatable-column prop="collected_date" name="Last season/episode download date"></ngx-datatable-column>
+        </ng-container>
+      </ngx-datatable>
+
     </div>
   </div>
 </div>

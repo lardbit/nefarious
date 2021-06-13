@@ -35,10 +35,11 @@ import { MediaFilterPipe } from './filter.pipe';
 import { WantedComponent } from './wanted/wanted.component';
 import { RottenTomatoesComponent } from './rotten-tomatoes/rotten-tomatoes.component';
 import { TmdbComponent } from './tmdb/tmdb.component';
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'search/auto', pathMatch: 'full' },  // redirects
-  { path: 'search', redirectTo: 'search/auto', pathMatch: 'full', canActivate: [LoginGuard] },
+  { path: 'search', redirectTo: 'search/auto', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'search/auto', component: SearchAutoComponent, canActivate: [LoginGuard, SettingsGuard] },
   { path: 'search/manual', component: SearchManualComponent, canActivate: [LoginGuard, SettingsGuard] },
@@ -96,8 +97,9 @@ export function init(apiService: ApiService) {
     RouterModule.forRoot(
       appRoutes,
       {
-        useHash: true,
-      }
+    useHash: true,
+    relativeLinkResolution: 'legacy'
+}
     ),
     BrowserModule,
     BrowserAnimationsModule,
@@ -112,6 +114,7 @@ export function init(apiService: ApiService) {
     MomentModule,
     NgSelectModule,
     AngularPageVisibilityModule,
+    NgxDatatableModule,
   ],
   entryComponents: [],
   providers: [

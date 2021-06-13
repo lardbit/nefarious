@@ -2,7 +2,10 @@
 @import '~ngx-toastr/toastr.css';
 @import '~bootstrap/scss/bootstrap';
 
-/* You can add global styles to this file and also import other style files */
+// ngx-datatables
+@import '~@swimlane/ngx-datatable/index.css';
+@import '~@swimlane/ngx-datatable/assets/icons.css';
+@import '~@swimlane/ngx-datatable/themes/bootstrap.css';
 
 
 /***********************************/

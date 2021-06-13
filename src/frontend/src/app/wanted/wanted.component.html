@@ -12,29 +12,34 @@
     <div class="d-flex justify-content-end">
       <input class="form-control form-control-sm w-25 mb-3" [(ngModel)]="search" required minlength="2" type="text" placeholder="Filter..." autocomplete="off">
     </div>
-    <div class="table-responsive">
-      <table class="table table-striped">
-        <thead>
-        <tr>
-          <th>Name</th>
-          <th>Release Date</th>
-          <th>Date Requested</th>
-          <th>Requested By</th>
-          <th>Last Attempt</th>
-          <th>Torrent Found</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let result of results | mediaFilter: search">
-          <td><a [routerLink]="['/media', mediaType, getTMDBId(result)]">{{ result.name }}</a></td>
-          <td><span *ngIf="result.release_date">{{ result.release_date | date | date: 'shortDate' }}</span></td>
-          <td>{{ result.date_added | date: 'shortDate' }}</td>
-          <td>{{ result.requested_by }}</td>
-          <td>{{ result.last_attempt_date | date: 'shortDate' }}</td>
-          <td><span *ngIf="result.transmission_torrent_hash" class="oi oi-check text-success"></span></td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
+
+    <!-- datatable -->
+    <ngx-datatable
+      class="bootstrap"
+      [rows]="rows"
+      [columnMode]="ColumnMode.force"
+      [headerHeight]="50"
+      [footerHeight]="50"
+      [rowHeight]="50"
+      [scrollbarH]="true"
+      [limit]="25"
+    >
+      <!-- columns -->
+      <ngx-datatable-column name="Name">
+        <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+          <a [routerLink]="['/media', mediaType, getTMDBId(row)]">{{ row.name }}</a>
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column name="Release Date" prop="release_date"></ngx-datatable-column>
+      <ngx-datatable-column name="Date Requested" prop="date_added"></ngx-datatable-column>
+      <ngx-datatable-column name="Requested By" prop="requested_by"></ngx-datatable-column>
+      <ngx-datatable-column name="Last Attempt" prop="last_attempt_date"></ngx-datatable-column>
+      <ngx-datatable-column prop="transmission_torrent_hash" name="Torrent Found">
+        <ng-template let-value="value" ngx-datatable-cell-template>
+          <span *ngIf="value" class="oi oi-check text-success"></span>
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+
   </div>
 </div>
