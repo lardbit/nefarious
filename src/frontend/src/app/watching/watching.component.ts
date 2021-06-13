@@ -18,8 +18,6 @@ export class WatchingComponent implements OnInit, OnDestroy {
   public results: any[] = [];
   public mediaType: string;
   public search: string;
-  public page = 0;
-  public pageSize = 100;
   public ColumnMode = ColumnMode;
 
   protected _changes: Subscription;
