@@ -60,12 +60,12 @@ Features:
 ![](screenshots/media-tv-result.png)
 #### Movie Result
 ![](screenshots/media-movie-result.png)
-#### Movie Custom Quality Profile
-![](screenshots/media-movie-custom-quality-profile.png)
 #### Download Status
 ![](screenshots/media-status.png)
-#### Discover
-![](screenshots/discover.png)
+#### Discover via TMDB
+![](screenshots/discover-tmdb.png)
+#### Discover via Rotten Tomatoes
+![](screenshots/discover-rotten-tomatoes.png)
 #### Wanted
 ![](screenshots/wanted.png)
 #### Watching
