@@ -2,12 +2,8 @@
 
 **nefarious is a web application that automatically downloads Movies and TV Shows.**
 
-[![Build Status](https://travis-ci.org/lardbit/nefarious.svg?branch=master)](https://travis-ci.org/lardbit/nefarious)
+[![Build Status](https://github.com/lardbit/nefarious/actions/workflows/build.yml/badge.svg)](https://github.com/lardbit/nefarious/actions/workflows/build.yml)
 [![Docker Pulls](https://img.shields.io/docker/pulls/lardbit/nefarious.svg?maxAge=60&style=flat-square)](https://hub.docker.com/r/lardbit/nefarious)
-
-It aims to combine features of [Sonarr](https://github.com/Sonarr/Sonarr/) and [Radarr](https://github.com/Radarr/Radarr).
-
-It uses [Jackett](https://github.com/Jackett/Jackett/) and [Transmission](https://transmissionbt.com/) under the hood.  Jackett searches for torrents and Transmission does the downloading.
 
 Features:
 - [x] Search TV & Movies
