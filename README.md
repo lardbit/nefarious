@@ -2,7 +2,7 @@
 
 **nefarious is a web application that automatically downloads Movies and TV Shows.**
 
-![Build Status](https://github.com/lardbit/nefarious/actions/workflows/build.yml/badge.svg)
+[![Build Status](https://github.com/lardbit/nefarious/actions/workflows/build.yml/badge.svg)](https://github.com/lardbit/nefarious/actions/workflows/build.yml)
 [![Docker Pulls](https://img.shields.io/docker/pulls/lardbit/nefarious.svg?maxAge=60&style=flat-square)](https://hub.docker.com/r/lardbit/nefarious)
 
 Features:
