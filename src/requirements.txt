@@ -1,6 +1,6 @@
 celery==4.4.7
 dj-database-url==0.5.0
-Django==3.0.2
+Django==3.1.12
 django-filter==2.2.0
 djangorestframework==3.11.0
 jsonfield2==3.1.0
