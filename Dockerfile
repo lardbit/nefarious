@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.8-venv \
     python3.8-dev \
     python3.8-gdbm \
+    libpq-dev \
     virtualenv \
     gnupg \
     curl \
@@ -37,6 +38,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         nodejs \
         python3.8-venv \
         python3.8-dev \
+        libpq-dev \
         virtualenv \
         curl \
         gnupg \
