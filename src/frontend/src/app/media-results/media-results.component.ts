@@ -2,7 +2,6 @@ import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { Component, OnInit, Input } from '@angular/core';
 import { ApiService } from '../api.service';
-import * as _ from 'lodash';
 
 @Component({
   selector: 'app-media-results',
@@ -90,15 +89,15 @@ export class MediaResultsComponent implements OnInit {
   protected _watchingResult(result: any) {
 
     if (this.isSearchingTV()) {
-      const watchingEpisode = _.find(this.apiService.watchTVEpisodes, (watch) => {
+      const watchingEpisode = this.apiService.watchTVEpisodes.find((watch) => {
         return watch.tmdb_show_id === result.id;
       });
-      const watchingSeason = _.find(this.apiService.watchTVSeasons, (watch) => {
+      const watchingSeason = this.apiService.watchTVSeasons.find((watch) => {
         return watch.tmdb_show_id === result.id;
       });
       return watchingEpisode || watchingSeason;
     } else {
-      return _.find(this.apiService.watchMovies, (watch) => {
+      return this.apiService.watchMovies.find((watch) => {
         return watch.tmdb_movie_id === result.id;
       });
     }

@@ -3,7 +3,6 @@ import { ApiService } from '../api.service';
 import { ToastrService } from 'ngx-toastr';
 import { interval, Observable } from 'rxjs';
 import { throttle } from 'rxjs/operators';
-import * as _ from 'lodash';
 
 const POLL_TIME = 5000;
 
@@ -104,16 +103,12 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
       watch_tv_shows: [],
     };
 
-    // update media instances and build torrent params
     // tv
     if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV) {
       params.watch_tv_shows.push(this.watchMedia.id);
     } else {  // movie
       params.watch_movies.push(this.watchMedia.id);
     }
-
-    params.watch_movies = _.uniq(params.watch_movies);
-    params.watch_tv_shows = _.uniq(params.watch_tv_shows);
 
     return this.apiService.fetchCurrentTorrents(params);
   }

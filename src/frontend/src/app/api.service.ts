@@ -2,7 +2,6 @@ import { LocalStorage } from '@ngx-pwa/local-storage';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
-import * as _ from 'lodash';
 import { forkJoin, Observable, of, Subject, zip } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
@@ -319,7 +318,7 @@ export class ApiService {
 
   public download(torrentResult: any, mediaType: string, tmdbMedia: any, params?: any) {
     // add extra params
-    _.assign(params || {}, {
+    Object.assign(params || {}, {
       torrent: torrentResult,
       media_type: mediaType,
       tmdb_media: tmdbMedia,
@@ -331,7 +330,7 @@ export class ApiService {
             this.watchMovies.push(data.watch_movie);
           } else if (mediaType === this.SEARCH_MEDIA_TYPE_TV) {
             // add show if it wasn't being watched already
-            const watchShow = _.find(this.watchTVShows, (show) => {
+            const watchShow = this.watchTVShows.find((show) => {
               return show.id === data.watch_show;
             });
             if (!watchShow) {
@@ -358,7 +357,7 @@ export class ApiService {
       media_type: mediaType,
       page: page.toString(),
     };
-    params = _.assign(params, this._defaultParams());
+    params = Object.assign(params, this._defaultParams());
     const httpParams = new HttpParams({fromObject: params});
     return this.http.get(this.API_URL_SEARCH_MEDIA, {headers: this._requestHeaders(), params: httpParams}).pipe(
       map((data: any) => {
@@ -372,7 +371,7 @@ export class ApiService {
       tmdb_media_id: tmdbMediaId,
       media_type: mediaType,
     };
-    params = _.assign(params, this._defaultParams());
+    params = Object.assign(params, this._defaultParams());
     const httpParams = new HttpParams({fromObject: params});
     const options = {headers: this._requestHeaders(), params: httpParams};
     return this.http.get(this.API_URL_SEARCH_SIMILAR_MEDIA, options).pipe(
@@ -387,7 +386,7 @@ export class ApiService {
       tmdb_media_id: tmdbMediaId,
       media_type: mediaType,
     };
-    params = _.assign(params, this._defaultParams());
+    params = Object.assign(params, this._defaultParams());
     const httpParams = new HttpParams({fromObject: params});
     const options = {headers: this._requestHeaders(), params: httpParams};
     return this.http.get(this.API_URL_SEARCH_RECOMMENDED_MEDIA, options).pipe(
@@ -570,16 +569,16 @@ export class ApiService {
     return this.http.delete(`${this.API_URL_WATCH_TV_SHOW}${watchId}/`, {headers: this._requestHeaders()}).pipe(
       tap((data: any) => {
         // filter out records
-        this.watchTVShows = _.filter(this.watchTVShows, (watch) => {
+        this.watchTVShows = this.watchTVShows.filter((watch) => {
           return watch.id !== watchId;
         });
-        this.watchTVSeasons = _.filter(this.watchTVSeasons, (watch) => {
+        this.watchTVSeasons = this.watchTVSeasons.filter((watch) => {
           return watch.watch_tv_show !== watchId;
         });
-        this.watchTVSeasonRequests = _.filter(this.watchTVSeasonRequests, (watch) => {
+        this.watchTVSeasonRequests = this.watchTVSeasonRequests.filter((watch) => {
           return watch.watch_tv_show !== watchId;
         });
-        this.watchTVEpisodes = _.filter(this.watchTVEpisodes, (watch) => {
+        this.watchTVEpisodes = this.watchTVEpisodes.filter((watch) => {
           return watch.watch_tv_show !== watchId;
         });
         this._updateStorage().subscribe();
@@ -590,7 +589,7 @@ export class ApiService {
   public unWatchTVEpisode(watchId) {
     return this.http.delete(`${this.API_URL_WATCH_TV_EPISODE}${watchId}/`, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        const foundIndex = _.findIndex(this.watchTVEpisodes, (watch) => {
+        const foundIndex = this.watchTVEpisodes.findIndex((watch) => {
           return watch.id === watchId;
         });
         if (foundIndex >= 0) {
@@ -632,7 +631,7 @@ export class ApiService {
   public unWatchMovie(watchId) {
     return this.http.delete(`${this.API_URL_WATCH_MOVIE}${watchId}/`, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        const foundIndex = _.findIndex(this.watchMovies, (watch) => {
+        const foundIndex = this.watchMovies.findIndex((watch) => {
           return watch.id === watchId;
         });
         if (foundIndex >= 0) {
@@ -652,7 +651,7 @@ export class ApiService {
       map((data: any) => {
 
         // find the season request instance
-        const foundWatchRequestIndex = _.findIndex(this.watchTVSeasonRequests, (watch) => {
+        const foundWatchRequestIndex = this.watchTVSeasonRequests.findIndex((watch) => {
           return watch.id === watchTVSeasonRequestId;
         });
         if (foundWatchRequestIndex === -1) {
@@ -664,7 +663,7 @@ export class ApiService {
         this.watchTVSeasonRequests.splice(foundWatchRequestIndex, 1);
 
         // find and remove the watch seasons
-        const foundWatchIndex = _.findIndex(this.watchTVSeasons, (watch) => {
+        const foundWatchIndex = this.watchTVSeasons.findIndex((watch) => {
           return foundWatchRequest.tmdb_show_id === watch.tmdb_show_id && foundWatchRequest.season_number === watch.season_number;
         });
         if (foundWatchIndex >= 0) {
@@ -672,7 +671,7 @@ export class ApiService {
         }
 
         // find and remove individual episodes
-        this.watchTVEpisodes = _.filter(this.watchTVEpisodes, (watch) => {
+        this.watchTVEpisodes = this.watchTVEpisodes.filter((watch) => {
           return watch.watch_tv_show !== foundWatchRequest.watch_tv_show;
         });
 
@@ -697,7 +696,7 @@ export class ApiService {
       map((data: any) => {
         this.watchMovies.forEach((watchMovie) => {
           if (data.id === watchMovie.id) {
-            _.assign(watchMovie, data);
+            Object.assign(watchMovie, data);
           }
         });
         return data;
@@ -715,7 +714,7 @@ export class ApiService {
       map((data: any) => {
         this.watchTVSeasons.forEach((watchSeason) => {
           if (data.id === watchSeason.id) {
-            _.assign(watchSeason, data);
+            Object.assign(watchSeason, data);
           }
         });
         return data;
@@ -732,7 +731,7 @@ export class ApiService {
       map((data: any) => {
         this.watchTVEpisodes.forEach((watchEpisode) => {
           if (data.id === watchEpisode.id) {
-            _.assign(watchEpisode, data);
+            Object.assign(watchEpisode, data);
           }
         });
         return data;
@@ -781,7 +780,7 @@ export class ApiService {
   }
 
   public discoverRottenTomatoesMedia(mediaType: string, params: any) {
-    params = _.assign(params, this._defaultParams());
+    params = Object.assign(params, this._defaultParams());
     const httpParams = new HttpParams({fromObject: params});
     const url = this.API_URL_DISCOVER_RT_MOVIES;
     return this.http.get(url, {params: httpParams, headers: this._requestHeaders()});
@@ -858,13 +857,13 @@ export class ApiService {
     }
 
     // find existing media and update it or add to appropriate media list
-    const watchMediaIndex = _.findIndex(mediaList, (media) => {
+    const watchMediaIndex = mediaList.findIndex((media) => {
       return media.id === data['data'].id;
     });
     if (data['action'] === 'UPDATED') {
       // update existing media
       if (watchMediaIndex >= 0) {
-        _.assign(mediaList[watchMediaIndex], data['data']);
+        Object.assign(mediaList[watchMediaIndex], data['data']);
       } else {
         // add to media list
         mediaList.push(data['data']);
@@ -888,7 +887,7 @@ export class ApiService {
   }
 
   protected _discoverMedia(mediaType: string, params: any) {
-    params = _.assign(params, this._defaultParams());
+    params = Object.assign(params, this._defaultParams());
     const httpParams = new HttpParams({fromObject: params});
     const url = mediaType === this.SEARCH_MEDIA_TYPE_MOVIE ? this.API_URL_DISCOVER_MOVIES : this.API_URL_DISCOVER_TV;
     return this.http.get(url, {params: httpParams, headers: this._requestHeaders()});

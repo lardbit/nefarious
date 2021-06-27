@@ -3,7 +3,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
 import { ToastrService } from 'ngx-toastr';
-import * as _ from 'lodash';
 import { Observable, Subscription } from 'rxjs';
 import {catchError, concatMap, tap} from 'rxjs/operators';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
@@ -281,7 +280,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
   }
 
   public isWatchingEpisode(episodeId): Boolean {
-    return Boolean(_.find(this.apiService.watchTVEpisodes, (watching) => {
+    return Boolean(this.apiService.watchTVEpisodes.find((watching) => {
       return watching.tmdb_episode_id === episodeId;
     }));
   }
@@ -315,7 +314,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
   protected _getWatchSeasonRequest(seasonNumber: number) {
     const watchShow = this._getWatchShow();
     if (watchShow) {
-      return _.find(this.apiService.watchTVSeasonRequests, (watchSeasonRequest) => {
+      return this.apiService.watchTVSeasonRequests.find((watchSeasonRequest) => {
         return watchSeasonRequest.watch_tv_show === watchShow.id && watchSeasonRequest.season_number === seasonNumber;
       });
     }
@@ -325,7 +324,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
   protected _getWatchSeason(seasonNumber: number) {
     const watchShow = this._getWatchShow();
     if (watchShow) {
-      return _.find(this.apiService.watchTVSeasons, (watchSeason) => {
+      return this.apiService.watchTVSeasons.find((watchSeason) => {
         return watchSeason.watch_tv_show === watchShow.id && watchSeason.season_number === seasonNumber;
       });
     }
@@ -377,15 +376,15 @@ export class MediaTVComponent implements OnInit, OnDestroy {
   }
 
   protected _getWatchEpisode(episodeId) {
-    return _.find(this.apiService.watchTVEpisodes, (watch) => {
+    return this.apiService.watchTVEpisodes.find((watch) => {
       return watch.tmdb_episode_id === episodeId;
     });
   }
 
   protected _getEpisode(episodeId) {
     let result = null;
-    _.each(this.result.seasons, (season) => {
-      _.each(season.episodes, (episode) => {
+    this.result.seasons.forEach((season) => {
+      season.episodes.forEach((episode) => {
         if (episode.id === episodeId) {
           result = episode;
           return;
@@ -396,7 +395,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
   }
 
   protected _getWatchShow() {
-    return _.find(this.apiService.watchTVShows, (watchShow) => {
+    return this.apiService.watchTVShows.find((watchShow) => {
       return watchShow.tmdb_show_id === this.result.id;
     });
   }

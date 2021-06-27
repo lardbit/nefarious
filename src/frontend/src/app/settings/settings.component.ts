@@ -4,7 +4,6 @@ import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
 import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { Component, OnInit, AfterContentChecked } from '@angular/core';
-import * as _ from 'lodash';
 import {concat, Observable, Subscription} from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -51,7 +50,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       'quality_profile_tv': [settings['quality_profile_tv'], Validators.required],
       'quality_profile_movies': [settings['quality_profile_movies'], Validators.required],
       'allow_hardcoded_subs': [settings['allow_hardcoded_subs'], Validators.required],
-      'exclusions': [settings['keyword_search_filters'] ? _.keys(settings['keyword_search_filters']) : []],
+      'exclusions': [settings['keyword_search_filters'] ? Object.keys(settings['keyword_search_filters']) : []],
       'language': [settings['language'], Validators.required],
       'users': new FormArray([]),
       'webhook_url': [settings['webhook_url']],
@@ -65,8 +64,8 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
           const controls = {
             password: '',
           };
-          _.forOwn(user, (value, key) => {
-            controls[key] = new FormControl(value);
+          Object.keys(user).forEach((key) => {
+            controls[key] = new FormControl(user[key]);
           });
           this.form.get('users').insert(0, this.fb.group(controls));
         });
@@ -248,11 +247,11 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
     }
 
     // create a copy of the form data so we can modify it
-    const formData = _.assign({}, this.form.value);
+    const formData = Object.assign({}, this.form.value);
 
     // handle keyword exclusions
     const exclusions = {};
-    _.forEach(formData['exclusions'], (exclusion) => {
+    formData['exclusions'].forEach((exclusion) => {
       exclusions[exclusion] = false;
     });
     formData['keyword_search_filters'] = exclusions;
