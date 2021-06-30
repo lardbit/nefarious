@@ -2,37 +2,30 @@
 
 **nefarious is a web application that automatically downloads Movies and TV Shows.**
 
-[![Build Status](https://travis-ci.org/lardbit/nefarious.svg?branch=master)](https://travis-ci.org/lardbit/nefarious)
+[![Build Status](https://github.com/lardbit/nefarious/actions/workflows/build.yml/badge.svg)](https://github.com/lardbit/nefarious/actions/workflows/build.yml)
 [![Docker Pulls](https://img.shields.io/docker/pulls/lardbit/nefarious.svg?maxAge=60&style=flat-square)](https://hub.docker.com/r/lardbit/nefarious)
 
-It aims to combine features of [Sonarr](https://github.com/Sonarr/Sonarr/) and [Radarr](https://github.com/Radarr/Radarr).
-
-It uses [Jackett](https://github.com/Jackett/Jackett/) and [Transmission](https://transmissionbt.com/) under the hood.  Jackett searches for torrents and Transmission does the downloading.
+It uses [Jackett](https://github.com/Jackett/Jackett/) and [Transmission](https://transmissionbt.com/) under the hood.  Jackett searches for torrents and Transmission handles the downloading.
 
 Features:
-- [x] Search TV & Movies
-- [x] Auto download TV (individual episodes or full seasons)
-- [x] Auto download Movies
-- [x] Discover TV & Movies (by popularity, genres, year etc)
-- [x] Find similar TV & Movies
-- [x] Find recommended TV & Movies
+- [x] Search and discover TV & Movies (by popularity, genres, year etc)
+- [x] Auto download TV & Movies
+- [x] Find similar and recommended TV & Movies (via The Movie Database & Rotten Tomatoes)
 - [x] Manually search and download Jackett's torrent results
-- [x] Supports blacklisting torrent results (i.e permanently avoid a bad/fake torrent)
+- [x] Supports blacklisting torrent results (i.e, permanently avoid a bad/fake torrent)
 - [X] Supports quality profiles (i.e only download *1080p* Movies and *720p* TV)
 - [x] Supports whether to download media with hardcoded subtitles or not
-- [x] Supports user defined keywords to filter results (i.e ignore "x265", "hevc" codecs)
-- [x] Auto download TV & Movies once it's released (routinely scans for newly released content)
+- [x] Supports user defined keywords to filter results (i.e, ignore "x265", "hevc" codecs)
 - [x] Monitor transmission results & status from within the app
-- [x] Self/auto updating application so you're always up-to-date
-- [x] Supports multiple users and permission groups (i.e admin users and regular users)
+- [x] Self/auto updating application, so you're always up-to-date
+- [x] Supports multiple users and permission groups (i.e, admin users and regular users)
 - [x] Responsive Design (looks great on desktops, tablets and small devices like phones)
-- [x] Movie trailers
+- [x] Includes movie trailers
 - [x] Automatically renames media
 - [x] Supports multiple languages (TMDB supports internationalized Titles, Descriptions and Poster artwork)
-- [x] Webhook support (i.e. can post to Slack, Telegram etc when media downloads)
+- [x] Webhook support (i.e, can post to Slack, Telegram etc when media downloads)
 - [x] Imports existing libraries
 - [x] VPN integration (optional)
-- [x] Rotten Tomatoes integration for discovery
 - [x] Auto download subtitles
 
 ### Contents
@@ -129,15 +122,10 @@ The default nefarious user/password is `admin`/`admin`.  On first login you will
 Jackett's **host** in the main settings should remain `jackett` and the port should remain `9117`.  Copy your API Token from [Jackett](http://localhost:9117) into the appropriate nefarious section.
 Don't forget to also add some indexers in Jackett to track your preferred content, and be sure to test them to see that they're working.  Some popular examples are *The Pirate Bay*, *1337x*, *RARBG*.
 
-Transmission's host should remain `transmission` and port should remain `9091`.  It's possible to configure it with a username and password, but defaults to keeping them both blank.
-Entering both username and password in the nefarious settings should only be done if the Transmission settings of 'transmission-settings.json' were also configured for your desired user/pass.
-The Download Subdirectories can also be configured here as well.  Bear in mind these are subdirectories, and that we will be configuring the parent download directory shortly.
-Leaving these as they are will be perfectly fine.  
+Transmission's host should remain `transmission` and port should remain `9091`.  It's possible to configure it with a username and password, but it defaults to keeping them both blank.
+Entering both username and password in the nefarious settings should only be done if the Transmission settings of `transmission-settings.json` were also configured for your desired user/pass.
 
-*Global Language*, *Keyword Exclusions*, *Subtitles*, and *Quality Profiles* can also be configured here.
-TV and Movie quality profiles can be changed independently of each other if you wish to have differing profiles.
-User accounts and passwords can be added or modified as well.
-Once all of your settings are updated, click `Save` then be sure to `Verify Settings` to make sure they're valid.
+Once all of your settings are updated, click `Save & Verify Settings` to save and verify they're valid.
 
 ##### Transmission Configuration
 
