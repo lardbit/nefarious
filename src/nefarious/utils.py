@@ -141,21 +141,24 @@ def results_with_valid_urls(results: list, nefarious_settings: NefariousSettings
 def get_media_new_path_and_name(watch_media, torrent_name: str, is_single_file: bool) -> tuple:
     """
     Returns a tuple of the new name and the path.
-    Movie - Single File:
-        Input: "Rambo [scene-stuff].mkv"
-        Output: ("Rambo (1982)", "Rambo (1982).mkv")
-    Movie - Folder:
-        Input: "Rambo [scene-stuff]"
-        Output: (None, "Rambo (1982)")
-    TV - Single Episode Folder:
-        Input: "Rick and Morty - S03E14 [scene-stuff]"
-        Output: ("Rick and Morty/Season 3/", "Rick and Morty - S03E14")
-    TV - Single Episode File:
-        Input: "Rick and Morty - S03E14 [scene-stuff].mkv"
-        Output ("Rick and Morty/Season 3/", "Rick and Morty - S03E14.mkv")
-    TV - Full Full Season Folder:
-        Input: "Rick and Morty - Season 3 [scene-stuff]"
-        Output: ("Rick and Morty/", "Rick and Morty - Season 3")
+
+    Movie:
+        Single File:
+            Input: "Rambo [scene-stuff].mkv"
+            Output: ("Rambo (1982)", "Rambo (1982).mkv")
+        Folder:
+            Input: "Rambo [scene-stuff]"
+            Output: (None, "Rambo (1982)")
+    TV:
+        Single Episode Folder:
+            Input: "Rick and Morty - S03E14 [scene-stuff]"
+            Output: ("Rick and Morty/Season 3/", "Rick and Morty - S03E14")
+        Single Episode File:
+            Input: "Rick and Morty - S03E14 [scene-stuff].mkv"
+            Output ("Rick and Morty/Season 3/", "Rick and Morty - S03E14.mkv")
+        Full Full Season Folder:
+            Input: "Rick and Morty - Season 3 [scene-stuff]"
+            Output: ("Rick and Morty/", "Rick and Morty - Season 3")
     """
 
     # movie
@@ -185,8 +188,13 @@ def get_media_new_path_and_name(watch_media, torrent_name: str, is_single_file: 
             extension = extension_match.group()
             name += extension
 
-    name = sanitize_final_media_title(name)
-    dir_name = sanitize_final_media_title(dir_name)
+    # sanitize
+    name = sanitize_final_media_path(name)
+    if dir_name:
+        # only sanitize the actual name, not the parent path, since the sanitizer removes path delimiters
+        dir_name = os.path.join(
+            os.path.dirname(dir_name), sanitize_final_media_path(os.path.basename(dir_name))
+        )
 
     return dir_name, name
 
@@ -202,12 +210,17 @@ def destroy_transmission_result(instance: WatchMediaBase):
         logger_background.warning('could not destroy torrent in transmission')
 
 
-def sanitize_final_media_title(title: str):
-    # replace any colons (plex seems to have trouble with them)
-    # Input: "The Lego Movie 2: The Second Part"
-    # Output: "The Lego Movie 2 - The Second Part"
+def sanitize_final_media_path(title: str):
+    """
+    - remove leading and trailing spaces
+    - remove anything that is not an alphanumeric, dash, underscore, space, parenthesis, or dot
+    - replace colons with hyphens (the Plex media server seems to have trouble auto matching titles with colons)
+    * inspired from django's `get_valid_filename`
+    """
     if title:
-        title = re.sub(r"\s*:+\s*", ' - ', title)
+        title = title.strip()
+        title = re.sub(r'(?u)[^-\w.(): ]', '', title)  # sanitize characters
+        title = re.sub(r"\s*:+\s*", ' - ', title)  # replace colons
     return title
 
 
