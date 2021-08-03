@@ -16,7 +16,7 @@ class MovieImporter(ImporterBase):
         return self.tmdb_search.movie(query=title, language=self.nefarious_settings.language)
 
     def _is_result_match_title(self, parser, tmdb_result, title):
-        return parser.normalize_media_title(tmdb_result['title']) == title
+        return parser.normalize_media_title(tmdb_result.get('title')) == title
 
     def _handle_match(self, parser, tmdb_result, title, file_path):
         poster_path = self.nefarious_settings.get_tmdb_poster_url(tmdb_result['poster_path']) if tmdb_result['poster_path'] else ''
