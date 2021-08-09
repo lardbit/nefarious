@@ -103,7 +103,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
       );
       // watch every season we're not already watching
       for (const season of this.result.seasons) {
-        if (!this.isWatchingSeason(season.season_number)) {
+        if (!this.isWatchingSeason(season)) {
           this.watchEntireSeason(season);
         }
       }
@@ -170,16 +170,16 @@ export class MediaTVComponent implements OnInit, OnDestroy {
 
   public isWatchingAllSeasons() {
     for (const season of this.result.seasons) {
-      if (!this.isWatchingSeason(season.season_number)) {
+      if (!this.isWatchingSeason(season)) {
         return false;
       }
     }
     return true;
   }
 
-  public isWatchingSeason(seasonNumber: number) {
-    const watchSeasonRequest = this._getWatchSeasonRequest(seasonNumber);
-    return Boolean(watchSeasonRequest);
+  public isWatchingSeason(season: any) {
+    const watchSeasonRequest = this._getWatchSeasonRequest(season.season_number);
+    return Boolean(watchSeasonRequest) || this.isWatchingAllEpisodesInSeason(season);
   }
 
   public hasCollectedAllEpisodesInSeason(season: any) {
@@ -340,8 +340,8 @@ export class MediaTVComponent implements OnInit, OnDestroy {
 
         // episode form control
         const control = new FormControl({
-          value: this.isWatchingEpisode(episode.id) || this.isWatchingSeason(season.season_number),
-          disabled: this.isWatchingSeason(season.season_number) || (
+          value: this.isWatchingEpisode(episode.id) || this.isWatchingSeason(season),
+          disabled: this.isWatchingSeason(season) || (
             this.isWatchingEpisode(episode.id) && !this.canUnWatchEpisode(episode.id)),
         });
 

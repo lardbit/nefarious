@@ -62,7 +62,7 @@
                                </div>
                                <!-- not downloaded everything -->
                                <div *ngSwitchCase="false">
-                                 <div [ngSwitch]="isWatchingSeason(season.season_number) || isWatchingAllEpisodesInSeason(season)">
+                                 <div [ngSwitch]="isWatchingSeason(season) || isWatchingAllEpisodesInSeason(season)">
                                    <!-- watching whole season -->
                                    <div *ngSwitchCase="true"> <span class="oi oi-eye" ngbTooltip="Watching entire season" placement="left"></span></div>
                                    <div *ngSwitchCase="false">
@@ -75,14 +75,14 @@
                                </div>
                              </div>
                              <!-- watch/unwatch season -->
-                             <button *ngIf="!isWatchingSeason(season.season_number)" type="button" class="btn btn-sm btn-outline-primary mx-2" (click)="watchEntireSeason(season)" ngbTooltip="Watch entire season" placement="left">
+                             <button *ngIf="!isWatchingSeason(season)" type="button" class="btn btn-sm btn-outline-primary mx-2" (click)="watchEntireSeason(season)" ngbTooltip="Watch entire season" placement="left">
                                <span class="oi oi-video"></span>
                              </button>
-                             <button *ngIf="isWatchingSeason(season.season_number)" type="button" class="btn btn-sm btn-success mx-2" (click)="stopWatchingEntireSeason(season)" [disabled]="!canUnWatchSeason(season.season_number)" ngbTooltip="Stop watching season" container="body">
+                             <button *ngIf="isWatchingSeason(season)" type="button" class="btn btn-sm btn-success mx-2" (click)="stopWatchingEntireSeason(season)" [disabled]="!canUnWatchSeason(season.season_number)" ngbTooltip="Stop watching season" container="body">
                                <span class="oi oi-video"></span>
                              </button>
                              <!-- manual search -->
-                             <div *ngIf="!isWatchingSeason(season.season_number) && userIsStaff() && isManualSearchEnabled">
+                             <div *ngIf="!isWatchingSeason(season) && userIsStaff() && isManualSearchEnabled">
                                <button class="btn btn-sm btn-link" ngbTooltip="Manually search torrents for this season" placement="left" (click)="manuallySearchSeason(season)"><span class="oi oi-magnifying-glass"></span></button>
                              </div>
                            </div>
@@ -99,12 +99,12 @@
                               <label class="form-check-label" [for]="episode.id">#{{ episode.episode_number }} - {{ episode.name }}</label>
                             </div>
                             <!-- manual search episode -->
-                            <div *ngIf="isManualSearchEnabled && !(isWatchingSeason(season.season_number) || isWatchingEpisode(episode.id))">
+                            <div *ngIf="isManualSearchEnabled && !(isWatchingSeason(season) || isWatchingEpisode(episode.id))">
                               <button class="btn btn-sm btn-link" placement="left" ngbTooltip="Manually search torrents for this episode" (click)="manuallySearchEpisode(season, episode)"><span class="oi oi-magnifying-glass"></span></button>
                             </div>
                           </div>
                           <!-- manual search toggle -->
-                          <div class="d-flex justify-content-end my-2" *ngIf="userIsStaff() && !isWatchingSeason(season.season_number)">
+                          <div class="d-flex justify-content-end my-2" *ngIf="userIsStaff() && !isWatchingSeason(season)">
                             <form class="form">
                               <input class="form-check-input" type="checkbox" [(ngModel)]="isManualSearchEnabled" name="manualSearch" id="toggle-manual-search">
                               <label class="form-check-label" for="toggle-manual-search" placement="left" ngbTooltip="Enable option to manually search torrents vs automatically downloading them">Manual</label>
