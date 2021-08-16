@@ -2,18 +2,18 @@
   <ngx-loading [show]="isLoading"></ngx-loading>
   <div *ngIf="!isLoading">
     <div class="card-header d-flex justify-content-between">
-      <h3 class="media-title">{{ result.name }}</h3>
+      <h3 class="media-title">{{ tmdbShow.name }}</h3>
       <div class="d-flex justify-content-between">
-        <a [routerLink]="['/search/auto']" [queryParams]="{type: 'tv', q: 'similar-to:' + result.id}" class="btn btn-link">
+        <a [routerLink]="['/search/auto']" [queryParams]="{type: 'tv', q: 'similar-to:' + tmdbShow.id}" class="btn btn-link">
           <span class="oi oi-sun"></span> <span class="d-none d-sm-block">Similar</span>
         </a>
-        <a [routerLink]="['/search/auto']" [queryParams]="{type: 'tv', q: 'recommended-to:' + result.id}" class="btn btn-link">
+        <a [routerLink]="['/search/auto']" [queryParams]="{type: 'tv', q: 'recommended-to:' + tmdbShow.id}" class="btn btn-link">
           <span class="oi oi-magnifying-glass"></span> <span class="d-none d-sm-block">Recommended</span>
         </a>
       </div>
     </div>
     <div class="card-body">
-      <p class="card-text">{{ result.overview }}</p>
+      <p class="card-text">{{ tmdbShow.overview }}</p>
       <div class="d-flex flex-wrap justify-content-end">
         <div ngbDropdown class="d-inline-block">
           <button class="btn" [ngClass]="{'btn-outline-success': isWatchingShow(), 'btn-outline-primary': !isWatchingShow()}" id="dropdownBasic1" ngbDropdownToggle>
@@ -43,7 +43,7 @@
             <div class="row">
               <div class="col-12 col-md-6 mb-3 position-relative">
                 <ngx-loading [show]="isSaving"></ngx-loading>
-                <ul class="list-group" *ngFor="let season of result.seasons">
+                <ul class="list-group" *ngFor="let season of tmdbShow.seasons">
                   <ngb-accordion>
                     <ngb-panel>
                       <ng-template ngbPanelHeader>
@@ -117,7 +117,7 @@
                 </ul>
               </div>
               <div class="col-12 col-md-6">
-                <img [src]="mediaPosterURL(result)"  class="img-fluid">
+                <img [src]="mediaPosterURL(tmdbShow)"  class="img-fluid">
               </div>
             </div>
           </ng-template>
@@ -131,7 +131,7 @@
         <li ngbNavItem="manual" [hidden]="!userIsStaff() || !isManuallySearching">
           <a ngbNavLink>Manual Search</a>
           <ng-template ngbNavContent>
-            <app-search-manual mediaType="tv" [tmdbMedia]="result" [tmdbTVSeason]="manualSearchTmdbSeason" [tmdbTVEpisode]="manualSearchTmdbEpisode" (downloaded)="manuallyDownloadComplete()"></app-search-manual>
+            <app-search-manual mediaType="tv" [tmdbMedia]="tmdbShow" [tmdbTVSeason]="manualSearchTmdbSeason" [tmdbTVEpisode]="manualSearchTmdbEpisode" (downloaded)="manuallyDownloadComplete()"></app-search-manual>
           </ng-template>
         </li>
       </ul>

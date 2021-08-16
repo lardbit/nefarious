@@ -647,6 +647,7 @@ export class ApiService {
   }
 
   public unWatchTVSeason(watchTVSeasonRequestId) {
+    // NOTE: expects a "tv season request"
 
     return this.http.delete(`${this.API_URL_WATCH_TV_SEASON_REQUEST}${watchTVSeasonRequestId}/`, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
