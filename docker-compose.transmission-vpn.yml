@@ -47,7 +47,7 @@ services:
       - OPENVPN_USERNAME=${OPENVPN_USERNAME}
       - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
       - OPENVPN_CONFIG=${OPENVPN_CONFIG}
-      - OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60
+      - OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60 --pull-filter ignore ping
       - LOCAL_NETWORK=${LOCAL_NETWORK:-192.168.1.0/24},172.17.0.0/16
       - GLOBAL_APPLY_PERMISSIONS=true
       - CREATE_TUN_DEVICE=true
