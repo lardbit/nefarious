@@ -82,7 +82,6 @@ class WatchMediaBase(models.Model):
     Abstract base class for all watchable media classes
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    quality_profile_custom = models.CharField(max_length=500, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     date_added = models.DateTimeField(auto_now_add=True)
     collected = models.BooleanField(default=False)
     collected_date = models.DateTimeField(blank=True, null=True)
@@ -106,6 +105,7 @@ class WatchMovie(WatchMediaBase):
     tmdb_movie_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
     poster_image_url = models.CharField(max_length=1000)
+    quality_profile_custom = models.CharField(max_length=500, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
 
     class Meta:
         ordering = ('name',)

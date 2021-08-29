@@ -105,13 +105,7 @@ class WatchProcessorBase:
 
     def is_match(self, title: str) -> bool:
         parser = self._get_parser(title)
-
-        # use custom quality profile if one exists
-        if self.watch_media.quality_profile_custom:
-            quality_profile = self.watch_media.quality_profile_custom
-        else:
-            quality_profile = self._get_quality_profile()
-
+        quality_profile = self._get_quality_profile()
         profile = Profile.get_from_name(quality_profile)
 
         return (
@@ -170,7 +164,8 @@ class WatchProcessorBase:
 class WatchMovieProcessor(WatchProcessorBase):
 
     def _get_quality_profile(self):
-        return self.nefarious_settings.quality_profile_movies
+        # try custom quality profile then fallback to global setting
+        return self.watch_media.quality_profile_custom or self.nefarious_settings.quality_profile_movies
 
     def _get_parser(self, title: str):
         return MovieParser(title)
@@ -212,7 +207,9 @@ class WatchMovieProcessor(WatchProcessorBase):
 class WatchTVProcessorBase(WatchProcessorBase):
 
     def _get_quality_profile(self):
-        return self.nefarious_settings.quality_profile_tv
+        # try custom quality profile then fallback to global setting
+        watch_media = self.watch_media  # type: WatchTVEpisode|WatchTVSeason
+        return watch_media.watch_tv_show.quality_profile_custom or self.nefarious_settings.quality_profile_tv
 
     def _get_parser(self, title: str):
         return TVParser(title)
