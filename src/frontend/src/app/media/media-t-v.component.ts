@@ -22,6 +22,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
   public watchEpisodesFormGroup: FormGroup;
   public manualSearchTmdbSeason: any;
   public manualSearchTmdbEpisode: any;
+  public qualityProfileControl: FormControl;
   public isLoading = true;
   public isSaving = false;
   public activeNav = 'details';
@@ -46,10 +47,28 @@ export class MediaTVComponent implements OnInit, OnDestroy {
         this._buildWatchEpisodesForm();
 
         // populate "auto watch" settings
-        const watchShow = this._getWatchShow();
+        let watchShow = this._getWatchShow();
         if (watchShow) {
           this.autoWatchFutureSeasons = watchShow.auto_watch;
         }
+
+        // define quality profile form control and watch for changes
+        this.qualityProfileControl = new FormControl(
+          (watchShow && watchShow.quality_profile_custom) ?
+            watchShow.quality_profile_custom :
+            this.apiService.settings.quality_profile_tv
+        );
+        this.qualityProfileControl.valueChanges.subscribe((qualityProfile) => {
+          watchShow = this._getWatchShow();
+          if (watchShow) {
+            this.apiService.updateWatchTVShow(watchShow.id, {quality_profile_custom: qualityProfile})
+              .subscribe(() => {
+                this.toastr.success('Updated quality profile');
+              }, (error) => {
+                this.toastr.error('An unknown error occurred updating the quality profile');
+              });
+          }
+        });
 
         this.isLoading = false;
       },
@@ -322,8 +341,15 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     }
   }
 
+  public qualityProfiles(): string[] {
+    return this.apiService.qualityProfiles;
+  }
+
   protected _watchShow(autoWatchNewSeasons?: boolean): Observable<any> {
-    return this.apiService.watchTVShow(this.tmdbShow.id, this.tmdbShow.name, this.mediaPosterURL(this.tmdbShow), this.tmdbShow.first_air_date, autoWatchNewSeasons).pipe(
+    return this.apiService.watchTVShow(
+      this.tmdbShow.id, this.tmdbShow.name, this.mediaPosterURL(this.tmdbShow), this.tmdbShow.first_air_date,
+      autoWatchNewSeasons, this.qualityProfileControl.value,
+      ).pipe(
       tap((data) => {
         this.toastr.success(`Watching show ${data.name}`);
       }),

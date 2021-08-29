@@ -128,6 +128,7 @@ class WatchTVShow(models.Model):
     release_date = models.DateField(null=True, blank=True)
     auto_watch = models.BooleanField(default=False)  # whether to automatically watch future seasons
     auto_watch_date_updated = models.DateField(null=True, blank=True)  # date auto watch requested/updated
+    quality_profile_custom = models.CharField(max_length=500, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
 
     class Meta:
         ordering = ('name',)
