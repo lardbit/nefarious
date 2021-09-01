@@ -13,25 +13,41 @@
       </div>
     </div>
     <div class="card-body">
-      <p class="card-text">{{ tmdbShow.overview }}</p>
-      <div class="d-flex flex-wrap justify-content-end">
-        <div ngbDropdown class="d-inline-block">
-          <button class="btn" [ngClass]="{'btn-outline-success': isWatchingShow(), 'btn-outline-primary': !isWatchingShow()}" id="dropdownBasic1" ngbDropdownToggle>
-            <span *ngIf="!isWatchingShow()">Not watching</span>
-            <span *ngIf="isWatchingShow()">Watching</span>
-          </button>
-          <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-            <button *ngIf="!isWatchingAllSeasons()" (click)="watchAllSeasons()" ngbDropdownItem>Watch all seasons</button>
-            <button *ngIf="isWatchingShow()" (click)="stopWatchingShow()" [disabled]="!canUnWatchShow()" ngbDropdownItem>Stop watching show</button>
-          </div>
+      <div class="row">
+        <div class="col-md-6 col-lg-8 mb-2">
+          <p class="card-text">{{ tmdbShow.overview }}</p>
         </div>
-      </div>
-      <div class="d-flex justify-content-end" *ngIf="isWatchingShow()">
-        <div class="form-check text-muted form-control-sm">
-          <input class="form-check-input" type="checkbox" id="auto-watch" [(ngModel)]="autoWatchFutureSeasons" (ngModelChange)="autoWatchUpdate()">
-          <label class="form-check-label" for="auto-watch" container="body" ngbTooltip="When new seasons air, this setting will automatically start watching them">
-            Automatically watch future seasons
-          </label>
+        <div class="col">
+          <div class="d-flex justify-content-end">
+            <div ngbDropdown class="d-inline-block mb-2">
+              <button class="btn" [ngClass]="{'btn-outline-success': isWatchingShow(), 'btn-outline-primary': !isWatchingShow()}" id="dropdownBasic1" ngbDropdownToggle>
+                <span *ngIf="!isWatchingShow()">Not watching</span>
+                <span *ngIf="isWatchingShow()">Watching</span>
+              </button>
+              <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                <button *ngIf="!isWatchingAllSeasons()" (click)="watchAllSeasons()" ngbDropdownItem>Watch all seasons</button>
+                <button *ngIf="isWatchingShow()" (click)="stopWatchingShow()" [disabled]="!canUnWatchShow()" ngbDropdownItem>Stop watching show</button>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end my-2" *ngIf="isWatchingShow()">
+            <div class="form-check text-muted form-control-sm">
+              <input class="form-check-input" type="checkbox" id="auto-watch" [(ngModel)]="autoWatchFutureSeasons" (ngModelChange)="autoWatchUpdate()">
+              <label class="form-check-label" for="auto-watch" container="body" ngbTooltip="When new seasons air, this setting will automatically start watching them">
+                Automatically watch future seasons
+              </label>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end my-2">
+            <div class="form-group row">
+              <label class="col-lg-6 col-form-label">Quality Profile</label>
+              <div class="col-lg-6">
+                <select type="text" class="form-control form-control-sm" [formControl]="qualityProfileControl">
+                  <option *ngFor="let profile of qualityProfiles()" [value]="profile">{{ profile }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
