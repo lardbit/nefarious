@@ -17,7 +17,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let result of results">
+    <tr *ngFor="let result of results; trackBy: resultTrackBy">
       <td class="text-nowrap">
         <button type="button" class="btn" [ngClass]="{'btn-outline-success': result.watchMedia.collected, 'btn-outline-secondary': !result.watchMedia.collected}" placement="right" [ngbPopover]="result.watchMedia.transmission_torrent_name || '(torrent no longer exists)'" popoverTitle="Torrent Name">{{ result.watchMedia.name }}</button>
       </td>

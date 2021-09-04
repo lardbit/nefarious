@@ -7,6 +7,7 @@ import * as _ from 'lodash';
 
 const POLL_TIME = 5000;
 
+
 @Component({
   selector: 'app-torrent-details',
   templateUrl: './torrent-details.component.html',
@@ -94,6 +95,10 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
       }
     );
 
+  }
+
+  public resultTrackBy(index, result) {
+    return result.watchMedia.id;
   }
 
   protected _fetchTorrents(): Observable<any> {
