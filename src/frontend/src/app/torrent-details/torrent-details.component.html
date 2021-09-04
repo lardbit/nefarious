@@ -18,11 +18,8 @@
     </thead>
     <tbody>
     <tr *ngFor="let result of results">
-      <td>
-        <button type="button" class="btn btn-outline-success" *ngIf="result.torrent" placement="right" [ngbPopover]="result.torrent.name" popoverTitle="Torrent Name">
-          {{ result.watchMedia.name }}
-        </button>
-        <button *ngIf="!result.torrent" type="button" class="btn" [ngClass]="{'btn-outline-success': result.watchMedia.collected, 'btn-outline-secondary': !result.watchMedia.collected}">{{ result.watchMedia.name }}</button>
+      <td class="text-nowrap">
+        <button type="button" class="btn" [ngClass]="{'btn-outline-success': result.watchMedia.collected, 'btn-outline-secondary': !result.watchMedia.collected}" placement="right" [ngbPopover]="result.watchMedia.transmission_torrent_name || '(torrent no longer exists)'" popoverTitle="Torrent Name">{{ result.watchMedia.name }}</button>
       </td>
       <td><span *ngIf="result.watchMedia.release_date">{{ result.watchMedia.release_date | date | date: 'shortDate' }}</span></td>
       <td>{{ result.watchMedia.date_added | date | date: 'shortDate' }}</td>
