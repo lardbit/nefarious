@@ -33,32 +33,40 @@ class BlacklistAndRetryMixin:
 
     @action(['post'], detail=True, url_path='blacklist-auto-retry')
     def blacklist_auto_retry(self, request, pk):
+
         watch_media = self.get_object()
         nefarious_settings = NefariousSettings.get()
 
-        # add to blacklist
-        logger_foreground.info('Blacklisting {}'.format(watch_media.transmission_torrent_hash))
-        TorrentBlacklist.objects.get_or_create(
-            hash=watch_media.transmission_torrent_hash,
-            defaults=dict(
-                name=str(watch_media),
+        # if media still has a torrent reference
+        if watch_media.transmission_torrent_hash:
+
+            # add to blacklist
+            logger_foreground.info('Blacklisting {}'.format(watch_media.transmission_torrent_hash))
+            TorrentBlacklist.objects.get_or_create(
+                hash=watch_media.transmission_torrent_hash,
+                defaults=dict(
+                    name=str(watch_media),
+                )
             )
-        )
+
+            # remove torrent and delete data
+            logger_foreground.info('Removing blacklisted torrent hash: {}'.format(watch_media.transmission_torrent_hash))
+            transmission_client = get_transmission_client(nefarious_settings=nefarious_settings)
+            transmission_client.remove_torrent([watch_media.transmission_torrent_hash], delete_data=True)
+
+            # unset torrent details
+            watch_media.transmission_torrent_hash = None
+            watch_media.transmission_torrent_name = None
 
         # unset previous details
-        del_transmission_torrent_hash = watch_media.transmission_torrent_hash
-        watch_media.transmission_torrent_hash = None
         watch_media.collected = False
         watch_media.collected_date = None
+        watch_media.download_path = None
+        watch_media.last_attempt_date = None
         watch_media.save()
 
         # re-queue search
         self._watch_media_task(watch_media_id=watch_media.id)
-
-        # remove torrent and delete data
-        logger_foreground.info('Removing blacklisted torrent hash: {}'.format(del_transmission_torrent_hash))
-        transmission_client = get_transmission_client(nefarious_settings=nefarious_settings)
-        transmission_client.remove_torrent([del_transmission_torrent_hash], delete_data=True)
 
         return Response(self.serializer_class(watch_media).data)
 

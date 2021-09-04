@@ -86,7 +86,7 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
     endpoint.subscribe(
       (data) => {
         this.isSaving = false;
-        this.toastr.success('Successfully blacklisted');
+        this.toastr.success('Retrying different torrent');
       },
       (error) => {
         console.error(error);
@@ -110,6 +110,7 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
     };
 
     // update media instances and build torrent params
+
     // tv
     if (this.mediaType === this.apiService.SEARCH_MEDIA_TYPE_TV) {
       params.watch_tv_shows.push(this.watchMedia.id);
@@ -123,8 +124,16 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
     return this.apiService.fetchCurrentTorrents(params);
   }
 
-  protected _fetchTorrentsSuccess(data) {
-    this.results = data;
+  protected _fetchTorrentsSuccess(data: any) {
+    this.results = data.sort((a: any, b: any) => {
+      if (a.watchMedia.name < b.watchMedia.name) {
+        return -1;
+      }
+      if (a.watchMedia.name > b.watchMedia.name) {
+        return 1;
+      }
+      return 0;
+    });
   }
 
   protected _fetchTorrentsFailure(error) {
