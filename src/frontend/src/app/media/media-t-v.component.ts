@@ -81,7 +81,9 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     this._changes = this.apiService.mediaUpdated$.subscribe(
       () => {
         this.ngZone.run(() => {
-          this._buildWatchEpisodesForm();
+          if (this.tmdbShow) {
+            this._buildWatchEpisodesForm();
+          }
         });
       }
     );
