@@ -64,7 +64,8 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
     );
   }
 
-  public blacklistRetry(watchMedia) {
+  public blacklistRetry(watchMedia, blacklist?: boolean) {
+    const message = blacklist ? 'Blacklisting torrent and retrying' : 'Retrying download now';
     this.isSaving = true;
 
     let endpoint;
@@ -86,7 +87,7 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
     endpoint.subscribe(
       (data) => {
         this.isSaving = false;
-        this.toastr.success('Retrying different torrent');
+        this.toastr.success(message);
       },
       (error) => {
         console.error(error);

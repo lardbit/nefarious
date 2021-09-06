@@ -46,8 +46,9 @@
           <span *ngIf="result.torrent">{{ result.torrent.format_eta }}</span>
         </td>
         <td>
-          <button *ngIf="result.torrent" class="btn btn-warning btn-sm" (click)="blacklistRetry(result.watchMedia)" placement="top" ngbTooltip="Blacklist torrent and retry"><span class="oi oi-ban"></span></button>
-          <button *ngIf="!result.torrent" class="btn btn-danger btn-sm" (click)="blacklistRetry(result.watchMedia)" placement="top" [ngbTooltip]="result.watchMedia.collected ? 'Retry downloading another torrent' : 'Force retry now'"><span class="oi oi-loop-circular"></span></button>
+          <button *ngIf="result.torrent" class="btn btn-warning btn-sm" (click)="blacklistRetry(result.watchMedia, true)" placement="top" ngbTooltip="Blacklist torrent and retry"><span class="oi oi-ban"></span></button>
+          <button *ngIf="!result.torrent && result.watchMedia.collected" class="btn btn-danger btn-sm" (click)="blacklistRetry(result.watchMedia)" placement="top" ngbTooltip="Retry downloading another torrent"><span class="oi oi-loop-circular"></span></button>
+          <button *ngIf="!result.torrent && !result.watchMedia.collected" class="btn btn-info btn-sm" (click)="blacklistRetry(result.watchMedia)" placement="top" ngbTooltip="Force retry now"><span class="oi oi-action-redo"></span></button>
         </td>
       </ng-container>
     </tr>
