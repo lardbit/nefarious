@@ -29,7 +29,8 @@ class MovieImporter(ImporterBase):
                 download_path=file_path,
                 collected=True,
                 collected_date=timezone.utc.localize(timezone.datetime.utcnow()),
-                release_date=parse_date(tmdb_result.get('release_date', ''))
+                release_date=parse_date(tmdb_result.get('release_date', '')),
+                last_attempt_date=timezone.utc.localize(timezone.datetime.utcnow()),
             ),
         )
         return watch_movie
