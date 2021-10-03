@@ -17,12 +17,9 @@
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let result of results">
-      <td>
-        <button type="button" class="btn btn-outline-success" *ngIf="result.torrent" placement="right" [ngbPopover]="result.torrent.name" popoverTitle="Torrent Name">
-          {{ result.watchMedia.name }}
-        </button>
-        <button *ngIf="!result.torrent" type="button" class="btn" [ngClass]="{'btn-outline-success': result.watchMedia.collected, 'btn-outline-secondary': !result.watchMedia.collected}">{{ result.watchMedia.name }}</button>
+    <tr *ngFor="let result of results; trackBy: resultTrackBy">
+      <td class="text-nowrap">
+        <button type="button" class="btn" [ngClass]="{'btn-outline-success': result.watchMedia.collected, 'btn-outline-secondary': !result.watchMedia.collected}" placement="right" [ngbPopover]="result.watchMedia.transmission_torrent_name || '(n/a)'" popoverTitle="Torrent Name">{{ result.watchMedia.name }}</button>
       </td>
       <td><span *ngIf="result.watchMedia.release_date">{{ result.watchMedia.release_date | date | date: 'shortDate' }}</span></td>
       <td>{{ result.watchMedia.date_added | date | date: 'shortDate' }}</td>
@@ -49,7 +46,9 @@
           <span *ngIf="result.torrent">{{ result.torrent.format_eta }}</span>
         </td>
         <td>
-          <span *ngIf="result.torrent"><button class="btn btn-warning btn-sm" (click)="blacklistRetry(result.watchMedia)"><span class="oi oi-ban"></span></button></span>
+          <button *ngIf="result.torrent" class="btn btn-warning btn-sm" (click)="blacklistRetry(result.watchMedia, true)" placement="top" ngbTooltip="Blacklist torrent and retry"><span class="oi oi-ban"></span></button>
+          <button *ngIf="!result.torrent && result.watchMedia.collected" class="btn btn-danger btn-sm" (click)="blacklistRetry(result.watchMedia)" placement="top" ngbTooltip="Retry downloading another torrent"><span class="oi oi-loop-circular"></span></button>
+          <button *ngIf="!result.torrent && !result.watchMedia.collected" class="btn btn-info btn-sm" (click)="blacklistRetry(result.watchMedia)" placement="top" ngbTooltip="Force retry now"><span class="oi oi-action-redo"></span></button>
         </td>
       </ng-container>
     </tr>

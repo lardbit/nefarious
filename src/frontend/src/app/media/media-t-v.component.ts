@@ -3,8 +3,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, Subscription } from 'rxjs';
-import {catchError, concatMap, tap} from 'rxjs/operators';
+import { forkJoin, Observable, Subscription } from 'rxjs';
+import { catchError, concatMap, first, tap } from 'rxjs/operators';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
 
@@ -14,13 +14,14 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
   styleUrls: ['./media-t-v.component.css']
 })
 export class MediaTVComponent implements OnInit, OnDestroy {
-  public result: any;
+  public tmdbShow: any;
   public isManuallySearching = false;
   public isManualSearchEnabled = false;
   public autoWatchFutureSeasons = false;
   public watchEpisodesFormGroup: FormGroup;
   public manualSearchTmdbSeason: any;
   public manualSearchTmdbEpisode: any;
+  public qualityProfileControl: FormControl;
   public isLoading = true;
   public isSaving = false;
   public activeNav = 'details';
@@ -41,14 +42,32 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     this.apiService.searchMediaDetail(this.apiService.SEARCH_MEDIA_TYPE_TV, routeParams.id).subscribe(
       (data) => {
         // set result and build the watching options
-        this.result = data;
+        this.tmdbShow = data;
         this._buildWatchEpisodesForm();
 
         // populate "auto watch" settings
-        const watchShow = this._getWatchShow();
+        let watchShow = this._getWatchShow();
         if (watchShow) {
           this.autoWatchFutureSeasons = watchShow.auto_watch;
         }
+
+        // define quality profile form control and watch for changes
+        this.qualityProfileControl = new FormControl(
+          (watchShow && watchShow.quality_profile_custom) ?
+            watchShow.quality_profile_custom :
+            this.apiService.settings.quality_profile_tv
+        );
+        this.qualityProfileControl.valueChanges.subscribe((qualityProfile) => {
+          watchShow = this._getWatchShow();
+          if (watchShow) {
+            this.apiService.updateWatchTVShow(watchShow.id, {quality_profile_custom: qualityProfile})
+              .subscribe(() => {
+                this.toastr.success('Updated quality profile');
+              }, (error) => {
+                this.toastr.error('An unknown error occurred updating the quality profile');
+              });
+          }
+        });
 
         this.isLoading = false;
       },
@@ -61,7 +80,9 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     this._changes = this.apiService.mediaUpdated$.subscribe(
       () => {
         this.ngZone.run(() => {
-          this._buildWatchEpisodesForm();
+          if (this.tmdbShow) {
+            this._buildWatchEpisodesForm();
+          }
         });
       }
     );
@@ -101,8 +122,8 @@ export class MediaTVComponent implements OnInit, OnDestroy {
         }
       );
       // watch every season we're not already watching
-      for (const season of this.result.seasons) {
-        if (!this.isWatchingSeason(season.season_number)) {
+      for (const season of this.tmdbShow.seasons) {
+        if (!this.isWatchingSeason(season)) {
           this.watchEntireSeason(season);
         }
       }
@@ -167,21 +188,25 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     return this._getWatchShow();
   }
 
-  public isWatchingAllSeasons() {
-    for (const season of this.result.seasons) {
-      if (!this.isWatchingSeason(season.season_number)) {
+  public isWatchingAllSeasons(): boolean {
+    for (const season of this.tmdbShow.seasons) {
+      if (!this.isWatchingSeason(season)) {
         return false;
       }
     }
     return true;
   }
 
-  public isWatchingSeason(seasonNumber: number) {
-    const watchSeasonRequest = this._getWatchSeasonRequest(seasonNumber);
-    return Boolean(watchSeasonRequest);
+  public isWatchingSeasonRequest(season: any): boolean {
+    return Boolean(this._getWatchSeasonRequest(season.season_number));
   }
 
-  public hasCollectedAllEpisodesInSeason(season: any) {
+  public isWatchingSeason(season: any): boolean {
+    const watchSeasonRequest = this._getWatchSeasonRequest(season.season_number);
+    return Boolean(watchSeasonRequest) || this.isWatchingAllEpisodesInSeason(season);
+  }
+
+  public hasCollectedAllEpisodesInSeason(season: any): boolean {
     // watching entire season
     if (this.hasCollectedSeason(season)) {
       return true;
@@ -197,7 +222,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  public isWatchingAllEpisodesInSeason(season: any) {
+  public isWatchingAllEpisodesInSeason(season: any): boolean {
     // watching all episodes in season
     let watchingEpisodes = 0;
     for (const episode of season.episodes) {
@@ -208,7 +233,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     return season.episodes.length === watchingEpisodes;
   }
 
-  public isWatchingAnyEpisodeInSeason(season: any) {
+  public isWatchingAnyEpisodeInSeason(season: any): boolean {
     for (const episode of season.episodes) {
       if (this.isWatchingEpisode(episode.id)) {
         return true;
@@ -228,7 +253,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
       this.isSaving = true;
       this.apiService.unWatchTVSeason(watchSeasonRequest.id).subscribe(
         (data) => {
-          this.toastr.success(`Stopped watching ${this.result.name} - Season ${watchSeasonRequest.season_number}`);
+          this.toastr.success(`Stopped watching ${this.tmdbShow.name} - Season ${watchSeasonRequest.season_number}`);
           this._buildWatchEpisodesForm();
           this.isSaving = false;
         },
@@ -239,9 +264,31 @@ export class MediaTVComponent implements OnInit, OnDestroy {
         }
       );
     }
+    // delete any dangling episodes from season
+    if (this.isWatchingAnyEpisodeInSeason(season)) {
+      const episodesToDelete = [];
+      season.episodes.forEach((episode) => {
+        const watchEpisode = this._getWatchEpisode(episode.id);
+        if (watchEpisode) {
+          episodesToDelete.push(watchEpisode);
+        }
+      });
+      if (episodesToDelete.length > 0) {
+        this.isSaving = true;
+        forkJoin(...episodesToDelete.map((watchEpisode) => {
+          return this.apiService.unWatchTVEpisode(watchEpisode.id);
+        })).pipe(
+          first(),
+        ).subscribe(() => {
+          this.toastr.success(`Stopped watching all episodes from ${this.tmdbShow.name} - Season ${episodesToDelete[0].season_number}`);
+          this._buildWatchEpisodesForm();
+          this.isSaving = false;
+        });
+      }
+    }
   }
 
-  public isWatchingShow() {
+  public isWatchingShow(): boolean {
     return Boolean(this._getWatchShow());
   }
 
@@ -299,8 +346,15 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     }
   }
 
+  public qualityProfiles(): string[] {
+    return this.apiService.qualityProfiles;
+  }
+
   protected _watchShow(autoWatchNewSeasons?: boolean): Observable<any> {
-    return this.apiService.watchTVShow(this.result.id, this.result.name, this.mediaPosterURL(this.result), this.result.first_air_date, autoWatchNewSeasons).pipe(
+    return this.apiService.watchTVShow(
+      this.tmdbShow.id, this.tmdbShow.name, this.mediaPosterURL(this.tmdbShow), this.tmdbShow.first_air_date,
+      autoWatchNewSeasons, this.qualityProfileControl.value,
+      ).pipe(
       tap((data) => {
         this.toastr.success(`Watching show ${data.name}`);
       }),
@@ -334,13 +388,13 @@ export class MediaTVComponent implements OnInit, OnDestroy {
   protected _buildWatchEpisodesForm() {
     // build episode form
     const watchingControls: any = {};
-    for (const season of this.result.seasons) {
+    for (const season of this.tmdbShow.seasons) {
       for (const episode of season.episodes) {
 
         // episode form control
         const control = new FormControl({
-          value: this.isWatchingEpisode(episode.id) || this.isWatchingSeason(season.season_number),
-          disabled: this.isWatchingSeason(season.season_number) || (
+          value: this.isWatchingEpisode(episode.id) || this.isWatchingSeason(season),
+          disabled: this.isWatchingSeasonRequest(season) || (
             this.isWatchingEpisode(episode.id) && !this.canUnWatchEpisode(episode.id)),
         });
 
@@ -383,7 +437,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
 
   protected _getEpisode(episodeId) {
     let result = null;
-    this.result.seasons.forEach((season) => {
+    this.tmdbShow.seasons.forEach((season) => {
       season.episodes.forEach((episode) => {
         if (episode.id === episodeId) {
           result = episode;
@@ -396,7 +450,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
 
   protected _getWatchShow() {
     return this.apiService.watchTVShows.find((watchShow) => {
-      return watchShow.tmdb_show_id === this.result.id;
+      return watchShow.tmdb_show_id === this.tmdbShow.id;
     });
   }
 

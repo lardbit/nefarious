@@ -3,6 +3,8 @@ import regex
 from django.conf import settings
 from datetime import datetime
 from django.utils import dateparse
+from transmissionrpc import Torrent
+
 from nefarious.models import WatchMovie, NefariousSettings, TorrentBlacklist, WatchTVEpisode, WatchTVSeason
 from nefarious.parsers.movie import MovieParser
 from nefarious.parsers.tv import TVParser
@@ -35,11 +37,6 @@ class WatchProcessorBase:
         valid_search_results = []
         search = self._get_search_results()
 
-        # TODO - last attempt should only populate _after_ an actual attempt
-        # save this attempt date
-        self.watch_media.last_attempt_date = datetime.utcnow()
-        self.watch_media.save()
-
         if search.ok:
 
             for result in search.results:
@@ -66,7 +63,7 @@ class WatchProcessorBase:
                     # add to transmission
                     torrent = transmission_client.add_torrent(
                         best_result['torrent_url'],
-                        paused=True,  # start paused to we can verify if the torrent has been blacklisted
+                        paused=True,  # start paused so we can verify if the torrent has been blacklisted
                         download_dir=self._get_download_dir(transmission_session),
                     )
 
@@ -82,6 +79,10 @@ class WatchProcessorBase:
                         # start the torrent
                         if not settings.DEBUG:
                             torrent.start()
+
+                        # set attempt date
+                        self._set_last_attempt_date()
+
                         return True
                     else:
                         # remove the blacklisted/paused torrent and continue to the next result
@@ -101,17 +102,14 @@ class WatchProcessorBase:
 
         logger_background.info('Unable to find any results for media {}'.format(self.watch_media))
 
+        # set attempt date
+        self._set_last_attempt_date()
+
         return False
 
     def is_match(self, title: str) -> bool:
         parser = self._get_parser(title)
-
-        # use custom quality profile if one exists
-        if self.watch_media.quality_profile_custom:
-            quality_profile = self.watch_media.quality_profile_custom
-        else:
-            quality_profile = self._get_quality_profile()
-
+        quality_profile = self._get_quality_profile()
         profile = Profile.get_from_name(quality_profile)
 
         return (
@@ -122,6 +120,10 @@ class WatchProcessorBase:
                 self.nefarious_settings.keyword_search_filters.keys() if self.nefarious_settings.keyword_search_filters else []
             )
         )
+
+    def _set_last_attempt_date(self):
+        self.watch_media.last_attempt_date = datetime.utcnow()
+        self.watch_media.save()
 
     def _sanitize_title(self, title: str):
         # conditionally remove possessive apostrophes
@@ -156,7 +158,8 @@ class WatchProcessorBase:
     def _get_media_type(self) -> str:
         raise NotImplementedError
 
-    def _save_torrent_details(self, torrent):
+    def _save_torrent_details(self, torrent: Torrent):
+        self.watch_media.transmission_torrent_name = torrent.name
         self.watch_media.transmission_torrent_hash = torrent.hashString
         self.watch_media.save()
 
@@ -170,7 +173,8 @@ class WatchProcessorBase:
 class WatchMovieProcessor(WatchProcessorBase):
 
     def _get_quality_profile(self):
-        return self.nefarious_settings.quality_profile_movies
+        # try custom quality profile then fallback to global setting
+        return self.watch_media.quality_profile_custom or self.nefarious_settings.quality_profile_movies
 
     def _get_parser(self, title: str):
         return MovieParser(title)
@@ -212,7 +216,9 @@ class WatchMovieProcessor(WatchProcessorBase):
 class WatchTVProcessorBase(WatchProcessorBase):
 
     def _get_quality_profile(self):
-        return self.nefarious_settings.quality_profile_tv
+        # try custom quality profile then fallback to global setting
+        watch_media = self.watch_media  # type: WatchTVEpisode|WatchTVSeason
+        return watch_media.watch_tv_show.quality_profile_custom or self.nefarious_settings.quality_profile_tv
 
     def _get_parser(self, title: str):
         return TVParser(title)

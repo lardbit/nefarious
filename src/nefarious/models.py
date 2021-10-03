@@ -82,13 +82,13 @@ class WatchMediaBase(models.Model):
     Abstract base class for all watchable media classes
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    quality_profile_custom = models.CharField(max_length=500, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     date_added = models.DateTimeField(auto_now_add=True)
     collected = models.BooleanField(default=False)
     collected_date = models.DateTimeField(blank=True, null=True)
     download_path = models.CharField(max_length=1000, blank=True, null=True, unique=True)
     last_attempt_date = models.DateTimeField(blank=True, null=True)
     transmission_torrent_hash = models.CharField(max_length=100, null=True, blank=True)
+    transmission_torrent_name = models.CharField(max_length=1000, null=True, blank=True)
     release_date = models.DateField(null=True, blank=True)
 
     def abs_download_path(self):
@@ -106,6 +106,7 @@ class WatchMovie(WatchMediaBase):
     tmdb_movie_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
     poster_image_url = models.CharField(max_length=1000)
+    quality_profile_custom = models.CharField(max_length=500, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
 
     class Meta:
         ordering = ('name',)
@@ -128,6 +129,7 @@ class WatchTVShow(models.Model):
     release_date = models.DateField(null=True, blank=True)
     auto_watch = models.BooleanField(default=False)  # whether to automatically watch future seasons
     auto_watch_date_updated = models.DateField(null=True, blank=True)  # date auto watch requested/updated
+    quality_profile_custom = models.CharField(max_length=500, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
 
     class Meta:
         ordering = ('name',)
