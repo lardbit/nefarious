@@ -21,7 +21,10 @@ from nefarious.models import NefariousSettings, WatchMovie, WatchTVShow, WatchTV
 from nefarious.opensubtitles import OpenSubtitles
 from nefarious.search import SEARCH_MEDIA_TYPE_MOVIE, SEARCH_MEDIA_TYPE_TV, SearchTorrents
 from nefarious.quality import PROFILES
-from nefarious.tasks import import_library_task
+from nefarious.tasks import (
+    import_library_task, completed_media_task, wanted_media_task, auto_watch_new_seasons_task,
+    refresh_tmdb_configuration, wanted_tv_season_task, populate_release_dates_task,
+)
 from nefarious.transmission import get_transmission_client
 from nefarious.tmdb import get_tmdb_client
 from nefarious.utils import trace_torrent_url, swap_jackett_host, is_magnet_url, logger_foreground
@@ -490,11 +493,32 @@ class ImportMediaLibraryView(views.APIView):
         return Response({'success': True})
 
 
-class OpenSubtitlesAuth(views.APIView):
+class OpenSubtitlesAuthView(views.APIView):
 
     def post(self, request):
         open_subtitles = OpenSubtitles()
         authed = open_subtitles.auth()
         if not authed:
             return Response({'success': False, 'error': open_subtitles.error_message})
+        return Response({'success': True})
+
+
+class QueueTaskView(views.APIView):
+
+    def post(self, request):
+        assert 'task' in request.data, 'missing task name'
+
+        if request.data['task'] == 'completed_media':
+            completed_media_task.delay()
+        elif request.data['task'] == 'wanted_media':
+            wanted_media_task.delay()
+        elif request.data['task'] == 'wanted_tv_seasons':
+            wanted_tv_season_task.delay()
+        elif request.data['task'] == 'auto_watch_tv_seasons':
+            auto_watch_new_seasons_task.delay()
+        elif request.data['task'] == 'refresh_tmdb_settings':
+            refresh_tmdb_configuration.delay()
+        elif request.data['task'] == 'populate_release_dates':
+            populate_release_dates_task.delay()
+
         return Response({'success': True})

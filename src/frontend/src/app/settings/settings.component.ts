@@ -17,6 +17,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
   public users: any[];
   public form;
   public isSaving = false;
+  public isLoading = false;
   public isVeryingJackettIndexers = false;
   public gitCommit = '';
   public authenticateOpenSubtitles$: Subscription;
@@ -226,6 +227,20 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
           this.toastr.error(error_message);
         }
       );
+  }
+
+  public queueTask(task: string): void {
+    this.isLoading = true;
+    this.apiService.queueTask(task).subscribe(
+      (data) => {
+        this.toastr.success(`Successfully queued task ${task}`);
+        this.isLoading = false;
+      }, (error => {
+        this.toastr.error(`Error queueing task ${task}`);
+        this.isLoading = false;
+        console.error(error);
+      })
+    );
   }
 
   protected _saveSettings(): Observable<any> {
