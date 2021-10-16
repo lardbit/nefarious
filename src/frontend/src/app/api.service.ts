@@ -798,9 +798,9 @@ export class ApiService {
   }
 
   public queueTask(task: string) {
-    const httpParams = new HttpParams({fromObject: { task: task }});
+    const params = { task: task };
     const url = this.API_URL_QUEUE_TASK;
-    return this.http.post(url, {params: httpParams, headers: this._requestHeaders()});
+    return this.http.post(url, params, {headers: this._requestHeaders()});
   }
 
   protected _initWebSocket() {
