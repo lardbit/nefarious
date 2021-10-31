@@ -23,7 +23,7 @@ Features:
 - [x] Includes movie trailers
 - [x] Automatically renames media
 - [x] Supports multiple languages (TMDB supports internationalized Titles, Descriptions and Poster artwork)
-- [x] Webhook support (i.e, can post to Slack, Telegram etc when media downloads)
+- [x] Notifications - supports all major notification services (via [apprise](https://github.com/caronc/apprise))
 - [x] Imports existing libraries
 - [x] VPN integration (optional)
 - [x] Auto download subtitles
