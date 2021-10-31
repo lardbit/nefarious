@@ -55,8 +55,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       'exclusions': [settings['keyword_search_filters'] ? _.keys(settings['keyword_search_filters']) : []],
       'language': [settings['language'], Validators.required],
       'users': new FormArray([]),
-      'webhook_url': [settings['webhook_url']],
-      'webhook_key': [settings['webhook_key']],
+      'apprise_notification_url': [settings['apprise_notification_url']],
     });
 
     this.apiService.fetchUsers().subscribe(

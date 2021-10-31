@@ -1,14 +1,23 @@
-import requests
-from nefarious.models import NefariousSettings
+import apprise
 from nefarious.utils import logger_background
+from nefarious.models import NefariousSettings
+from apprise import NotifyFormat
 
 
-def send_message(message: str):
+def send_message(message: str, title: str):
+    # apprise notifications - https://github.com/caronc/apprise
+
     nefarious_settings = NefariousSettings.get()
-    if nefarious_settings.webhook_url and nefarious_settings.webhook_key:
-        response = requests.post(nefarious_settings.webhook_url, json={nefarious_settings.webhook_key: message}, timeout=5)
+    if nefarious_settings.apprise_notification_url:
+        apprise_instance = apprise.Apprise()
+        apprise_instance.add(nefarious_settings.apprise_notification_url)
         try:
-            response.raise_for_status()
+            apprise_instance.notify(
+                body=message,
+                title=title,
+                body_format=NotifyFormat.TEXT,
+            )
         except Exception as e:
-            logger_background.warning('webhook error for url {} and data key "{}"'.format(nefarious_settings.webhook_url, nefarious_settings.webhook_key))
+            logger_background.warning('apprise notification error for url'.format(nefarious_settings.apprise_notification_url))
             logger_background.exception(e)
+            return
