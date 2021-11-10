@@ -19,12 +19,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.8-gdbm \
     libpq5 \
     libpq-dev \
+    libffi-dev \
+    libssl-dev \
     virtualenv \
     gnupg \
     curl \
     git \
     authbind \
-    && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+    && curl -sL https://deb.nodesource.com/setup_12.x | bash - \
     && apt-get install nodejs -y \
     && npm --prefix frontend install \
     && npm --prefix frontend run build-prod \
@@ -41,6 +43,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3.8-venv \
         python3.8-dev \
         libpq-dev \
+        libffi-dev \
         virtualenv \
         curl \
         gnupg \
