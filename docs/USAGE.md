@@ -69,3 +69,15 @@ a while depending on the size of your libraries.
 If you want to see the logs you can run:
 
     docker-compose logs -f celery
+
+## Notifications
+
+nefarious can send notifications (e.g. push notifications, email, sms) when media is downloaded.   
+See [Apprise](https://github.com/caronc/apprise) for documentation on how to construct the *Notification Url* for
+the [available notification services](https://github.com/caronc/apprise#popular-notification-services).
+
+Enter the *Notification Url* on the settings page.  You can test it from there to make sure it works as expected.
+
+Something like: `slack://TokenA/TokenB/TokenC/`
+
+You'll receive a notification everytime new media is downloaded.
