@@ -242,6 +242,25 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
     );
   }
 
+  public sendTestNotification(): void {
+    // save settings and then send test notification
+    this._saveSettings().pipe(
+      tap(() => {
+        this.apiService.sendNotification('This is a test message from nefarious').subscribe(
+          (data) => {
+            if (data.success) {
+              this.toastr.success('Successfully sent notification');
+            } else {
+              this.toastr.warning('Notification returned an error');
+            }
+          }, (error) => {
+            this.toastr.error('An unknown error occurred sending notification');
+          }
+        );
+      })
+    ).subscribe();
+  }
+
   protected _saveSettings(): Observable<any> {
     this.isSaving = true;
 

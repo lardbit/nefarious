@@ -44,6 +44,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3.8-dev \
         libpq-dev \
         libffi-dev \
+        libssl-dev \
         virtualenv \
         curl \
         gnupg \

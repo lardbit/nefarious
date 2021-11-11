@@ -18,5 +18,5 @@ django-redis==4.11.0
 celery-once==3.0.1
 Unidecode==1.1.2
 psycopg2==2.8.6
-apprise==0.9.5.1
-cryptography<3.4  # without rust requirement
+apprise==0.9.3
+cryptography<3.4  # before rust requirement

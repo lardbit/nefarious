@@ -204,7 +204,7 @@ def completed_media_task():
                 websocket.send_message(websocket.ACTION_UPDATED, media_type, data)
 
                 # send notification
-                notification.send_message('{} was downloaded'.format(media), 'Download Complete')
+                notification.send_message(message='{} was downloaded'.format(media))
 
                 # define the import path
                 import_path = os.path.join(
