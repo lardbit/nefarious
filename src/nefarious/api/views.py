@@ -18,6 +18,7 @@ from nefarious.api.serializers import (
     WatchMovieSerializer, WatchTVShowSerializer, WatchTVEpisodeSerializer, WatchTVSeasonRequestSerializer, WatchTVSeasonSerializer,
     TransmissionTorrentSerializer, RottenTomatoesSearchResultsSerializer, )
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVShow, WatchTVEpisode, WatchTVSeasonRequest, WatchTVSeason
+from nefarious.notification import send_message
 from nefarious.opensubtitles import OpenSubtitles
 from nefarious.search import SEARCH_MEDIA_TYPE_MOVIE, SEARCH_MEDIA_TYPE_TV, SearchTorrents
 from nefarious.quality import PROFILES
@@ -522,3 +523,11 @@ class QueueTaskView(views.APIView):
             populate_release_dates_task.delay()
 
         return Response({'success': True})
+
+
+class SendNotificationView(views.APIView):
+
+    def post(self, request):
+        assert 'message' in request.data, 'missing notification message'
+        return Response({'success': send_message(request.data['message'])})
+

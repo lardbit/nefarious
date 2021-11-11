@@ -55,8 +55,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       'exclusions': [settings['keyword_search_filters'] ? _.keys(settings['keyword_search_filters']) : []],
       'language': [settings['language'], Validators.required],
       'users': new FormArray([]),
-      'webhook_url': [settings['webhook_url']],
-      'webhook_key': [settings['webhook_key']],
+      'apprise_notification_url': [settings['apprise_notification_url']],
     });
 
     this.apiService.fetchUsers().subscribe(
@@ -241,6 +240,25 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
         console.error(error);
       })
     );
+  }
+
+  public sendTestNotification(): void {
+    // save settings and then send test notification
+    this._saveSettings().pipe(
+      tap(() => {
+        this.apiService.sendNotification('This is a test message from nefarious').subscribe(
+          (data) => {
+            if (data.success) {
+              this.toastr.success('Successfully sent notification');
+            } else {
+              this.toastr.warning('Notification returned an error');
+            }
+          }, (error) => {
+            this.toastr.error('An unknown error occurred sending notification');
+          }
+        );
+      })
+    ).subscribe();
   }
 
   protected _saveSettings(): Observable<any> {

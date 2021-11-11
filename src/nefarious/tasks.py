@@ -23,7 +23,7 @@ from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, W
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
 from nefarious.utils import get_media_new_path_and_name, update_media_release_date
-from nefarious import websocket, webhook
+from nefarious import websocket, notification
 from nefarious.utils import logger_background
 
 
@@ -203,8 +203,8 @@ def completed_media_task():
                 media_type, data = websocket.get_media_type_and_serialized_watch_media(media)
                 websocket.send_message(websocket.ACTION_UPDATED, media_type, data)
 
-                # send complete message through webhook
-                webhook.send_message('{} was downloaded'.format(media))
+                # send notification
+                notification.send_message(message='{} was downloaded'.format(media))
 
                 # define the import path
                 import_path = os.path.join(
