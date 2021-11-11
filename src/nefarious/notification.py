@@ -18,5 +18,4 @@ def send_message(message: str) -> bool:
             logger_background.warning('apprise notification error for url {}'.format(nefarious_settings.apprise_notification_url))
             logger_background.exception(e)
             return False
-    logger_background.warning('no apprise notification url defined')
     return False
