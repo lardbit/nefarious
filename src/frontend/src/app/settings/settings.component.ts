@@ -246,7 +246,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
     // save settings and then send test notification
     this._saveSettings().pipe(
       tap(() => {
-        this.apiService.sendNotification('This is a test message from nefarious').subscribe(
+        this.apiService.sendNotification(`Test message from nefarious [${new Date().getTime()}]`).subscribe(
           (data) => {
             if (data.success) {
               this.toastr.success('Successfully sent notification');
