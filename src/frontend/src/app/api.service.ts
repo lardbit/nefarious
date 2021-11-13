@@ -43,6 +43,8 @@ export class ApiService {
   API_URL_IMPORT_MEDIA_TV = '/api/import/media/tv/';
   API_URL_IMPORT_MEDIA_MOVIE = '/api/import/media/movie/';
   API_URL_OPEN_SUBTITLES_AUTH = '/api/open-subtitles/auth/';
+  API_URL_QUEUE_TASK = '/api/queue-task/';
+  API_URL_SEND_TEST_NOTIFICATION = '/api/notifications/';
 
   SEARCH_MEDIA_TYPE_TV = 'tv';
   SEARCH_MEDIA_TYPE_MOVIE = 'movie';
@@ -793,6 +795,16 @@ export class ApiService {
   public openSubtitlesAuth() {
     const url = this.API_URL_OPEN_SUBTITLES_AUTH;
     return this.http.post(url, null, {headers: this._requestHeaders()});
+  }
+
+  public queueTask(task: string) {
+    const params = { task: task };
+    const url = this.API_URL_QUEUE_TASK;
+    return this.http.post(url, params, {headers: this._requestHeaders()});
+  }
+
+  public sendNotification(message: string): Observable<any> {
+    return this.http.post(this.API_URL_SEND_TEST_NOTIFICATION, {message}, {headers: this._requestHeaders()});
   }
 
   protected _initWebSocket() {

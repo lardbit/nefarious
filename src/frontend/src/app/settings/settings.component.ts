@@ -16,6 +16,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
   public users: any[];
   public form;
   public isSaving = false;
+  public isLoading = false;
   public isVeryingJackettIndexers = false;
   public gitCommit = '';
   public authenticateOpenSubtitles$: Subscription;
@@ -53,8 +54,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       'exclusions': [settings['keyword_search_filters'] ? Object.keys(settings['keyword_search_filters']) : []],
       'language': [settings['language'], Validators.required],
       'users': new FormArray([]),
-      'webhook_url': [settings['webhook_url']],
-      'webhook_key': [settings['webhook_key']],
+      'apprise_notification_url': [settings['apprise_notification_url']],
     });
 
     this.apiService.fetchUsers().subscribe(
@@ -225,6 +225,39 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
           this.toastr.error(error_message);
         }
       );
+  }
+
+  public queueTask(task: string): void {
+    this.isLoading = true;
+    this.apiService.queueTask(task).subscribe(
+      (data) => {
+        this.toastr.success(`Successfully queued task ${task}`);
+        this.isLoading = false;
+      }, (error => {
+        this.toastr.error(`Error queueing task ${task}`);
+        this.isLoading = false;
+        console.error(error);
+      })
+    );
+  }
+
+  public sendTestNotification(): void {
+    // save settings and then send test notification
+    this._saveSettings().pipe(
+      tap(() => {
+        this.apiService.sendNotification(`Test message from nefarious [${new Date().getTime()}]`).subscribe(
+          (data) => {
+            if (data.success) {
+              this.toastr.success('Successfully sent notification');
+            } else {
+              this.toastr.warning('Notification returned an error');
+            }
+          }, (error) => {
+            this.toastr.error('An unknown error occurred sending notification');
+          }
+        );
+      })
+    ).subscribe();
   }
 
   protected _saveSettings(): Observable<any> {

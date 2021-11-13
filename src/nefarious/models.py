@@ -53,9 +53,8 @@ class NefariousSettings(models.Model):
     # expects keyword/boolean pairs like {"x265": false, "265": false}
     keyword_search_filters = JSONField(blank=True, null=True)  # type: dict
 
-    # webhook
-    webhook_url = models.CharField(max_length=1500, blank=True, null=True)  # url of webhook
-    webhook_key = models.CharField(max_length=50, blank=True, default='text')  # data key to post, i.e "text"
+    # apprise notifications - https://github.com/caronc/apprise
+    apprise_notification_url = models.CharField(max_length=1000, blank=True)
 
     @classmethod
     def get(cls):
