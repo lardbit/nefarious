@@ -11,8 +11,7 @@ def send_message(message: str) -> bool:
         apprise_instance.add(nefarious_settings.apprise_notification_url)
         try:
             return apprise_instance.notify(
-                title=message,
-                body='',  # opting to just send a title as the message
+                body=message,
             )
         except Exception as e:
             logger_background.warning('apprise notification error for url {}'.format(nefarious_settings.apprise_notification_url))
