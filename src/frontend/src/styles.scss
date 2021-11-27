@@ -1,67 +1,45 @@
+// bootstrap theme variables - necessary to reference variables below
+@import "~bootswatch/dist/solar/variables";
+
+// iconic icons
 @import "~@icon/open-iconic/open-iconic.css";
+
+// toastr
 @import '~ngx-toastr/toastr.css';
+
+// loading spinner
+@import "loading-spinner";
+
+// bootstrap
 @import '~bootstrap/scss/bootstrap';
 
-// ngx-datatables
+//
+// global
+//
+
+// better contrast
+.card-body {
+  color: $light;
+}
+
+//
+// ngx-datatable
+//
+
 @import '~@swimlane/ngx-datatable/index.css';
 @import '~@swimlane/ngx-datatable/assets/icons.css';
 @import '~@swimlane/ngx-datatable/themes/bootstrap.css';
 
-
-/***********************************/
-/* Loading spinner                 */
-/* http://tobiasahlin.com/spinkit/ */
-/***********************************/
-.spinner {
-  margin: 100px auto;
-  width: 50px;
-  height: 40px;
-  text-align: center;
-  font-size: 10px;
+// text color
+.datatable-header-cell, .datatable-body-cell, .datatable-body-cell a {
+  color: $light;
 }
 
-.spinner > div {
-  background-color: #333;
-  height: 100%;
-  width: 6px;
-  display: inline-block;
-
-  -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
-  animation: sk-stretchdelay 1.2s infinite ease-in-out;
+// even rows
+.datatable-row-even .datatable-body-cell, .datatable-row-even .datatable-body-cell a {
+  background-color: $gray-800;
 }
-
-.spinner .rect2 {
-  -webkit-animation-delay: -1.1s;
-  animation-delay: -1.1s;
+// odd rows
+.datatable-row-odd .datatable-body-cell, .datatable-row-odd .datatable-body-cell a {
+  background-color: $gray-900;
 }
-
-.spinner .rect3 {
-  -webkit-animation-delay: -1.0s;
-  animation-delay: -1.0s;
-}
-
-.spinner .rect4 {
-  -webkit-animation-delay: -0.9s;
-  animation-delay: -0.9s;
-}
-
-.spinner .rect5 {
-  -webkit-animation-delay: -0.8s;
-  animation-delay: -0.8s;
-}
-
-@-webkit-keyframes sk-stretchdelay {
-  0%, 40%, 100% { -webkit-transform: scaleY(0.4) }
-  20% { -webkit-transform: scaleY(1.0) }
-}
-
-@keyframes sk-stretchdelay {
-  0%, 40%, 100% {
-    transform: scaleY(0.4);
-    -webkit-transform: scaleY(0.4);
-  }  20% {
-    transform: scaleY(1.0);
-    -webkit-transform: scaleY(1.0);
-  }
-}
-/***********************************/
