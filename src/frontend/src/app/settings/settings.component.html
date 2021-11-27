@@ -30,7 +30,7 @@
               <input type="text" class="form-control" placeholder="" formControlName="jackett_token" required>
             </div>
             <div class="form-group d-flex justify-content-between">
-              <button type="button" class="btn btn-sm btn-secondary position-relative" (click)="saveAndVerifyJackettIndexers()">
+              <button type="button" class="btn btn-sm btn-outline-primary position-relative" (click)="saveAndVerifyJackettIndexers()">
                 <ngx-loading [show]="isVeryingJackettIndexers"></ngx-loading>
                 Save & Verify Indexers
                 <span class="oi oi-pulse"></span>
@@ -258,8 +258,8 @@
           <div class="card-header">Logs</div>
           <div class="card-body">
             <p>View all logs generated from nefarious.</p>
-            <a href="/view/logs/foreground" target="_blank" class="btn btn-info btn-sm ml-1">Foreground <span class="oi oi-file"></span></a>
-            <a href="/view/logs/background" target="_blank" class="btn btn-info btn-sm ml-1">Background <span class="oi oi-file"></span></a>
+            <a href="/view/logs/foreground" target="_blank" class="btn btn-outline-primary btn-sm ml-1">Foreground <span class="oi oi-file"></span></a>
+            <a href="/view/logs/background" target="_blank" class="btn btn-outline-primary btn-sm ml-1">Background <span class="oi oi-file"></span></a>
           </div>
         </div>
       </div>
