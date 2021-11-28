@@ -105,7 +105,7 @@ class WatchMovie(WatchMediaBase):
     tmdb_movie_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
     poster_image_url = models.CharField(max_length=1000)
-    quality_profile_custom = models.CharField(max_length=500, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+    quality_profile_custom = models.CharField(max_length=500, null=True, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
 
     class Meta:
         ordering = ('name',)
@@ -128,7 +128,7 @@ class WatchTVShow(models.Model):
     release_date = models.DateField(null=True, blank=True)
     auto_watch = models.BooleanField(default=False)  # whether to automatically watch future seasons
     auto_watch_date_updated = models.DateField(null=True, blank=True)  # date auto watch requested/updated
-    quality_profile_custom = models.CharField(max_length=500, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+    quality_profile_custom = models.CharField(max_length=500, null=True, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
 
     class Meta:
         ordering = ('name',)
@@ -151,7 +151,7 @@ class WatchTVSeasonRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     watch_tv_show = models.ForeignKey(WatchTVShow, on_delete=models.CASCADE)
     season_number = models.IntegerField()
-    quality_profile_custom = models.CharField(max_length=500, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+    quality_profile_custom = models.CharField(max_length=500, null=True, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     collected = models.BooleanField(default=False)
     date_added = models.DateTimeField(auto_now_add=True)
     release_date = models.DateField(null=True, blank=True)
