@@ -34,8 +34,9 @@ services:
     devices:
       - /dev/net/tun
     ports:
-      - 9091:9091
-      - 9117:9117 # jackett which shares this vpn network
+      - "9091:9091"
+      - "9117:9117"  # jackett which shares this vpn network
+      - "51413:51413"  # peer port
     dns: # bypass any dns issues by not using ISP's DNS
       - 1.1.1.1 # cloudflare dns primary
       - 1.0.0.1 # cloudflare dns secondary
