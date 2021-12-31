@@ -18,6 +18,7 @@ services:
       service: nefarious-base
     ports:
       - "8000:80"
+      - "51413:51413"
     labels:
       - com.centurylinklabs.watchtower.enable=true
     restart: always
