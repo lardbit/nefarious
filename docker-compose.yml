@@ -50,7 +50,12 @@ services:
     extends:
       service: transmission-base
       file: docker-compose.base.yml
-    image: linuxserver/transmission
+    image: lscr.io/linuxserver/transmission
+    environment:
+      - PUID=${HOST_DOWNLOAD_UID:-1000}
+      - PGID=${HOST_DOWNLOAD_GID:-1000}
+      - USER=${TRANSMISSION_USER:-admin}
+      - PASS=${TRANSMISSION_PASS:-admin}
 
   # auto update service
   watchtower:

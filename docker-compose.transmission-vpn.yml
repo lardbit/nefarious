@@ -44,6 +44,7 @@ services:
       - ${HOST_DOWNLOAD_PATH:-/tmp}:/data
       - /etc/localtime:/etc/localtime:ro
     environment:
+      # additional options may need to be specified based on your VPN provider
       - OPENVPN_PROVIDER=${OPENVPN_PROVIDER}
       - OPENVPN_USERNAME=${OPENVPN_USERNAME}
       - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
@@ -54,7 +55,8 @@ services:
       - CREATE_TUN_DEVICE=true
       - PUID=${HOST_DOWNLOAD_UID:-1000}
       - PGID=${HOST_DOWNLOAD_GID:-1000}
-      # additional options may need to be specified based on your VPN provider
+      - TRANSMISSION_RPC_USERNAME=${TRANSMISSION_USER:-admin}
+      - TRANSMISSION_RPC_PASSWORD=${TRANSMISSION_PASSWORD:-admin}
     logging:
       driver: json-file
       options:

@@ -79,12 +79,9 @@ services:
       - "9091:9091"
       - "51413:51413"  # peer port
     restart: always
-    environment:
-      - PUID=${HOST_DOWNLOAD_UID:-1000}
-      - PGID=${HOST_DOWNLOAD_GID:-1000}
     volumes:
       - ${HOST_DOWNLOAD_PATH:-/tmp}:/downloads
-      - ./transmission-settings.json:/config/settings.json:ro
+      - ./transmission-settings.json:/config/settings.json
 
   # auto update service (to be extended)
   # https://github.com/containrrr/watchtower
