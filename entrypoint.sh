@@ -6,8 +6,14 @@
 # build django database/tables
 su $(id -un ${RUN_AS_UID}) -c "/env/bin/python manage.py migrate"
 
-# create default super user
-su $(id -un ${RUN_AS_UID}) -c "/env/bin/python manage.py nefarious-init ${NEFARIOUS_USER-admin} ${NEFARIOUS_EMAIL-admin@localhost} ${NEFARIOUS_PASS-admin}"
+# initialize nefarious (create settings object, set default nefarious & transmission user)
+su $(id -un ${RUN_AS_UID}) -c " /env/bin/python manage.py nefarious-init \
+--username ${NEFARIOUS_USER-admin} \
+--password ${NEFARIOUS_PASS-admin} \
+--email ${NEFARIOUS_EMAIL-admin@localhost} \
+--transmission_user ${TRANSMISSION_USER:-admin} \
+--transmission_pass ${TRANSMISSION_PASS:-admin} \
+"
 
 # allow user to bind to port 80
 touch /etc/authbind/byport/80
