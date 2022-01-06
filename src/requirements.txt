@@ -1,4 +1,4 @@
-celery==4.4.7
+celery==5.2.2
 dj-database-url==0.5.0
 Django==3.0.2
 django-filter==2.2.0
