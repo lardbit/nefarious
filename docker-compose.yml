@@ -54,8 +54,8 @@ services:
     environment:
       - PUID=${HOST_DOWNLOAD_UID:-1000}
       - PGID=${HOST_DOWNLOAD_GID:-1000}
-      - USER=${TRANSMISSION_USER:-admin}
-      - PASS=${TRANSMISSION_PASS:-admin}
+      - USER=${TRANSMISSION_USER-admin}  # can be empty
+      - PASS=${TRANSMISSION_PASS-admin}  # can be empty
 
   # auto update service
   watchtower:

@@ -11,8 +11,8 @@ su $(id -un ${RUN_AS_UID:-1000}) -c " /env/bin/python manage.py nefarious-init \
 --username ${NEFARIOUS_USER:-admin} \
 --password ${NEFARIOUS_PASS:-admin} \
 --email ${NEFARIOUS_EMAIL:-admin@localhost} \
---transmission_user ${TRANSMISSION_USER:-admin} \
---transmission_pass ${TRANSMISSION_PASS:-admin} \
+--transmission_user ${TRANSMISSION_USER-admin} \
+--transmission_pass ${TRANSMISSION_PASS-admin} \
 "
 
 # allow user to bind to port 80

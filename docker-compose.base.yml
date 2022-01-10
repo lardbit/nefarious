@@ -29,6 +29,8 @@ services:
       NEFARIOUS_PASS: ${NEFARIOUS_PASS:-admin}
       HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp/}
       CONFIG_PATH: /nefarious-db
+      TRANSMISSION_USER: ${TRANSMISSION_USER-admin}  # to pre-populate settings (can be empty)
+      TRANSMISSION_PASS: ${TRANSMISSION_PASS-admin}  # to pre-populate settings (can be empty)
     volumes:
       # persistent named volume for sqlite database
       - nefarious-db:/nefarious-db
