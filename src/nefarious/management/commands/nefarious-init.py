@@ -11,8 +11,8 @@ class Command(BaseCommand):
         parser.add_argument('--username', type=str, required=True)
         parser.add_argument('--email', type=str, required=True)
         parser.add_argument('--password', type=str, required=True)
-        parser.add_argument('--transmission_user', type=str, required=True)
-        parser.add_argument('--transmission_pass', type=str, required=True)
+        parser.add_argument('--transmission_user', type=str, default='')  # optional
+        parser.add_argument('--transmission_pass', type=str, default='')  # optional
 
     def handle(self, *args, **options):
 
