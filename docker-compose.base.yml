@@ -81,7 +81,9 @@ services:
     restart: always
     volumes:
       - ${HOST_DOWNLOAD_PATH:-/tmp}:/downloads
-      - ./transmission-settings.json:/config/settings.json
+      - ./transmission-settings.json:/tmp/settings.json:ro
+    # copy local settings and then run init entrypoint
+    entrypoint: bash -c "cp /tmp/settings.json /config/ && /init"
 
   # auto update service (to be extended)
   # https://github.com/containrrr/watchtower
