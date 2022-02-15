@@ -8,7 +8,7 @@ class Command(BaseCommand):
         parser.add_argument('video_path', type=str)
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.NOTICE('Testing video: {}'.format(options['video_path'])))
+        self.stdout.write(self.style.WARNING('Testing video: {}'.format(options['video_path'])))
         detection = VideoDetect(options['video_path'])
         detection.process_similarity()
         if detection.is_too_similar():

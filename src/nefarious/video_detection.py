@@ -4,12 +4,31 @@ import numpy as np
 
 
 class VideoDetect:
-    MIN_VIDEO_SIMILARITY_STD = .05  # regular videos should be > .15
+    CAPTURE_FRAME_SECONDS = 5  # capture frames every x seconds
+    MIN_VIDEO_SIMILARITY_STD = .05  # "real" videos should be > .15
+    MAX_VIDEO_DURATION_DIFFERENCE_RATIO = .2  # the duration should be within x% of the actual
+
     video_path: str
+    video_capture = None
     video_similarity_std: float
+    frame_count: int
+    frame_rate: int
+    duration: float
+    read_interval: int
 
     def __init__(self, video_path):
+        # video capture
         self.video_path = video_path
+        self.video_capture = cv2.VideoCapture(self.video_path)
+
+        # get video information
+        self.frame_count = int(self.video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
+        self.frame_rate = int(self.video_capture.get(cv2.CAP_PROP_FPS))
+        self.read_interval = int((self.frame_rate * self.CAPTURE_FRAME_SECONDS) - 1)
+        self.duration = self.frame_count / self.frame_rate
+
+    def is_correct_length(self, correct_duration: float):
+        return abs(self.duration - correct_duration) / correct_duration < self.MAX_VIDEO_DURATION_DIFFERENCE_RATIO
 
     def is_too_similar(self):
         return self.video_similarity_std <= self.MIN_VIDEO_SIMILARITY_STD
@@ -17,19 +36,11 @@ class VideoDetect:
     def process_similarity(self):
         results = []
         histograms = []
-        n = 1  # capture frame every n seconds
-
-        # video capture
-        video = cv2.VideoCapture(self.video_path)
-
-        frame_count = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-        frame_rate = int(video.get(cv2.CAP_PROP_FPS))
-        read_interval = int((frame_rate * n) - 1)
 
         # generate histograms for every captured frame
-        for i in range(frame_count):
-            if i == 0 or i % read_interval == 0:
-                success, image = video.read()
+        for i in range(self.frame_count):
+            if i == 0 or i % self.read_interval == 0:
+                success, image = self.video_capture.read()
                 gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
                 histograms.append(cv2.calcHist([gray_image], [0], None, [256], [0, 256]))
 
@@ -41,6 +52,5 @@ class VideoDetect:
             compared = cv2.compareHist(histograms[i], histograms[i + 1], cv2.HISTCMP_BHATTACHARYYA)
             results.append(compared)
 
+        # calculate the standard deviation from the results
         self.video_similarity_std = float(np.std(results))
-
-        print('[VIDEO_DETECTION] Frame similarity standard deviation: {}'.format(self.video_similarity_std))
