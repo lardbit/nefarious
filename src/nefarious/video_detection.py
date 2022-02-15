@@ -16,7 +16,7 @@ class VideoDetect:
     duration: float
     read_interval: int
 
-    def __init__(self, video_path):
+    def __init__(self, video_path: str):
         # video capture
         self.video_path = video_path
         self.video_capture = cv2.VideoCapture(self.video_path)

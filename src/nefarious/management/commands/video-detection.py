@@ -4,6 +4,8 @@ from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
 
+    help = 'Inspects a video file to determine how accurate it is'
+
     def add_arguments(self, parser):
         parser.add_argument('video_path', type=str)
 

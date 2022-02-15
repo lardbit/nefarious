@@ -161,6 +161,8 @@ def completed_media_task():
                 logger_background.info('Media completed: {}'.format(media))
 
                 # TODO - run video detection on the relevant video files
+                if isinstance(media, WatchMovie):
+                    pass
 
                 # special handling for tv seasons
                 if isinstance(media, WatchTVSeason):
