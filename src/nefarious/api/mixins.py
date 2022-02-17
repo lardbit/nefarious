@@ -1,12 +1,10 @@
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from nefarious.models import NefariousSettings, TorrentBlacklist, WatchMediaBase
+from nefarious.models import WatchMediaBase
 from nefarious.tasks import send_websocket_message_task
-from nefarious.transmission import get_transmission_client
-from nefarious.utils import destroy_transmission_result
+from nefarious.utils import destroy_transmission_result, blacklist_media_and_retry
 from nefarious import websocket
-from nefarious.utils import logger_foreground
 
 
 class UserReferenceViewSetMixin:
@@ -25,49 +23,10 @@ class BlacklistAndRetryMixin:
     ViewSet Mixin which adds a torrent result to a "black list" and retries the media (i.e movie/tv) instance
     """
 
-    def _watch_media_task(self, watch_media_id: int):
-        """
-        Child classes need to define how to queue the new task
-        """
-        raise NotImplementedError
-
     @action(['post'], detail=True, url_path='blacklist-auto-retry')
     def blacklist_auto_retry(self, request, pk):
-
         watch_media = self.get_object()
-        nefarious_settings = NefariousSettings.get()
-
-        # if media still has a torrent reference
-        if watch_media.transmission_torrent_hash:
-
-            # add to blacklist
-            logger_foreground.info('Blacklisting {}'.format(watch_media.transmission_torrent_hash))
-            TorrentBlacklist.objects.get_or_create(
-                hash=watch_media.transmission_torrent_hash,
-                defaults=dict(
-                    name=str(watch_media),
-                )
-            )
-
-            # remove torrent and delete data
-            logger_foreground.info('Removing blacklisted torrent hash: {}'.format(watch_media.transmission_torrent_hash))
-            transmission_client = get_transmission_client(nefarious_settings=nefarious_settings)
-            transmission_client.remove_torrent([watch_media.transmission_torrent_hash], delete_data=True)
-
-            # unset torrent details
-            watch_media.transmission_torrent_hash = None
-            watch_media.transmission_torrent_name = None
-
-        # unset previous details
-        watch_media.collected = False
-        watch_media.collected_date = None
-        watch_media.download_path = None
-        watch_media.last_attempt_date = None
-        watch_media.save()
-
-        # re-queue search
-        self._watch_media_task(watch_media_id=watch_media.id)
-
+        blacklist_media_and_retry(watch_media)
         return Response(self.serializer_class(watch_media).data)
 
 

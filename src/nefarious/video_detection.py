@@ -1,16 +1,21 @@
+import os
 import cv2
 import random
 import numpy as np
 
+from nefarious.parsers.base import ParserBase
+from nefarious.quality import video_extensions
+from nefarious.utils import logger_background
+
 
 class VideoDetect:
     CAPTURE_FRAME_SECONDS = 5  # capture frames every x seconds
-    MIN_VIDEO_SIMILARITY_STD = .05  # "real" videos should be > .15
+    MIN_VIDEO_SIMILARITY_STD = .05  # "real" videos should be > .15 (from 0-1)
     MAX_VIDEO_DURATION_DIFFERENCE_RATIO = .2  # the duration should be within x% of the actual
 
     video_path: str
     video_capture = None
-    video_similarity_std: float
+    video_similarity_std: float  # from 0-1
     frame_count: int
     frame_rate: int
     duration: float
@@ -26,6 +31,36 @@ class VideoDetect:
         self.frame_rate = int(self.video_capture.get(cv2.CAP_PROP_FPS))
         self.read_interval = int((self.frame_rate * self.CAPTURE_FRAME_SECONDS) - 1)
         self.duration = self.frame_count / self.frame_rate
+
+    @classmethod
+    def has_valid_video_in_path(cls, path: str):
+        files_to_verify = []
+
+        if os.path.isdir(path):  # directory
+            for root, dirs, files in os.walk(path):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    files_to_verify.append(file_path)
+        else:  # individual file
+            files_to_verify = [path]
+
+        for file_path in files_to_verify:
+            file_extension_match = ParserBase.file_extension_regex.search(file_path)
+            # skip sample videos
+            if ParserBase.sample_file_regex.search(file_path):
+                continue
+            # skip files that don't have extensions
+            if not file_extension_match:
+                continue
+            file_extension = file_extension_match.group()
+            # skip files that don't look like videos
+            if file_extension not in video_extensions():
+                continue
+            detection = cls(file_path)
+            detection.process_similarity()
+            if not detection.is_too_similar():
+                return True
+        return False
 
     def is_correct_length(self, correct_duration: float):
         return abs(self.duration - correct_duration) / correct_duration < self.MAX_VIDEO_DURATION_DIFFERENCE_RATIO
@@ -54,3 +89,5 @@ class VideoDetect:
 
         # calculate the standard deviation from the results
         self.video_similarity_std = float(np.std(results))
+
+        logger_background.info('[VIDEO_DETECTION] "{}" has frame similarity standard deviation: {}'.format(self.video_path, self.video_similarity_std))

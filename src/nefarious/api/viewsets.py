@@ -44,9 +44,6 @@ class WatchMovieViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionRe
         # create a task to download the movie
         watch_movie_task.delay(serializer.instance.id)
 
-    def _watch_media_task(self, watch_media_id: int):
-        watch_movie_task.delay(watch_media_id)
-
 
 @method_decorator(gzip_page, name='dispatch')
 class WatchTVShowViewSet(WebSocketMediaMessageUpdatedMixin, UserReferenceViewSetMixin, viewsets.ModelViewSet):
@@ -89,12 +86,6 @@ class WatchTVSeasonViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissio
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     filter_fields = ('collected',)
-
-    def _watch_media_task(self, watch_media_id: int):
-        """
-        blacklist & retry function to queue the new task
-        """
-        watch_tv_show_season_task.delay(watch_media_id)
 
 
 @method_decorator(gzip_page, name='dispatch')
@@ -163,9 +154,6 @@ class WatchTVEpisodeViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissi
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
     filter_fields = ('collected',)
-
-    def _watch_media_task(self, watch_media_id: int):
-        watch_tv_episode_task.delay(watch_media_id)
 
     def perform_create(self, serializer):
         super().perform_create(serializer)

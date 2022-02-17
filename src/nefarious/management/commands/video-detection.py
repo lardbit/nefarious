@@ -10,13 +10,11 @@ class Command(BaseCommand):
         parser.add_argument('video_path', type=str)
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.WARNING('Testing video: {}'.format(options['video_path'])))
-        detection = VideoDetect(options['video_path'])
-        detection.process_similarity()
-        if detection.is_too_similar():
-            self.stdout.write(self.style.ERROR('Video frames too similar with std: {}'.format(detection.video_similarity_std)))
+        self.stdout.write(self.style.WARNING('Testing videos in path: {}'.format(options['video_path'])))
+        if not VideoDetect.has_valid_video_in_path(options['video_path']):
+            self.stdout.write(self.style.ERROR('Video frames too similar'))
         else:
-            self.stdout.write(self.style.SUCCESS('Video looks good with std: {}'.format(detection.video_similarity_std)))
+            self.stdout.write(self.style.SUCCESS('Found accurate looking videos'))
 
 
 
