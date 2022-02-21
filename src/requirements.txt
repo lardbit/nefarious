@@ -20,5 +20,5 @@ Unidecode==1.1.2
 psycopg2==2.8.6
 apprise==0.9.3
 cryptography<3.4  # before rust requirement
-opencv-contrib-python==4.5.5.62
 numpy==1.22.2
+opencv-contrib-python-headless==4.5.5.62
