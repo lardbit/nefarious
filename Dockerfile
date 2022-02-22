@@ -13,6 +13,7 @@ WORKDIR /app
 # install app dependencies, build app and remove dev dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    cmake \
     python3.8 \
     python3.8-venv \
     python3.8-dev \
@@ -39,6 +40,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf frontend/node_modules \
     && apt-get remove -y \
         build-essential \
+        cmake \
         nodejs \
         python3.8-venv \
         python3.8-dev \
