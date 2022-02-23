@@ -10,6 +10,8 @@ ADD entrypoint*.sh /app/
 
 WORKDIR /app
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 # install app dependencies, build app and remove dev dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
