@@ -37,7 +37,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && mkdir -p /nefarious-db \
     && python3.8 -m venv /env \
     && /env/bin/pip install -U pip \
-    && /env/bin/pip install --no-cache-dir -r requirements.txt \
+    && /env/bin/pip install --no-cache-dir --extra-index-url https://www.piwheels.org/simple -r requirements.txt \
     && /env/bin/python manage.py collectstatic --no-input \
     && rm -rf frontend/node_modules \
     && apt-get remove -y \
