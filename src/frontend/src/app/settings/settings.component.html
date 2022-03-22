@@ -30,7 +30,7 @@
               <input type="text" class="form-control" placeholder="" formControlName="jackett_token" required>
             </div>
             <div class="form-group d-flex justify-content-between">
-              <button type="button" class="btn btn-sm btn-secondary position-relative" (click)="saveAndVerifyJackettIndexers()">
+              <button type="button" class="btn btn-sm btn-outline-primary position-relative" (click)="saveAndVerifyJackettIndexers()">
                 <ngx-loading [show]="isVeryingJackettIndexers"></ngx-loading>
                 Save & Verify Indexers
                 <span class="oi oi-pulse"></span>
@@ -172,27 +172,18 @@
           </div>
         </form>
       </div>
-      <!-- webhook -->
+      <!-- notifications -->
       <div class="col-12 col-sm-6 col-md-4">
         <div class="card">
-          <div class="card-header">Webhook</div>
+          <div class="card-header">Notifications</div>
           <div class="card-body">
-            <p>Defining a webhook allows you to get notified when downloads are complete.  Some good examples are Slack, Telgram, etc.</p>
+            <p>Defining a <i>Notification URL</i> allows you to get notified when downloads are complete.</p>
+            <p>nefarious uses <a target="_blank" href="https://github.com/caronc/apprise">Apprise</a> for notifications which supports <a target="_blank" href="https://github.com/caronc/apprise#popular-notification-services">most major notification services.</a></p>
             <div class="form-group">
-              <label>Webhook URL</label>
-              <input type="text" class="form-control" placeholder="https://..." formControlName="webhook_url">
+              <label>Notification URL</label>
+              <input type="text" class="form-control" placeholder="slack://TokenA/TokenB/TokenC/" formControlName="apprise_notification_url">
             </div>
-            <div class="form-group">
-              <label>Data Key</label>
-              <input type="text" class="form-control" placeholder="text" formControlName="webhook_key">
-            </div>
-            <div *ngIf="form.get('webhook_url').value && form.get('webhook_key').value">
-              <small>These settings would post something like
-                <div class="text-primary">{{'{"' + form.get('webhook_key').value + '": "[some media] was downloaded"}'}}</div>
-                  to
-                <div class="text-primary">{{form.get('webhook_url').value}}</div>
-              </small>
-            </div>
+            <button type="button" class="btn btn-xs btn-sm btn-outline-primary" (click)="sendTestNotification()">Send test notification <span class="oi oi-bolt"></span></button>
           </div>
         </div>
       </div>
@@ -267,8 +258,23 @@
           <div class="card-header">Logs</div>
           <div class="card-body">
             <p>View all logs generated from nefarious.</p>
-            <a href="/view/logs/foreground" target="_blank" class="btn btn-info btn-sm ml-1">Foreground <span class="oi oi-file"></span></a>
-            <a href="/view/logs/background" target="_blank" class="btn btn-info btn-sm ml-1">Background <span class="oi oi-file"></span></a>
+            <a href="/view/logs/foreground" target="_blank" class="btn btn-outline-primary btn-sm ml-1">Foreground <span class="oi oi-file"></span></a>
+            <a href="/view/logs/background" target="_blank" class="btn btn-outline-primary btn-sm ml-1">Background <span class="oi oi-file"></span></a>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-md-4">
+        <ngx-loading [show]="isLoading"></ngx-loading>
+        <div class="card">
+          <div class="card-header">Tasks</div>
+          <div class="card-body">
+            <div class="card-title">Tasks automatically run on a schedule, but you can run them here manually</div>
+            <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('completed_media')">Process Completed Media</button>
+            <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('wanted_media')">Process Wanted Media</button>
+            <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('wanted_tv_seasons')">Process Wanted TV Seasons</button>
+            <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('auto_watch_tv_seasons')">Auto Watch New TV Seasons</button>
+            <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('refresh_tmdb_settings')">Refresh TMDB Settings</button>
+            <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('populate_release_dates')">Populate Release Dates</button>
           </div>
         </div>
       </div>

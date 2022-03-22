@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 EXPOSE 80
 
@@ -19,18 +19,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.8-gdbm \
     libpq5 \
     libpq-dev \
+    libffi-dev \
+    libssl-dev \
     virtualenv \
     gnupg \
     curl \
     git \
     authbind \
-    && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+    && curl -sL https://deb.nodesource.com/setup_12.x | bash - \
     && apt-get install nodejs -y \
     && npm --prefix frontend install \
     && npm --prefix frontend run build-prod \
     && mkdir -p staticassets \
     && mkdir -p /nefarious-db \
     && python3.8 -m venv /env \
+    && /env/bin/pip install -U pip \
     && /env/bin/pip install --no-cache-dir -r requirements.txt \
     && /env/bin/python manage.py collectstatic --no-input \
     && rm -rf frontend/node_modules \
@@ -40,6 +43,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3.8-venv \
         python3.8-dev \
         libpq-dev \
+        libffi-dev \
+        libssl-dev \
         virtualenv \
         curl \
         gnupg \

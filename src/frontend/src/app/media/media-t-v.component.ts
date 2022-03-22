@@ -81,7 +81,9 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     this._changes = this.apiService.mediaUpdated$.subscribe(
       () => {
         this.ngZone.run(() => {
-          this._buildWatchEpisodesForm();
+          if (this.tmdbShow) {
+            this._buildWatchEpisodesForm();
+          }
         });
       }
     );
@@ -187,7 +189,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     return this._getWatchShow();
   }
 
-  public isWatchingAllSeasons() {
+  public isWatchingAllSeasons(): boolean {
     for (const season of this.tmdbShow.seasons) {
       if (!this.isWatchingSeason(season)) {
         return false;
@@ -196,15 +198,24 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  public isWatchingSeason(season: any) {
+  public isWatchingSeasonRequest(season: any): boolean {
+    return Boolean(this._getWatchSeasonRequest(season.season_number));
+  }
+
+  public isWatchingSeason(season: any): boolean {
     const watchSeasonRequest = this._getWatchSeasonRequest(season.season_number);
     return Boolean(watchSeasonRequest) || this.isWatchingAllEpisodesInSeason(season);
   }
 
-  public hasCollectedAllEpisodesInSeason(season: any) {
+  public hasCollectedAllEpisodesInSeason(season: any): boolean {
     // watching entire season
     if (this.hasCollectedSeason(season)) {
       return true;
+    }
+
+    // some tmdb seasons don't have any episodes attached
+    if (!season.episodes || season.episodes.length === 0) {
+      return false;
     }
 
     // verify every episode is collected
@@ -214,10 +225,11 @@ export class MediaTVComponent implements OnInit, OnDestroy {
         return false;
       }
     }
+
     return true;
   }
 
-  public isWatchingAllEpisodesInSeason(season: any) {
+  public isWatchingAllEpisodesInSeason(season: any): boolean {
     // watching all episodes in season
     let watchingEpisodes = 0;
     for (const episode of season.episodes) {
@@ -225,10 +237,10 @@ export class MediaTVComponent implements OnInit, OnDestroy {
         watchingEpisodes += 1;
       }
     }
-    return season.episodes.length === watchingEpisodes;
+    return season.episodes.length > 0 && season.episodes.length === watchingEpisodes;
   }
 
-  public isWatchingAnyEpisodeInSeason(season: any) {
+  public isWatchingAnyEpisodeInSeason(season: any): boolean {
     for (const episode of season.episodes) {
       if (this.isWatchingEpisode(episode.id)) {
         return true;
@@ -283,7 +295,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     }
   }
 
-  public isWatchingShow() {
+  public isWatchingShow(): boolean {
     return Boolean(this._getWatchShow());
   }
 
@@ -321,7 +333,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     return this.userIsStaff() || (watchEpisode && watchEpisode.requested_by === this.apiService.user.username);
   }
 
-  public isWatchingEpisode(episodeId): Boolean {
+  public isWatchingEpisode(episodeId): boolean {
     return Boolean(_.find(this.apiService.watchTVEpisodes, (watching) => {
       return watching.tmdb_episode_id === episodeId;
     }));
@@ -389,7 +401,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
         // episode form control
         const control = new FormControl({
           value: this.isWatchingEpisode(episode.id) || this.isWatchingSeason(season),
-          disabled: this.isWatchingSeason(season) || (
+          disabled: this.isWatchingSeasonRequest(season) || (
             this.isWatchingEpisode(episode.id) && !this.canUnWatchEpisode(episode.id)),
         });
 

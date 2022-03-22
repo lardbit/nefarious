@@ -83,7 +83,8 @@ class TVImporter(ImporterBase):
                 download_path=file_path,
                 collected=True,
                 collected_date=timezone.utc.localize(timezone.datetime.utcnow()),
-                release_date=parse_date(episode_data.get('air_date', ''))
+                release_date=parse_date(episode_data.get('air_date', '')),
+                last_attempt_date=timezone.utc.localize(timezone.datetime.utcnow()),
             ),
         )
         return watch_episode

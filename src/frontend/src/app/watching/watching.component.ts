@@ -11,7 +11,7 @@ import { DatePipe } from '@angular/common';
 @Component({
   selector: 'app-watching',
   templateUrl: './watching.component.html',
-  styleUrls: ['./watching.component.css'],
+  styleUrls: ['./watching.component.scss'],
   providers: [DatePipe],
 })
 export class WatchingComponent implements OnInit, OnDestroy {

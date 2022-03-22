@@ -44,6 +44,8 @@ export class ApiService {
   API_URL_IMPORT_MEDIA_TV = '/api/import/media/tv/';
   API_URL_IMPORT_MEDIA_MOVIE = '/api/import/media/movie/';
   API_URL_OPEN_SUBTITLES_AUTH = '/api/open-subtitles/auth/';
+  API_URL_QUEUE_TASK = '/api/queue-task/';
+  API_URL_SEND_TEST_NOTIFICATION = '/api/notifications/';
 
   SEARCH_MEDIA_TYPE_TV = 'tv';
   SEARCH_MEDIA_TYPE_MOVIE = 'movie';
@@ -485,7 +487,7 @@ export class ApiService {
       tmdb_show_id: showId,
       name: name,
       poster_image_url: posterImageUrl,
-      release_date: releaseDate,
+      release_date: releaseDate || null,
       auto_watch: !!autoWatchNewSeasons,
       quality_profile_custom: qualityProfile,
     };
@@ -529,7 +531,7 @@ export class ApiService {
       tmdb_episode_id: episodeId,
       season_number: seasonNumber,
       episode_number: episodeNumber,
-      release_date: releaseDate,
+      release_date: releaseDate || null,
     };
     return this.http.post(this.API_URL_WATCH_TV_EPISODE, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
@@ -551,7 +553,7 @@ export class ApiService {
     const params = {
       watch_tv_show: watchShowId,
       season_number: seasonNumber,
-      release_date: releaseDate,
+      release_date: releaseDate || null,
     };
     return this.http.post(this.API_URL_WATCH_TV_SEASON_REQUEST, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
@@ -613,7 +615,7 @@ export class ApiService {
       name: name,
       poster_image_url: posterImageUrl,
       quality_profile_custom: qualityProfileCustom,
-      release_date: releaseDate,
+      release_date: releaseDate || null,
     };
 
     return this.http.post(this.API_URL_WATCH_MOVIE, params, {headers: this._requestHeaders()}).pipe(
@@ -794,6 +796,16 @@ export class ApiService {
   public openSubtitlesAuth() {
     const url = this.API_URL_OPEN_SUBTITLES_AUTH;
     return this.http.post(url, null, {headers: this._requestHeaders()});
+  }
+
+  public queueTask(task: string) {
+    const params = { task: task };
+    const url = this.API_URL_QUEUE_TASK;
+    return this.http.post(url, params, {headers: this._requestHeaders()});
+  }
+
+  public sendNotification(message: string): Observable<any> {
+    return this.http.post(this.API_URL_SEND_TEST_NOTIFICATION, {message}, {headers: this._requestHeaders()});
   }
 
   protected _initWebSocket() {
