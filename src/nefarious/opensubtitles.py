@@ -4,14 +4,14 @@ import requests
 from typing import Union
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVEpisode
 from nefarious.parsers.base import ParserBase
-from nefarious.utils import logger_background
+from nefarious.utils import logger_foreground, logger_background
 
 # api documentation
 # https://opensubtitles.stoplight.io/docs/opensubtitles-api/open_api.json
 
 
 class OpenSubtitles:
-    API_URL_BASE = 'https://www.opensubtitles.com/api/v1'
+    API_URL_BASE = 'https://api.opensubtitles.com/api/v1'
     API_URL_AUTH = '{base}/login'.format(base=API_URL_BASE)
     API_URL_SEARCH = '{base}/subtitles'.format(base=API_URL_BASE)
     API_URL_DOWNLOAD = '{base}/download'.format(base=API_URL_BASE)
@@ -48,6 +48,8 @@ class OpenSubtitles:
             self.nefarious_settings.save()
         else:
             self.error_message = 'Unable to authenticate with provided credentials'
+            logger_foreground.error(self._response.content)
+            logger_foreground.error(self.error_message)
         return self._response.ok
 
     def search(self, open_subtitle_type: str, tmdb_id: int, path: str) -> Union[dict, bool]:
