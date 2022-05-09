@@ -30,7 +30,7 @@ class OpenSubtitles:
                 'username': self.nefarious_settings.open_subtitles_username,
                 'password': self.nefarious_settings.open_subtitles_password,
             },
-            headers={'Api-Key': self.nefarious_settings.open_subtitles_api_key},
+            headers={'Api-Key': self.nefarious_settings.open_subtitles_api_key, 'User-Agent': 'nefarious'},
             timeout=30,
         )
         if self._response.ok:
@@ -62,7 +62,7 @@ class OpenSubtitles:
                 'moviehash': media_hash,
                 'languages': self.nefarious_settings.language,
             },
-            headers={'Api-Key': self.nefarious_settings.open_subtitles_api_key},
+            headers={'Api-Key': self.nefarious_settings.open_subtitles_api_key, 'User-Agent': 'nefarious'},
             timeout=30,
         )
         if not self._response.ok:
@@ -125,6 +125,7 @@ class OpenSubtitles:
             headers={
                 'Api-Key': self.nefarious_settings.open_subtitles_api_key,
                 'Authorization': 'Bearer: {}'.format(self.nefarious_settings.open_subtitles_user_token),
+                'User-Agent': 'nefarious',
             },
             timeout=30,
         )
