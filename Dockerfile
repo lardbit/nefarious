@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 EXPOSE 80
 
@@ -16,10 +16,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
-    python3.8 \
-    python3.8-venv \
-    python3.8-dev \
-    python3.8-gdbm \
+    python3 \
+    python3-venv \
+    python3-dev \
+    python3-gdbm \
     libpq5 \
     libpq-dev \
     libffi-dev \
@@ -29,13 +29,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     git \
     authbind \
-    && curl -sL https://deb.nodesource.com/setup_12.x | bash - \
+    && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
     && apt-get install nodejs -y \
     && npm --prefix frontend install \
     && npm --prefix frontend run build-prod \
     && mkdir -p staticassets \
     && mkdir -p /nefarious-db \
-    && python3.8 -m venv /env \
+    && python3 -m venv /env \
     && /env/bin/pip install -U pip \
     && /env/bin/pip install --no-cache-dir --only-binary :all: --extra-index-url https://www.piwheels.org/simple -r requirements.txt \
     && /env/bin/python manage.py collectstatic --no-input \
@@ -44,8 +44,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         cmake \
         nodejs \
-        python3.8-venv \
-        python3.8-dev \
+        python3-venv \
+        python3-dev \
         libpq-dev \
         libffi-dev \
         libssl-dev \
