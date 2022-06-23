@@ -8,6 +8,19 @@ For example, to bring up all the services, you'd run:
 
     docker-compose -f docker-compose.transmission-vpn.yml up -d
 
+The default command for tailscale up is as follows:
+```
+tailscale up --authkey="${TAILSCALE_AUTHKEY}" \
+                    --advertise-routes ${TAILSCALE_ADVERTISE_ROUTE} \
+                    --hostname ${TAILSCALE_HOSTNAME:-nefarious} \
+                    --advertise-tags=${TAILSCALE_TAGS} \
+                    --accept-routes \
+                    --exit-node=${TAILSCALE_EXIT_NODE} \
+                    --accept-dns \
+                    --reset
+```
+Further details are available at [beardedtek-com/tailscale](https://github.com/beardedtek-com/tailscale)
+
 ## IPv6
 
 You may enable IPv6 by setting `TAILSCALE_IPV6_DISABLED=1` in your `.env` file.
