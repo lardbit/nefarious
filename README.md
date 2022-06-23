@@ -27,6 +27,7 @@ Features:
 - [x] Imports existing libraries
 - [x] VPN integration (optional)
 - [x] Auto download subtitles
+- [x] Auto detect [spam/fake](https://github.com/lardbit/nefarious/pull/180) video content
 
 ### Contents
 
