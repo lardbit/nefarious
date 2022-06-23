@@ -47,7 +47,7 @@ class ParserBase:
         r"(?<scr>SCR|SCREENER|DVDSCR|DVDSCREENER)|"
         r"(?<ts>TS|TELESYNC|HD-TS|HDTS|PDVD|TSRip|HDTSRip|HQ-TS)|"
         r"(?<tc>TC|TELECINE|HD-TC|HDTC)|"
-        r"(?<cam>CAMRIP|CAM|HDCAM|HCAM|HDCAMRip|HD-CAM)|"
+        r"(?<cam>CAMRIP|CAM|HQCAM|HDCAM|HCAM|HDCAMRip|HD-CAM)|"
         r"(?<wp>WORKPRINT|WP)|"
         r"(?<pdtv>PDTV)|"
         r"(?<sdtv>SDTV)|"
