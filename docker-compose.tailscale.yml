@@ -7,12 +7,42 @@
 version: '2.4'
 
 services:
-  # tailscale
-  tailscale:
-    image: docker.beardedtek.com/beardedtek-com/tailscale:latest
-    container_name: tailscale
-    restart: unless-stopped
-    privileged: true
+  nefarious:
+    extends:
+      file: docker-compose.base.yml
+      service: nefarious-app-base
+    networks:
+      nefarious:
+          ipv4_address: ${NEFARIOUS_IP:-192.168.252.1}
+
+  celery:
+    extends:
+      file: docker-compose.base.yml
+      service: celery-base
+    depends_on:
+      - nefarious
+      - transmission
+      - jackett
+    networks:
+      - nefarious
+
+  redis:
+    extends:
+      file: docker-compose.yml
+      service: redis
+    depends_on:
+      - nefarious
+      - transmission
+      - jackett
+    networks:
+      - nefarious
+
+  # torrent server using docker.beardedtek.com/beardedtek-com/docker-transmission:latest
+  transmission:
+    extends:
+      service: transmission
+      file: docker-compose.yml
+    image: docker.beardedtek.com/beardedtek-com/docker-transmission:latest
     volumes:
       - ./varlib:/var/lib
       - /dev/net/tun:/dev/net/tun
@@ -29,36 +59,9 @@ services:
       TAILSCALE_TAGS: ${TAILSCALE_TAGS}
       TAILSCALE_ADVERTISE_ROUTE: ${TAILSCALE_ADVERTISE_ROUTE}
       TAILSCALE_ENABLE: "true"
-
-  nefarious:
-    extends:
-      file: docker-compose.base.yml
-      service: nefarious-app-base
     networks:
-      - ${TAILSCALE_NETWORK_NAME:-nefarious}
-
-  celery:
-    extends:
-      file: docker-compose.base.yml
-      service: celery-base
-    networks:
-      - ${TAILSCALE_NETWORK_NAME:-nefarious}
-
-  redis:
-    extends:
-      file: docker-compose.yml
-      service: redis
-    networks:
-      - ${TAILSCALE_NETWORK_NAME:-nefarious}
-
-  # torrent server
-  transmission:
-    extends:
-      service: transmission-base
-      file: docker-compose.base.yml
-    networks:
-      ${TAILSCALE_NETWORK_NAME:-nefarious}:
-          ipv4_address: ${TRANSMISSION_IP:-192.168.254.2}
+      nefarious:
+          ipv4_address: ${TRANSMISSION_IP:-192.168.252.2}
 
   # torrent indexer service which gets routed through the transmission vpn
   jackett:
@@ -66,26 +69,24 @@ services:
       file: docker-compose.base.yml
       service: jackett-base
     networks:
-      ${TAILSCALE_NETWORK_NAME:-nefarious}:
-          ipv4_address: ${JACKETT_IP:-192.168.254.3}
+      nefarious:
+          ipv4_address: ${JACKETT_IP:-192.168.252.3}
 
   watchtower:
     extends:
       file: docker-compose.yml
       service: watchtower
-      networks:
-      - ${TAILSCALE_NETWORK_NAME:-nefarious}
-
-volumes:
-  nefarious-db:
-    driver: local
-  jackett-config:
-    driver: local
+    depends_on:
+      - nefarious
+      - transmission
+      - jackett
+    networks:
+      - nefarious
 
 networks:
-  ${TAILSCALE_NETWORK_NAME:-nefarious}:
+  nefarious:
     driver: bridge
     ipam:
       config:
-        - subnet: ${SUBNET:-192.168.254.0/24}
-          gateway: ${GATEWAY:-192.168.254.254}
+        - subnet: ${SUBNET:-192.168.252.0/24}
+          gateway: ${GATEWAY:-192.168.252.254}
