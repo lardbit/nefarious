@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM python:3.9.9-bullseye
 
 EXPOSE 80
 
@@ -10,45 +10,25 @@ ADD entrypoint*.sh /app/
 
 WORKDIR /app
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 # install app dependencies, build app and remove dev dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    python3.8 \
-    python3.8-venv \
-    python3.8-dev \
-    python3.8-gdbm \
-    libpq5 \
-    libpq-dev \
-    libffi-dev \
-    libssl-dev \
-    virtualenv \
-    gnupg \
-    curl \
-    git \
     authbind \
-    && curl -sL https://deb.nodesource.com/setup_12.x | bash - \
+    libatlas-base-dev libhdf5-dev libavutil-dev libswresample-dev libavcodec-dev libavformat-dev libswscale-dev \
+    && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
     && apt-get install nodejs -y \
     && npm --prefix frontend install \
     && npm --prefix frontend run build-prod \
     && mkdir -p staticassets \
     && mkdir -p /nefarious-db \
-    && python3.8 -m venv /env \
+    && python -m venv /env \
     && /env/bin/pip install -U pip \
-    && /env/bin/pip install --no-cache-dir -r requirements.txt \
+    && /env/bin/pip install --no-cache-dir --only-binary :all: --extra-index-url https://www.piwheels.org/simple -r requirements.txt \
     && /env/bin/python manage.py collectstatic --no-input \
     && rm -rf frontend/node_modules \
     && apt-get remove -y \
-        build-essential \
         nodejs \
-        python3.8-venv \
-        python3.8-dev \
-        libpq-dev \
-        libffi-dev \
-        libssl-dev \
-        virtualenv \
-        curl \
-        gnupg \
-        git \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
     && true

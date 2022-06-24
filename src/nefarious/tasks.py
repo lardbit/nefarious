@@ -22,10 +22,10 @@ from nefarious.opensubtitles import OpenSubtitles
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
-from nefarious.utils import get_media_new_path_and_name, update_media_release_date
+from nefarious.utils import get_media_new_path_and_name, update_media_release_date, blacklist_media_and_retry
 from nefarious import websocket, notification
 from nefarious.utils import logger_background
-
+from nefarious.video_detection import VideoDetect
 
 app.conf.beat_schedule = {
     'Completed Media Task': {
@@ -157,8 +157,24 @@ def completed_media_task():
             # download is complete
             if torrent.progress == 100:
 
-                # flag media as completed
                 logger_background.info('Media completed: {}'.format(media))
+
+                # run video detection on the relevant video files for movies
+                if isinstance(media, WatchMovie):
+                    staging_path = os.path.join(
+                        settings.INTERNAL_DOWNLOAD_PATH,
+                        settings.UNPROCESSED_PATH,
+                        nefarious_settings.transmission_movie_download_dir.lstrip('/'),
+                        torrent.name,
+                    )
+                    try:
+                        if not VideoDetect.has_valid_video_in_path(staging_path):
+                            blacklist_media_and_retry(media)
+                            logger_background.error("Blacklisting video '{}' because no valid video was found: {}".format(media, staging_path))
+                            continue
+                    except Exception as e:
+                        logger_background.exception(e)
+                        logger_background.error('error during video detection for {} with path {}'.format(media, staging_path))
 
                 # special handling for tv seasons
                 if isinstance(media, WatchTVSeason):
@@ -203,7 +219,7 @@ def completed_media_task():
                 media_type, data = websocket.get_media_type_and_serialized_watch_media(media)
                 websocket.send_message(websocket.ACTION_UPDATED, media_type, data)
 
-                # send notification
+                # send user notification
                 notification.send_message(message='{} was downloaded'.format(media))
 
                 # define the import path
