@@ -42,7 +42,7 @@ services:
     extends:
       service: transmission
       file: docker-compose.yml
-    image: docker.beardedtek.com/beardedtek-com/docker-transmission:latest
+    image: beardedtek/docker-transmission:tailscale
     volumes:
       - ./varlib:/var/lib
       - /dev/net/tun:/dev/net/tun
