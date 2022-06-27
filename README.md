@@ -27,6 +27,7 @@ Features:
 - [x] Imports existing libraries
 - [x] VPN integration (optional)
 - [x] Auto download subtitles via [opensubtitles](https://www.opensubtitles.com/) [api](https://opensubtitles.stoplight.io/)
+- [x] Auto detect & blacklist [spam/fake](https://github.com/lardbit/nefarious/pull/180) video content
 
 ### Contents
 
