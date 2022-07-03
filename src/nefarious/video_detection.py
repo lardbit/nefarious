@@ -34,6 +34,9 @@ class VideoDetect:
 
     @classmethod
     def has_valid_video_in_path(cls, path: str):
+        # TODO - remove once fixed bug https://github.com/lardbit/nefarious/issues/203
+        return True
+
         files_to_verify = []
 
         if os.path.isdir(path):  # directory
