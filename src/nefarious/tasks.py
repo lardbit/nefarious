@@ -170,7 +170,7 @@ def completed_media_task():
                     try:
                         if not VideoDetect.has_valid_video_in_path(staging_path):
                             blacklist_media_and_retry(media)
-                            logger_background.error("Blacklisting video '{}' because no valid video was found: {}".format(media, staging_path))
+                            logger_background.error("[VIDEO_DETECTION] blacklisting '{}' because no valid video was found: {}".format(media, staging_path))
                             continue
                     except Exception as e:
                         logger_background.exception(e)
