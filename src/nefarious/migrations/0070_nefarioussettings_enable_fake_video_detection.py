@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='nefarioussettings',
             name='enable_fake_video_detection',
-            field=models.BooleanField(default=True),
+            field=models.BooleanField(default=False),
         ),
     ]
