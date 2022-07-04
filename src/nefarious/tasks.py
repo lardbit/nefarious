@@ -159,8 +159,8 @@ def completed_media_task():
 
                 logger_background.info('Media completed: {}'.format(media))
 
-                # run video detection on the relevant video files for movies
-                if isinstance(media, WatchMovie):
+                # run video detection, if enabled, on the relevant video files for movies
+                if nefarious_settings.enable_fake_video_detection and isinstance(media, WatchMovie):
                     staging_path = os.path.join(
                         settings.INTERNAL_DOWNLOAD_PATH,
                         settings.UNPROCESSED_PATH,

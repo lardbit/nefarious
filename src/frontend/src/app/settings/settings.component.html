@@ -38,6 +38,27 @@
             </div>
           </div>
         </div>
+        <!-- fake video detection -->
+        <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <span>Fake Video Detection</span>
+            <span class="text-info oi oi-info" placement="left" ngbTooltip="Attempt to automatically detect, blacklist, and retry fake videos"></span>
+          </div>
+          <div class="card-body">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" [value]="true" formControlName="enable_fake_video_detection" id="fake-video-detection-true">
+              <label class="form-check-label" for="fake-video-detection-true">
+                Enable
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" [value]="false" formControlName="enable_fake_video_detection" id="fake-video-detection-false">
+              <label class="form-check-label" for="fake-video-detection-false">
+                Disable
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
       <!-- transmission -->
       <div class="col-12 col-sm-6 col-md-4">

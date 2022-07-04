@@ -48,7 +48,11 @@ class NefariousSettings(models.Model):
     quality_profile_tv = models.CharField(max_length=500, default=quality.PROFILE_ANY.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     quality_profile_movies = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
 
+    # whether to allow hardcoded subtitles
     allow_hardcoded_subs = models.BooleanField(default=False)
+
+    # whether to enable fake video detection
+    enable_fake_video_detection = models.BooleanField(default=True)
 
     # expects keyword/boolean pairs like {"x265": false, "265": false}
     keyword_search_filters = JSONField(blank=True, null=True)  # type: dict
