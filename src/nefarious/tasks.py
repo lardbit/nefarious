@@ -159,8 +159,9 @@ def completed_media_task():
 
                 logger_background.info('Media completed: {}'.format(media))
 
-                # run video detection, if enabled, on the relevant video files for movies
-                if nefarious_settings.enable_fake_video_detection and isinstance(media, WatchMovie):
+                # run video detection, if enabled, on the relevant video files for movies, staging_path
+                if nefarious_settings.enable_video_detection and isinstance(media, WatchMovie):
+                    logger_background.info("[VIDEO_DETECTION] verifying '{}'".format(media))
                     staging_path = os.path.join(
                         settings.INTERNAL_DOWNLOAD_PATH,
                         settings.UNPROCESSED_PATH,
@@ -168,7 +169,9 @@ def completed_media_task():
                         torrent.name,
                     )
                     try:
-                        if not VideoDetect.has_valid_video_in_path(staging_path):
+                        if VideoDetect.has_valid_video_in_path(staging_path):
+                            logger_background.info("[VIDEO_DETECTION] '{}' has valid video files".format(media))
+                        else:
                             blacklist_media_and_retry(media)
                             logger_background.error("[VIDEO_DETECTION] blacklisting '{}' because no valid video was found: {}".format(media, staging_path))
                             continue

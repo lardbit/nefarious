@@ -38,22 +38,24 @@
             </div>
           </div>
         </div>
-        <!-- fake video detection -->
+        <!-- video detection -->
         <div class="card">
           <div class="card-header d-flex justify-content-between">
-            <span>Fake Video Detection</span>
-            <span class="text-info oi oi-info" placement="left" ngbTooltip="Attempt to automatically detect, blacklist, and retry fake videos"></span>
+            <span>Video Validation</span>
+            <span class="text-info oi oi-info"></span>
           </div>
           <div class="card-body">
-            <div class="form-check">
-              <input class="form-check-input" type="radio" [value]="true" formControlName="enable_fake_video_detection" id="fake-video-detection-true">
-              <label class="form-check-label" for="fake-video-detection-true">
+            <div>Automatically detect, blacklist, and retry <strong>fake</strong> videos.</div>
+            <div><span class="badge badge-dark">Note</span> This will also reject any bundled downloads (e.g. rar, tar, zip)</div>
+            <div class="form-check mt-2">
+              <input class="form-check-input" type="radio" [value]="true" formControlName="enable_video_detection" id="video-detection-true">
+              <label class="form-check-label" for="video-detection-true">
                 Enable
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" [value]="false" formControlName="enable_fake_video_detection" id="fake-video-detection-false">
-              <label class="form-check-label" for="fake-video-detection-false">
+              <input class="form-check-input" type="radio" [value]="false" formControlName="enable_video_detection" id="video-detection-false">
+              <label class="form-check-label" for="video-detection-false">
                 Disable
               </label>
             </div>
