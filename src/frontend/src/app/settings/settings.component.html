@@ -38,29 +38,6 @@
             </div>
           </div>
         </div>
-        <!-- video detection -->
-        <div class="card">
-          <div class="card-header d-flex justify-content-between">
-            <span>Video Validation</span>
-            <span class="text-info oi oi-info"></span>
-          </div>
-          <div class="card-body">
-            <div>Automatically detect, blacklist, and retry <strong>fake</strong> videos.</div>
-            <div><span class="badge badge-dark">Note</span> This will also reject any bundled downloads (e.g. rar, tar, zip)</div>
-            <div class="form-check mt-2">
-              <input class="form-check-input" type="radio" [value]="true" formControlName="enable_video_detection" id="video-detection-true">
-              <label class="form-check-label" for="video-detection-true">
-                Enable
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" [value]="false" formControlName="enable_video_detection" id="video-detection-false">
-              <label class="form-check-label" for="video-detection-false">
-                Disable
-              </label>
-            </div>
-          </div>
-        </div>
       </div>
       <!-- transmission -->
       <div class="col-12 col-sm-6 col-md-4">
@@ -207,6 +184,29 @@
               <input type="text" class="form-control" placeholder="slack://TokenA/TokenB/TokenC/" formControlName="apprise_notification_url">
             </div>
             <button type="button" class="btn btn-xs btn-sm btn-outline-primary" (click)="sendTestNotification()">Send test notification <span class="oi oi-bolt"></span></button>
+          </div>
+        </div>
+        <!-- video detection -->
+        <div class="card">
+          <div class="card-header d-flex justify-content-between">
+            <span>Video Validation</span>
+            <span class="text-info oi oi-info"></span>
+          </div>
+          <div class="card-body">
+            <div>Automatically detect, blacklist, and retry <strong>fake</strong> videos.</div>
+            <div><span class="badge badge-dark">Note</span> This will also reject any bundled downloads (e.g. rar, tar, zip)</div>
+            <div class="form-check mt-2">
+              <input class="form-check-input" type="radio" [value]="true" formControlName="enable_video_detection" id="video-detection-true">
+              <label class="form-check-label" for="video-detection-true">
+                Enable
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" [value]="false" formControlName="enable_video_detection" id="video-detection-false">
+              <label class="form-check-label" for="video-detection-false">
+                Disable
+              </label>
+            </div>
           </div>
         </div>
       </div>
