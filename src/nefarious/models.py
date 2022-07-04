@@ -52,7 +52,7 @@ class NefariousSettings(models.Model):
     allow_hardcoded_subs = models.BooleanField(default=False)
 
     # whether to enable video detection features (e.g. fake)
-    enable_video_detection = models.BooleanField(default=True)
+    enable_video_detection = models.BooleanField(default=False)
 
     # expects keyword/boolean pairs like {"x265": false, "265": false}
     keyword_search_filters = JSONField(blank=True, null=True)  # type: dict
