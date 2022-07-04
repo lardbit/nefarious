@@ -57,7 +57,7 @@ class ImporterBase:
             if file_extension_match:
                 # skip sample files
                 if parser.sample_file_regex.search(file_name):
-                    logger_background.warning('[NO_MATCH_SAMPLE] Not matching sample file "{}"'.format(file_path))
+                    logger_background.info('[NO_MATCH_SAMPLE] Not matching sample file "{}"'.format(file_path))
                     return False
                 title = parser.match['title']
                 if not title:
@@ -66,7 +66,7 @@ class ImporterBase:
                         title = new_title
                         parser.match.update(parser_match)
                     else:
-                        logger_background.warning('[NO_MATCH_TITLE] Could not match file without title "{}"'.format(file_path))
+                        logger_background.info('[NO_MATCH_TITLE] Could not match file without title "{}"'.format(file_path))
                         return False
                 file_extension = file_extension_match.group()
                 if file_extension in video_extensions():
@@ -91,11 +91,11 @@ class ImporterBase:
                                 logger_background.info('[MATCH] Saved media "{}" from file "{}"'.format(watch_media, file_path))
                                 return watch_media
                     else:  # for/else
-                        logger_background.warning('[NO_MATCH_MEDIA] No media match for title "{}" and file "{}"'.format(title, file_path))
+                        logger_background.info('[NO_MATCH_MEDIA] No media match for title "{}" and file "{}"'.format(title, file_path))
                 else:
-                    logger_background.warning('[NO_MATCH_VIDEO] No valid video file extension for file "{}"'.format(file_path))
+                    logger_background.info('[NO_MATCH_VIDEO] No valid video file extension for file "{}"'.format(file_path))
             else:
-                logger_background.warning('[NO_MATCH_EXTENSION] No file extension for file "{}"'.format(file_path))
+                logger_background.info('[NO_MATCH_EXTENSION] No file extension for file "{}"'.format(file_path))
         else:
             logger_background.info('[NO_MATCH_UNKNOWN] Unknown match for file "{}"'.format(file_path))
         return False

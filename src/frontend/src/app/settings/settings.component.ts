@@ -52,6 +52,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       'quality_profile_tv': [settings['quality_profile_tv'], Validators.required],
       'quality_profile_movies': [settings['quality_profile_movies'], Validators.required],
       'allow_hardcoded_subs': [settings['allow_hardcoded_subs'], Validators.required],
+      'enable_video_detection': [settings['enable_video_detection'], Validators.required],
       'exclusions': [settings['keyword_search_filters'] ? _.keys(settings['keyword_search_filters']) : []],
       'language': [settings['language'], Validators.required],
       'users': new FormArray([]),

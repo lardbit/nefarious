@@ -34,8 +34,7 @@ class VideoDetect:
 
     @classmethod
     def has_valid_video_in_path(cls, path: str):
-        # TODO - remove once fixed bug https://github.com/lardbit/nefarious/issues/203
-        return True
+        # TODO - this doesn't handle bundles (rar/zip/tar etc) since it won't find any "media" files
 
         files_to_verify = []
 
@@ -65,8 +64,8 @@ class VideoDetect:
                 return True
         return False
 
-    def is_correct_length(self, correct_duration: float):
-        return abs(self.duration - correct_duration) / correct_duration < self.MAX_VIDEO_DURATION_DIFFERENCE_RATIO
+    def is_correct_length(self, expected_duration: float):
+        return abs(self.duration - expected_duration) / expected_duration < self.MAX_VIDEO_DURATION_DIFFERENCE_RATIO
 
     def is_too_similar(self):
         return self.video_similarity_std <= self.MIN_VIDEO_SIMILARITY_STD
