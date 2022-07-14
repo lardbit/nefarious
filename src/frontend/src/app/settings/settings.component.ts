@@ -5,7 +5,7 @@ import { ApiService } from '../api.service';
 import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { Component, OnInit, AfterContentChecked } from '@angular/core';
 import * as _ from 'lodash';
-import {concat, Observable, Subscription} from 'rxjs';
+import { concat, Observable, Subscription } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 @Component({

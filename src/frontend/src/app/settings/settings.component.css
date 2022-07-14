@@ -1,3 +1,10 @@
 .card {
   margin: 5px 0;
 }
+
+.settings-grid {
+  display: grid;
+  grid-auto-flow: row dense;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 5px;
+}
