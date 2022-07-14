@@ -51,7 +51,7 @@ class NefariousSettings(models.Model):
     # whether to allow hardcoded subtitles
     allow_hardcoded_subs = models.BooleanField(default=False)
 
-    # whether to enable video detection features (e.g. fake)
+    # whether to enable video detection features (e.g. fake/spam)
     enable_video_detection = models.BooleanField(default=False)
 
     # expects keyword/boolean pairs like {"x265": false, "265": false}
