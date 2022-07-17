@@ -1,8 +1,8 @@
 import os
 import regex
 from django.conf import settings
-from datetime import datetime, timezone
-from django.utils import dateparse
+from datetime import datetime
+from django.utils import dateparse, timezone
 from transmissionrpc import Torrent
 
 from nefarious.models import WatchMovie, NefariousSettings, TorrentBlacklist, WatchTVEpisode, WatchTVSeason
