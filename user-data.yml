@@ -1,0 +1,34 @@
+#cloud-config
+
+hostname: nefarious
+manage_etc_hosts: true
+ssh_pwauth: true
+
+packages:
+ - docker-compose
+
+users:
+  - default
+  - name: ubuntu
+    gecos: "nefarious"
+    groups: users,docker   
+
+write_files:
+
+- path: /tmp/.env
+  content: |
+    HOST_DOWNLOAD_PATH=/tmp/
+    NEFARIOUS_USER=admin
+    NEFARIOUS_PASS=admin
+    HOST_DOWNLOAD_UID=1000
+    HOST_DOWNLOAD_GID=1000
+    NUM_CELERY_WORKERS=0
+  permissions: '0600'
+  defer: true
+
+# these will be run once on first boot only
+runcmd:
+  - 'git -C /home/ubuntu clone https://github.com/lardbit/nefarious.git'
+  - 'mv /tmp/.env /home/ubuntu/nefarious'
+  - 'chown -R ubuntu:ubuntu /home/ubuntu/nefarious'
+  - 'su -c "cd /home/ubuntu/nefarious; docker-compose up -d" ubuntu'
