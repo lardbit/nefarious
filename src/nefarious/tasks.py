@@ -179,14 +179,6 @@ def completed_media_task():
                         logger_background.exception(e)
                         logger_background.error('error during video detection for {} with path {}'.format(media, staging_path))
 
-                # special handling for tv seasons
-                if isinstance(media, WatchTVSeason):
-
-                    # mark season request complete
-                    for season_request in WatchTVSeasonRequest.objects.filter(watch_tv_show=media.watch_tv_show, season_number=media.season_number):
-                        season_request.collected = True
-                        season_request.save()
-
                 # get the sub path (ie. "movies/", "tv/') so we can move the data from staging
                 sub_path = (
                     nefarious_settings.transmission_movie_download_dir if isinstance(media, WatchMovie)
@@ -211,12 +203,25 @@ def completed_media_task():
 
                 # rename the data
                 logger_background.info('Renaming torrent file from "{}" to "{}"'.format(torrent.name, new_name))
-                transmission_client.rename_torrent_path(torrent.id, torrent.name, new_name)
+                try:
+                    transmission_client.rename_torrent_path(torrent.id, torrent.name, new_name)
+                except Exception as e:
+                    logger_background.exception(e)
+                    logger_background.error('Error renaming torrent id={id}, name={name}, new_name={new_name}, skipping'.format(
+                        id=torrent.id, name=torrent.name, new_name=new_name,
+                    ))
 
                 # save media as collected
                 media.collected = True
                 media.collected_date = timezone.now()
                 media.save()
+
+                # special handling for tv seasons
+                if isinstance(media, WatchTVSeason):
+                    # mark season request complete
+                    for season_request in WatchTVSeasonRequest.objects.filter(watch_tv_show=media.watch_tv_show, season_number=media.season_number):
+                        season_request.collected = True
+                        season_request.save()
 
                 # send websocket message media was updated
                 media_type, data = websocket.get_media_type_and_serialized_watch_media(media)

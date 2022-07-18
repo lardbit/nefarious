@@ -2,7 +2,7 @@ import os
 import regex
 from django.conf import settings
 from datetime import datetime
-from django.utils import dateparse
+from django.utils import dateparse, timezone
 from transmissionrpc import Torrent
 
 from nefarious.models import WatchMovie, NefariousSettings, TorrentBlacklist, WatchTVEpisode, WatchTVSeason
@@ -122,7 +122,7 @@ class WatchProcessorBase:
         )
 
     def _set_last_attempt_date(self):
-        self.watch_media.last_attempt_date = datetime.utcnow()
+        self.watch_media.last_attempt_date = timezone.utc.localize(datetime.utcnow())
         self.watch_media.save()
 
     def _sanitize_title(self, title: str):
