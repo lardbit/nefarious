@@ -132,31 +132,34 @@
       </div>
       <!-- users -->
       <form class="was-validated" [formGroup]="form">
-        <div class="card" *ngIf="users">
+        <div class="card">
           <div class="card-header">Users</div>
           <div class="card-body" formArrayName="users">
-            <div *ngFor="let control of form.controls.users.controls; let i=index" [formGroupName]="i">
-              <div class="d-flex justify-content-around">
-                <div class="form-group mr-1">
-                  <input type="text" class="form-control" [id]="i+'username'" formControlName="username" required placeholder="username">
+            <ngx-loading [show]="isLoadingUsers"></ngx-loading>
+            <div *ngIf="users">
+              <div *ngFor="let control of form.controls.users.controls; let i=index" [formGroupName]="i">
+                <div class="d-flex justify-content-around">
+                  <div class="form-group mr-1">
+                    <input type="text" class="form-control" [id]="i+'username'" formControlName="username" required placeholder="username">
+                  </div>
+                  <div class="form-group mr-1">
+                    <ng-container *ngIf="control.value.id">
+                      <input type="password" class="form-control" [id]="i+'password'" formControlName="password" placeholder="new password">
+                      <small class="form-text text-muted">Leave blank to keep existing password</small>
+                    </ng-container>
+                    <ng-container *ngIf="!control.value.id">
+                      <input type="password" class="form-control" [id]="i+'password'" formControlName="password" placeholder="password" required>
+                    </ng-container>
+                  </div>
+                  <div class="form-group mr-1">
+                    <button type="button" class="btn btn-sm btn-success" (click)="saveUser(i)"><span class="oi oi-check"></span></button>
+                  </div>
+                  <div class="form-group">
+                    <button type="button" class="btn btn-sm btn-danger" [disabled]="!canDeleteUser(i)" (click)="removeUser(i)"><span class="oi oi-minus"></span></button>
+                  </div>
                 </div>
-                <div class="form-group mr-1">
-                  <ng-container *ngIf="control.value.id">
-                    <input type="password" class="form-control" [id]="i+'password'" formControlName="password" placeholder="new password">
-                    <small class="form-text text-muted">Leave blank to keep existing password</small>
-                  </ng-container>
-                  <ng-container *ngIf="!control.value.id">
-                    <input type="password" class="form-control" [id]="i+'password'" formControlName="password" placeholder="password" required>
-                  </ng-container>
-                </div>
-                <div class="form-group mr-1">
-                  <button type="button" class="btn btn-sm btn-success" (click)="saveUser(i)"><span class="oi oi-check"></span></button>
-                </div>
-                <div class="form-group">
-                  <button type="button" class="btn btn-sm btn-danger" [disabled]="!canDeleteUser(i)" (click)="removeUser(i)"><span class="oi oi-minus"></span></button>
-                </div>
+                <hr>
               </div>
-              <hr>
             </div>
             <div class="d-flex justify-content-end">
               <button type="button" class="btn btn-xs btn-sm btn-success" (click)="addUser()"><span class="oi oi-plus"></span></button>
@@ -169,7 +172,7 @@
         <div class="card-header">Notifications</div>
         <div class="card-body">
           <p>Defining a <i>Notification URL</i> allows you to get notified when downloads are complete.</p>
-          <p>nefarious uses <a target="_blank" href="https://github.com/caronc/apprise">Apprise</a> for notifications which supports <a target="_blank" href="https://github.com/caronc/apprise#popular-notification-services">most major notification services.</a></p>
+          <p>nefarious uses <a target="_blank" href="https://github.com/caronc/apprise">Apprise</a> for notifications which supports <a target="_blank" href="https://github.com/caronc/apprise#productivity-based-notifications">most major notification services.</a></p>
           <div class="form-group">
             <label>Notification URL</label>
             <input type="text" class="form-control" placeholder="slack://TokenA/TokenB/TokenC/" formControlName="apprise_notification_url">

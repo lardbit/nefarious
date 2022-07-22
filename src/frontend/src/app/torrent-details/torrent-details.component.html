@@ -23,7 +23,10 @@
       </td>
       <td><span *ngIf="result.watchMedia.release_date">{{ result.watchMedia.release_date | date | date: 'shortDate' }}</span></td>
       <td>{{ result.watchMedia.date_added | date | date: 'shortDate' }}</td>
-      <td><span *ngIf="result.watchMedia.last_attempt_date">{{ result.watchMedia.last_attempt_date | amTimeAgo }}</span></td>
+      <td>
+        <span *ngIf="result.watchMedia.last_attempt_date">{{ result.watchMedia.last_attempt_date | amTimeAgo }}</span>
+        <span *ngIf="!result.watchMedia.last_attempt_date" class="text-nowrap">working on it...</span>
+      </td>
       <td><span *ngIf="result.watchMedia.collected_date">{{ result.watchMedia.collected_date | date | date: 'shortDate' }}</span></td>
       <td>
         <span *ngIf="result.watchMedia.collected">

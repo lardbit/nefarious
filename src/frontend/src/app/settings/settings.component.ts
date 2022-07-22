@@ -19,6 +19,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
   public isSaving = false;
   public isLoading = false;
   public isVeryingJackettIndexers = false;
+  public isLoadingUsers = false;
   public gitCommit = '';
   public authenticateOpenSubtitles$: Subscription;
 
@@ -59,6 +60,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       'apprise_notification_url': [settings['apprise_notification_url']],
     });
 
+    this.isLoadingUsers = true;
     this.apiService.fetchUsers().subscribe(
       (users) => {
         this.users = users;
@@ -71,6 +73,10 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
           });
           this.form.get('users').insert(0, this.fb.group(controls));
         });
+      }, (error) => {
+        this.toastr.error('An unknown error occurred loading users');
+      }, () => {
+        this.isLoadingUsers = false;
       }
     );
 
