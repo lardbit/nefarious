@@ -4,7 +4,7 @@ import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
 import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { Component, OnInit, AfterContentChecked } from '@angular/core';
-import {concat, Observable, Subscription} from 'rxjs';
+import { concat, Observable, Subscription } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 @Component({
@@ -18,6 +18,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
   public isSaving = false;
   public isLoading = false;
   public isVeryingJackettIndexers = false;
+  public isLoadingUsers = false;
   public gitCommit = '';
   public authenticateOpenSubtitles$: Subscription;
 
@@ -52,11 +53,13 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       'quality_profile_movies': [settings['quality_profile_movies'], Validators.required],
       'allow_hardcoded_subs': [settings['allow_hardcoded_subs'], Validators.required],
       'exclusions': [settings['keyword_search_filters'] ? Object.keys(settings['keyword_search_filters']) : []],
+      'enable_video_detection': [settings['enable_video_detection'], Validators.required],
       'language': [settings['language'], Validators.required],
       'users': new FormArray([]),
       'apprise_notification_url': [settings['apprise_notification_url']],
     });
 
+    this.isLoadingUsers = true;
     this.apiService.fetchUsers().subscribe(
       (users) => {
         this.users = users;
@@ -69,6 +72,10 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
           });
           this.form.get('users').insert(0, this.fb.group(controls));
         });
+      }, (error) => {
+        this.toastr.error('An unknown error occurred loading users');
+      }, () => {
+        this.isLoadingUsers = false;
       }
     );
 

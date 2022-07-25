@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 from urllib.parse import urlparse
 from transmissionrpc import TransmissionError
 
-from nefarious.models import NefariousSettings, WatchMovie, WatchTVSeason, WatchTVEpisode, WatchMediaBase
+from nefarious.models import NefariousSettings, WatchMovie, WatchTVSeason, WatchTVEpisode, WatchMediaBase, TorrentBlacklist
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
 
@@ -231,3 +231,45 @@ def update_media_release_date(media, release_date):
         media.save()
     else:
         logger_background.warning('Skipping empty release date for {}'.format(media))
+
+
+def blacklist_media_and_retry(watch_media):
+    # import here to avoid circular dependencies
+    from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task
+
+    nefarious_settings = NefariousSettings.get()
+
+    # if media still has a torrent reference
+    if watch_media.transmission_torrent_hash:
+        # add to blacklist
+        logger_foreground.info('Blacklisting {}'.format(watch_media.transmission_torrent_hash))
+        TorrentBlacklist.objects.get_or_create(
+            hash=watch_media.transmission_torrent_hash,
+            defaults=dict(
+                name=str(watch_media),
+            )
+        )
+
+        # remove torrent and delete data
+        logger_foreground.info('Removing blacklisted torrent hash: {}'.format(watch_media.transmission_torrent_hash))
+        transmission_client = get_transmission_client(nefarious_settings=nefarious_settings)
+        transmission_client.remove_torrent([watch_media.transmission_torrent_hash], delete_data=True)
+
+        # unset torrent details
+        watch_media.transmission_torrent_hash = None
+        watch_media.transmission_torrent_name = None
+
+    # unset previous details
+    watch_media.collected = False
+    watch_media.collected_date = None
+    watch_media.download_path = None
+    watch_media.last_attempt_date = None
+    watch_media.save()
+
+    # re-queue search
+    if isinstance(watch_media, WatchMovie):
+        watch_movie_task.delay(watch_media.id)
+    elif isinstance(watch_media, WatchTVSeason):
+        watch_tv_show_season_task.delay(watch_media.id)
+    elif isinstance(watch_media, WatchTVEpisode):
+        watch_tv_episode_task.delay(watch_media.id)

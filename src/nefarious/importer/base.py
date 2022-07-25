@@ -43,9 +43,6 @@ class ImporterBase:
     def _get_parser(self, file_name):
         raise NotImplementedError
 
-    def _is_parser_exact_match(self, parser) -> bool:
-        return True
-
     def _get_tmdb_search_results(self, title):
         raise NotImplementedError
 
@@ -60,7 +57,7 @@ class ImporterBase:
             if file_extension_match:
                 # skip sample files
                 if parser.sample_file_regex.search(file_name):
-                    logger_background.warning('[NO_MATCH_SAMPLE] Not matching sample file "{}"'.format(file_path))
+                    logger_background.info('[NO_MATCH_SAMPLE] Not matching sample file "{}"'.format(file_path))
                     return False
                 title = parser.match['title']
                 if not title:
@@ -69,39 +66,36 @@ class ImporterBase:
                         title = new_title
                         parser.match.update(parser_match)
                     else:
-                        logger_background.warning('[NO_MATCH_TITLE] Could not match file without title "{}"'.format(file_path))
+                        logger_background.info('[NO_MATCH_TITLE] Could not match file without title "{}"'.format(file_path))
                         return False
                 file_extension = file_extension_match.group()
                 if file_extension in video_extensions():
-                    if self._is_parser_exact_match(parser):
-                        if self.media_class.objects.filter(download_path=file_path).exists():
-                            logger_background.info('[SKIP] skipping already-processed file "{}"'.format(file_path))
+                    if self.media_class.objects.filter(download_path=file_path).exists():
+                        logger_background.info('[SKIP] skipping already-processed file "{}"'.format(file_path))
+                        return False
+                    # get or set tmdb search results for this title in the cache
+                    tmdb_results = cache.get(title)
+                    if not tmdb_results:
+                        try:
+                            tmdb_results = self._get_tmdb_search_results(title)
+                        except HTTPError:
+                            logger_background.error('[ERROR_TMDB] tmdb search exception for title {} on file "{}"'.format(title, file_path))
                             return False
-                        # get or set tmdb search results for this title in the cache
-                        tmdb_results = cache.get(title)
-                        if not tmdb_results:
-                            try:
-                                tmdb_results = self._get_tmdb_search_results(title)
-                            except HTTPError:
-                                logger_background.error('[ERROR_TMDB] tmdb search exception for title {} on file "{}"'.format(title, file_path))
-                                return False
-                            cache.set(title, tmdb_results, 60 * 60)
-                        # loop over results for the exact match
-                        for tmdb_result in tmdb_results['results']:
-                            # normalize titles and see if they match
-                            if self._is_result_match_title(parser, tmdb_result, title):
-                                watch_media = self._handle_match(parser, tmdb_result, title, file_path)
-                                if watch_media:
-                                    logger_background.info('[MATCH] Saved media "{}" from file "{}"'.format(watch_media, file_path))
-                                    return watch_media
-                        else:  # for/else
-                            logger_background.warning('[NO_MATCH_MEDIA] No media match for title "{}" and file "{}"'.format(title, file_path))
-                    else:
-                        logger_background.warning('[NO_MATCH_EXACT] No exact title match for title "{}" and file "{}"'.format(title, file_path))
+                        cache.set(title, tmdb_results, 60 * 60)
+                    # loop over results for the exact match
+                    for tmdb_result in tmdb_results['results']:
+                        # normalize titles and see if they match
+                        if self._is_result_match_title(parser, tmdb_result, title):
+                            watch_media = self._handle_match(parser, tmdb_result, title, file_path)
+                            if watch_media:
+                                logger_background.info('[MATCH] Saved media "{}" from file "{}"'.format(watch_media, file_path))
+                                return watch_media
+                    else:  # for/else
+                        logger_background.info('[NO_MATCH_MEDIA] No media match for title "{}" and file "{}"'.format(title, file_path))
                 else:
-                    logger_background.warning('[NO_MATCH_VIDEO] No valid video file extension for file "{}"'.format(file_path))
+                    logger_background.info('[NO_MATCH_VIDEO] No valid video file extension for file "{}"'.format(file_path))
             else:
-                logger_background.warning('[NO_MATCH_EXTENSION] No file extension for file "{}"'.format(file_path))
+                logger_background.info('[NO_MATCH_EXTENSION] No file extension for file "{}"'.format(file_path))
         else:
             logger_background.info('[NO_MATCH_UNKNOWN] Unknown match for file "{}"'.format(file_path))
         return False

@@ -486,7 +486,7 @@ export class ApiService {
       tmdb_show_id: showId,
       name: name,
       poster_image_url: posterImageUrl,
-      release_date: releaseDate,
+      release_date: releaseDate || null,
       auto_watch: !!autoWatchNewSeasons,
       quality_profile_custom: qualityProfile,
     };
@@ -530,7 +530,7 @@ export class ApiService {
       tmdb_episode_id: episodeId,
       season_number: seasonNumber,
       episode_number: episodeNumber,
-      release_date: releaseDate,
+      release_date: releaseDate || null,
     };
     return this.http.post(this.API_URL_WATCH_TV_EPISODE, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
@@ -552,7 +552,7 @@ export class ApiService {
     const params = {
       watch_tv_show: watchShowId,
       season_number: seasonNumber,
-      release_date: releaseDate,
+      release_date: releaseDate || null,
     };
     return this.http.post(this.API_URL_WATCH_TV_SEASON_REQUEST, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
@@ -614,7 +614,7 @@ export class ApiService {
       name: name,
       poster_image_url: posterImageUrl,
       quality_profile_custom: qualityProfileCustom,
-      release_date: releaseDate,
+      release_date: releaseDate || null,
     };
 
     return this.http.post(this.API_URL_WATCH_MOVIE, params, {headers: this._requestHeaders()}).pipe(

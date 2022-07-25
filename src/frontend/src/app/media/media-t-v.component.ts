@@ -212,6 +212,11 @@ export class MediaTVComponent implements OnInit, OnDestroy {
       return true;
     }
 
+    // some tmdb seasons don't have any episodes attached
+    if (!season.episodes || season.episodes.length === 0) {
+      return false;
+    }
+
     // verify every episode is collected
     for (const episode of season.episodes) {
       const watchEpisode = this._getWatchEpisode(episode.id);
@@ -219,6 +224,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
         return false;
       }
     }
+
     return true;
   }
 
@@ -230,7 +236,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
         watchingEpisodes += 1;
       }
     }
-    return season.episodes.length === watchingEpisodes;
+    return season.episodes.length > 0 && season.episodes.length === watchingEpisodes;
   }
 
   public isWatchingAnyEpisodeInSeason(season: any): boolean {

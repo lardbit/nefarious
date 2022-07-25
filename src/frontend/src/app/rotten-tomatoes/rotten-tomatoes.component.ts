@@ -48,8 +48,8 @@ export class RottenTomatoesComponent implements OnInit {
 
     // build form
     this.form = this.fb.group({
-      type: this.route.snapshot.queryParams['type'] || this.types['In Theaters'],
-      sortBy: this.route.snapshot.queryParams['sortBy'] || this.sortBy['Popularity'],
+      type: this.route.snapshot.queryParams['type'] || this.types['DVD All (Certified Fresh)'],
+      sortBy: this.route.snapshot.queryParams['sortBy'] || this.sortBy['Release'],
       page: parseInt(this.route.snapshot.queryParams['page'], 10) || 1,
       minTomato: this.route.snapshot.queryParams['minTomato'] || 70,
     });

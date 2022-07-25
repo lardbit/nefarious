@@ -10,6 +10,8 @@ export class MediaFilterPipe implements PipeTransform {
       return items;
     }
 
+    search = search.trim();
+
     const results = [];
     for (const item of items) {
       if (item.title && item.title.match(RegExp(search, 'i'))) {
@@ -17,6 +19,8 @@ export class MediaFilterPipe implements PipeTransform {
       } else if (item.Title && item.Title.match(RegExp(search, 'i'))) {
         results.push(item);
       } else if (item.name && item.name.match(RegExp(search, 'i'))) {
+        results.push(item);
+      } else if (item.release_date && item.release_date.match(RegExp(search, 'i'))) {
         results.push(item);
       }
     }

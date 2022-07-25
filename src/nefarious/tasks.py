@@ -22,10 +22,10 @@ from nefarious.opensubtitles import OpenSubtitles
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
-from nefarious.utils import get_media_new_path_and_name, update_media_release_date
+from nefarious.utils import get_media_new_path_and_name, update_media_release_date, blacklist_media_and_retry
 from nefarious import websocket, notification
 from nefarious.utils import logger_background
-
+from nefarious.video_detection import VideoDetect
 
 app.conf.beat_schedule = {
     'Completed Media Task': {
@@ -157,16 +157,27 @@ def completed_media_task():
             # download is complete
             if torrent.progress == 100:
 
-                # flag media as completed
                 logger_background.info('Media completed: {}'.format(media))
 
-                # special handling for tv seasons
-                if isinstance(media, WatchTVSeason):
-
-                    # mark season request complete
-                    for season_request in WatchTVSeasonRequest.objects.filter(watch_tv_show=media.watch_tv_show, season_number=media.season_number):
-                        season_request.collected = True
-                        season_request.save()
+                # run video detection, if enabled, on the relevant video files for movies, staging_path
+                if nefarious_settings.enable_video_detection and isinstance(media, WatchMovie):
+                    logger_background.info("[VIDEO_DETECTION] verifying '{}'".format(media))
+                    staging_path = os.path.join(
+                        settings.INTERNAL_DOWNLOAD_PATH,
+                        settings.UNPROCESSED_PATH,
+                        nefarious_settings.transmission_movie_download_dir.lstrip('/'),
+                        torrent.name,
+                    )
+                    try:
+                        if VideoDetect.has_valid_video_in_path(staging_path):
+                            logger_background.info("[VIDEO_DETECTION] '{}' has valid video files".format(media))
+                        else:
+                            blacklist_media_and_retry(media)
+                            logger_background.error("[VIDEO_DETECTION] blacklisting '{}' because no valid video was found: {}".format(media, staging_path))
+                            continue
+                    except Exception as e:
+                        logger_background.exception(e)
+                        logger_background.error('error during video detection for {} with path {}'.format(media, staging_path))
 
                 # get the sub path (ie. "movies/", "tv/') so we can move the data from staging
                 sub_path = (
@@ -192,18 +203,31 @@ def completed_media_task():
 
                 # rename the data
                 logger_background.info('Renaming torrent file from "{}" to "{}"'.format(torrent.name, new_name))
-                transmission_client.rename_torrent_path(torrent.id, torrent.name, new_name)
+                try:
+                    transmission_client.rename_torrent_path(torrent.id, torrent.name, new_name)
+                except Exception as e:
+                    logger_background.exception(e)
+                    logger_background.error('Error renaming torrent id={id}, name={name}, new_name={new_name}, skipping'.format(
+                        id=torrent.id, name=torrent.name, new_name=new_name,
+                    ))
 
                 # save media as collected
                 media.collected = True
                 media.collected_date = timezone.now()
                 media.save()
 
+                # special handling for tv seasons
+                if isinstance(media, WatchTVSeason):
+                    # mark season request complete
+                    for season_request in WatchTVSeasonRequest.objects.filter(watch_tv_show=media.watch_tv_show, season_number=media.season_number):
+                        season_request.collected = True
+                        season_request.save()
+
                 # send websocket message media was updated
                 media_type, data = websocket.get_media_type_and_serialized_watch_media(media)
                 websocket.send_message(websocket.ACTION_UPDATED, media_type, data)
 
-                # send notification
+                # send user notification
                 notification.send_message(message='{} was downloaded'.format(media))
 
                 # define the import path

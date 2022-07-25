@@ -77,6 +77,7 @@ services:
       - com.centurylinklabs.watchtower.enable=true
     ports:
       - "9091:9091"
+      - "51413:51413"  # peer port
     restart: always
     environment:
       - PUID=${HOST_DOWNLOAD_UID:-1000}
