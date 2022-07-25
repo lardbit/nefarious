@@ -32,7 +32,7 @@
     "bootswatch": "^4.5.2",
     "core-js": "^2.5.4",
     "jquery": "^3.3.1",
-    "moment": "^2.29.1",
+    "moment": "^2.29.4",
     "ngx-filesize": "^1.1.2",
     "ngx-loading": "^8.0.0",
     "ngx-moment": "^3.3.0",
