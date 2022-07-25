@@ -3,7 +3,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
 import { ToastrService } from 'ngx-toastr';
-import * as _ from 'lodash';
 import {Observable, Subscription} from 'rxjs';
 import { map, share } from 'rxjs/operators';
 
@@ -54,7 +53,7 @@ export class MediaMovieComponent implements OnInit, OnDestroy {
     this.trailerUrls$ = this.apiService.fetchMediaVideos(this.apiService.SEARCH_MEDIA_TYPE_MOVIE, routeParams.id).pipe(
       share(),
       map((data) => {
-        const trailerVideos = _.filter(data.results, (video) => {
+        const trailerVideos = data.results.filter((video) => {
           return video.type === 'Trailer' && video.site === 'YouTube';
         });
         return trailerVideos.map((video) => {
@@ -132,7 +131,7 @@ export class MediaMovieComponent implements OnInit, OnDestroy {
   }
 
   public getWatchMovie() {
-    return _.find(this.apiService.watchMovies, (watchMovie) => {
+    return this.apiService.watchMovies.find((watchMovie) => {
       return watchMovie.tmdb_movie_id === this.result.id;
     });
   }

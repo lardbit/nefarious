@@ -3,7 +3,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
 import { ActivatedRoute } from '@angular/router';
-import * as _ from 'lodash';
 import { Subscription } from 'rxjs';
 import { ColumnMode } from '@swimlane/ngx-datatable';
 import { DatePipe } from '@angular/common';
@@ -86,11 +85,8 @@ export class WantedComponent implements OnInit, OnDestroy {
     } else {
       wanted = this.apiService.watchMovies;
     }
-
-    this.results = _.filter(wanted, (watchMedia) => {
+    this.results = wanted.filter((watchMedia) => {
       return !watchMedia.collected;
     });
-
   }
-
 }

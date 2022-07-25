@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, Validators} from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
-import * as _ from 'lodash';
 import { tap } from 'rxjs/operators';
 import { Observable, zip } from 'rxjs';
 import * as moment from 'moment';
@@ -56,9 +55,9 @@ export class TmdbComponent implements OnInit {
       (params) => {
         this.form = this._initialForm();
         // set the url param values on the form
-        _.forOwn(params, (value, key) => {
-          if (value) {
-            this.form.controls[key].setValue(value);
+        Object.keys(params).forEach((key) => {
+          if (params[key]) {
+            this.form.controls[key].setValue(params[key]);
           }
         });
         this._search();
@@ -162,9 +161,9 @@ export class TmdbComponent implements OnInit {
   protected _formValues() {
     // returns populated values
     const values = {};
-    _.forOwn(this.form.value, (value, key) => {
-      if (value) {
-        values[key] = value;
+    Object.keys(this.form.value).forEach((key) => {
+      if (this.form.value[key]) {
+        values[key] = this.form.value[key];
       }
     });
     return values;

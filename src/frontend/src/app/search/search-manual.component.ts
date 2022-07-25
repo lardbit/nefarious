@@ -2,7 +2,6 @@ import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../api.service';
 import { ToastrService } from 'ngx-toastr';
-import * as _ from 'lodash';
 
 
 @Component({
@@ -69,11 +68,17 @@ export class SearchManualComponent implements OnInit {
       orderByKey = 'Size';
       reverse = true;
     }
-    this.results = _.orderBy(this.results, (result) => {
-      return result[orderByKey];
+    this.results.sort((a, b) => {
+      if (a[orderByKey] < b[orderByKey]) {
+        return -1;
+      }
+      if (a[orderByKey] > b[orderByKey]) {
+         return 1;
+      }
+      return 0;
     });
     if (reverse) {
-      this.results = this.results.reverse();
+      this.results.reverse();
     }
   }
 
