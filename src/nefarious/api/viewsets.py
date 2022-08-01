@@ -17,9 +17,9 @@ from nefarious.api.permissions import IsAuthenticatedDjangoObjectUser
 from nefarious.api.serializers import (
     NefariousSettingsSerializer, WatchTVEpisodeSerializer, WatchTVShowSerializer,
     UserSerializer, WatchMovieSerializer, NefariousPartialSettingsSerializer,
-    WatchTVSeasonSerializer, WatchTVSeasonRequestSerializer,
+    WatchTVSeasonSerializer, WatchTVSeasonRequestSerializer, QualityProfileSerializer,
 )
-from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason, WatchTVSeasonRequest
+from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason, WatchTVSeasonRequest, QualityProfile
 from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task, send_websocket_message_task
 from nefarious.utils import (
     verify_settings_jackett, verify_settings_transmission, verify_settings_tmdb,
@@ -212,3 +212,9 @@ class CurrentUserViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(username=self.request.user.username)
+
+
+@method_decorator(gzip_page, name='dispatch')
+class QualityProfileViewSet(viewsets.ModelViewSet):
+    queryset = QualityProfile.objects.all()
+    serializer_class = QualityProfileSerializer

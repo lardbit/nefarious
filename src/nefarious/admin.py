@@ -1,11 +1,16 @@
 from django.contrib import admin
 from nefarious.models import (
-    NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, TorrentBlacklist, WatchTVSeason, WatchTVSeasonRequest,
+    NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, TorrentBlacklist, WatchTVSeason, WatchTVSeasonRequest, QualityProfile,
 )
 
 
 @admin.register(NefariousSettings)
 class SettingsAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(QualityProfile)
+class QualityProfileAdmin(admin.ModelAdmin):
     pass
 
 

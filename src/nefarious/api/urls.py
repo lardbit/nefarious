@@ -12,6 +12,7 @@ router.register(r'watch-tv-episode', viewsets.WatchTVEpisodeViewSet)
 router.register(r'users', viewsets.UserViewSet)
 router.register(r'user', viewsets.CurrentUserViewSet)
 router.register(r'watch-movie', viewsets.WatchMovieViewSet)
+router.register(r'quality-profiles', viewsets.QualityProfileViewSet)
 
 urlpatterns = [
 
