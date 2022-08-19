@@ -1,9 +1,11 @@
 import os
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 from django.conf import settings
 from jsonfield import JSONField
 from django.db import models
 from nefarious import quality
+
 
 PERM_CAN_WATCH_IMMEDIATELY_TV = 'can_immediately_watch_tv'
 PERM_CAN_WATCH_IMMEDIATELY_MOVIE = 'can_immediately_watch_movie'
@@ -45,8 +47,11 @@ class NefariousSettings(models.Model):
     open_subtitles_user_token = models.CharField(max_length=500, blank=True, null=True, help_text='OpenSubtitles user auth token')  # generated in auth flow
     open_subtitles_auto = models.BooleanField(default=False, help_text='Whether to automatically download subtitles')
 
+    # TODO - remove after migration to new quality profiles table
     quality_profile_tv = models.CharField(max_length=500, default=quality.PROFILE_ANY.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     quality_profile_movies = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+
+    quality_profiles = models.ForeignKey('QualityProfile', on_delete=models.CASCADE, null=True)
 
     # whether to allow hardcoded subtitles
     allow_hardcoded_subs = models.BooleanField(default=False)
@@ -78,6 +83,18 @@ class NefariousSettings(models.Model):
             self.open_subtitles_auto,
             self.open_subtitles_user_token,
         ])
+
+
+class QualityProfile(models.Model):
+    name = models.CharField(max_length=500, unique=True)
+    quality = models.CharField(max_length=500, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+    min_size_gb = models.DecimalField(
+        null=True, blank=True, max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], help_text='minimum size to download')
+    max_size_gb = models.DecimalField(
+        null=True, blank=True, max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], help_text='maximum size to download')
+
+    def __str__(self):
+        return self.name
 
 
 class WatchMediaBase(models.Model):
