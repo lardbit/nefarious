@@ -267,6 +267,21 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
     ).subscribe();
   }
 
+  public deleteBlacklists() {
+    this.isSaving = true;
+    this.apiService.deleteAllBlacklists().subscribe({
+      complete: () => {
+        this.toastr.success('Successfully deleted all blacklist entries');
+        this.isSaving = false;
+      },
+      error: (error) => {
+        console.error(error);
+        this.toastr.error('An error occurred deleting blacklist entries');
+        this.isSaving = false;
+      }
+    })
+  }
+
   protected _saveSettings(): Observable<any> {
     this.isSaving = true;
 

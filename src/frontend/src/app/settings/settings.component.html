@@ -274,6 +274,7 @@
           <a href="/view/logs/background" target="_blank" class="btn btn-outline-primary btn-sm ml-1">Background <span class="oi oi-file"></span></a>
         </div>
       </div>
+      <!-- tasks -->
       <div class="card">
         <ngx-loading [show]="isLoading"></ngx-loading>
         <div class="card-header">Tasks</div>
@@ -285,6 +286,13 @@
           <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('auto_watch_tv_seasons')">Auto Watch New TV Seasons</button>
           <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('refresh_tmdb_settings')">Refresh TMDB Settings</button>
           <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('populate_release_dates')">Populate Release Dates</button>
+        </div>
+      </div>
+      <!-- blacklists -->
+      <div class="card">
+        <div class="card-header">Blacklists</div>
+        <div class="card-body">
+          <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="deleteBlacklists()">Delete all blacklists</button>
         </div>
       </div>
     </div>
