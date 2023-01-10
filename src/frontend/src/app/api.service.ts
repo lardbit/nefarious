@@ -45,6 +45,7 @@ export class ApiService {
   API_URL_OPEN_SUBTITLES_AUTH = '/api/open-subtitles/auth/';
   API_URL_QUEUE_TASK = '/api/queue-task/';
   API_URL_SEND_TEST_NOTIFICATION = '/api/notifications/';
+  API_URL_BLACKLISTS_DELETE = '/api/torrent-blacklist/delete-all/';
 
   SEARCH_MEDIA_TYPE_TV = 'tv';
   SEARCH_MEDIA_TYPE_MOVIE = 'movie';
@@ -805,6 +806,10 @@ export class ApiService {
 
   public sendNotification(message: string): Observable<any> {
     return this.http.post(this.API_URL_SEND_TEST_NOTIFICATION, {message}, {headers: this._requestHeaders()});
+  }
+
+  public deleteAllBlacklists(): Observable<any> {
+    return this.http.post(this.API_URL_BLACKLISTS_DELETE, null, {headers: this._requestHeaders()});
   }
 
   protected _initWebSocket() {

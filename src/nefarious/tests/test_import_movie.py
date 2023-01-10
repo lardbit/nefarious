@@ -18,8 +18,8 @@ class MovieImportTest(TestCase):
             ('Kingsman The Secret Service (2014) [1080p]/Kingsman.The.Secret.Service.2014.1080p.BluRay.x264.YIFY.mp4', 'Kingsman: The Secret Service'),
             ('Holmes & Watson (2018) 720p WEB-DL x264 Ganool.mkv', 'Holmes & Watson'),
             ('The.greatest.showman.2017.1080p-dual-lat-cinecalidad.to.mp4', 'The Greatest Showman'),
-            ('fake movie 2013.mkv', False),
-            ('fake movie.mkv', False),
+            ('the fakest movie 2013.mkv', False),
+            ('the fakest movie.mkv', False),
         ]
 
     def test_movie(self):

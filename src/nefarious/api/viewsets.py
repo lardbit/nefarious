@@ -17,9 +17,9 @@ from nefarious.api.permissions import IsAuthenticatedDjangoObjectUser
 from nefarious.api.serializers import (
     NefariousSettingsSerializer, WatchTVEpisodeSerializer, WatchTVShowSerializer,
     UserSerializer, WatchMovieSerializer, NefariousPartialSettingsSerializer,
-    WatchTVSeasonSerializer, WatchTVSeasonRequestSerializer,
+    WatchTVSeasonSerializer, WatchTVSeasonRequestSerializer, TorrentBlacklistSerializer,
 )
-from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason, WatchTVSeasonRequest
+from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason, WatchTVSeasonRequest, TorrentBlacklist
 from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task, send_websocket_message_task
 from nefarious.utils import (
     verify_settings_jackett, verify_settings_transmission, verify_settings_tmdb,
@@ -212,3 +212,14 @@ class CurrentUserViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(username=self.request.user.username)
+
+
+@method_decorator(gzip_page, name='dispatch')
+class TorrentBlacklistViewSet(viewsets.ModelViewSet):
+    queryset = TorrentBlacklist.objects.all()
+    serializer_class = TorrentBlacklistSerializer
+
+    @action(methods=['post'], url_path='delete-all', detail=False, permission_classes=(IsAdminUser,))
+    def delete_all(self, request):
+        self.queryset.delete()
+        return Response({'success': True})

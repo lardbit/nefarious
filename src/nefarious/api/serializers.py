@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from nefarious.models import (
     NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie,
     PERM_CAN_WATCH_IMMEDIATELY_TV, PERM_CAN_WATCH_IMMEDIATELY_MOVIE,
-    WatchTVSeason, WatchTVSeasonRequest,
+    WatchTVSeason, WatchTVSeasonRequest, TorrentBlacklist,
 )
 
 
@@ -180,3 +180,9 @@ class RottenTomatoesSearchResultsSerializer(serializers.Serializer):
     tomato_icon = serializers.CharField(source='tomatoIcon', required=False)
     poster_path = serializers.CharField(source='posters.primary')
     provider = serializers.CharField(default='rotten-tomatoes')
+
+
+class TorrentBlacklistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TorrentBlacklist
+        fields = '__all__'
