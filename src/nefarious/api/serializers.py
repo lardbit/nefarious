@@ -174,12 +174,37 @@ class TransmissionTorrentSerializer(serializers.Serializer):
 
 
 class RottenTomatoesSearchResultsSerializer(serializers.Serializer):
+    """
+    Example structure:
+    {
+      "audienceScore": {
+        "score": "100",
+        "sentiment": "positive"
+      },
+      "criticsScore": {
+        "certifiedAttribute": "criticscertified",
+        "score": "95",
+        "sentiment": "positive"
+      },
+      "fallbackPosterUrl": "//images.fandango.com/cms/assets/5d84d010-59b1-11ea-b175-791e911be53d--rt-poster-defaultgif.gif",
+      "id": "b0abd773-8d61-4eb9-aa9d-88e0f2bbbd7c",
+      "isVideo": true,
+      "emsId": "b0abd773-8d61-4eb9-aa9d-88e0f2bbbd7c",
+      "mediaUrl": "/m/raise_hell_the_life_and_times_of_molly_ivins",
+      "mpxId": "1586014787912",
+      "publicId": "KKvRGVDXcmOW",
+      "posterUri": "https://resizing.flixster.com/5N_zGtISCTTAsLmd10j4oFIwkps=/180x258/v2/https://flxt.tmsimg.com/assets/p16629839_p_v8_aa.jpg",
+      "releaseDateText": "Streaming Aug 30, 2019",
+      "title": "Raise Hell: The Life & Times of Molly Ivins",
+      "trailerUrl": "https://player.theplatform.com/p/NGweTC/pdk6_y__7B0iQTi4P/embed/select/media/KKvRGVDXcmOW",
+      "type": "Movie"
+    }
+    """
     title = serializers.CharField()
-    overview = serializers.CharField(source='synopsis', required=False)
-    tomato_score = serializers.CharField(source='tomatoScore', required=False)
-    tomato_icon = serializers.CharField(source='tomatoIcon', required=False)
-    poster_path = serializers.CharField(source='posters.primary')
-    provider = serializers.CharField(default='rotten-tomatoes')
+    critics_score = serializers.CharField(source='criticsScore.score', required=False)
+    audience_score = serializers.CharField(source='audienceScore.score', required=False)
+    poster_path = serializers.CharField(source='posterUri')
+    provider = serializers.CharField(default='rotten-tomatoes')  # added flag to know where results came from
 
 
 class TorrentBlacklistSerializer(serializers.ModelSerializer):

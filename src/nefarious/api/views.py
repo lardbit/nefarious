@@ -38,9 +38,6 @@ CACHE_DAY = CACHE_HALF_DAY * 2
 CACHE_WEEK = CACHE_DAY * 7
 
 
-ROTTEN_TOMATOES_API_URL = 'https://www.rottentomatoes.com/api/private/v2.0/browse'
-
-
 class ObtainAuthTokenView(ObtainAuthToken):
     """
     Overridden to not require any authentication classes (ie. csrf).
@@ -444,31 +441,64 @@ class VideosView(views.APIView):
 
 @method_decorator(gzip_page, name='dispatch')
 class DiscoverRottenTomatoesMediaView(views.APIView):
+    """
+    There's three main groups which all share the same filtering rules:
+        - At Home (movies_at_home)
+        - In Theatres (movies_in_theaters)
+        - Coming Soon (movies_coming_soon)
+
+    Filter arguments:
+        - fresh
+        - certified_fresh
+
+    Sort arguments:
+        - popular
+        - newest
+        - a_z
+        - critic_highest
+        - audience_highest
+
+    Examples:
+    https://www.rottentomatoes.com/napi/browse/movies_at_home/genres:action?page=1 ("action" genre, page 1)
+    https://www.rottentomatoes.com/napi/browse/movies_at_home/critics:fresh?page=1 ("fresh", page 1)
+    https://www.rottentomatoes.com/napi/browse/movies_at_home/critics:certified_fresh,fresh?page=1 (fresh OR certified fresh, page 1)
+    https://www.rottentomatoes.com/napi/browse/movies_at_home/sort:popular?page=1 (sort popular)
+    https://www.rottentomatoes.com/napi/browse/movies_at_home/critics:certified_fresh~sort:newest?page=1 (certified fresh, sorted, page 1)
+    """
+
+    API_URL = 'https://www.rottentomatoes.com/napi/browse/{type}/'
 
     @method_decorator(cache_page(CACHE_DAY))
     def get(self, request, media_type: str):
         assert media_type in [SEARCH_MEDIA_TYPE_TV, SEARCH_MEDIA_TYPE_MOVIE]
-        # default params
+
+        # sort/filter params
+        search_type = request.query_params.get('type', 'movies_at_home')
+        sort_by = request.query_params.get('sortBy', 'popular')
+        critics = request.query_params.get('critics')
+
+        # url params
         params = dict(
-            sortBy=request.query_params.get('sortBy', 'popularity'),
-            type=request.query_params.get('type', 'in-theaters'),
             page=request.query_params.get('page', '1'),
         )
-
-        # min score
-        min_tomato = request.query_params.get('minTomato'),
-        if min_tomato:
-            params['minTomato'] = min_tomato
+        # append filters and order
+        url = self.API_URL.format(type=search_type)
+        url = f'{url}sort:{sort_by}'
+        if critics:
+            url = f'{url}~critics:{critics}'
 
         # get results
-        response = requests.get(ROTTEN_TOMATOES_API_URL, params=params)
+        response = requests.get(url, params=params)
         response.raise_for_status()
         body = response.json()
 
         # serialize results
-        body['results'] = RottenTomatoesSearchResultsSerializer(body['results'], many=True).data
+        results = RottenTomatoesSearchResultsSerializer(body['grids'][0]['list'], many=True).data
 
-        return Response(body)
+        return Response({
+            'url': url,  # include RT url for debugging
+            'results': results,
+        })
 
 
 @method_decorator(gzip_page, name='dispatch')
