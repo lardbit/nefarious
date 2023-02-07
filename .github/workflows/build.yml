@@ -24,7 +24,7 @@ jobs:
         id: tag_name
         shell: bash
         run: |
-          # get and sanitize branch name
+          # get and sanitize the branch name
           branch=${GITHUB_REF#refs/heads/}
           branch=${branch//\//-}
           # derive the docker image tag name from the git branch name
