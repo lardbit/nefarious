@@ -1,5 +1,3 @@
-import { ToastrService } from 'ngx-toastr';
-import { Router } from '@angular/router';
 import { Component, OnInit, Input } from '@angular/core';
 import { ApiService } from '../api.service';
 
@@ -16,8 +14,6 @@ export class MediaResultsComponent implements OnInit {
 
   constructor(
     private apiService: ApiService,
-    private router: Router,
-    private toastr: ToastrService,
   ) {
   }
 
@@ -49,36 +45,12 @@ export class MediaResultsComponent implements OnInit {
     }
   }
 
-  public navigateToMedia(result: any) {
-    // rotten tomato results must be searched against tmdb and then routed
+  public getMediaURL(result: any) {
+    // rotten tomato results must be searched against tmdb first, so we'll redirect to its own component for that
     if (this.isRottenTomatoResult(result)) {
-      this.isLoading = true;
-      this.apiService.searchMedia(result.title, this.mediaType).subscribe(
-        (data) => {
-          if (data.results && data.results.length > 0) {
-            // try and find an exact match, otherwise fallback to first result
-            let match = data.results.find((movie) => {
-              return movie.title === result.title;
-            });
-            if (!match) {
-              match = data.results[0];
-            }
-            this.router.navigate(['/media', this.mediaType, match.id]);
-          } else {
-            this.toastr.error('No results found for title in TMDB');
-          }
-        },
-        (error) => {
-          console.error(error);
-          this.toastr.error('An unknown error occurred');
-          this.isLoading = false;
-        },
-        () => {
-          this.isLoading = false;
-        },
-      );
+      return ['/rt-redirect', this.mediaType, result.title];
     } else {
-      this.router.navigate(['/media', this.mediaType, result.id]);
+      return ['/media', this.mediaType, result.id];
     }
   }
 

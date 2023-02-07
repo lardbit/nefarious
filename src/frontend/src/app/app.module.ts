@@ -36,6 +36,7 @@ import { WantedComponent } from './wanted/wanted.component';
 import { RottenTomatoesComponent } from './rotten-tomatoes/rotten-tomatoes.component';
 import { TmdbComponent } from './tmdb/tmdb.component';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { RottenTomatoesRedirectComponent } from './rotten-tomatoes-redirect/rotten-tomatoes-redirect.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'search/auto', pathMatch: 'full' },  // redirects
@@ -58,6 +59,7 @@ const appRoutes: Routes = [
       { path: 'rt', component: RottenTomatoesComponent },
     ],
   },
+  { path: 'rt-redirect/:mediaType/:title', component: RottenTomatoesRedirectComponent },
   { path: 'page-not-found', component: PageNotFoundComponent },
   { path: '**', component: PageNotFoundComponent }
 ];
@@ -92,6 +94,7 @@ export function init(apiService: ApiService) {
     WantedComponent,
     RottenTomatoesComponent,
     TmdbComponent,
+    RottenTomatoesRedirectComponent,
   ],
   imports: [
     RouterModule.forRoot(
