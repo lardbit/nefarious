@@ -1,0 +1,12 @@
+<div class="alert alert-info" *ngIf="isLoading">
+  <ngx-loading [show]="isLoading"></ngx-loading>
+  Searching Rotten Tomatoes for <strong>{{ title }}...</strong>
+</div>
+
+<!-- many results found so let the user choose -->
+<div *ngIf="results">
+  <div class="alert alert-warning">
+    Results for title <strong>{{ title }}</strong> from <strong>Rotten Tomatoes</strong> didn't perfectly match with <strong>TMDB</strong> so please choose a correct match:
+  </div>
+  <app-media-results [mediaType]="mediaType" [results]="results"></app-media-results>
+</div>
