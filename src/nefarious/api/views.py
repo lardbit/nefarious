@@ -1,5 +1,4 @@
 import os
-
 import requests
 from celery_once import AlreadyQueued
 from django.conf import settings
@@ -493,7 +492,7 @@ class DiscoverRottenTomatoesMediaView(views.APIView):
         body = response.json()
 
         # serialize results
-        results = RottenTomatoesSearchResultsSerializer(body['grids'][0]['list'], many=True).data
+        results = RottenTomatoesSearchResultsSerializer(body['grid']['list'], many=True).data
 
         return Response({
             'url': url,  # include RT url for debugging
