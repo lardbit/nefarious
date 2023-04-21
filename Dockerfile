@@ -12,11 +12,14 @@ WORKDIR /app
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# https://github.com/webpack/webpack/issues/14532
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
 # install app dependencies, build app and remove dev dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     authbind \
     libatlas-base-dev libhdf5-dev libavutil-dev libswresample-dev libavcodec-dev libavformat-dev libswscale-dev \
-    && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
+    && curl -sL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install nodejs -y \
     && npm --prefix frontend install \
     && npm --prefix frontend run build-prod \
