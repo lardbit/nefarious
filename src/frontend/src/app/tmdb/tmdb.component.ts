@@ -64,13 +64,11 @@ export class TmdbComponent implements OnInit {
       });
 
     this._fetchGenres().subscribe(
-      () => {
-        this.isLoading = false;
-      },
-      (error) => {
-        console.error(error);
-        this.toastr.error('An error occurred fetching genres');
-        this.isLoading = false;
+      {
+        error: (error) => {
+          console.error(error);
+          this.toastr.error('An error occurred fetching genres');
+        }
       }
     );
   }
@@ -91,7 +89,7 @@ export class TmdbComponent implements OnInit {
 
     const params = this._formValues();
 
-    // update "greater than" release year to be a full date on beginning of year, i.e 2020-01-01
+    // update "greater than" release year to be a full date on beginning of year, i.e. 2020-01-01
     if (params['primary_release_date.gte']) {
       params['primary_release_date.gte'] = moment(params['primary_release_date.gte'], 'YYYY').month(0).date(1).format('YYYY-MM-DD');
     }
