@@ -2,7 +2,7 @@ FROM python:3.9.9-bullseye
 
 EXPOSE 80
 
-# add main app
+# add app source
 ADD src /app
 
 # add entrypoints
