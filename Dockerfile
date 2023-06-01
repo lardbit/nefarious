@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && npm config set fetch-retries 30 \
     && npm config set fetch-retry-mintimeout 60000 \
     && npm config set fetch-timeout 60000 \
-    && npm --prefix install npm \
+    && npm --prefix frontend install npm \
     && npm --prefix frontend install \
     && npm --prefix frontend run build-prod \
     && mkdir -p staticassets \
