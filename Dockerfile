@@ -2,7 +2,7 @@ FROM python:3.9.9-bullseye
 
 EXPOSE 80
 
-# add main app
+# add app source
 ADD src /app
 
 # add entrypoints
@@ -18,6 +18,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libatlas-base-dev libhdf5-dev libavutil-dev libswresample-dev libavcodec-dev libavformat-dev libswscale-dev \
     && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
     && apt-get install nodejs -y \
+    && npm config set fetch-retries 10 \
+    && npm config set fetch-retry-mintimeout 30000 \
     && npm --prefix frontend install \
     && npm --prefix frontend run build-prod \
     && mkdir -p staticassets \
