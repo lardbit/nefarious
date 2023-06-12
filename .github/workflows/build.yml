@@ -34,7 +34,7 @@ jobs:
             tag="$branch"
           fi
           echo "##[set-output name=tag;]$(echo ${tag})"
-      - name: Build and Run tests
+      - name: Build front-end image
         run: |
           set -e
 
@@ -47,6 +47,22 @@ jobs:
           # save front-end image to tar file for use in next steps
           docker save lardbit/nefarious:frontend-$tag -o $HOME/frontend.tar
 
+          # echo images
+          docker images
+
+      - name: Build and Run tests
+        run: |
+          set -e
+
+          # get tag name
+          tag=${{ steps.tag_name.outputs.tag }}
+          
+          # load front-end app from tar file that was built from previous step
+          docker load -i $HOME/frontend.tar
+          
+          # echo images
+          docker images
+          
           # build back-end app
           docker build --build-arg tag=$tag -t lardbit/nefarious:$tag .
 
