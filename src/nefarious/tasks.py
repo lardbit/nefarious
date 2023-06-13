@@ -172,9 +172,9 @@ def completed_media_task():
                         if VideoDetect.has_valid_video_in_path(staging_path):
                             logger_background.info("[VIDEO_DETECTION] '{}' has valid video files".format(media))
                         else:
-                            blacklist_media_and_retry(media)
                             logger_background.error("[VIDEO_DETECTION] blacklisting '{}' because no valid video was found in {}".format(media, staging_path))
-                            notification.send_message('blacklisted movie {} because no valid videos found ({}: {})'.format(media, torrent.name, media.transmission_torrent_hash))
+                            notification.send_message('blacklisting movie {} because no valid videos found ({}: {})'.format(media, torrent.name, media.transmission_torrent_hash))
+                            blacklist_media_and_retry(media)
                             continue
                     except Exception as e:
                         logger_background.exception(e)
