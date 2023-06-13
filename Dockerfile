@@ -1,4 +1,4 @@
-# pre-built frontend app
+# define pre-built frontend app to extract from
 ARG tag=latest
 FROM lardbit/nefarious:frontend-$tag as frontend
 

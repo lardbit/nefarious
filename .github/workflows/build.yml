@@ -43,12 +43,9 @@ jobs:
           
           # build front-end app
           docker build -t lardbit/nefarious:frontend-$tag -f Dockerfile-frontend .
-          
-          # save front-end image to tar file for use in next steps
-          docker save lardbit/nefarious:frontend-$tag -o $HOME/frontend.tar
 
-          # echo images
-          docker images
+          # push front-end image
+          docker push lardbit/nefarious:frontend-$tag
 
       - name: Build and Run tests
         run: |
@@ -56,9 +53,6 @@ jobs:
 
           # get tag name
           tag=${{ steps.tag_name.outputs.tag }}
-          
-          # load front-end app from tar file that was built from previous step
-          docker load -i $HOME/frontend.tar
           
           # echo images
           docker images
@@ -84,9 +78,6 @@ jobs:
 
           # store git commit in image for version identification
           echo "$GITHUB_SHA" > src/.commit
-          
-          # load front-end app from tar file that was built from previous step
-          docker load -i $HOME/frontend.tar
 
           # build image (cache result)
           docker buildx build \
