@@ -1,0 +1,13 @@
+FROM node:16.20.0-bullseye
+
+# add frontend app src
+ADD src/frontend/ /app
+WORKDIR /app
+
+# build angular app
+RUN true \
+    && mkdir -p /staticassets \
+    && npm install \
+    && npm run build-prod \
+    && rm -rf node_modules \
+    && true
