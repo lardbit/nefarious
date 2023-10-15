@@ -132,7 +132,7 @@ def refresh_tmdb_configuration():
     return nefarious_settings.tmdb_configuration
 
 
-@app.task
+@app.task(base=QueueOnce, once={'graceful': True})
 def completed_media_task():
     nefarious_settings = NefariousSettings.get()
     transmission_client = get_transmission_client(nefarious_settings)
