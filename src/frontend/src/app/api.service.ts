@@ -38,6 +38,7 @@ export class ApiService {
   API_URL_DISCOVER_RT_MOVIES = '/api/discover/rotten-tomatoes/media/movie/';
   API_URL_GENRES_MOVIE = '/api/genres/movie/';
   API_URL_GENRES_TV = '/api/genres/tv/';
+  API_URL_MEDIA_CATEGORIES = '/api/media-categories/';
   API_URL_QUALITY_PROFILES = '/api/quality-profiles/';
   API_URL_GIT_COMMIT = '/api/git-commit/';
   API_URL_IMPORT_MEDIA_TV = '/api/import/media/tv/';
@@ -55,6 +56,7 @@ export class ApiService {
   public users: any; // staff-only list of all users
   public settings: any;
   public qualityProfiles: string[];
+  public mediaCategories: string[];
   public watchTVSeasons: any[] = [];
   public watchTVSeasonRequests: any[] = [];
   public watchTVEpisodes: any[] = [];
@@ -179,6 +181,7 @@ export class ApiService {
         })
       ),
       this.fetchQualityProfiles(),
+      this.fetchMediaCategories(),
     ]).pipe(
       catchError((error) => {
         console.error(error);
@@ -210,6 +213,19 @@ export class ApiService {
           console.log('no settings');
         }
         return this.settings;
+      }),
+    );
+  }
+
+  public fetchMediaCategories() {
+    return this.http.get(this.API_URL_MEDIA_CATEGORIES, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        if (data.mediaCategories) {
+          this.mediaCategories = data.mediaCategories;
+        } else {
+          console.error('no media categories');
+        }
+        return this.mediaCategories;
       }),
     );
   }

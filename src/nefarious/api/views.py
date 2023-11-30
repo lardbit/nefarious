@@ -16,6 +16,7 @@ from rest_framework import exceptions
 from nefarious.api.serializers import (
     WatchMovieSerializer, WatchTVShowSerializer, WatchTVEpisodeSerializer, WatchTVSeasonRequestSerializer, WatchTVSeasonSerializer,
     TransmissionTorrentSerializer, RottenTomatoesSearchResultsSerializer, )
+from nefarious.media_category import MEDIA_CATEGORIES
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVShow, WatchTVEpisode, WatchTVSeasonRequest, WatchTVSeason
 from nefarious.notification import send_message
 from nefarious.opensubtitles import OpenSubtitles
@@ -505,6 +506,14 @@ class QualityProfilesView(views.APIView):
 
     def get(self, request):
         return Response({'profiles': [p.name for p in PROFILES]})
+
+
+@method_decorator(gzip_page, name='dispatch')
+class MediaCategoriesView(views.APIView):
+
+    def get(self, request):
+        media_category_keys = [category[0] for category in MEDIA_CATEGORIES]
+        return Response({'mediaCategories': media_category_keys})
 
 
 class ImportMediaLibraryView(views.APIView):
