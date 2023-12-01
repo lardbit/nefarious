@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from jsonfield import JSONField
 from django.db import models
+from nefarious import media_category
 from nefarious import quality
 
 PERM_CAN_WATCH_IMMEDIATELY_TV = 'can_immediately_watch_tv'
@@ -59,6 +60,13 @@ class NefariousSettings(models.Model):
 
     # apprise notifications - https://github.com/caronc/apprise
     apprise_notification_url = models.CharField(max_length=1000, blank=True)
+
+    # category of media the user prefers: movie or tv...
+    preferred_media_category = models.CharField(
+        max_length=10,
+        default=media_category.MEDIA_MOVIE_CATEGORY,
+        choices=media_category.MEDIA_CATEGORIES,
+    )
 
     @classmethod
     def get(cls):
