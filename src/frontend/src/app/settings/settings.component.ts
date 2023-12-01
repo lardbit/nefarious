@@ -57,6 +57,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       'language': [settings['language'], Validators.required],
       'users': new FormArray([]),
       'apprise_notification_url': [settings['apprise_notification_url']],
+      'preferred_media_category': [settings['preferred_media_category'], Validators.required],
     });
 
     this.isLoadingUsers = true;
@@ -111,6 +112,10 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
 
   public qualityProfiles(): string[] {
     return this.apiService.qualityProfiles;
+  }
+
+  public mediaCategories(): string[] {
+    return this.apiService.mediaCategories;
   }
 
   public addUser() {

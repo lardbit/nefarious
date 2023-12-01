@@ -32,6 +32,7 @@ urlpatterns = [
     path('discover/rotten-tomatoes/media/<str:media_type>/', views.DiscoverRottenTomatoesMediaView.as_view()),
     path('import/media/<str:media_type>/', views.ImportMediaLibraryView.as_view()),
     path('genres/<str:media_type>/', views.GenresView.as_view()),
+    path('media-categories/', views.MediaCategoriesView.as_view()),
     path('quality-profiles/', views.QualityProfilesView.as_view()),
     path('auth/', views.ObtainAuthTokenView.as_view()),  # authenticates user and returns token
     path('git-commit/', views.GitCommitView.as_view()),  # returns this app's git commit

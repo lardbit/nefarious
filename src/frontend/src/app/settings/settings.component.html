@@ -265,6 +265,18 @@
           </div>
         </div>
       </div>
+      <!-- preferences -->
+      <div class="card">
+        <div class="card-header">Preferences</div>
+        <div class="card-body">
+          <div class="form-group">
+            <label>Preferred media category</label>
+            <select type="text" class="form-control" formControlName="preferred_media_category" required>
+              <option *ngFor="let mediaCategory of mediaCategories()" [value]="mediaCategory">{{ mediaCategory }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
       <!-- logs -->
       <div class="card">
         <div class="card-header">Logs</div>
