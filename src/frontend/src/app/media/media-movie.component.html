@@ -49,12 +49,14 @@
                         </select>
                       </div>
                       <div>
-                        <button class="btn btn-block btn-primary" *ngIf="!isWatchingMovie()">
-													<span *ngIf="!isWatchingMovie()">Watch</span>
-                        </button>
-                        <button class="btn btn-block btn-warning" *ngIf="isWatchingMovie()" [disabled]="!canUnWatch()">
-                          <span *ngIf="isWatchingMovie()" >Stop Watching</span>
-                        </button>
+                        <div class="d-grid gap-1 my-2">
+                          <button class="btn btn-primary" *ngIf="!isWatchingMovie()">
+                            <span *ngIf="!isWatchingMovie()">Watch</span>
+                          </button>
+                          <button class="btn btn-warning" *ngIf="isWatchingMovie()" [disabled]="!canUnWatch()">
+                            <span *ngIf="isWatchingMovie()" >Stop Watching</span>
+                          </button>
+                        </div>
                         <div class="text-muted mt-1" *ngIf="isWatchingMovie() && watchMovie">
                           Requested by: {{ watchMovie.requested_by }}
                         </div>

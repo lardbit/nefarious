@@ -42,7 +42,7 @@
             </select>
           </div>
         </div>
-        <div class="row justify-content-end mt-3">
+        <div class="text-end mt-3">
           <button class="btn btn-primary">Search</button>
         </div>
       </form>
@@ -52,7 +52,7 @@
 
 <div *ngIf="results">
   <app-media-results [results]="results" [mediaType]="form.value.mediaType"></app-media-results>
-  <div class="row justify-content-end my-3 mr-2">
+  <div class="text-end my-3 mr-2">
     <button class="btn btn-info" type="button" (click)="search(true)">Next</button>
   </div>
 </div>
