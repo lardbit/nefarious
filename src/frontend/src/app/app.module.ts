@@ -98,9 +98,8 @@ export function init(apiService: ApiService) {
     ],
     imports: [
         RouterModule.forRoot(appRoutes, {
-            useHash: true,
-            relativeLinkResolution: 'legacy'
-        }),
+    useHash: true
+}),
         BrowserModule,
         BrowserAnimationsModule,
         NgbModule,
