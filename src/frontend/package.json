@@ -24,7 +24,7 @@
     "@angular/router": "^17.0.8",
     "@icon/open-iconic": "^1.1.1-2",
     "@ng-bootstrap/ng-bootstrap": "^16.0.0",
-    "@ng-select/ng-select": "^6.1.0",
+    "@ng-select/ng-select": "^12.0.4",
     "@ngx-pwa/local-storage": "^9.0.3",
     "@swimlane/ngx-datatable": "^20.1.0",
     "angular-page-visibility": "^9.0.6",
