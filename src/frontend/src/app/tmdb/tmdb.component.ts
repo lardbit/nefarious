@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, Validators} from '@angular/forms';
+import { UntypedFormBuilder, Validators} from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
 import { tap } from 'rxjs/operators';
@@ -43,7 +43,7 @@ export class TmdbComponent implements OnInit {
   constructor(
     private apiService: ApiService,
     private toastr: ToastrService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private route: ActivatedRoute,
     private router: Router,
   ) {
