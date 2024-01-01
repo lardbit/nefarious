@@ -5,7 +5,7 @@
 @import "@icon/open-iconic/open-iconic.css";
 
 // toastr
-@import 'ngx-toastr/toastr.css';
+@import 'ngx-toastr/toastr';
 
 // loading spinner
 @import "loading-spinner";
@@ -26,9 +26,11 @@
 // ngx-datatable
 //
 
-@import '@swimlane/ngx-datatable/index.css';
-@import '@swimlane/ngx-datatable/assets/icons.css';
-@import '@swimlane/ngx-datatable/themes/bootstrap.css';
+// import workaround
+// see https://github.com/swimlane/ngx-datatable/issues/2163
+@import "~node_modules/@swimlane/ngx-datatable/index.css";
+@import "~node_modules/@swimlane/ngx-datatable/assets/icons.css";
+@import "~node_modules/@swimlane/ngx-datatable/themes/bootstrap.css";
 
 // text color
 .datatable-header-cell, .datatable-body-cell, .datatable-body-cell a {
