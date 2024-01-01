@@ -6,7 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { RouterModule, Routes} from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { FileSizeModule } from 'ngx-filesize';
+import { NgxFilesizeModule } from 'ngx-filesize';
 import { ToastrModule } from 'ngx-toastr';
 import { NgxLoadingModule } from 'ngx-loading';
 import { MomentModule } from 'ngx-moment';
@@ -107,7 +107,7 @@ export function init(apiService: ApiService) {
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
-    FileSizeModule,
+    NgxFilesizeModule,
     ToastrModule.forRoot(),
     NgxLoadingModule.forRoot({}),
     MomentModule,
