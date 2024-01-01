@@ -8,8 +8,9 @@ describe('RottenTomatoesRedirectComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ RottenTomatoesRedirectComponent ]
-    })
+    declarations: [RottenTomatoesRedirectComponent],
+    teardown: { destroyAfterEach: false }
+})
     .compileComponents();
   });
 

@@ -8,8 +8,9 @@ describe('WantedComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ WantedComponent ]
-    })
+    declarations: [WantedComponent],
+    teardown: { destroyAfterEach: false }
+})
     .compileComponents();
   }));
 

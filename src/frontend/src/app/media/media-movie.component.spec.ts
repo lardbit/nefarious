@@ -8,8 +8,9 @@ describe('MediaMovieComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ MediaMovieComponent ]
-    })
+    declarations: [MediaMovieComponent],
+    teardown: { destroyAfterEach: false }
+})
     .compileComponents();
   }));
 

@@ -76,55 +76,51 @@ export function init(apiService: ApiService) {
 
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    PageNotFoundComponent,
-    SearchManualComponent,
-    SearchInputComponent,
-    SearchAutoComponent,
-    SettingsComponent,
-    LoginComponent,
-    MediaTVComponent,
-    MediaMovieComponent,
-    WatchingComponent,
-    TorrentDetailsComponent,
-    DiscoverComponent,
-    MediaResultsComponent,
-    MediaFilterPipe,
-    WantedComponent,
-    RottenTomatoesComponent,
-    TmdbComponent,
-    RottenTomatoesRedirectComponent,
-  ],
-  imports: [
-    RouterModule.forRoot(
-      appRoutes,
-      {
-    useHash: true,
-    relativeLinkResolution: 'legacy'
-}
-    ),
-    BrowserModule,
-    BrowserAnimationsModule,
-    NgbModule,
-    HttpClientModule,
-    FormsModule,
-    ReactiveFormsModule,
-    CommonModule,
-    FileSizeModule,
-    ToastrModule.forRoot(),
-    NgxLoadingModule.forRoot({}),
-    MomentModule,
-    NgSelectModule,
-    AngularPageVisibilityModule,
-    NgxDatatableModule,
-  ],
-  entryComponents: [],
-  providers: [
-   { provide: APP_INITIALIZER, useFactory: init, deps: [ApiService], multi: true },
-    MediaFilterPipe,
-  ],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent,
+        PageNotFoundComponent,
+        SearchManualComponent,
+        SearchInputComponent,
+        SearchAutoComponent,
+        SettingsComponent,
+        LoginComponent,
+        MediaTVComponent,
+        MediaMovieComponent,
+        WatchingComponent,
+        TorrentDetailsComponent,
+        DiscoverComponent,
+        MediaResultsComponent,
+        MediaFilterPipe,
+        WantedComponent,
+        RottenTomatoesComponent,
+        TmdbComponent,
+        RottenTomatoesRedirectComponent,
+    ],
+    imports: [
+        RouterModule.forRoot(appRoutes, {
+            useHash: true,
+            relativeLinkResolution: 'legacy'
+        }),
+        BrowserModule,
+        BrowserAnimationsModule,
+        NgbModule,
+        HttpClientModule,
+        FormsModule,
+        ReactiveFormsModule,
+        CommonModule,
+        FileSizeModule,
+        ToastrModule.forRoot(),
+        NgxLoadingModule.forRoot({}),
+        MomentModule,
+        NgSelectModule,
+        AngularPageVisibilityModule,
+        NgxDatatableModule,
+    ],
+    providers: [
+        { provide: APP_INITIALIZER, useFactory: init, deps: [ApiService], multi: true },
+        MediaFilterPipe,
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule {
   constructor() {

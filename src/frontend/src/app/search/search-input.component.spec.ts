@@ -8,8 +8,9 @@ describe('SearchInputComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ SearchInputComponent ]
-    })
+    declarations: [SearchInputComponent],
+    teardown: { destroyAfterEach: false }
+})
     .compileComponents();
   }));
 
