@@ -11,7 +11,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { NgxLoadingModule } from 'ngx-loading';
 import { MomentModule } from 'ngx-moment';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { AngularPageVisibilityModule } from 'angular-page-visibility';
+import { AngularPageVisibilityModule } from 'angular-page-visibility-v2';
 
 
 import { AppComponent } from './app.component';
@@ -96,25 +96,25 @@ export function init(apiService: ApiService) {
         TmdbComponent,
         RottenTomatoesRedirectComponent,
     ],
-    imports: [
-        RouterModule.forRoot(appRoutes, {
-    useHash: true
-}),
-        BrowserModule,
-        BrowserAnimationsModule,
-        NgbModule,
-        HttpClientModule,
-        FormsModule,
-        ReactiveFormsModule,
-        CommonModule,
-        FileSizeModule,
-        ToastrModule.forRoot(),
-        NgxLoadingModule.forRoot({}),
-        MomentModule,
-        NgSelectModule,
-        AngularPageVisibilityModule,
-        NgxDatatableModule,
-    ],
+  imports: [
+    RouterModule.forRoot(appRoutes, {
+      useHash: true
+    }),
+    BrowserModule,
+    BrowserAnimationsModule,
+    NgbModule,
+    HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CommonModule,
+    FileSizeModule,
+    ToastrModule.forRoot(),
+    NgxLoadingModule.forRoot({}),
+    MomentModule,
+    NgSelectModule,
+    AngularPageVisibilityModule,
+    NgxDatatableModule,
+  ],
     providers: [
         { provide: APP_INITIALIZER, useFactory: init, deps: [ApiService], multi: true },
         MediaFilterPipe,
