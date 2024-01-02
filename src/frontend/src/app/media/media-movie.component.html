@@ -41,7 +41,7 @@
                   <div class="col position-relative">
                     <ngx-loading [show]="isSaving"></ngx-loading>
                     <form class="form" (submit)="submit()">
-                      <div class="form-group mt-4" *ngIf="userIsStaff() && !isWatchingMovie()">
+                      <div class="mt-4" *ngIf="userIsStaff() && !isWatchingMovie()">
                         <label>Quality Profile</label>
                         <select class="form-control form-control-sm" [(ngModel)]="qualityProfileCustom" name="quality-profile-custom">
                           <option></option>
