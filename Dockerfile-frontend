@@ -1,4 +1,4 @@
-FROM node:18.3.0-buster
+FROM node:18.13.0-buster
 
 # add frontend app src
 ADD src/frontend/ /app
