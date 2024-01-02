@@ -10,7 +10,7 @@
     <form (ngSubmit)="search()">
       <div class="d-flex">
         <input class="form-control form-control-sm" [(ngModel)]="searchInput" name="searchInput" required minlength="2" type="text" placeholder="Search..." autocomplete="off">
-        <button class="btn btn-primary position-relative ml-2" [disabled]="!searchInput" [ngClass]="{'disabled': !searchInput}">
+        <button class="btn btn-primary position-relative ms-2" [disabled]="!searchInput" [ngClass]="{'disabled': !searchInput}">
           <span class="oi oi-magnifying-glass"></span> Search
         </button>
       </div>

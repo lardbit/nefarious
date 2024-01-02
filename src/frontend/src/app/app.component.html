@@ -3,8 +3,8 @@
   <button class="navbar-toggler" type="button" (click)="toggleCollapseNav()" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
-  <div class="collapse navbar-collapse justify-content-between" [ngbCollapse]="isCollapsed" id="navbarCollapse">
-    <ul class="navbar-nav mr-auto">
+  <div class="collapse navbar-collapse" [ngbCollapse]="isCollapsed" id="navbarCollapse">
+    <ul class="navbar-nav me-auto">
       <li class="nav-item">
         <a class="nav-link" [routerLink]="['search']" (click)="collapseNav()" routerLinkActive="active">Search</a>
       </li>

@@ -139,10 +139,10 @@
             <div *ngIf="users">
               <div *ngFor="let control of form.controls.users.controls; let i=index" [formGroupName]="i">
                 <div class="d-flex justify-content-around">
-                  <div class="my-2 mr-1">
+                  <div class="my-2 me-1">
                     <input type="text" class="form-control" [id]="i+'username'" formControlName="username" required placeholder="username">
                   </div>
-                  <div class="my-2 mr-1">
+                  <div class="my-2 me-1">
                     <ng-container *ngIf="control.value.id">
                       <input type="password" class="form-control" [id]="i+'password'" formControlName="password" placeholder="new password">
                       <small class="form-text text-muted">Leave blank to keep existing password</small>
@@ -151,7 +151,7 @@
                       <input type="password" class="form-control" [id]="i+'password'" formControlName="password" placeholder="password" required>
                     </ng-container>
                   </div>
-                  <div class="my-2 mr-1">
+                  <div class="my-2 me-1">
                     <button type="button" class="btn btn-sm btn-success" (click)="saveUser(i)"><span class="oi oi-check"></span></button>
                   </div>
                   <div class="my-2">
@@ -285,8 +285,8 @@
         <div class="card-header">Logs</div>
         <div class="card-body">
           <p>View all logs generated from nefarious.</p>
-          <a href="/view/logs/foreground" target="_blank" class="btn btn-outline-primary btn-sm ml-1">Foreground <span class="oi oi-file"></span></a>
-          <a href="/view/logs/background" target="_blank" class="btn btn-outline-primary btn-sm ml-1">Background <span class="oi oi-file"></span></a>
+          <a href="/view/logs/foreground" target="_blank" class="btn btn-outline-primary btn-sm ms-1">Foreground <span class="oi oi-file"></span></a>
+          <a href="/view/logs/background" target="_blank" class="btn btn-outline-primary btn-sm ms-1">Background <span class="oi oi-file"></span></a>
         </div>
       </div>
       <!-- tasks -->
