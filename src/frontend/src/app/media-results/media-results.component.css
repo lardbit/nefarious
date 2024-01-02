@@ -11,6 +11,12 @@
   width: 20px;
 }
 
-.result:hover {
+a.result {
+  text-decoration: none!important;
+  .card-title, .card-text {
+    color: white!important;
+  }
+  :hover {
     cursor: pointer;
+  }
 }
