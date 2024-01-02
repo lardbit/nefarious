@@ -1,5 +1,6 @@
 import os
 import regex
+from django.apps import apps
 from django.conf import settings
 from datetime import datetime
 from django.utils import dateparse, timezone
@@ -51,6 +52,12 @@ class WatchProcessorBase:
                 valid_search_results = self._results_with_valid_urls(valid_search_results)
 
                 while valid_search_results:
+
+                    # quit searching if media no longer exists (user stopped watching it before it found a match)
+                    model = apps.get_model('nefarious', self.watch_media._meta.object_name)
+                    if not model.objects.filter(id=self.watch_media.id).exists():
+                        logger_background.error('Stopped searching for torrents since it was deleted: {}'.format(self.watch_media))
+                        return
 
                     logger_background.info('Valid Search Results: {}'.format(len(valid_search_results)))
 
