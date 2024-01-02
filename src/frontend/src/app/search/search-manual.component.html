@@ -18,10 +18,10 @@
   </div>
 
   <div class="d-flex justify-content-end">
-    <form class="form-inline" *ngIf="results.length">
+    <form *ngIf="results.length">
       <div class="my-2">
         <label class="m-2">Sort</label>
-        <select name="orderBy" [(ngModel)]="filters.orderBy" (change)="filterChange()" class="form-control form-control-sm">
+        <select name="orderBy" [(ngModel)]="filters.orderBy" (change)="filterChange()" class="form-select form-select-sm">
           <option *ngFor="let option of orderByOptions">{{ option }}</option>
         </select>
       </div>

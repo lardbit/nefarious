@@ -87,13 +87,13 @@
         <div class="card-body">
           <div class="my-2">
             <label>TV</label>
-            <select type="text" class="form-control" formControlName="quality_profile_tv" required>
+            <select type="text" class="form-select" formControlName="quality_profile_tv" required>
               <option *ngFor="let profile of qualityProfiles()" [value]="profile">{{ profile }}</option>
             </select>
           </div>
           <div class="my-2">
             <label>Movies</label>
-            <select type="text" class="form-control" formControlName="quality_profile_movies" required>
+            <select type="text" class="form-select" formControlName="quality_profile_movies" required>
               <option *ngFor="let profile of qualityProfiles()" [value]="profile">{{ profile }}</option>
             </select>
           </div>
@@ -274,7 +274,7 @@
           </div>
           <div class="my-2">
             <label>Preferred media category</label>
-            <select type="text" class="form-control" formControlName="preferred_media_category" required>
+            <select type="text" class="form-select" formControlName="preferred_media_category" required>
               <option *ngFor="let mediaCategory of mediaCategories()" [value]="mediaCategory">{{ mediaCategory }}</option>
             </select>
           </div>
