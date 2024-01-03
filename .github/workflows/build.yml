@@ -81,7 +81,7 @@ jobs:
 
           # build image (cache result)
           docker buildx build \
-            --platform linux/amd64,linux/arm/v7,linux/arm64 \
+            --platform linux/amd64,linux/arm64 \
             --output "type=image,push=false" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
             --build-arg tag=$tag \
@@ -90,7 +90,7 @@ jobs:
 
           # push image (from cached result)
           docker buildx build \
-            --platform linux/amd64,linux/arm/v7,linux/arm64 \
+            --platform linux/amd64,linux/arm64 \
             --output "type=image,push=true" \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --build-arg tag=$tag \
