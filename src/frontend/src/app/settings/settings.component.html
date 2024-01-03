@@ -16,19 +16,19 @@
       <div class="card">
         <div class="card-header">Jackett</div>
         <div class="card-body">
-          <div class="form-group">
+          <div class="my-2">
             <label>Host</label>
             <input type="text" class="form-control" placeholder="localhost" formControlName="jackett_host" required>
           </div>
-          <div class="form-group">
+          <div class="my-2">
             <label>Port</label>
             <input type="number" class="form-control" placeholder="9117" formControlName="jackett_port" required>
           </div>
-          <div class="form-group">
+          <div class="my-2">
             <label>API Token</label>
             <input type="text" class="form-control" placeholder="" formControlName="jackett_token" required>
           </div>
-          <div class="form-group d-flex justify-content-between">
+          <div class="my-2 d-flex justify-content-between">
             <button type="button" class="btn btn-sm btn-outline-primary position-relative" (click)="saveAndVerifyJackettIndexers()">
               <ngx-loading [show]="isVeryingJackettIndexers"></ngx-loading>
               Save & Verify Indexers
@@ -41,28 +41,28 @@
       <div class="card">
         <div class="card-header">Transmission</div>
         <div class="card-body">
-          <div class="form-group">
+          <div class="my-2">
             <label>Host</label>
             <input type="text" class="form-control" placeholder="localhost" formControlName="transmission_host" required>
           </div>
-          <div class="form-group">
+          <div class="my-2">
             <label>Port</label>
             <input type="number" class="form-control" placeholder="9091" formControlName="transmission_port" required>
           </div>
-          <div class="form-group">
+          <div class="my-2">
             <label>User</label>
             <input type="text" class="form-control" placeholder="" formControlName="transmission_user">
           </div>
-          <div class="form-group">
+          <div class="my-2">
             <label>Password</label>
             <input type="password" class="form-control" placeholder="" formControlName="transmission_pass">
           </div>
-          <div class="form-group">
+          <div class="my-2">
             <label>TV Download Sub Directory</label>
             <input type="text" class="form-control" placeholder="TV Shows/" formControlName="transmission_tv_download_dir" required>
             <small class="form-text text-muted">Relative to download path</small>
           </div>
-          <div class="form-group">
+          <div class="my-2">
             <label>Movie Download Sub Directory</label>
             <input type="text" class="form-control" placeholder="Movies/" formControlName="transmission_movie_download_dir" required>
             <small class="form-text text-muted">Relative to download path</small>
@@ -73,7 +73,7 @@
       <div class="card">
         <div class="card-header">Internationalization</div>
         <div class="card-body">
-          <div class="form-group">
+          <div class="my-2">
             <label>Language
               <span class="text-info oi oi-info" placement="left" ngbTooltip="Titles, descriptions and artwork may be localized if data is available in TMDB"></span>
             </label>
@@ -85,15 +85,15 @@
       <div class="card">
         <div class="card-header">Quality Profiles</div>
         <div class="card-body">
-          <div class="form-group">
+          <div class="my-2">
             <label>TV</label>
-            <select type="text" class="form-control" formControlName="quality_profile_tv" required>
+            <select type="text" class="form-select" formControlName="quality_profile_tv" required>
               <option *ngFor="let profile of qualityProfiles()" [value]="profile">{{ profile }}</option>
             </select>
           </div>
-          <div class="form-group">
+          <div class="my-2">
             <label>Movies</label>
-            <select type="text" class="form-control" formControlName="quality_profile_movies" required>
+            <select type="text" class="form-select" formControlName="quality_profile_movies" required>
               <option *ngFor="let profile of qualityProfiles()" [value]="profile">{{ profile }}</option>
             </select>
           </div>
@@ -106,7 +106,7 @@
           <span class="text-info oi oi-info" placement="left" ngbTooltip="Avoid search results with keywords, i.e 'x265', '265', 'hevc'"></span>
         </div>
         <div class="card-body">
-          <div class="form-group">
+          <div class="my-2">
             <ng-select [multiple]="true" [items]="[]" [addTag]="true" formControlName="exclusions"></ng-select>
             <small *ngIf="hasExclusions()" class="form-text text-muted">Avoiding search results with keywords: {{ form.get('exclusions').value }}</small>
           </div>
@@ -139,10 +139,10 @@
             <div *ngIf="users">
               <div *ngFor="let control of form.controls.users.controls; let i=index" [formGroupName]="i">
                 <div class="d-flex justify-content-around">
-                  <div class="form-group mr-1">
+                  <div class="my-2 me-1">
                     <input type="text" class="form-control" [id]="i+'username'" formControlName="username" required placeholder="username">
                   </div>
-                  <div class="form-group mr-1">
+                  <div class="my-2 me-1">
                     <ng-container *ngIf="control.value.id">
                       <input type="password" class="form-control" [id]="i+'password'" formControlName="password" placeholder="new password">
                       <small class="form-text text-muted">Leave blank to keep existing password</small>
@@ -151,10 +151,10 @@
                       <input type="password" class="form-control" [id]="i+'password'" formControlName="password" placeholder="password" required>
                     </ng-container>
                   </div>
-                  <div class="form-group mr-1">
+                  <div class="my-2 me-1">
                     <button type="button" class="btn btn-sm btn-success" (click)="saveUser(i)"><span class="oi oi-check"></span></button>
                   </div>
-                  <div class="form-group">
+                  <div class="my-2">
                     <button type="button" class="btn btn-sm btn-danger" [disabled]="!canDeleteUser(i)" (click)="removeUser(i)"><span class="oi oi-minus"></span></button>
                   </div>
                 </div>
@@ -173,7 +173,7 @@
         <div class="card-body">
           <p>Defining a <i>Notification URL</i> allows you to get notified when downloads are complete.</p>
           <p>nefarious uses <a target="_blank" href="https://github.com/caronc/apprise">Apprise</a> for notifications which supports <a target="_blank" href="https://github.com/caronc/apprise#productivity-based-notifications">most major notification services.</a></p>
-          <div class="form-group">
+          <div class="my-2">
             <label>Notification URL</label>
             <input type="text" class="form-control" placeholder="slack://TokenA/TokenB/TokenC/" formControlName="apprise_notification_url">
           </div>
@@ -186,8 +186,8 @@
           <span>Video Validation</span>
         </div>
         <div class="card-body">
-          <div><span class="badge badge-danger">Experimental</span> Automatically detect, blacklist, and retry <strong>invalid</strong> video downloads.</div>
-          <div><span class="badge badge-dark">Note</span> This will also reject any bundled downloads (e.g. rar, tar, zip)</div>
+          <div><span class="badge bg-danger">Experimental</span> Automatically detect, blacklist, and retry <strong>invalid</strong> video downloads.</div>
+          <div><span class="badge bg-dark">Note</span> This will also reject any bundled downloads (e.g. rar, tar, zip)</div>
           <div class="form-check mt-2">
             <input class="form-check-input" type="radio" [value]="true" formControlName="enable_video_detection" id="video-detection-true">
             <label class="form-check-label" for="video-detection-true">
@@ -212,10 +212,10 @@
             and/or the <a href="https://github.com/lardbit/nefarious#upgrading" target="_blank">Upgrade instructions</a>.
           </div>
           <p *ngIf="hasHostDownloadPath()">Host Download Path: <em class="text-success">{{hostDownloadPath()}}</em></p>
-          <div class="form-group">
+          <div class="my-2">
             <button type="button" (click)="importLibrary('movie')" class="btn btn-outline-primary btn-sm" [disabled]="!hasHostDownloadPath()">Import Movies <span class="oi oi-folder"></span></button>
           </div>
-          <div class="form-group">
+          <div class="my-2">
             <button type="button" (click)="importLibrary('tv')" class="btn btn-outline-primary btn-sm" [disabled]="!hasHostDownloadPath()">Import TV Shows <span class="oi oi-folder"></span></button>
           </div>
         </div>
@@ -243,11 +243,11 @@
             </label>
           </div>
           <div [hidden]="!form.controls['open_subtitles_auto'].value">
-            <div class="form-group">
+            <div class="my-2">
               <label>Username</label>
               <input type="text" class="form-control" formControlName="open_subtitles_username" [required]="form.controls['open_subtitles_auto'].value">
             </div>
-            <div class="form-group">
+            <div class="my-2">
               <label>Password</label>
               <input type="password" class="form-control" formControlName="open_subtitles_password" [required]="form.controls['open_subtitles_auto'].value">
             </div>
@@ -272,9 +272,9 @@
           <div class="card-title">
             Choose which media type you use most and the <em>Search</em> feature will remember your preference.
           </div>
-          <div class="form-group">
+          <div class="my-2">
             <label>Preferred media category</label>
-            <select type="text" class="form-control" formControlName="preferred_media_category" required>
+            <select type="text" class="form-select" formControlName="preferred_media_category" required>
               <option *ngFor="let mediaCategory of mediaCategories()" [value]="mediaCategory">{{ mediaCategory }}</option>
             </select>
           </div>
@@ -285,8 +285,8 @@
         <div class="card-header">Logs</div>
         <div class="card-body">
           <p>View all logs generated from nefarious.</p>
-          <a href="/view/logs/foreground" target="_blank" class="btn btn-outline-primary btn-sm ml-1">Foreground <span class="oi oi-file"></span></a>
-          <a href="/view/logs/background" target="_blank" class="btn btn-outline-primary btn-sm ml-1">Background <span class="oi oi-file"></span></a>
+          <a href="/view/logs/foreground" target="_blank" class="btn btn-outline-primary btn-sm ms-1">Foreground <span class="oi oi-file"></span></a>
+          <a href="/view/logs/background" target="_blank" class="btn btn-outline-primary btn-sm ms-1">Background <span class="oi oi-file"></span></a>
         </div>
       </div>
       <!-- tasks -->
@@ -313,6 +313,6 @@
     </div>
   </form>
   <footer class="d-flex justify-content-end">
-    <a target="_blank" [href]="'https://github.com/lardbit/nefarious/tree/' + gitCommit" *ngIf="gitCommit">git@{{ gitCommit }}</a>
+    <a target="_blank" [href]="'https://github.com/lardbit/nefarious/tree/' + gitCommit" *ngIf="gitCommit">git&#64;{{ gitCommit }}</a>
   </footer>
 </div>

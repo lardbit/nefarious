@@ -2,7 +2,7 @@ import { EMPTY } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
-import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
 import { Component, OnInit, AfterContentChecked } from '@angular/core';
 import { concat, Observable, Subscription } from 'rxjs';
 import { tap } from 'rxjs/operators';
@@ -25,7 +25,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
   constructor(
     public apiService: ApiService,
     private toastr: ToastrService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private changeDectorRef: ChangeDetectorRef
   ) { }
 
@@ -55,7 +55,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       'exclusions': [settings['keyword_search_filters'] ? Object.keys(settings['keyword_search_filters']) : []],
       'enable_video_detection': [settings['enable_video_detection'], Validators.required],
       'language': [settings['language'], Validators.required],
-      'users': new FormArray([]),
+      'users': new UntypedFormArray([]),
       'apprise_notification_url': [settings['apprise_notification_url']],
       'preferred_media_category': [settings['preferred_media_category'], Validators.required],
     });
@@ -69,7 +69,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
             password: '',
           };
           Object.keys(user).forEach((key) => {
-            controls[key] = new FormControl(user[key]);
+            controls[key] = new UntypedFormControl(user[key]);
           });
           this.form.get('users').insert(0, this.fb.group(controls));
         });
@@ -150,7 +150,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       this.apiService.createUser(userControl.value.username, userControl.value.password).subscribe(
         (data) => {
           this.toastr.success(`Added ${userControl.value.username}`);
-          this.form.get('users').at(index).addControl('id', new FormControl(data.id));
+          this.form.get('users').at(index).addControl('id', new UntypedFormControl(data.id));
         },
         (error) => {
           this.toastr.error(`An unknown error occurred adding user ${userControl.value.username}`);

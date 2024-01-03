@@ -1,7 +1,7 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
@@ -17,7 +17,7 @@ const RESULTS_PER_PAGE = 32;
 export class RottenTomatoesComponent implements OnInit {
   public results: any[] = [];
   public isLoading = false;
-  public form: FormGroup;
+  public form: UntypedFormGroup;
   public sortBy = {
     'Popularity': 'popular',
     'Newest': 'newest',
@@ -37,7 +37,7 @@ export class RottenTomatoesComponent implements OnInit {
 
   constructor(
     private apiService: ApiService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private toastr: ToastrService,
     private route: ActivatedRoute,
     private router: Router,

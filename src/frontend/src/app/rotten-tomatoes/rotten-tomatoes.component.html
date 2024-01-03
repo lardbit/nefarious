@@ -8,20 +8,20 @@
         <div class="row">
           <div class="col-12 col-md-6 col-lg-3">
             <label>Type</label>
-            <select class="form-control" formControlName="type">
+            <select class="form-select" formControlName="type">
               <option *ngFor="let type of types | keyvalue" [value]="type.value">{{ type.key }}</option>
             </select>
           </div>
           <div class="col-12 col-md-6 col-lg-3">
             <label>Critics</label>
-            <select class="form-control" formControlName="critics">
+            <select class="form-select" formControlName="critics">
               <option [value]=""></option>
               <option *ngFor="let critic of critics | keyvalue" [value]="critic.value">{{ critic.key }}</option>
             </select>
           </div>
           <div class="col-12 col-md-6 col-lg-3">
             <label for="sortBy">Sort By</label>
-            <select class="form-control" formControlName="sortBy" id="sortBy">
+            <select class="form-select" formControlName="sortBy" id="sortBy">
               <option *ngFor="let sort of sortBy | keyvalue" [value]="sort.value">{{ sort.key }}</option>
             </select>
           </div>
@@ -30,7 +30,7 @@
     </div>
   </div>
   <app-media-results [results]="results" [mediaType]="'movie'"></app-media-results>
-  <div class="row justify-content-between my-3 mx-2">
+  <div class="d-flex justify-content-between my-3 mx-2">
     <button class="btn btn-info" type="button" [disabled]="form.get('page').value <= 1" (click)="previous()">Previous</button>
     <button class="btn btn-info" type="button" [disabled]="!hasNextPage()" (click)="next()">Next</button>
   </div>

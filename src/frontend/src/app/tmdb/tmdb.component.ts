@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, Validators} from '@angular/forms';
+import { UntypedFormBuilder, Validators} from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
 import { tap } from 'rxjs/operators';
@@ -43,7 +43,7 @@ export class TmdbComponent implements OnInit {
   constructor(
     private apiService: ApiService,
     private toastr: ToastrService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private route: ActivatedRoute,
     private router: Router,
   ) {
@@ -90,18 +90,22 @@ export class TmdbComponent implements OnInit {
     const params = this._formValues();
 
     // update "greater than" release year to be a full date on beginning of year, i.e. 2020-01-01
-    if (params['primary_release_date.gte']) {
-      params['primary_release_date.gte'] = moment(params['primary_release_date.gte'], 'YYYY').month(0).date(1).format('YYYY-MM-DD');
+    // and include proper key name with `.gte`
+    if (params['primary_release_date_gte']) {
+      params['primary_release_date.gte'] = moment(params['primary_release_date_gte'], 'YYYY').month(0).date(1).format('YYYY-MM-DD');
+      delete params['primary_release_date_gte'];
     }
-    // update "less than" release year to be a full date on end of year, i.e 2020-12-31
-    if (params['primary_release_date.lte']) {
-      params['primary_release_date.lte'] = moment(params['primary_release_date.lte'], 'YYYY').month(11).date(31).format('YYYY-MM-DD');
+    // update "less than" release year to be a full date on end of year, i.e. 2020-12-31
+    // and include proper key name with `.lte`
+    if (params['primary_release_date_lte']) {
+      params['primary_release_date.lte'] = moment(params['primary_release_date_lte'], 'YYYY').month(11).date(31).format('YYYY-MM-DD');
+      delete params['primary_release_date_lte'];
     }
 
     let discoverEndpoint;
     if (this.form.value.mediaType === this.apiService.SEARCH_MEDIA_TYPE_MOVIE) {
       discoverEndpoint = this.apiService.discoverMovies(params);
-    } else {
+    } else { // tv
       // update the "release date" parameter to "air_date"
       if (params['primary_release_date.gte']) {
         params['air_date.gte'] = params['primary_release_date.gte'];
@@ -131,8 +135,9 @@ export class TmdbComponent implements OnInit {
     return this.fb.group({
       'mediaType': [this.apiService.SEARCH_MEDIA_TYPE_MOVIE, Validators.required],
       'sort_by': [this.DEFAULT_SORT, Validators.required],
-      'primary_release_date.gte': ['', Validators.pattern('\d{4}')],
-      'primary_release_date.lte': ['', Validators.pattern('\d{4}')],
+      // FormGroup keys cannot include `.`, so we'll replace them later (e.g. primary_release_date.gte, primary_release_date.lte)
+      'primary_release_date_gte': ['', Validators.pattern('\d{4}')],
+      'primary_release_date_lte': ['', Validators.pattern('\d{4}')],
       'with_genres': ['', Validators.pattern('\d+')],
       'page': [1, Validators.pattern('\d+')],
     });

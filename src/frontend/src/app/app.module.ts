@@ -6,12 +6,12 @@ import { HttpClientModule } from '@angular/common/http';
 import { RouterModule, Routes} from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { FileSizeModule } from 'ngx-filesize';
+import { NgxFilesizeModule } from 'ngx-filesize';
 import { ToastrModule } from 'ngx-toastr';
 import { NgxLoadingModule } from 'ngx-loading';
 import { MomentModule } from 'ngx-moment';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { AngularPageVisibilityModule } from 'angular-page-visibility';
+import { AngularPageVisibilityModule } from 'angular-page-visibility-v2';
 
 
 import { AppComponent } from './app.component';
@@ -76,34 +76,30 @@ export function init(apiService: ApiService) {
 
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    PageNotFoundComponent,
-    SearchManualComponent,
-    SearchInputComponent,
-    SearchAutoComponent,
-    SettingsComponent,
-    LoginComponent,
-    MediaTVComponent,
-    MediaMovieComponent,
-    WatchingComponent,
-    TorrentDetailsComponent,
-    DiscoverComponent,
-    MediaResultsComponent,
-    MediaFilterPipe,
-    WantedComponent,
-    RottenTomatoesComponent,
-    TmdbComponent,
-    RottenTomatoesRedirectComponent,
-  ],
+    declarations: [
+        AppComponent,
+        PageNotFoundComponent,
+        SearchManualComponent,
+        SearchInputComponent,
+        SearchAutoComponent,
+        SettingsComponent,
+        LoginComponent,
+        MediaTVComponent,
+        MediaMovieComponent,
+        WatchingComponent,
+        TorrentDetailsComponent,
+        DiscoverComponent,
+        MediaResultsComponent,
+        MediaFilterPipe,
+        WantedComponent,
+        RottenTomatoesComponent,
+        TmdbComponent,
+        RottenTomatoesRedirectComponent,
+    ],
   imports: [
-    RouterModule.forRoot(
-      appRoutes,
-      {
-    useHash: true,
-    relativeLinkResolution: 'legacy'
-}
-    ),
+    RouterModule.forRoot(appRoutes, {
+      useHash: true
+    }),
     BrowserModule,
     BrowserAnimationsModule,
     NgbModule,
@@ -111,7 +107,7 @@ export function init(apiService: ApiService) {
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
-    FileSizeModule,
+    NgxFilesizeModule,
     ToastrModule.forRoot(),
     NgxLoadingModule.forRoot({}),
     MomentModule,
@@ -119,12 +115,11 @@ export function init(apiService: ApiService) {
     AngularPageVisibilityModule,
     NgxDatatableModule,
   ],
-  entryComponents: [],
-  providers: [
-   { provide: APP_INITIALIZER, useFactory: init, deps: [ApiService], multi: true },
-    MediaFilterPipe,
-  ],
-  bootstrap: [AppComponent]
+    providers: [
+        { provide: APP_INITIALIZER, useFactory: init, deps: [ApiService], multi: true },
+        MediaFilterPipe,
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule {
   constructor() {

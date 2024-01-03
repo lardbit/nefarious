@@ -1,14 +1,14 @@
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SettingsGuard implements CanActivate {
+export class SettingsGuard  {
 
   constructor(
     private apiService: ApiService,

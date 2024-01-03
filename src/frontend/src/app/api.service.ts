@@ -1,4 +1,4 @@
-import { LocalStorage } from '@ngx-pwa/local-storage';
+import { StorageMap } from '@ngx-pwa/local-storage';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
@@ -70,7 +70,7 @@ export class ApiService {
 
   constructor(
     private http: HttpClient,
-    private localStorage: LocalStorage,
+    private localStorage: StorageMap,
   ) {
   }
 
@@ -114,49 +114,49 @@ export class ApiService {
 
   public loadFromStorage(): Observable<any> {
     return zip(
-      this.localStorage.getItem(this.STORAGE_KEY_API_TOKEN).pipe(
+      this.localStorage.get(this.STORAGE_KEY_API_TOKEN).pipe(
         map(
           (data: string) => {
             this.userToken = data;
             return this.userToken;
           }),
       ),
-      this.localStorage.getItem(this.STORAGE_KEY_USER).pipe(
+      this.localStorage.get(this.STORAGE_KEY_USER).pipe(
         map(
           (data) => {
             this.user = data;
             return this.user;
           }),
       ),
-      this.localStorage.getItem(this.STORAGE_KEY_WATCH_MOVIES).pipe(
+      this.localStorage.get(this.STORAGE_KEY_WATCH_MOVIES).pipe(
         map(
           (data: any[]) => {
             this.watchMovies = data;
             return this.watchMovies;
           }),
       ),
-      this.localStorage.getItem(this.STORAGE_KEY_WATCH_TV_SHOWS).pipe(
+      this.localStorage.get(this.STORAGE_KEY_WATCH_TV_SHOWS).pipe(
         map(
           (data: any[]) => {
             this.watchTVShows = data;
             return this.watchTVShows;
           }),
       ),
-      this.localStorage.getItem(this.STORAGE_KEY_WATCH_TV_SEASONS).pipe(
+      this.localStorage.get(this.STORAGE_KEY_WATCH_TV_SEASONS).pipe(
         map(
           (data: any[]) => {
             this.watchTVSeasons = data;
             return this.watchTVSeasons;
           }),
       ),
-      this.localStorage.getItem(this.STORAGE_KEY_WATCH_TV_SEASON_REQUESTS).pipe(
+      this.localStorage.get(this.STORAGE_KEY_WATCH_TV_SEASON_REQUESTS).pipe(
         map(
           (data: any[]) => {
             this.watchTVSeasonRequests = data;
             return this.watchTVSeasonRequests;
           }),
       ),
-      this.localStorage.getItem(this.STORAGE_KEY_WATCH_TV_EPISODES).pipe(
+      this.localStorage.get(this.STORAGE_KEY_WATCH_TV_EPISODES).pipe(
         map(
           (data: any[]) => {
             this.watchTVEpisodes = data;
@@ -249,7 +249,7 @@ export class ApiService {
       map((data: any) => {
         if (data.length) {
           this.user = data[0];
-          this.localStorage.setItem(this.STORAGE_KEY_USER, this.user).subscribe();
+          this.localStorage.set(this.STORAGE_KEY_USER, this.user).subscribe();
           return this.user;
         } else {
           console.log('no user');
@@ -305,7 +305,7 @@ export class ApiService {
       map((data: any) => {
         console.log('token auth', data);
         this.userToken = data.token;
-        this.localStorage.setItem(this.STORAGE_KEY_API_TOKEN, this.userToken).subscribe(
+        this.localStorage.set(this.STORAGE_KEY_API_TOKEN, this.userToken).subscribe(
           (wasSet) => {
             console.log('local storage set', wasSet);
           },
@@ -952,11 +952,11 @@ export class ApiService {
 
     // set in storage
     return forkJoin([
-      this.localStorage.setItem(this.STORAGE_KEY_WATCH_MOVIES, this.watchMovies),
-      this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_SHOWS, this.watchTVShows),
-      this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_SEASONS, this.watchTVSeasons),
-      this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_SEASON_REQUESTS, this.watchTVSeasonRequests),
-      this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_EPISODES, this.watchTVEpisodes),
+      this.localStorage.set(this.STORAGE_KEY_WATCH_MOVIES, this.watchMovies),
+      this.localStorage.set(this.STORAGE_KEY_WATCH_TV_SHOWS, this.watchTVShows),
+      this.localStorage.set(this.STORAGE_KEY_WATCH_TV_SEASONS, this.watchTVSeasons),
+      this.localStorage.set(this.STORAGE_KEY_WATCH_TV_SEASON_REQUESTS, this.watchTVSeasonRequests),
+      this.localStorage.set(this.STORAGE_KEY_WATCH_TV_EPISODES, this.watchTVEpisodes),
     ]).pipe(
       tap(() => {
         // send event updates

@@ -8,8 +8,9 @@ describe('TorrentDetailsComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ TorrentDetailsComponent ]
-    })
+    declarations: [TorrentDetailsComponent],
+    teardown: { destroyAfterEach: false }
+})
     .compileComponents();
   }));
 

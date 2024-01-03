@@ -13,7 +13,7 @@
     <input class="form-control form-control-lg" [(ngModel)]="q" name="q" required minlength="2" type="text" placeholder="Search..." autocomplete="off">
   </div>
   <div class="d-flex justify-content-end mt-3">
-    <button class="btn btn-primary position-relative" [disabled]="!q" [ngClass]="{'disabled': !q}">
+    <button class="btn btn-primary" [disabled]="!q" [ngClass]="{'disabled': !q}">
       <span class="oi oi-magnifying-glass"></span> Search
     </button>
   </div>

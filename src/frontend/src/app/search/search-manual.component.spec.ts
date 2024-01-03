@@ -8,8 +8,9 @@ describe('SearchManualComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ SearchManualComponent ]
-    })
+    declarations: [SearchManualComponent],
+    teardown: { destroyAfterEach: false }
+})
     .compileComponents();
   }));
 

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from './api.service';
-import { OnPageVisible } from 'angular-page-visibility';
+import { OnPageVisible } from 'angular-page-visibility-v2';
 
 
 @Component({

@@ -8,8 +8,9 @@ describe('TmdbComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TmdbComponent ]
-    })
+    declarations: [TmdbComponent],
+    teardown: { destroyAfterEach: false }
+})
     .compileComponents();
   });
 
