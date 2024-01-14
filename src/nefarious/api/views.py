@@ -24,7 +24,7 @@ from nefarious.search import SEARCH_MEDIA_TYPE_MOVIE, SEARCH_MEDIA_TYPE_TV, Sear
 from nefarious.quality import PROFILES
 from nefarious.tasks import (
     import_library_task, completed_media_task, wanted_media_task, auto_watch_new_seasons_task,
-    refresh_tmdb_configuration, wanted_tv_season_task, populate_release_dates_task, handle_stuck_downloads_task,
+    refresh_tmdb_configuration, wanted_tv_season_task, populate_release_dates_task, process_stuck_downloads_task,
 )
 from nefarious.transmission import get_transmission_client
 from nefarious.tmdb import get_tmdb_client
@@ -559,8 +559,8 @@ class QueueTaskView(views.APIView):
             refresh_tmdb_configuration.delay()
         elif request.data['task'] == 'populate_release_dates':
             populate_release_dates_task.delay()
-        elif request.data['task'] == 'handle_stuck_downloads':
-            handle_stuck_downloads_task.delay()
+        elif request.data['task'] == 'process_stuck_downloads':
+            process_stuck_downloads_task.delay()
 
         return Response({'success': True})
 

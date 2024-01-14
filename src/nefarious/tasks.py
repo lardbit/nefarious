@@ -54,7 +54,7 @@ app.conf.beat_schedule = {
         'schedule': 60 * 60 * 24 * 1,
     },
     'Stuck Download Handling': {
-        'task': 'nefarious.tasks.handle_stuck_downloads',
+        'task': 'nefarious.tasks.process_stuck_downloads',
         'schedule': 60 * 60 * 24 * 1,
     },
 }
@@ -521,7 +521,7 @@ def queue_download_subtitles_for_season_task(watch_season_id: int):
 
 
 @app.task
-def handle_stuck_downloads_task():
+def process_stuck_downloads_task():
     # find media that's been "stuck" downloading for X days and blacklist (if setting is enabled)
     nefarious_settings = NefariousSettings.get()
     if nefarious_settings.stuck_download_handling_enabled:
