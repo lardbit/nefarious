@@ -280,6 +280,34 @@
           </div>
         </div>
       </div>
+      <!-- handle "stuck" media -->
+      <div class="card">
+        <div class="card-header">Handle Stuck Downloads</div>
+        <div class="card-body">
+          <div class="card-title">
+            Do you want to automatically blacklist torrents that get stuck and never complete?  Enable this setting and define how many days
+            to decide when a torrent is "stuck" and to blacklist and retry.
+          </div>
+          <div class="my-2">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" [value]="true" formControlName="stuck_download_handling_enabled" id="stuck-downloads-true">
+              <label class="form-check-label" for="stuck-downloads-true">
+                Enabled
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" [value]="false" formControlName="stuck_download_handling_enabled" id="stuck-downloads-false">
+              <label class="form-check-label" for="stuck-downloads-false">
+                Disabled
+              </label>
+            </div>
+            <div class="my-2" [hidden]="!form.get('stuck_download_handling_enabled').value">
+              <label>How many days to wait before blacklisting?</label>
+              <input type="number" [min]="1" [step]="1" class="form-control" placeholder="localhost" formControlName="stuck_download_handling_days" required>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- logs -->
       <div class="card">
         <div class="card-header">Logs</div>
