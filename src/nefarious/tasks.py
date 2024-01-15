@@ -54,7 +54,7 @@ app.conf.beat_schedule = {
         'schedule': 60 * 60 * 24 * 1,
     },
     'Stuck Download Handling': {
-        'task': 'nefarious.tasks.process_stuck_downloads',
+        'task': 'nefarious.tasks.process_stuck_downloads_task',
         'schedule': 60 * 60 * 24 * 1,
     },
 }
