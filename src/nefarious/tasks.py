@@ -1,8 +1,9 @@
 import os
 
+import pytz
 from celery import chain
 from celery.signals import task_failure
-from datetime import datetime
+from datetime import datetime, timedelta
 from celery_once import QueueOnce
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -50,6 +51,10 @@ app.conf.beat_schedule = {
     },
     'Populate Release Dates': {
         'task': 'nefarious.tasks.populate_release_dates_task',
+        'schedule': 60 * 60 * 24 * 1,
+    },
+    'Stuck Download Handling': {
+        'task': 'nefarious.tasks.process_stuck_downloads_task',
         'schedule': 60 * 60 * 24 * 1,
     },
 }
@@ -513,3 +518,29 @@ def queue_download_subtitles_for_season_task(watch_season_id: int):
     watch_season = get_object_or_404(WatchTVSeason, id=watch_season_id)  # type: WatchTVSeason
     for watch_episode in watch_season.watch_tv_show.watchtvepisode_set.filter(season_number=watch_season.season_number):
         download_subtitles_task.delay(MEDIA_TYPE_TV_EPISODE, watch_episode.id)
+
+
+@app.task
+def process_stuck_downloads_task():
+    # find media that's been "stuck" downloading for X days and blacklist (if setting is enabled)
+    nefarious_settings = NefariousSettings.get()
+    if nefarious_settings.stuck_download_handling_enabled:
+        stuck_media_type_queries = [
+            WatchMovie.objects.all(),
+            WatchTVSeason.objects.all(),
+            WatchTVEpisode.objects.all(),
+        ]
+        for query in stuck_media_type_queries:
+            # torrent found, not collected, and older than X days
+            exclude_kwargs = dict(transmission_torrent_hash__isnull=True)
+            filter_kwargs = dict(
+                collected=False,
+                last_attempt_date__lt=datetime.utcnow().replace(tzinfo=pytz.UTC) - timedelta(days=nefarious_settings.stuck_download_handling_days),
+            )
+            for media in query.exclude(**exclude_kwargs).filter(**filter_kwargs):
+                msg = 'blacklisting stuck media "{media}" since it has been trying to download for longer than {stuck_download_handling_days} days'.format(
+                    media=media, stuck_download_handling_days=nefarious_settings.stuck_download_handling_days,
+                )
+                logger_background.info(msg)
+                notification.send_message(msg)
+                blacklist_media_and_retry(media)

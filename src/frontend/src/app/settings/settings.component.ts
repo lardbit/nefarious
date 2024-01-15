@@ -58,6 +58,8 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       'users': new UntypedFormArray([]),
       'apprise_notification_url': [settings['apprise_notification_url']],
       'preferred_media_category': [settings['preferred_media_category'], Validators.required],
+      'stuck_download_handling_enabled': [settings['stuck_download_handling_enabled'], Validators.required],
+      'stuck_download_handling_days': [settings['stuck_download_handling_days'], Validators.required],
     });
 
     this.isLoadingUsers = true;

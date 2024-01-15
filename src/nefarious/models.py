@@ -19,7 +19,8 @@ MEDIA_TYPE_TV_EPISODE = 'TV_EPISODE'
 class NefariousSettings(models.Model):
     JACKETT_TOKEN_DEFAULT = 'COPY_YOUR_JACKETT_TOKEN_HERE'
 
-    language = models.CharField(max_length=2, default='en')  # chosen language
+    # chosen language
+    language = models.CharField(max_length=2, default='en')
 
     # jackett
     jackett_host = models.CharField(max_length=500, default='jackett')
@@ -67,6 +68,10 @@ class NefariousSettings(models.Model):
         default=media_category.MEDIA_MOVIE_CATEGORY,
         choices=media_category.MEDIA_CATEGORIES,
     )
+
+    # handling of "stuck" downloads and how many days to blacklist a torrent if it's been stuck
+    stuck_download_handling_enabled = models.BooleanField(default=False, help_text='Whether to enable stuck download handling by blacklisting stuck torrents')
+    stuck_download_handling_days = models.IntegerField(default=3, help_text='How many days to wait before blacklisting stuck downloads')
 
     @classmethod
     def get(cls):
