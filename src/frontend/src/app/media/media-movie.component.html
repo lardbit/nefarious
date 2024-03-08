@@ -6,7 +6,7 @@
     <div *ngIf="!isLoading">
       <div class="card-header d-flex justify-content-between">
         <h3 class="media-title">{{ result.title }}</h3>
-        <span *ngIf="watchMovie?.collected" class="text-success" [ngbPopover]="watchMovie.collected_date"><span class="oi oi-circle-check"></span> Downloaded</span>
+        <span *ngIf="watchMovie?.collected" class="bg-success px-2 py-2 rounded-5 text-dark" [ngbPopover]="watchMovie.collected_date"><span class="oi oi-circle-check"></span> Downloaded</span>
       </div>
       <div class="card-body">
         <ul #nav="ngbNav" ngbNav [(activeId)]="activeNav" class="nav-tabs">
