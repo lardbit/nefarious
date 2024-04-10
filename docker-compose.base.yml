@@ -34,7 +34,7 @@ services:
       - nefarious-db:/nefarious-db
     logging:
       options:
-        max-size: 10m
+        max-size: 2m
 
   # celery base service (to be extended)
   celery-base:
@@ -42,21 +42,40 @@ services:
       service: nefarious-base
     restart: always
     entrypoint: /app/entrypoint-celery.sh
-    environment:
-      # https://github.com/kennethreitz/dj-database-url
-      DATABASE_URL: "sqlite:////nefarious-db/db.sqlite3"
-      REDIS_HOST: "redis"
-      HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp}
-      INTERNAL_DOWNLOAD_PATH: /downloads
     volumes:
       - ${HOST_DOWNLOAD_PATH:-/tmp}:/downloads
       # persistent named volume for sqlite database
       - nefarious-db:/nefarious-db
     logging:
       options:
-        max-size: 10m
+        max-size: 2m
     labels:
       - com.centurylinklabs.watchtower.enable=true
+
+  # celery worker
+  celery-worker:
+    extends:
+      service: celery-base
+    environment:
+      # https://github.com/kennethreitz/dj-database-url
+      DATABASE_URL: "sqlite:////nefarious-db/db.sqlite3"
+      REDIS_HOST: "redis"
+      HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp}
+      INTERNAL_DOWNLOAD_PATH: /downloads
+      CELERY_BEAT_SEPARATELY: 1  # run worker and scheduler separately
+
+  # celery scheduler (beat)
+  celery-scheduler:
+    extends:
+      service: celery-base
+    environment:
+      # https://github.com/kennethreitz/dj-database-url
+      DATABASE_URL: "sqlite:////nefarious-db/db.sqlite3"
+      REDIS_HOST: "redis"
+      HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp}
+      INTERNAL_DOWNLOAD_PATH: /downloads
+      CELERY_BEAT: 1  # run celery as scheduler
+      CELERY_BEAT_SEPARATELY: 1  # run worker and scheduler separately
 
   # jackett base service (to be extended)
   jackett-base:
@@ -67,7 +86,7 @@ services:
     restart: always
     logging:
       options:
-        max-size: 10m
+        max-size: 2m
     volumes:
       - jackett-config:/config
 
@@ -96,7 +115,7 @@ services:
       - WATCHTOWER_POLL_INTERVAL=3600
     logging:
       options:
-        max-size: 10m
+        max-size: 2m
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 

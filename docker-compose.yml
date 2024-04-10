@@ -21,7 +21,15 @@ services:
   # nefarious background task queue
   celery:
     extends:
-      service: celery-base
+      service: celery-worker
+      file: docker-compose.base.yml
+    depends_on:
+      - redis
+
+  # nefarious background task queue scheduler
+  celery-scheduler:
+    extends:
+      service: celery-scheduler
       file: docker-compose.base.yml
     depends_on:
       - redis
