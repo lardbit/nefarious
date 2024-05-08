@@ -59,7 +59,7 @@ class NefariousSettings(models.Model):
     # expects keyword/boolean pairs like {"x265": false, "265": false}
     keyword_search_filters = JSONField(blank=True, null=True)  # type: dict
 
-    # apprise notifications - https://github.com/caronc/apprise
+    # apprise notifications - https://github.com/caronc/apprise/tree/v0.9.3
     apprise_notification_url = models.CharField(max_length=1000, blank=True)
 
     # category of media the user prefers: movie or tv...

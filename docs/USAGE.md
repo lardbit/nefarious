@@ -73,8 +73,8 @@ If you want to see the logs you can run:
 ## Notifications
 
 nefarious can send notifications (e.g. push notifications, email, sms) when media is downloaded.   
-See [Apprise](https://github.com/caronc/apprise) for documentation on how to construct the *Notification Url* for
-the [available notification services](https://github.com/caronc/apprise#popular-notification-services).
+See [Apprise](https://github.com/caronc/apprise/tree/v0.9.3) for documentation on how to construct the *Notification Url* for
+the [available notification services](https://github.com/caronc/apprise/tree/v0.9.3#popular-notification-services).
 
 Enter the *Notification Url* on the settings page.  You can test it from there to make sure it works as expected.
 

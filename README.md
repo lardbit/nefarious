@@ -23,7 +23,7 @@ Features:
 - [x] Includes movie trailers
 - [x] Automatically renames media
 - [x] Supports multiple languages (TMDB supports internationalized Titles, Descriptions and Poster artwork)
-- [x] Notifications - supports all major notification services (via [Apprise](https://github.com/caronc/apprise))
+- [x] Notifications - supports all major notification services (via [Apprise](https://github.com/caronc/apprise/tree/v0.9.3))
 - [x] Imports existing libraries
 - [x] VPN integration (optional)
 - [x] Auto download subtitles via [opensubtitles](https://www.opensubtitles.com/) [api](https://opensubtitles.stoplight.io/)
