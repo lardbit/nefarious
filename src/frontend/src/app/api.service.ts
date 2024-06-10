@@ -131,35 +131,35 @@ export class ApiService {
       this.localStorage.get(this.STORAGE_KEY_WATCH_MOVIES).pipe(
         map(
           (data: any[]) => {
-            this.watchMovies = data;
+            this.watchMovies = data || [];
             return this.watchMovies;
           }),
       ),
       this.localStorage.get(this.STORAGE_KEY_WATCH_TV_SHOWS).pipe(
         map(
           (data: any[]) => {
-            this.watchTVShows = data;
+            this.watchTVShows = data || [];
             return this.watchTVShows;
           }),
       ),
       this.localStorage.get(this.STORAGE_KEY_WATCH_TV_SEASONS).pipe(
         map(
           (data: any[]) => {
-            this.watchTVSeasons = data;
+            this.watchTVSeasons = data || [];
             return this.watchTVSeasons;
           }),
       ),
       this.localStorage.get(this.STORAGE_KEY_WATCH_TV_SEASON_REQUESTS).pipe(
         map(
           (data: any[]) => {
-            this.watchTVSeasonRequests = data;
+            this.watchTVSeasonRequests = data || [];
             return this.watchTVSeasonRequests;
           }),
       ),
       this.localStorage.get(this.STORAGE_KEY_WATCH_TV_EPISODES).pipe(
         map(
           (data: any[]) => {
-            this.watchTVEpisodes = data;
+            this.watchTVEpisodes = data || [];
             return this.watchTVEpisodes;
           }),
       ),
@@ -190,13 +190,20 @@ export class ApiService {
     );
   }
 
-  public fetchWatchMedia(): Observable<any> {
+  public fetchWatchMedia(afterDateUpdated?: string): Observable<any> {
+    let params: any = {};
+
+    // conditionally include an "updated after date" parameter
+    if (afterDateUpdated) {
+      params.date_updated__gte = afterDateUpdated;
+    }
+
     return forkJoin([
-      this.fetchWatchTVShows(),
-      this.fetchWatchTVSeasons(),
-      this.fetchWatchTVSeasonRequests(),
-      this.fetchWatchTVEpisodes(),
-      this.fetchWatchMovies(),
+      this.fetchWatchTVShows(),  // "shows" don't support the "after date updated" parameter
+      this.fetchWatchTVSeasons(params),
+      this.fetchWatchTVSeasonRequests(params),
+      this.fetchWatchTVEpisodes(params),
+      this.fetchWatchMovies(params),
     ]).pipe(
       tap(() => {
         this._updateStorage().subscribe();
@@ -448,8 +455,8 @@ export class ApiService {
     params = params || {};
     const httpParams = new HttpParams({fromObject: params});
     return this.http.get(this.API_URL_WATCH_TV_SEASON, {params: httpParams, headers: this._requestHeaders()}).pipe(
-      map((data: any) => {
-        this.watchTVSeasons = data;
+      map((records: any) => {
+        this._mergeMediaRecords(this.watchTVSeasons, records);
         return this.watchTVSeasons;
       }),
     );
@@ -459,8 +466,8 @@ export class ApiService {
     params = params || {};
     const httpParams = new HttpParams({fromObject: params});
     return this.http.get(this.API_URL_WATCH_TV_SEASON_REQUEST, {params: httpParams, headers: this._requestHeaders()}).pipe(
-      map((data: any) => {
-        this.watchTVSeasonRequests = data;
+      map((records: any) => {
+        this._mergeMediaRecords(this.watchTVSeasonRequests, records);
         return this.watchTVSeasonRequests;
       }),
     );
@@ -471,17 +478,18 @@ export class ApiService {
     const httpParams = new HttpParams({fromObject: params});
 
     return this.http.get(this.API_URL_WATCH_MOVIE, {params: httpParams, headers: this._requestHeaders()}).pipe(
-      map((data: any) => {
-        this.watchMovies = data;
+      map((records: any[]) => {
+        this._mergeMediaRecords(this.watchMovies, records);
         return this.watchMovies;
       }),
     );
   }
 
-  public fetchWatchTVEpisodes() {
-    return this.http.get(this.API_URL_WATCH_TV_EPISODE, {headers: this._requestHeaders()}).pipe(
-      map((data: any) => {
-        this.watchTVEpisodes = data;
+  public fetchWatchTVEpisodes(params: any) {
+    const httpParams = new HttpParams({fromObject: params});
+    return this.http.get(this.API_URL_WATCH_TV_EPISODE, {headers: this._requestHeaders(), params: httpParams}).pipe(
+      map((records: any) => {
+        this._mergeMediaRecords(this.watchTVEpisodes, records);
         return this.watchTVEpisodes;
       }),
     );
@@ -826,6 +834,24 @@ export class ApiService {
 
   public deleteAllBlacklists(): Observable<any> {
     return this.http.post(this.API_URL_BLACKLISTS_DELETE, null, {headers: this._requestHeaders()});
+  }
+
+  protected _mergeMediaRecords(existingRecords: any[], updatedRecords: any[]) {
+    // merge new/updated media records
+    updatedRecords.forEach((updatedRecord) => {
+      // find matching record
+      const mediaIndex = existingRecords.findIndex((media) => {
+        return media.id === updatedRecord.id;
+      });
+      // found - update existing value
+      if (mediaIndex >= 0) {
+        console.log('updating existing record');
+        existingRecords[mediaIndex] = updatedRecord;
+      } else {
+        console.log('pushing new record');
+        existingRecords.push(updatedRecord);
+      }
+    })
   }
 
   protected _initWebSocket() {

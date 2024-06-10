@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from './api.service';
 import { OnPageVisible } from 'angular-page-visibility-v2';
+import * as moment from 'moment';
+import {tap} from "rxjs/operators";
 
 
 @Component({
@@ -10,6 +12,7 @@ import { OnPageVisible } from 'angular-page-visibility-v2';
 })
 export class AppComponent implements OnInit {
   public isCollapsed = true;
+  protected _lastUpdated: string = moment().format();
 
   constructor(
     private apiService: ApiService,
@@ -21,9 +24,15 @@ export class AppComponent implements OnInit {
 
   @OnPageVisible()
   logWhenPageVisible (): void {
-    console.log('page visible, re-fetching data');
+    console.log(`page visible, re-fetching data that was updated after ${this._lastUpdated}`);
     this.apiService.fetchCoreData().subscribe();
-    this.apiService.fetchWatchMedia().subscribe();
+    this.apiService.fetchWatchMedia(this._lastUpdated)
+      .pipe(
+        tap(() => {
+          this._lastUpdated = moment().format();
+        })
+      )
+      .subscribe();
   }
 
   public isStaff(): Boolean {
