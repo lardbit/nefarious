@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAdminUser
 
 from nefarious import websocket
 from nefarious.api.mixins import UserReferenceViewSetMixin, BlacklistAndRetryMixin, DestroyTransmissionResultMixin, WebSocketMediaMessageUpdatedMixin
-from nefarious.api.filters import WatchMovieDateUpdatedFilter, WatchTVSeasonDateUpdatedFilter, WatchTVSeasonRequestDateUpdatedFilter, WatchTVEpisodeDateUpdatedFilter
+from nefarious.api.filters import WatchMovieFilterSet, WatchTVSeasonFilterSet, WatchTVSeasonRequestFilterSet, WatchTVEpisodeFilterSet
 from nefarious.api.permissions import IsAuthenticatedDjangoObjectUser
 from nefarious.api.serializers import (
     NefariousSettingsSerializer, WatchTVEpisodeSerializer, WatchTVShowSerializer,
@@ -32,7 +32,7 @@ class WatchMovieViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionRe
     queryset = WatchMovie.objects.select_related('user').all()
     serializer_class = WatchMovieSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
-    filterset_class = WatchMovieDateUpdatedFilter
+    filterset_class = WatchMovieFilterSet
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
 
     def perform_create(self, serializer):
@@ -86,7 +86,7 @@ class WatchTVSeasonViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissio
     serializer_class = WatchTVSeasonSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
-    filterset_class = WatchTVSeasonDateUpdatedFilter
+    filterset_class = WatchTVSeasonFilterSet
 
 
 @method_decorator(gzip_page, name='dispatch')
@@ -97,7 +97,7 @@ class WatchTVSeasonRequestViewSet(WebSocketMediaMessageUpdatedMixin, UserReferen
     queryset = WatchTVSeasonRequest.objects.select_related('user').all()
     serializer_class = WatchTVSeasonRequestSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
-    filterset_class = WatchTVSeasonRequestDateUpdatedFilter
+    filterset_class = WatchTVSeasonRequestFilterSet
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -154,7 +154,7 @@ class WatchTVEpisodeViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissi
     serializer_class = WatchTVEpisodeSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
-    filterset_class = WatchTVEpisodeDateUpdatedFilter
+    filterset_class = WatchTVEpisodeFilterSet
 
     def perform_create(self, serializer):
         super().perform_create(serializer)

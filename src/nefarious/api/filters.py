@@ -2,7 +2,7 @@ from django_filters import rest_framework as filters
 from nefarious.models import WatchMovie, WatchTVEpisode, WatchTVSeasonRequest, WatchTVSeason
 
 
-class WatchMovieDateUpdatedFilter(filters.FilterSet):
+class WatchMovieFilterSet(filters.FilterSet):
 
     class Meta:
         model = WatchMovie
@@ -12,7 +12,7 @@ class WatchMovieDateUpdatedFilter(filters.FilterSet):
         }
 
 
-class WatchTVSeasonDateUpdatedFilter(filters.FilterSet):
+class WatchTVSeasonFilterSet(filters.FilterSet):
 
     class Meta:
         model = WatchTVSeason
@@ -22,7 +22,7 @@ class WatchTVSeasonDateUpdatedFilter(filters.FilterSet):
         }
 
 
-class WatchTVEpisodeDateUpdatedFilter(filters.FilterSet):
+class WatchTVEpisodeFilterSet(filters.FilterSet):
 
     class Meta:
         model = WatchTVEpisode
@@ -32,7 +32,7 @@ class WatchTVEpisodeDateUpdatedFilter(filters.FilterSet):
         }
 
 
-class WatchTVSeasonRequestDateUpdatedFilter(filters.FilterSet):
+class WatchTVSeasonRequestFilterSet(filters.FilterSet):
 
     class Meta:
         model = WatchTVSeasonRequest
