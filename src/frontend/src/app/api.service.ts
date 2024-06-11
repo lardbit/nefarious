@@ -845,10 +845,8 @@ export class ApiService {
       });
       // found - update existing value
       if (mediaIndex >= 0) {
-        console.log('updating existing record');
         existingRecords[mediaIndex] = updatedRecord;
       } else {
-        console.log('pushing new record');
         existingRecords.push(updatedRecord);
       }
     })
