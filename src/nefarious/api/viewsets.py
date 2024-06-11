@@ -13,13 +13,14 @@ from rest_framework.permissions import IsAdminUser
 
 from nefarious import websocket
 from nefarious.api.mixins import UserReferenceViewSetMixin, BlacklistAndRetryMixin, DestroyTransmissionResultMixin, WebSocketMediaMessageUpdatedMixin
+from nefarious.api.filters import WatchMovieFilterSet, WatchTVSeasonFilterSet, WatchTVSeasonRequestFilterSet, WatchTVEpisodeFilterSet
 from nefarious.api.permissions import IsAuthenticatedDjangoObjectUser
 from nefarious.api.serializers import (
     NefariousSettingsSerializer, WatchTVEpisodeSerializer, WatchTVShowSerializer,
     UserSerializer, WatchMovieSerializer, NefariousPartialSettingsSerializer,
     WatchTVSeasonSerializer, WatchTVSeasonRequestSerializer, TorrentBlacklistSerializer,
 )
-from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason, WatchTVSeasonRequest, TorrentBlacklist
+from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason, WatchTVSeasonRequest, TorrentBlacklist, WatchMediaBase
 from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task, send_websocket_message_task
 from nefarious.utils import (
     verify_settings_jackett, verify_settings_transmission, verify_settings_tmdb,
@@ -31,7 +32,7 @@ class WatchMovieViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissionRe
     queryset = WatchMovie.objects.select_related('user').all()
     serializer_class = WatchMovieSerializer
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
-    filter_fields = ('collected',)
+    filterset_class = WatchMovieFilterSet
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
 
     def perform_create(self, serializer):
@@ -85,7 +86,7 @@ class WatchTVSeasonViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissio
     serializer_class = WatchTVSeasonSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
-    filter_fields = ('collected',)
+    filterset_class = WatchTVSeasonFilterSet
 
 
 @method_decorator(gzip_page, name='dispatch')
@@ -96,7 +97,7 @@ class WatchTVSeasonRequestViewSet(WebSocketMediaMessageUpdatedMixin, UserReferen
     queryset = WatchTVSeasonRequest.objects.select_related('user').all()
     serializer_class = WatchTVSeasonRequestSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
-    filter_fields = ('collected',)
+    filterset_class = WatchTVSeasonRequestFilterSet
 
     def perform_create(self, serializer):
         super().perform_create(serializer)
@@ -153,7 +154,7 @@ class WatchTVEpisodeViewSet(WebSocketMediaMessageUpdatedMixin, DestroyTransmissi
     serializer_class = WatchTVEpisodeSerializer
     permission_classes = (IsAuthenticatedDjangoObjectUser,)
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,)
-    filter_fields = ('collected',)
+    filterset_class = WatchTVEpisodeFilterSet
 
     def perform_create(self, serializer):
         super().perform_create(serializer)

@@ -99,6 +99,7 @@ class WatchMediaBase(models.Model):
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     date_added = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
     collected = models.BooleanField(default=False)
     collected_date = models.DateTimeField(blank=True, null=True)
     download_path = models.CharField(max_length=1000, blank=True, null=True, unique=True)
@@ -115,6 +116,7 @@ class WatchMediaBase(models.Model):
         indexes = [
             models.Index(fields=['collected']),
             models.Index(fields=['collected_date']),
+            models.Index(fields=['date_updated']),
         ]
 
 
@@ -171,6 +173,7 @@ class WatchTVSeasonRequest(models.Model):
     quality_profile_custom = models.CharField(max_length=500, null=True, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     collected = models.BooleanField(default=False)
     date_added = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
     release_date = models.DateField(null=True, blank=True)
 
     class Meta:

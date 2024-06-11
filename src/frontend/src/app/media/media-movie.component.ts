@@ -132,7 +132,7 @@ export class MediaMovieComponent implements OnInit, OnDestroy {
 
   public getWatchMovie() {
     return this.apiService.watchMovies.find((watchMovie) => {
-      return watchMovie.tmdb_movie_id === this.result.id;
+      return this.result && watchMovie.tmdb_movie_id === this.result.id;
     });
   }
 
