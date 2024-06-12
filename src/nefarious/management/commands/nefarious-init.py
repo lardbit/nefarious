@@ -8,9 +8,11 @@ class Command(BaseCommand):
     help = 'Initialize Nefarious'
 
     def add_arguments(self, parser):
-        parser.add_argument('username', type=str)
-        parser.add_argument('email', type=str)
-        parser.add_argument('password', type=str)
+        parser.add_argument('--username', type=str, required=True)
+        parser.add_argument('--email', type=str, required=True)
+        parser.add_argument('--password', type=str, required=True)
+        parser.add_argument('--transmission_user', type=str, default='')  # optional
+        parser.add_argument('--transmission_pass', type=str, default='')  # optional
 
     def handle(self, *args, **options):
 
@@ -22,10 +24,16 @@ class Command(BaseCommand):
                 options['username'], options['password'], options['email'])))
 
         # create settings if they don't already exist
-        nefarious_settings, _ = NefariousSettings.objects.get_or_create()
+        nefarious_settings, was_created = NefariousSettings.objects.get_or_create(
+            defaults={
+                # set transmission user/pass
+                'transmission_user': options['transmission_user'],
+                'transmission_pass': options['transmission_pass'],
+            }
+        )
 
-        # populate tmdb configuration if necessary
-        if not nefarious_settings.tmdb_configuration or not nefarious_settings.tmdb_languages:
+        # populate tmdb configuration if settings were just created or tmdb conf absent
+        if was_created or not all([nefarious_settings.tmdb_configuration, nefarious_settings.tmdb_languages]):
             tmdb_client = get_tmdb_client(nefarious_settings)
             configuration = tmdb_client.Configuration()
             nefarious_settings.tmdb_configuration = configuration.info()

@@ -124,19 +124,15 @@ The default nefarious user/password is `admin`/`admin`.  On first login you will
 Jackett's **host** in the main settings should remain `jackett` and the port should remain `9117`.  Copy your API Token from [Jackett](http://localhost:9117) into the appropriate nefarious section.
 Don't forget to also add some indexers in Jackett to track your preferred content, and be sure to test them to see that they're working.  Some popular examples are *The Pirate Bay*, *1337x*, *RARBG*.
 
-Transmission's host should remain `transmission` and port should remain `9091`.  It's possible to configure it with a username and password, but it defaults to keeping them both blank.
-Entering both username and password in the nefarious settings should only be done if the Transmission settings of `transmission-settings.json` were also configured for your desired user/pass.
+Transmission's host should remain `transmission` and port should remain `9091`.  The default user & password is `admin`/`admin` and is defined in `.env` with variables `TRANSMISSION_USER` and `TRANSMISSION_PASS`.
+Enter these values in the Transmission section of nefarious' settings.
 
 Once all of your settings are updated, click `Save & Verify Settings` to save and verify they're valid.
 
 ##### Transmission Configuration
 
-There is no default transmission user/pass, but feel free to edit the `transmission-settings.json` beforehand following the [official settings](https://github.com/transmission/transmission/wiki/Editing-Configuration-Files) to make any changes you'd like.
+You shouldn't need to do any extra configuring to Transmission, but see [TRANSMISSION.md](docs/TRANSMISSION.md) for more details.
 
-**NOTE** if you make any changes to `transmission-settings.json` you'll have to recreate the transmission container for the changes to take place:
-
-    docker-compose up -d --force-recreate transmission
-    
 ### Usage
 
 See [USAGE.md](docs/USAGE.md).

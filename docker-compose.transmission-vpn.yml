@@ -48,9 +48,11 @@ services:
     volumes:
       - ${HOST_DOWNLOAD_PATH:-/tmp}:/data
       - /etc/localtime:/etc/localtime:ro
+      - transmission-config:/data/transmission-home
     sysctls:
       - net.ipv6.conf.all.disable_ipv6=${VPN_IPV6_DISABLED:-1}  # 0=ipv6 enabled, 1=ipv6 disabled
     environment:
+      # additional options may need to be specified based on your VPN provider
       - OPENVPN_PROVIDER=${OPENVPN_PROVIDER}
       - OPENVPN_USERNAME=${OPENVPN_USERNAME}
       - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
@@ -61,7 +63,9 @@ services:
       - CREATE_TUN_DEVICE=true
       - PUID=${HOST_DOWNLOAD_UID:-1000}
       - PGID=${HOST_DOWNLOAD_GID:-1000}
-      # additional options may need to be specified based on your VPN provider
+      - TRANSMISSION_RPC_USERNAME=${TRANSMISSION_USER-admin}
+      - TRANSMISSION_RPC_PASSWORD=${TRANSMISSION_PASS-admin}
+      - TRANSMISSION_RPC_AUTHENTICATION_REQUIRED=${TRANSMISSION_RPC_AUTHENTICATION_REQUIRED:-true}
     logging:
       driver: json-file
       options:
@@ -85,4 +89,6 @@ volumes:
   nefarious-db:
     driver: local
   jackett-config:
+    driver: local
+  transmission-config:
     driver: local

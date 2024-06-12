@@ -58,7 +58,18 @@ services:
     extends:
       service: transmission-base
       file: docker-compose.base.yml
-    image: linuxserver/transmission
+    image: lscr.io/linuxserver/transmission
+    environment:
+      - PUID=${HOST_DOWNLOAD_UID:-1000}
+      - PGID=${HOST_DOWNLOAD_GID:-1000}
+      - USER=${TRANSMISSION_USER-admin}  # can be empty
+      - PASS=${TRANSMISSION_PASS-admin}  # can be empty
+    volumes:
+      - ${HOST_DOWNLOAD_PATH:-/tmp}:/downloads
+      - ./transmission-settings.json:/tmp/settings.json:ro
+      - transmission-config:/config
+    # copy local settings and then run init entrypoint
+    entrypoint: bash -c "cp /tmp/settings.json /config/ && /init"
 
   # auto update service
   watchtower:
@@ -69,3 +80,4 @@ services:
 volumes:
   nefarious-db:
   jackett-config:
+  transmission-config:
