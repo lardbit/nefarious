@@ -22,6 +22,7 @@ class VideoDetect:
     read_interval: int
 
     def __init__(self, video_path: str):
+        logger_background.debug(f'VideoDetect: Initializing video capture {video_path}')
         # video capture
         self.video_path = video_path
         self.video_capture = cv2.VideoCapture(self.video_path)
@@ -46,28 +47,37 @@ class VideoDetect:
         else:  # individual file
             files_to_verify = [path]
 
+        logger_background.info(f'[VIDEO_DETECTION] files to verify: {", ".join(files_to_verify)}')
+
         for file_path in files_to_verify:
             file_extension_match = ParserBase.file_extension_regex.search(file_path)
             # skip sample videos
             if ParserBase.sample_file_regex.search(file_path):
+                logger_background.info(f'[VIDEO_DETECTION] skipping "sample" file for {file_path}')
                 continue
             # skip files that don't have extensions
             if not file_extension_match:
+                logger_background.info(f'[VIDEO_DETECTION] skipping non-file-extension-match for {file_path}')
                 continue
             file_extension = file_extension_match.group()
             # skip files that don't look like videos
             if file_extension not in video_extensions():
+                logger_background.info(f'[VIDEO_DETECTION] skipping bad video_extension for {file_path}')
                 continue
             detection = cls(file_path)
             detection.process_similarity()
             if not detection.is_too_similar():
                 return True
+            else:
+                logger_background.info(f'[VIDEO_DETECTION] too similar for {file_path}')
+        logger_background.warning(f'[VIDEO_DETECTION] no valid files found in {path}')
         return False
 
     def is_correct_length(self, expected_duration: float):
         return abs(self.duration - expected_duration) / expected_duration < self.MAX_VIDEO_DURATION_DIFFERENCE_RATIO
 
     def is_too_similar(self):
+        logger_background.info(f'[VIDEO_DETECTION] video_similarity_std {self.video_similarity_std=}, {self.MIN_VIDEO_SIMILARITY_STD=}, {self.video_path=}')
         return self.video_similarity_std <= self.MIN_VIDEO_SIMILARITY_STD
 
     def process_similarity(self):
