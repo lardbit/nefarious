@@ -244,7 +244,10 @@ class DownloadTorrentsView(views.APIView):
             )
             watch_media.save()
             download_dir = os.path.join(
-                transmission_session.download_dir, nefarious_settings.transmission_movie_download_dir.lstrip('/'))
+                transmission_session.download_dir,
+                settings.UNPROCESSED_PATH,
+                nefarious_settings.transmission_movie_download_dir.lstrip('/'),
+            )
             result['watch_movie'] = WatchMovieSerializer(watch_media).data
         else:
             tmdb_request = tmdb.TV(tmdb_media['id'])
@@ -302,7 +305,10 @@ class DownloadTorrentsView(views.APIView):
                 result['watch_tv_season_request'] = WatchTVSeasonRequestSerializer(watch_tv_season_request).data
 
             download_dir = os.path.join(
-                transmission_session.download_dir, nefarious_settings.transmission_tv_download_dir.lstrip('/'))
+                transmission_session.download_dir,
+                settings.UNPROCESSED_PATH,
+                nefarious_settings.transmission_tv_download_dir.lstrip('/'),
+            )
 
         torrent = transmission_client.add_torrent(
             torrent_url,
