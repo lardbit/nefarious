@@ -456,7 +456,12 @@ export class ApiService {
     const httpParams = new HttpParams({fromObject: params});
     return this.http.get(this.API_URL_WATCH_TV_SEASON, {params: httpParams, headers: this._requestHeaders()}).pipe(
       map((records: any) => {
-        this._mergeMediaRecords(this.watchTVSeasons, records);
+        // if filter params are present we should merge the results
+        if (httpParams.keys().length > 0) {
+          this._mergeMediaRecords(this.watchTVSeasons, records);
+        } else {
+          this.watchTVSeasons = records;
+        }
         return this.watchTVSeasons;
       }),
     );
@@ -467,7 +472,12 @@ export class ApiService {
     const httpParams = new HttpParams({fromObject: params});
     return this.http.get(this.API_URL_WATCH_TV_SEASON_REQUEST, {params: httpParams, headers: this._requestHeaders()}).pipe(
       map((records: any) => {
-        this._mergeMediaRecords(this.watchTVSeasonRequests, records);
+        // if filter params are present we should merge the results
+        if (httpParams.keys().length > 0) {
+          this._mergeMediaRecords(this.watchTVSeasonRequests, records);
+        } else {
+          this.watchTVSeasonRequests = records;
+        }
         return this.watchTVSeasonRequests;
       }),
     );
@@ -479,7 +489,12 @@ export class ApiService {
 
     return this.http.get(this.API_URL_WATCH_MOVIE, {params: httpParams, headers: this._requestHeaders()}).pipe(
       map((records: any[]) => {
-        this._mergeMediaRecords(this.watchMovies, records);
+        // if filter params are present we should merge the results
+        if (httpParams.keys().length > 0) {
+          this._mergeMediaRecords(this.watchMovies, records);
+        } else {
+          this.watchMovies = records;
+        }
         return this.watchMovies;
       }),
     );
@@ -489,7 +504,12 @@ export class ApiService {
     const httpParams = new HttpParams({fromObject: params});
     return this.http.get(this.API_URL_WATCH_TV_EPISODE, {headers: this._requestHeaders(), params: httpParams}).pipe(
       map((records: any) => {
-        this._mergeMediaRecords(this.watchTVEpisodes, records);
+        // if filter params are present we should merge the results
+        if (httpParams.keys().length > 0) {
+          this._mergeMediaRecords(this.watchTVEpisodes, records);
+        } else {
+          this.watchTVEpisodes = records;
+        }
         return this.watchTVEpisodes;
       }),
     );
