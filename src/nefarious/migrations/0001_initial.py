@@ -23,6 +23,7 @@ class Migration(migrations.Migration):
                 ('jackett_host', models.CharField(default='localhost', max_length=500)),
                 ('jackett_port', models.IntegerField(default=9117)),
                 ('jackett_token', models.CharField(max_length=500)),
+                ('jackett_filter_index', models.CharField(default='all', max_length=500)),
                 ('transmission_host', models.CharField(max_length=500)),
                 ('transmission_port', models.IntegerField(default=9091)),
                 ('transmission_user', models.CharField(max_length=500)),

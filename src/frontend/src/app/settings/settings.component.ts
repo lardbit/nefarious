@@ -40,6 +40,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       'jackett_host': [settings['jackett_host'], Validators.required],
       'jackett_port': [settings['jackett_port'], Validators.required],
       'jackett_token': [settings['jackett_token'], Validators.required],
+      'jackett_filter_index': [settings['jackett_filter_index'], Validators.required],
       'transmission_host': [settings['transmission_host'], Validators.required],
       'transmission_port': [settings['transmission_port'], Validators.required],
       'transmission_user': [settings['transmission_user']],
