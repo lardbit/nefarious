@@ -28,6 +28,10 @@
             <label>API Token</label>
             <input type="text" class="form-control" placeholder="" formControlName="jackett_token" required>
           </div>
+          <div class="my-2">
+            <a target="_blank" href="https://github.com/Jackett/Jackett#filter-indexers"><label>Filter-Index</label></a>
+            <input type="text" class="form-control" placeholder="all" formControlName="jackett_filter_index" required>
+          </div>
           <div class="my-2 d-flex justify-content-between">
             <button type="button" class="btn btn-sm btn-outline-primary position-relative" (click)="saveAndVerifyJackettIndexers()">
               <ngx-loading [show]="isVeryingJackettIndexers"></ngx-loading>
