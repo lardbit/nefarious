@@ -25,8 +25,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libatlas-base-dev libhdf5-dev libavutil-dev libswresample-dev libavcodec-dev libavformat-dev libswscale-dev \
     && mkdir -p /nefarious-db \
     && python -m venv /env \
-    && /env/bin/pip install --force-reinstall -v "pip==24.0" \
-    && /env/bin/pip install --no-cache-dir --only-binary :all: --extra-index-url https://www.piwheels.org/simple -r requirements.txt \
+    && /env/bin/pip install -U pip==24 \
+    && /env/bin/pip install --no-cache-dir -r requirements.txt \
     && /env/bin/python manage.py collectstatic --no-input \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
