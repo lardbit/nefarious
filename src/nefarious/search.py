@@ -2,6 +2,7 @@ import requests
 from typing import List
 from nefarious.jackett import get_jackett_search_url
 from nefarious.models import NefariousSettings
+from nefarious.utils import logger_background
 
 SEARCH_MEDIA_TYPE_TV = 'tv'
 SEARCH_MEDIA_TYPE_MOVIE = 'movie'
@@ -24,6 +25,7 @@ class SearchTorrents:
         }
 
         res = requests.get(get_jackett_search_url(self.nefarious_settings), params, timeout=90)
+        logger_background.info(f'jackett search: query={query}, url={res.url}')
 
         if res.ok:
             response = res.json()
