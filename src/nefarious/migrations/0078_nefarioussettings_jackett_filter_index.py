@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='nefarioussettings',
             name='jackett_filter_index',
-            field=models.CharField(default='all', help_text='Optional Jackett index filter to use for searches', max_length=500),
+            field=models.CharField(blank=True, null=True, help_text='Optional Jackett index filter to use for searches', max_length=500),
         ),
     ]
