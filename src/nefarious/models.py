@@ -26,6 +26,8 @@ class NefariousSettings(models.Model):
     jackett_host = models.CharField(max_length=500, default='jackett')
     jackett_port = models.IntegerField(default=9117)
     jackett_token = models.CharField(max_length=500, default=JACKETT_TOKEN_DEFAULT)
+    jackett_filter_index = models.CharField(  # https://github.com/Jackett/Jackett#filter-indexers
+        max_length=500, null=True, blank=True, help_text='Optional Jackett index filter to use for searches')
 
     # transmission
     transmission_host = models.CharField(max_length=500, default='transmission')

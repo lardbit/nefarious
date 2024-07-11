@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ET
 from urllib.parse import urlparse
 from transmissionrpc import TransmissionError
 
+from nefarious.jackett import get_jackett_search_url
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVSeason, WatchTVEpisode, WatchMediaBase, TorrentBlacklist
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
@@ -66,13 +67,16 @@ def verify_settings_transmission(nefarious_settings: NefariousSettings):
 
 def verify_settings_jackett(nefarious_settings: NefariousSettings):
     """
-    A special "all" indexer is available at /api/v2.0/indexers/all/results/torznab/api. It will query all configured indexers and return the combined results.
+    A special "all" indexer or filter-index is available at /api/v2.0/indexers/all/results/torznab/api. It will query all configured indexers and return the combined results.
     NOTE: /api/v2.0/indexers/all/results  will return json results vs torznab's xml response
     """
     try:
-        # make an unspecified query to the "all" indexer results endpoint and see if it's successful
-        response = requests.get('http://{}:{}/api/v2.0/indexers/all/results'.format(
-            nefarious_settings.jackett_host, nefarious_settings.jackett_port), params={'apikey': nefarious_settings.jackett_token}, timeout=60)
+        # make an unspecified query to the indexer results endpoint and see if it's successful
+        response = requests.get(
+            get_jackett_search_url(nefarious_settings),
+            params={"apikey": nefarious_settings.jackett_token},
+            timeout=60,
+        )
         response.raise_for_status()
         return response.json()
     except Exception as e:
