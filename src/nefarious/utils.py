@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ET
 from urllib.parse import urlparse
 from transmissionrpc import TransmissionError
 
+from nefarious.jackett import get_jackett_search_url
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVSeason, WatchTVEpisode, WatchMediaBase, TorrentBlacklist
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
@@ -72,11 +73,7 @@ def verify_settings_jackett(nefarious_settings: NefariousSettings):
     try:
         # make an unspecified query to the indexer results endpoint and see if it's successful
         response = requests.get(
-            "http://{}:{}/api/v2.0/indexers/{}/results".format(
-                nefarious_settings.jackett_host,
-                nefarious_settings.jackett_port,
-                nefarious_settings.jackett_filter_index,
-            ),
+            get_jackett_search_url(nefarious_settings),
             params={"apikey": nefarious_settings.jackett_token},
             timeout=60,
         )
