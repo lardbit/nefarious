@@ -4,4 +4,7 @@
     "incomplete-dir-enabled": "true",
     "rpc-whitelist": "*",
     "rpc-host-whitelist-enabled": "false"
+    "rpc-password": "admin",
+    "rpc-username": "admin",
+    "rpc-authentication-required": "true"
 }
