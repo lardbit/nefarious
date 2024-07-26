@@ -4,7 +4,7 @@ from nefarious.models import NefariousSettings
 
 
 def send_message(message: str) -> bool:
-    # apprise notifications - https://github.com/caronc/apprise
+    # apprise notifications - https://github.com/caronc/apprise/tree/v0.9.3
     nefarious_settings = NefariousSettings.get()
     if nefarious_settings.apprise_notification_url:
         apprise_instance = apprise.Apprise()

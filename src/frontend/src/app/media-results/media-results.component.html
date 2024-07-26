@@ -8,13 +8,12 @@
     </div>
     <div class="row">
       <ngx-loading [show]="isLoading"></ngx-loading>
-      <!-- TODO - clicking result should be an href so you can open a new tab (use href/routerLink that does a redirect once it handles rotten tomato results) -->
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3 result" *ngFor="let result of results | mediaFilter: search" (click)="navigateToMedia(result)">
+      <a [routerLink]="getMediaURL(result)" class="col-12 col-sm-6 col-md-4 col-lg-3 result text-white" *ngFor="let result of results | mediaFilter: search">
         <div class="card" [ngClass]="{'border border-success rounded': isWatchingResult(result)}">
           <div class="result-watching">
             <div class="d-flex justify-content-end">
               <div *ngIf="isWatchingResult(result)" class="text-success" ngbTooltip="Watching"><span class="oi oi-eye"></span></div>
-              <div *ngIf="hasDownloadedResult(result)" class="ml-2 text-success" ngbTooltip="Downloaded"><span class="oi oi-check"></span></div>
+              <div *ngIf="hasDownloadedResult(result)" class="ms-2 text-success" ngbTooltip="Downloaded"><span class="oi oi-check"></span></div>
             </div>
           </div>
           <img class="card-img-top" [src]="mediaPosterURL(result)" alt="">
@@ -28,16 +27,16 @@
             </ng-container>
             <div class="d-flex justify-content-end rotten-tomato" *ngIf="isRottenTomatoResult(result)">
               <div>
-                <img *ngIf="result.tomato_icon === 'certified_fresh'" src="/static/assets/rt-fresh.png">
-                <img *ngIf="result.tomato_icon === 'fresh'" src="/static/assets/rt-regular.png">
-                <img *ngIf="result.tomato_icon === 'rotten'" src="/static/assets/rt-splat.png">
-                <span class="score ml-1">{{ result.tomato_score }}</span>
+                <img *ngIf="result.tomato_icon === 'certified_fresh'" src="/static/assets/rt-fresh.png" alt="">
+                <img *ngIf="result.tomato_icon === 'fresh'" src="/static/assets/rt-regular.png" alt="">
+                <img *ngIf="result.tomato_icon === 'rotten'" src="/static/assets/rt-splat.png" alt="">
+                <span class="score ms-1">{{ result.tomato_score }}</span>
               </div>
             </div>
-            <p class="card-text"[innerHTML]="result.overview"></p>
+            <p class="card-text" [innerHTML]="result.overview"></p>
           </div>
         </div>
-      </div>
+      </a>
     </div>
   </div>
 </div>

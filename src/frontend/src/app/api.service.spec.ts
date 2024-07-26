@@ -5,8 +5,9 @@ import { ApiService } from './api.service';
 describe('ApiService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [ApiService]
-    });
+    providers: [ApiService],
+    teardown: { destroyAfterEach: false }
+});
   });
 
   it('should be created', inject([ApiService], (service: ApiService) => {

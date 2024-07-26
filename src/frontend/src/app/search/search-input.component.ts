@@ -21,7 +21,7 @@ export class SearchInputComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.type = this.apiService.SEARCH_MEDIA_TYPE_MOVIE;
+    this.type = this.apiService.settings.preferred_media_category;
 
     const queryParams = this.route.snapshot.queryParams;
 

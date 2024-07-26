@@ -1,6 +1,6 @@
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { FormBuilder, Validators} from '@angular/forms';
+import { UntypedFormBuilder, Validators} from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
 import { forkJoin} from 'rxjs';
@@ -16,7 +16,7 @@ export class LoginComponent implements OnInit {
   public isSaving = false;
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private apiService: ApiService,
     private toastr: ToastrService,
     private router: Router,

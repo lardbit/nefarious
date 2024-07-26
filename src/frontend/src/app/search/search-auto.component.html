@@ -10,7 +10,7 @@
   <app-media-results [results]="searchResults.results" [mediaType]="searchMediaType()"></app-media-results>
 
   <!-- pagination -->
-  <div class="row justify-content-between my-3 mr-2" *ngIf="q.length">
+  <div class="d-flex justify-content-between my-3 me-2" *ngIf="q.length">
     <button class="btn btn-primary" type="button" [disabled]="page === 1" (click)="nextPage(-1)">Previous</button>
     <button class="btn btn-info" type="button" [disabled]="page === searchResults.total_pages" (click)="nextPage(1)">Next</button>
   </div>

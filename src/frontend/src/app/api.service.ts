@@ -1,4 +1,4 @@
-import { LocalStorage } from '@ngx-pwa/local-storage';
+import { StorageMap } from '@ngx-pwa/local-storage';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
@@ -38,6 +38,7 @@ export class ApiService {
   API_URL_DISCOVER_RT_MOVIES = '/api/discover/rotten-tomatoes/media/movie/';
   API_URL_GENRES_MOVIE = '/api/genres/movie/';
   API_URL_GENRES_TV = '/api/genres/tv/';
+  API_URL_MEDIA_CATEGORIES = '/api/media-categories/';
   API_URL_QUALITY_PROFILES = '/api/quality-profiles/';
   API_URL_GIT_COMMIT = '/api/git-commit/';
   API_URL_IMPORT_MEDIA_TV = '/api/import/media/tv/';
@@ -45,6 +46,7 @@ export class ApiService {
   API_URL_OPEN_SUBTITLES_AUTH = '/api/open-subtitles/auth/';
   API_URL_QUEUE_TASK = '/api/queue-task/';
   API_URL_SEND_TEST_NOTIFICATION = '/api/notifications/';
+  API_URL_BLACKLISTS_DELETE = '/api/torrent-blacklist/delete-all/';
 
   SEARCH_MEDIA_TYPE_TV = 'tv';
   SEARCH_MEDIA_TYPE_MOVIE = 'movie';
@@ -54,6 +56,7 @@ export class ApiService {
   public users: any; // staff-only list of all users
   public settings: any;
   public qualityProfiles: string[];
+  public mediaCategories: string[];
   public watchTVSeasons: any[] = [];
   public watchTVSeasonRequests: any[] = [];
   public watchTVEpisodes: any[] = [];
@@ -67,7 +70,7 @@ export class ApiService {
 
   constructor(
     private http: HttpClient,
-    private localStorage: LocalStorage,
+    private localStorage: StorageMap,
   ) {
   }
 
@@ -111,52 +114,52 @@ export class ApiService {
 
   public loadFromStorage(): Observable<any> {
     return zip(
-      this.localStorage.getItem(this.STORAGE_KEY_API_TOKEN).pipe(
+      this.localStorage.get(this.STORAGE_KEY_API_TOKEN).pipe(
         map(
           (data: string) => {
             this.userToken = data;
             return this.userToken;
           }),
       ),
-      this.localStorage.getItem(this.STORAGE_KEY_USER).pipe(
+      this.localStorage.get(this.STORAGE_KEY_USER).pipe(
         map(
           (data) => {
             this.user = data;
             return this.user;
           }),
       ),
-      this.localStorage.getItem(this.STORAGE_KEY_WATCH_MOVIES).pipe(
+      this.localStorage.get(this.STORAGE_KEY_WATCH_MOVIES).pipe(
         map(
           (data: any[]) => {
-            this.watchMovies = data;
+            this.watchMovies = data || [];
             return this.watchMovies;
           }),
       ),
-      this.localStorage.getItem(this.STORAGE_KEY_WATCH_TV_SHOWS).pipe(
+      this.localStorage.get(this.STORAGE_KEY_WATCH_TV_SHOWS).pipe(
         map(
           (data: any[]) => {
-            this.watchTVShows = data;
+            this.watchTVShows = data || [];
             return this.watchTVShows;
           }),
       ),
-      this.localStorage.getItem(this.STORAGE_KEY_WATCH_TV_SEASONS).pipe(
+      this.localStorage.get(this.STORAGE_KEY_WATCH_TV_SEASONS).pipe(
         map(
           (data: any[]) => {
-            this.watchTVSeasons = data;
+            this.watchTVSeasons = data || [];
             return this.watchTVSeasons;
           }),
       ),
-      this.localStorage.getItem(this.STORAGE_KEY_WATCH_TV_SEASON_REQUESTS).pipe(
+      this.localStorage.get(this.STORAGE_KEY_WATCH_TV_SEASON_REQUESTS).pipe(
         map(
           (data: any[]) => {
-            this.watchTVSeasonRequests = data;
+            this.watchTVSeasonRequests = data || [];
             return this.watchTVSeasonRequests;
           }),
       ),
-      this.localStorage.getItem(this.STORAGE_KEY_WATCH_TV_EPISODES).pipe(
+      this.localStorage.get(this.STORAGE_KEY_WATCH_TV_EPISODES).pipe(
         map(
           (data: any[]) => {
-            this.watchTVEpisodes = data;
+            this.watchTVEpisodes = data || [];
             return this.watchTVEpisodes;
           }),
       ),
@@ -178,6 +181,7 @@ export class ApiService {
         })
       ),
       this.fetchQualityProfiles(),
+      this.fetchMediaCategories(),
     ]).pipe(
       catchError((error) => {
         console.error(error);
@@ -186,13 +190,20 @@ export class ApiService {
     );
   }
 
-  public fetchWatchMedia(): Observable<any> {
+  public fetchWatchMedia(afterDateUpdated?: string): Observable<any> {
+    let params: any = {};
+
+    // conditionally include an "updated after date" parameter
+    if (afterDateUpdated) {
+      params.date_updated__gte = afterDateUpdated;
+    }
+
     return forkJoin([
-      this.fetchWatchTVShows(),
-      this.fetchWatchTVSeasons(),
-      this.fetchWatchTVSeasonRequests(),
-      this.fetchWatchTVEpisodes(),
-      this.fetchWatchMovies(),
+      this.fetchWatchTVShows(),  // "shows" don't support the "after date updated" parameter
+      this.fetchWatchTVSeasons(params),
+      this.fetchWatchTVSeasonRequests(params),
+      this.fetchWatchTVEpisodes(params),
+      this.fetchWatchMovies(params),
     ]).pipe(
       tap(() => {
         this._updateStorage().subscribe();
@@ -209,6 +220,19 @@ export class ApiService {
           console.log('no settings');
         }
         return this.settings;
+      }),
+    );
+  }
+
+  public fetchMediaCategories() {
+    return this.http.get(this.API_URL_MEDIA_CATEGORIES, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        if (data.mediaCategories) {
+          this.mediaCategories = data.mediaCategories;
+        } else {
+          console.error('no media categories');
+        }
+        return this.mediaCategories;
       }),
     );
   }
@@ -232,7 +256,7 @@ export class ApiService {
       map((data: any) => {
         if (data.length) {
           this.user = data[0];
-          this.localStorage.setItem(this.STORAGE_KEY_USER, this.user).subscribe();
+          this.localStorage.set(this.STORAGE_KEY_USER, this.user).subscribe();
           return this.user;
         } else {
           console.log('no user');
@@ -288,7 +312,7 @@ export class ApiService {
       map((data: any) => {
         console.log('token auth', data);
         this.userToken = data.token;
-        this.localStorage.setItem(this.STORAGE_KEY_API_TOKEN, this.userToken).subscribe(
+        this.localStorage.set(this.STORAGE_KEY_API_TOKEN, this.userToken).subscribe(
           (wasSet) => {
             console.log('local storage set', wasSet);
           },
@@ -431,8 +455,13 @@ export class ApiService {
     params = params || {};
     const httpParams = new HttpParams({fromObject: params});
     return this.http.get(this.API_URL_WATCH_TV_SEASON, {params: httpParams, headers: this._requestHeaders()}).pipe(
-      map((data: any) => {
-        this.watchTVSeasons = data;
+      map((records: any) => {
+        // if filter params are present we should merge the results
+        if (httpParams.keys().length > 0) {
+          this._mergeMediaRecords(this.watchTVSeasons, records);
+        } else {
+          this.watchTVSeasons = records;
+        }
         return this.watchTVSeasons;
       }),
     );
@@ -442,8 +471,13 @@ export class ApiService {
     params = params || {};
     const httpParams = new HttpParams({fromObject: params});
     return this.http.get(this.API_URL_WATCH_TV_SEASON_REQUEST, {params: httpParams, headers: this._requestHeaders()}).pipe(
-      map((data: any) => {
-        this.watchTVSeasonRequests = data;
+      map((records: any) => {
+        // if filter params are present we should merge the results
+        if (httpParams.keys().length > 0) {
+          this._mergeMediaRecords(this.watchTVSeasonRequests, records);
+        } else {
+          this.watchTVSeasonRequests = records;
+        }
         return this.watchTVSeasonRequests;
       }),
     );
@@ -454,17 +488,28 @@ export class ApiService {
     const httpParams = new HttpParams({fromObject: params});
 
     return this.http.get(this.API_URL_WATCH_MOVIE, {params: httpParams, headers: this._requestHeaders()}).pipe(
-      map((data: any) => {
-        this.watchMovies = data;
+      map((records: any[]) => {
+        // if filter params are present we should merge the results
+        if (httpParams.keys().length > 0) {
+          this._mergeMediaRecords(this.watchMovies, records);
+        } else {
+          this.watchMovies = records;
+        }
         return this.watchMovies;
       }),
     );
   }
 
-  public fetchWatchTVEpisodes() {
-    return this.http.get(this.API_URL_WATCH_TV_EPISODE, {headers: this._requestHeaders()}).pipe(
-      map((data: any) => {
-        this.watchTVEpisodes = data;
+  public fetchWatchTVEpisodes(params: any) {
+    const httpParams = new HttpParams({fromObject: params});
+    return this.http.get(this.API_URL_WATCH_TV_EPISODE, {headers: this._requestHeaders(), params: httpParams}).pipe(
+      map((records: any) => {
+        // if filter params are present we should merge the results
+        if (httpParams.keys().length > 0) {
+          this._mergeMediaRecords(this.watchTVEpisodes, records);
+        } else {
+          this.watchTVEpisodes = records;
+        }
         return this.watchTVEpisodes;
       }),
     );
@@ -807,6 +852,26 @@ export class ApiService {
     return this.http.post(this.API_URL_SEND_TEST_NOTIFICATION, {message}, {headers: this._requestHeaders()});
   }
 
+  public deleteAllBlacklists(): Observable<any> {
+    return this.http.post(this.API_URL_BLACKLISTS_DELETE, null, {headers: this._requestHeaders()});
+  }
+
+  protected _mergeMediaRecords(existingRecords: any[], updatedRecords: any[]) {
+    // merge new/updated media records
+    updatedRecords.forEach((updatedRecord) => {
+      // find matching record
+      const mediaIndex = existingRecords.findIndex((media) => {
+        return media.id === updatedRecord.id;
+      });
+      // found - update existing value
+      if (mediaIndex >= 0) {
+        existingRecords[mediaIndex] = updatedRecord;
+      } else {
+        existingRecords.push(updatedRecord);
+      }
+    })
+  }
+
   protected _initWebSocket() {
 
     // we can't rely on the server's websocket url because it may be "nefarious" when run in a docker stack,
@@ -931,11 +996,11 @@ export class ApiService {
 
     // set in storage
     return forkJoin([
-      this.localStorage.setItem(this.STORAGE_KEY_WATCH_MOVIES, this.watchMovies),
-      this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_SHOWS, this.watchTVShows),
-      this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_SEASONS, this.watchTVSeasons),
-      this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_SEASON_REQUESTS, this.watchTVSeasonRequests),
-      this.localStorage.setItem(this.STORAGE_KEY_WATCH_TV_EPISODES, this.watchTVEpisodes),
+      this.localStorage.set(this.STORAGE_KEY_WATCH_MOVIES, this.watchMovies),
+      this.localStorage.set(this.STORAGE_KEY_WATCH_TV_SHOWS, this.watchTVShows),
+      this.localStorage.set(this.STORAGE_KEY_WATCH_TV_SEASONS, this.watchTVSeasons),
+      this.localStorage.set(this.STORAGE_KEY_WATCH_TV_SEASON_REQUESTS, this.watchTVSeasonRequests),
+      this.localStorage.set(this.STORAGE_KEY_WATCH_TV_EPISODES, this.watchTVEpisodes),
     ]).pipe(
       tap(() => {
         // send event updates

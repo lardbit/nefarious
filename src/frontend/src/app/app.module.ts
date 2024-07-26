@@ -6,12 +6,12 @@ import { HttpClientModule } from '@angular/common/http';
 import { RouterModule, Routes} from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { FileSizeModule } from 'ngx-filesize';
+import { NgxFilesizeModule } from 'ngx-filesize';
 import { ToastrModule } from 'ngx-toastr';
 import { NgxLoadingModule } from 'ngx-loading';
 import { MomentModule } from 'ngx-moment';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { AngularPageVisibilityModule } from 'angular-page-visibility';
+import { AngularPageVisibilityModule } from 'angular-page-visibility-v2';
 
 
 import { AppComponent } from './app.component';
@@ -36,6 +36,7 @@ import { WantedComponent } from './wanted/wanted.component';
 import { RottenTomatoesComponent } from './rotten-tomatoes/rotten-tomatoes.component';
 import { TmdbComponent } from './tmdb/tmdb.component';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { RottenTomatoesRedirectComponent } from './rotten-tomatoes-redirect/rotten-tomatoes-redirect.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'search/auto', pathMatch: 'full' },  // redirects
@@ -58,6 +59,7 @@ const appRoutes: Routes = [
       { path: 'rt', component: RottenTomatoesComponent },
     ],
   },
+  { path: 'rt-redirect/:mediaType/:title', component: RottenTomatoesRedirectComponent },
   { path: 'page-not-found', component: PageNotFoundComponent },
   { path: '**', component: PageNotFoundComponent }
 ];
@@ -74,33 +76,30 @@ export function init(apiService: ApiService) {
 
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    PageNotFoundComponent,
-    SearchManualComponent,
-    SearchInputComponent,
-    SearchAutoComponent,
-    SettingsComponent,
-    LoginComponent,
-    MediaTVComponent,
-    MediaMovieComponent,
-    WatchingComponent,
-    TorrentDetailsComponent,
-    DiscoverComponent,
-    MediaResultsComponent,
-    MediaFilterPipe,
-    WantedComponent,
-    RottenTomatoesComponent,
-    TmdbComponent,
-  ],
+    declarations: [
+        AppComponent,
+        PageNotFoundComponent,
+        SearchManualComponent,
+        SearchInputComponent,
+        SearchAutoComponent,
+        SettingsComponent,
+        LoginComponent,
+        MediaTVComponent,
+        MediaMovieComponent,
+        WatchingComponent,
+        TorrentDetailsComponent,
+        DiscoverComponent,
+        MediaResultsComponent,
+        MediaFilterPipe,
+        WantedComponent,
+        RottenTomatoesComponent,
+        TmdbComponent,
+        RottenTomatoesRedirectComponent,
+    ],
   imports: [
-    RouterModule.forRoot(
-      appRoutes,
-      {
-    useHash: true,
-    relativeLinkResolution: 'legacy'
-}
-    ),
+    RouterModule.forRoot(appRoutes, {
+      useHash: true
+    }),
     BrowserModule,
     BrowserAnimationsModule,
     NgbModule,
@@ -108,7 +107,7 @@ export function init(apiService: ApiService) {
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
-    FileSizeModule,
+    NgxFilesizeModule,
     ToastrModule.forRoot(),
     NgxLoadingModule.forRoot({}),
     MomentModule,
@@ -116,12 +115,11 @@ export function init(apiService: ApiService) {
     AngularPageVisibilityModule,
     NgxDatatableModule,
   ],
-  entryComponents: [],
-  providers: [
-   { provide: APP_INITIALIZER, useFactory: init, deps: [ApiService], multi: true },
-    MediaFilterPipe,
-  ],
-  bootstrap: [AppComponent]
+    providers: [
+        { provide: APP_INITIALIZER, useFactory: init, deps: [ApiService], multi: true },
+        MediaFilterPipe,
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule {
   constructor() {

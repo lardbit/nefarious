@@ -16,7 +16,12 @@ services:
   celery:
     extends:
       file: docker-compose.base.yml
-      service: celery-base
+      service: celery-worker
+
+  celery-scheduler:
+    extends:
+      file: docker-compose.base.yml
+      service: celery-scheduler
 
   redis:
     extends:

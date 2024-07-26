@@ -5,8 +5,9 @@ import { SettingsGuard } from './settings.guard';
 describe('SettingsGuard', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [SettingsGuard]
-    });
+    providers: [SettingsGuard],
+    teardown: { destroyAfterEach: false }
+});
   });
 
   it('should ...', inject([SettingsGuard], (guard: SettingsGuard) => {

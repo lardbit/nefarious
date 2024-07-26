@@ -4,6 +4,7 @@ from django.core.validators import MinValueValidator
 from django.conf import settings
 from jsonfield import JSONField
 from django.db import models
+from nefarious import media_category
 from nefarious import quality
 
 
@@ -20,12 +21,15 @@ MEDIA_TYPE_TV_EPISODE = 'TV_EPISODE'
 class NefariousSettings(models.Model):
     JACKETT_TOKEN_DEFAULT = 'COPY_YOUR_JACKETT_TOKEN_HERE'
 
-    language = models.CharField(max_length=2, default='en')  # chosen language
+    # chosen language
+    language = models.CharField(max_length=2, default='en')
 
     # jackett
     jackett_host = models.CharField(max_length=500, default='jackett')
     jackett_port = models.IntegerField(default=9117)
     jackett_token = models.CharField(max_length=500, default=JACKETT_TOKEN_DEFAULT)
+    jackett_filter_index = models.CharField(  # https://github.com/Jackett/Jackett#filter-indexers
+        max_length=500, null=True, blank=True, help_text='Optional Jackett index filter to use for searches')
 
     # transmission
     transmission_host = models.CharField(max_length=500, default='transmission')
@@ -62,8 +66,19 @@ class NefariousSettings(models.Model):
     # expects keyword/boolean pairs like {"x265": false, "265": false}
     keyword_search_filters = JSONField(blank=True, null=True)  # type: dict
 
-    # apprise notifications - https://github.com/caronc/apprise
+    # apprise notifications - https://github.com/caronc/apprise/tree/v0.9.3
     apprise_notification_url = models.CharField(max_length=1000, blank=True)
+
+    # category of media the user prefers: movie or tv...
+    preferred_media_category = models.CharField(
+        max_length=10,
+        default=media_category.MEDIA_MOVIE_CATEGORY,
+        choices=media_category.MEDIA_CATEGORIES,
+    )
+
+    # handling of "stuck" downloads and how many days to blacklist a torrent if it's been stuck
+    stuck_download_handling_enabled = models.BooleanField(default=False, help_text='Whether to enable stuck download handling by blacklisting stuck torrents')
+    stuck_download_handling_days = models.IntegerField(default=3, help_text='How many days to wait before blacklisting stuck downloads')
 
     @classmethod
     def get(cls):
@@ -103,6 +118,7 @@ class WatchMediaBase(models.Model):
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     date_added = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
     collected = models.BooleanField(default=False)
     collected_date = models.DateTimeField(blank=True, null=True)
     download_path = models.CharField(max_length=1000, blank=True, null=True, unique=True)
@@ -119,6 +135,7 @@ class WatchMediaBase(models.Model):
         indexes = [
             models.Index(fields=['collected']),
             models.Index(fields=['collected_date']),
+            models.Index(fields=['date_updated']),
         ]
 
 
@@ -175,6 +192,7 @@ class WatchTVSeasonRequest(models.Model):
     quality_profile_custom = models.CharField(max_length=500, null=True, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     collected = models.BooleanField(default=False)
     date_added = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
     release_date = models.DateField(null=True, blank=True)
 
     class Meta:

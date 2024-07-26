@@ -6,7 +6,7 @@
     <div *ngIf="!isLoading">
       <div class="card-header d-flex justify-content-between">
         <h3 class="media-title">{{ result.title }}</h3>
-        <span *ngIf="watchMovie?.collected" class="text-success" [ngbPopover]="watchMovie.collected_date"><span class="oi oi-circle-check"></span> Downloaded</span>
+        <span *ngIf="watchMovie?.collected" class="bg-success px-2 py-2 rounded-5 text-dark" [ngbPopover]="watchMovie.collected_date"><span class="oi oi-circle-check"></span> Downloaded</span>
       </div>
       <div class="card-body">
         <ul #nav="ngbNav" ngbNav [(activeId)]="activeNav" class="nav-tabs">
@@ -41,20 +41,22 @@
                   <div class="col position-relative">
                     <ngx-loading [show]="isSaving"></ngx-loading>
                     <form class="form" (submit)="submit()">
-                      <div class="form-group mt-4" *ngIf="userIsStaff() && !isWatchingMovie()">
+                      <div class="mt-4" *ngIf="userIsStaff() && !isWatchingMovie()">
                         <label>Quality Profile</label>
-                        <select class="form-control form-control-sm" [(ngModel)]="qualityProfileCustom" name="quality-profile-custom">
+                        <select class="form-select form-select-sm" [(ngModel)]="qualityProfileCustom" name="quality-profile-custom">
                           <option></option>
                           <option *ngFor="let profile of qualityProfiles()" [value]="profile">{{ profile }}</option>
                         </select>
                       </div>
                       <div>
-                        <button class="btn btn-block btn-primary" *ngIf="!isWatchingMovie()">
-													<span *ngIf="!isWatchingMovie()">Watch</span>
-                        </button>
-                        <button class="btn btn-block btn-warning" *ngIf="isWatchingMovie()" [disabled]="!canUnWatch()">
-                          <span *ngIf="isWatchingMovie()" >Stop Watching</span>
-                        </button>
+                        <div class="d-grid gap-1 my-2">
+                          <button class="btn btn-primary" *ngIf="!isWatchingMovie()">
+                            <span *ngIf="!isWatchingMovie()">Watch</span>
+                          </button>
+                          <button class="btn btn-warning" *ngIf="isWatchingMovie()" [disabled]="!canUnWatch()">
+                            <span *ngIf="isWatchingMovie()" >Stop Watching</span>
+                          </button>
+                        </div>
                         <div class="text-muted mt-1" *ngIf="isWatchingMovie() && watchMovie">
                           Requested by: {{ watchMovie.requested_by }}
                         </div>

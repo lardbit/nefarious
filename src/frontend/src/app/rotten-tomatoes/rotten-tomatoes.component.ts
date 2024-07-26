@@ -1,7 +1,7 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
@@ -17,27 +17,27 @@ const RESULTS_PER_PAGE = 32;
 export class RottenTomatoesComponent implements OnInit {
   public results: any[] = [];
   public isLoading = false;
-  public form: FormGroup;
+  public form: UntypedFormGroup;
   public sortBy = {
-    'Release': 'release',
-    'Score': 'tomato',
-    'Popularity': 'popularity',
+    'Popularity': 'popular',
+    'Newest': 'newest',
+    'Title': 'a_z',
+    'Critic Score': 'critic_highest',
+    'Audience Score': 'audience_highest',
+  };
+  public critics = {
+    'Fresh': 'fresh',
+    'Certified Fresh': 'certified_fresh',
   };
   public types = {
-    'Opening': 'opening',
-    'Upcoming': 'upcoming',
-    'In Theaters': 'in-theaters',
-    'In Theaters (Certified Fresh)': 'cf-in-theaters',
-    'DVD All': 'dvd-streaming-all',
-    'Top DVD': 'top-dvd-streaming',
-    'DVD New': 'dvd-streaming-new',
-    'DVD Upcoming': 'dvd-streaming-upcoming',
-    'DVD All (Certified Fresh)': 'cf-dvd-streaming-all',
+    'At Home': 'movies_at_home',
+    'In Theaters': 'movies_in_theaters',
+    'Coming soon': 'movies_coming_soon',
   };
 
   constructor(
     private apiService: ApiService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private toastr: ToastrService,
     private route: ActivatedRoute,
     private router: Router,
@@ -48,10 +48,10 @@ export class RottenTomatoesComponent implements OnInit {
 
     // build form
     this.form = this.fb.group({
-      type: this.route.snapshot.queryParams['type'] || this.types['DVD All (Certified Fresh)'],
-      sortBy: this.route.snapshot.queryParams['sortBy'] || this.sortBy['Release'],
+      type: this.route.snapshot.queryParams['type'] || this.types['At Home'],
+      critics: this.route.snapshot.queryParams['critics'] || this.critics['Fresh'],
+      sortBy: this.route.snapshot.queryParams['sortBy'] || this.sortBy['Popularity'],
       page: parseInt(this.route.snapshot.queryParams['page'], 10) || 1,
-      minTomato: this.route.snapshot.queryParams['minTomato'] || 70,
     });
 
     this.route.queryParams.subscribe((params) => {
@@ -85,14 +85,8 @@ export class RottenTomatoesComponent implements OnInit {
     this._updateRoute();
   }
 
-  public isCertifiedFresh(): boolean {
-    // "certified" fresh start with "cf-"
-    return /^cf-/.test(this.form.get('type').value);
-  }
-
   protected _search() {
     this.isLoading = true;
-    this._handleCertifiedFresh();
 
     this.apiService.discoverRottenTomatoesMedia('movie', this.form.value).subscribe(
       (data: any) => {
@@ -109,13 +103,6 @@ export class RottenTomatoesComponent implements OnInit {
 
   protected _updateRoute() {
     this.router.navigate([], {queryParams: this.form.value});
-  }
-
-  protected _handleCertifiedFresh() {
-    // update minimum tomato score since "certified" means over 75
-    if (this.isCertifiedFresh()) {
-      this.form.get('minTomato').setValue(75, {emitEvent: false});
-    }
   }
 
   protected _setPage(page: number) {

@@ -5,8 +5,9 @@ import { StaffGuard } from './staff.guard';
 describe('StaffGuard', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [StaffGuard]
-    });
+    providers: [StaffGuard],
+    teardown: { destroyAfterEach: false }
+});
   });
 
   it('should ...', inject([StaffGuard], (guard: StaffGuard) => {
