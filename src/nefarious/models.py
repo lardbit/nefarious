@@ -55,6 +55,7 @@ class NefariousSettings(models.Model):
     quality_profile_tv = models.CharField(max_length=500, default=quality.PROFILE_ANY.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     quality_profile_movies = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
 
+    # TODO - define "default" quality profiles per media-type (tv/movies)
     quality_profiles = models.ForeignKey('QualityProfile', on_delete=models.CASCADE, null=True)
 
     # whether to allow hardcoded subtitles
