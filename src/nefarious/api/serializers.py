@@ -30,6 +30,9 @@ class NefariousSettingsSerializer(serializers.ModelSerializer):
     websocket_url = serializers.SerializerMethodField()
     is_debug = serializers.SerializerMethodField()
     host_download_path = serializers.SerializerMethodField()
+    # TODO - need to handle saving
+    quality_profile_tv = serializers.SerializerMethodField()
+    quality_profile_movies = serializers.SerializerMethodField()
 
     def get_websocket_url(self, obj):
         return settings.WEBSOCKET_URL
@@ -39,6 +42,12 @@ class NefariousSettingsSerializer(serializers.ModelSerializer):
 
     def get_host_download_path(self, obj):
         return settings.HOST_DOWNLOAD_PATH
+
+    def get_quality_profile_tv(self, obj):
+        return QualityProfileSerializer(obj.quality_profile_tv).data
+
+    def get_quality_profile_movies(self, obj):
+        return QualityProfileSerializer(obj.quality_profile_movies).data
 
     class Meta:
         model = NefariousSettings

@@ -50,6 +50,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       'open_subtitles_username': [settings['open_subtitles_username']],
       'open_subtitles_password': [settings['open_subtitles_password']],
       'open_subtitles_auto': [settings['open_subtitles_auto']],
+      // TODO - use QualityProfile primary key
       'quality_profile_tv': [settings['quality_profile_tv'], Validators.required],
       'quality_profile_movies': [settings['quality_profile_movies'], Validators.required],
       'allow_hardcoded_subs': [settings['allow_hardcoded_subs'], Validators.required],
