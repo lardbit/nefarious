@@ -39,7 +39,7 @@ export class ApiService {
   API_URL_GENRES_MOVIE = '/api/genres/movie/';
   API_URL_GENRES_TV = '/api/genres/tv/';
   API_URL_MEDIA_CATEGORIES = '/api/media-categories/';
-  API_URL_QUALITY_PROFILES = '/api/quality-profiles/';
+  API_URL_QUALITY_PROFILES = '/api/quality-profile/';
   API_URL_GIT_COMMIT = '/api/git-commit/';
   API_URL_IMPORT_MEDIA_TV = '/api/import/media/tv/';
   API_URL_IMPORT_MEDIA_MOVIE = '/api/import/media/movie/';
@@ -55,7 +55,7 @@ export class ApiService {
   public userToken: string;
   public users: any; // staff-only list of all users
   public settings: any;
-  public qualityProfiles: string[];
+  public qualityProfiles: any[] = [];
   public mediaCategories: string[];
   public watchTVSeasons: any[] = [];
   public watchTVSeasonRequests: any[] = [];
@@ -240,8 +240,8 @@ export class ApiService {
   public fetchQualityProfiles() {
     return this.http.get(this.API_URL_QUALITY_PROFILES, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        if (data.profiles) {
-          this.qualityProfiles = data.profiles;
+        if (data.length) {
+          this.qualityProfiles = data;
         } else {
           console.error('no quality profiles');
         }

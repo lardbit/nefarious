@@ -95,13 +95,13 @@
           <div class="my-2">
             <label>TV</label>
             <select type="text" class="form-select" formControlName="quality_profile_tv" required>
-              <option *ngFor="let profile of qualityProfiles()" [value]="profile">{{ profile }}</option>
+              <option *ngFor="let profile of qualityProfiles()" [value]="profile.id">{{ profile.name }}</option>
             </select>
           </div>
           <div class="my-2">
             <label>Movies</label>
             <select type="text" class="form-select" formControlName="quality_profile_movies" required>
-              <option *ngFor="let profile of qualityProfiles()" [value]="profile">{{ profile }}</option>
+              <option *ngFor="let profile of qualityProfiles()" [value]="profile.id">{{ profile.name }}</option>
             </select>
           </div>
         </div>
