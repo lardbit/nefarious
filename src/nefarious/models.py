@@ -20,16 +20,16 @@ MEDIA_TYPE_TV_EPISODE = 'TV_EPISODE'
 
 class QualityProfile(models.Model):
     name = models.CharField(max_length=500, unique=True)
-    quality = models.CharField(max_length=500, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+    profile = models.CharField(max_length=500, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     min_size_gb = models.DecimalField(
         null=True, blank=True, max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], help_text='minimum size (gb) to download')
     max_size_gb = models.DecimalField(
         null=True, blank=True, max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], help_text='maximum size (gb) to download')
 
     def __str__(self):
-        if self.name == self.quality:
+        if self.name == self.profile:
             return self.name
-        return f'{self.name} ({self.quality})'
+        return f'{self.name} ({self.profile})'
 
 
 class NefariousSettings(models.Model):

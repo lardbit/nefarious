@@ -352,7 +352,7 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     }
   }
 
-  public qualityProfiles(): string[] {
+  public qualityProfiles(): any[] {
     return this.apiService.qualityProfiles;
   }
 
