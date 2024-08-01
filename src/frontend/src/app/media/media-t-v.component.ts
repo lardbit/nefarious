@@ -53,14 +53,14 @@ export class MediaTVComponent implements OnInit, OnDestroy {
 
         // define quality profile form control and watch for changes
         this.qualityProfileControl = new UntypedFormControl(
-          (watchShow && watchShow.quality_profile_custom) ?
-            watchShow.quality_profile_custom :
+          (watchShow && watchShow.quality_profile) ?
+            watchShow.quality_profile :
             this.apiService.settings.quality_profile_tv
         );
         this.qualityProfileControl.valueChanges.subscribe((qualityProfile) => {
           watchShow = this._getWatchShow();
           if (watchShow) {
-            this.apiService.updateWatchTVShow(watchShow.id, {quality_profile_custom: qualityProfile})
+            this.apiService.updateWatchTVShow(watchShow.id, {quality_profile: qualityProfile})
               .subscribe(() => {
                 this.toastr.success('Updated quality profile');
               }, (error) => {

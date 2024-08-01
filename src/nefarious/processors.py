@@ -181,7 +181,7 @@ class WatchMovieProcessor(WatchProcessorBase):
 
     def _get_quality_profile(self):
         # try custom quality profile then fallback to global setting
-        return self.watch_media.quality_profile_custom or self.nefarious_settings.quality_profile_movies
+        return self.watch_media.quality_profile or self.nefarious_settings.quality_profile_movies
 
     def _get_parser(self, title: str):
         return MovieParser(title)
@@ -225,7 +225,7 @@ class WatchTVProcessorBase(WatchProcessorBase):
     def _get_quality_profile(self):
         # try custom quality profile then fallback to global setting
         watch_media = self.watch_media  # type: WatchTVEpisode|WatchTVSeason
-        return watch_media.watch_tv_show.quality_profile_custom or self.nefarious_settings.quality_profile_tv
+        return watch_media.watch_tv_show.quality_profile or self.nefarious_settings.quality_profile_tv
 
     def _get_parser(self, title: str):
         return TVParser(title)

@@ -27,6 +27,8 @@ class QualityProfile(models.Model):
         null=True, blank=True, max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], help_text='maximum size (gb) to download')
 
     def __str__(self):
+        if self.name == self.quality:
+            return self.name
         return f'{self.name} ({self.quality})'
 
 
