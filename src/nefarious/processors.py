@@ -41,10 +41,8 @@ class WatchProcessorBase:
         if search.ok:
 
             for result in search.results:
-                if self.is_match(result['Title']):
+                if self.is_match(result['Title'], result['Size']):
                     valid_search_results.append(result)
-                else:
-                    logger_background.info('Not matched: {}'.format(result['Title']))
 
             if valid_search_results:
 
@@ -114,21 +112,42 @@ class WatchProcessorBase:
 
         return False
 
-    def is_match(self, title: str) -> bool:
+    def is_match(self, title: str, size_kb: int) -> bool:
         parser = self._get_parser(title)
         quality_profile = self._get_quality_profile()
         profile = Profile.get_from_name(quality_profile.profile)
+        size_gb = size_kb / (1024**2)
+        mismatch_reason = ''
 
         # TODO - test other profile attributes (min/max size, HDR, etc)
 
-        return (
-            self._is_match(parser) and
-            parser.is_quality_match(profile) and
-            parser.is_hardcoded_subs_match(self.nefarious_settings.allow_hardcoded_subs) and
-            parser.is_keyword_search_filter_match(
+        # title
+        if not self._is_match(parser):
+            mismatch_reason = 'title'
+        # quality
+        elif not parser.is_quality_match(profile):
+            mismatch_reason = 'quality'
+        # size
+        elif quality_profile.min_size_gb is not None and size_gb < quality_profile.min_size_gb:
+            mismatch_reason = f'size min: {size_gb} < {quality_profile.min_size_gb}'
+        elif quality_profile.max_size_gb is not None and size_gb > quality_profile.max_size_gb:
+            mismatch_reason = f'size max: {size_gb} > {quality_profile.max_size_gb}'
+        # subs
+        elif not parser.is_hardcoded_subs_match(self.nefarious_settings.allow_hardcoded_subs):
+            mismatch_reason = f'hardcoded subs'
+        # keyword filters
+        elif not parser.is_keyword_search_filter_match(
                 self.nefarious_settings.keyword_search_filters.keys() if self.nefarious_settings.keyword_search_filters else []
-            )
-        )
+        ):
+            mismatch_reason = f'keyword search filters'
+
+        # failed
+        if mismatch_reason:
+            logger_background.info('[SEARCH: {}][NOT MATCHED: {}][REASON: {})'.format(self.watch_media, title, mismatch_reason))
+            return False
+
+        # success
+        return True
 
     def _set_last_attempt_date(self):
         self.watch_media.last_attempt_date = timezone.utc.localize(datetime.utcnow())
