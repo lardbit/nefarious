@@ -6,7 +6,7 @@ def populate_quality_profile(apps, schema_editor):
     NefariousSettings = apps.get_model('nefarious', 'NefariousSettings')
     QualityProfile = apps.get_model('nefarious', 'QualityProfile')
 
-    nefarious_settings = NefariousSettings.objects.get()
+    nefarious_settings = NefariousSettings.objects.all().first()
 
     # copy values from old field
     for profile in PROFILES:
@@ -14,6 +14,9 @@ def populate_quality_profile(apps, schema_editor):
             name=profile,
             quality=profile,
         )
+
+    if not nefarious_settings:
+        return
 
     quality_profile_tv = QualityProfile.objects.filter(quality=nefarious_settings.quality_profile_tv).first()
     quality_profile_movies = QualityProfile.objects.filter(quality=nefarious_settings.quality_profile_movies).first()
