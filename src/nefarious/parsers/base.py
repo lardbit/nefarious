@@ -4,6 +4,9 @@ from nefarious import quality
 from nefarious.quality import Resolution, Profile
 
 
+# TODO add tags in the parsing: "5.1 dolby", release type ...
+
+
 # regex parsing taken from:
 # https://github.com/Sonarr/Sonarr/blob/537e4d7c39e839e75e7a7ad84e95cd582ec1d20e/src/NzbDrone.Core/Parser/QualityParser.cs
 # https://github.com/Radarr/Radarr/blob/e01900628f86696469875dcb79f60071278100ba/src/NzbDrone.Core/Parser/QualityParser.cs
@@ -57,6 +60,7 @@ class ParserBase:
     high_def_pdtv_regex = regex.compile(r"hr[-_. ]ws", regex.I)
     raw_hd_regex = regex.compile(r"\b(?<rawhd>RawHD|1080i[-_. ]HDTV|Raw[-_. ]HD|MPEG[-_. ]?2)\b", regex.I)
     hardcoded_subs_regex = regex.compile(r"\b(?<hc>hc|korsub)\b", regex.I)
+    hdr_regex = regex.compile(r"\bhdr\b", regex.I)
 
     def __init__(self, title):
         self.title_query = title
@@ -81,6 +85,13 @@ class ParserBase:
 
             # hardcoded subs
             self.match['hc'] = self.parse_hardcoded_subs()
+
+            # hdr
+            self.match['hdr'] = self.parse_hdr()
+
+    def parse_hdr(self):
+        match = self.hdr_regex.search(self.title_query)
+        return True if match else False
 
     def parse_hardcoded_subs(self):
         match = self.hardcoded_subs_regex.search(self.title_query)
@@ -266,6 +277,9 @@ class ParserBase:
         if not self.match:
             return False
         return self._is_match(title, *args, **kwargs)
+
+    def is_hdr_match(self, needs_hdr = False):
+        return self.match['hdr'] if needs_hdr else True
 
     def is_quality_match(self, profile: Profile) -> bool:
         return self.match['quality'] in profile.qualities

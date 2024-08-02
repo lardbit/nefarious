@@ -25,6 +25,7 @@ class QualityProfile(models.Model):
         null=True, blank=True, max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], help_text='minimum size (gb) to download')
     max_size_gb = models.DecimalField(
         null=True, blank=True, max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], help_text='maximum size (gb) to download')
+    hdr = models.BooleanField(default=False, help_text='media must be in HDR (High Dynamic Range)')
 
     def __str__(self):
         if self.name == self.profile:

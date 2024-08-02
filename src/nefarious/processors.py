@@ -7,6 +7,7 @@ from django.utils import dateparse, timezone
 from transmissionrpc import Torrent
 
 from nefarious.models import WatchMovie, NefariousSettings, TorrentBlacklist, WatchTVEpisode, WatchTVSeason, QualityProfile
+from nefarious.parsers.base import ParserBase
 from nefarious.parsers.movie import MovieParser
 from nefarious.parsers.tv import TVParser
 from nefarious.quality import Profile
@@ -119,7 +120,7 @@ class WatchProcessorBase:
         size_gb = size_kb / (1024**2)
         mismatch_reason = ''
 
-        # TODO - test other profile attributes (min/max size, HDR, etc)
+        # TODO - test other profile attributes (dolby 5.1, etc)
 
         # title
         if not self._is_match(parser):
@@ -135,6 +136,10 @@ class WatchProcessorBase:
         # subs
         elif not parser.is_hardcoded_subs_match(self.nefarious_settings.allow_hardcoded_subs):
             mismatch_reason = f'hardcoded subs'
+        # hdr
+        elif not parser.is_hdr_match(quality_profile.hdr):
+            mismatch_reason = 'hdr'
+
         # keyword filters
         elif not parser.is_keyword_search_filter_match(
                 self.nefarious_settings.keyword_search_filters.keys() if self.nefarious_settings.keyword_search_filters else []
@@ -177,7 +182,7 @@ class WatchProcessorBase:
     def _get_tmdb_media(self):
         raise NotImplementedError
 
-    def _get_parser(self, title: str):
+    def _get_parser(self, title: str) -> ParserBase:
         raise NotImplementedError
 
     def _get_tmdb_title_key(self):
@@ -204,7 +209,7 @@ class WatchMovieProcessor(WatchProcessorBase):
         # try custom quality profile then fallback to global setting
         return self.watch_media.quality_profile or self.nefarious_settings.quality_profile_movies
 
-    def _get_parser(self, title: str):
+    def _get_parser(self, title: str) -> MovieParser:
         return MovieParser(title)
 
     def _is_match(self, parser):
@@ -248,7 +253,7 @@ class WatchTVProcessorBase(WatchProcessorBase):
         watch_media = self.watch_media  # type: WatchTVEpisode|WatchTVSeason
         return watch_media.watch_tv_show.quality_profile or self.nefarious_settings.quality_profile_tv
 
-    def _get_parser(self, title: str):
+    def _get_parser(self, title: str) -> TVParser:
         return TVParser(title)
 
     def _get_media_type(self) -> str:
