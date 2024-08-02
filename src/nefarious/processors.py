@@ -118,37 +118,36 @@ class WatchProcessorBase:
         quality_profile = self._get_quality_profile()
         profile = Profile.get_from_name(quality_profile.profile)
         size_gb = size_kb / (1024**2)
-        mismatch_reason = ''
+        mismatch = None
 
         # TODO - test other profile attributes (dolby 5.1, etc)
 
         # title
         if not self._is_match(parser):
-            mismatch_reason = 'title'
+            mismatch = 'title'
         # quality
         elif not parser.is_quality_match(profile):
-            mismatch_reason = 'quality'
+            mismatch = 'quality'
         # size
         elif quality_profile.min_size_gb is not None and size_gb < quality_profile.min_size_gb:
-            mismatch_reason = f'size min: {size_gb} < {quality_profile.min_size_gb}'
+            mismatch = f'size min: {size_gb} < {quality_profile.min_size_gb}'
         elif quality_profile.max_size_gb is not None and size_gb > quality_profile.max_size_gb:
-            mismatch_reason = f'size max: {size_gb} > {quality_profile.max_size_gb}'
+            mismatch = f'size max: {size_gb} > {quality_profile.max_size_gb}'
         # subs
         elif not parser.is_hardcoded_subs_match(self.nefarious_settings.allow_hardcoded_subs):
-            mismatch_reason = f'hardcoded subs'
+            mismatch = f'hardcoded subs'
         # hdr
-        elif not parser.is_hdr_match(quality_profile.hdr):
-            mismatch_reason = 'hdr'
-
+        elif not parser.is_hdr_match(quality_profile.require_hdr):
+            mismatch = 'hdr'
         # keyword filters
         elif not parser.is_keyword_search_filter_match(
                 self.nefarious_settings.keyword_search_filters.keys() if self.nefarious_settings.keyword_search_filters else []
         ):
-            mismatch_reason = f'keyword search filters'
+            mismatch = f'keyword search filters'
 
         # failed
-        if mismatch_reason:
-            logger_background.info('[SEARCH: {}][NOT MATCHED: {}][REASON: {})'.format(self.watch_media, title, mismatch_reason))
+        if mismatch:
+            logger_background.info('[SEARCH: {}][NOT MATCHED: {}][REASON: {})'.format(self.watch_media, title, mismatch))
             return False
 
         # success
