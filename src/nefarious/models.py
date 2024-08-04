@@ -26,6 +26,7 @@ class QualityProfile(models.Model):
     max_size_gb = models.DecimalField(
         null=True, blank=True, max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], help_text='maximum size (gb) to download')
     require_hdr = models.BooleanField(default=False, help_text='media must be in HDR (High Dynamic Range)')
+    require_five_point_one = models.BooleanField(default=False, help_text='media must be in 5.1 surround sound (e.g. Dolby 5.1)')
 
     def __str__(self):
         if self.name == self.profile:

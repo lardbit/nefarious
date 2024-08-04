@@ -139,6 +139,9 @@ class WatchProcessorBase:
         # hdr
         elif not parser.is_hdr_match(quality_profile.require_hdr):
             mismatch = 'hdr'
+        # 5.1 surround sound
+        elif not parser.is_five_point_one_match(quality_profile.require_five_point_one):
+            mismatch = 'five_point_one'
         # keyword filters
         elif not parser.is_keyword_search_filter_match(
                 self.nefarious_settings.keyword_search_filters.keys() if self.nefarious_settings.keyword_search_filters else []
