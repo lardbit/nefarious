@@ -29,6 +29,8 @@ services:
       NEFARIOUS_PASS: ${NEFARIOUS_PASS:-admin}
       HOST_DOWNLOAD_PATH: ${HOST_DOWNLOAD_PATH:-/tmp/}
       CONFIG_PATH: /nefarious-db
+      TRANSMISSION_USER: ${TRANSMISSION_USER-admin}  # to pre-populate settings (can be empty)
+      TRANSMISSION_PASS: ${TRANSMISSION_PASS-admin}  # to pre-populate settings (can be empty)
     volumes:
       # persistent named volume for sqlite database
       - nefarious-db:/nefarious-db
@@ -98,12 +100,6 @@ services:
       - "9091:9091"
       - "51413:51413"  # peer port
     restart: always
-    environment:
-      - PUID=${HOST_DOWNLOAD_UID:-1000}
-      - PGID=${HOST_DOWNLOAD_GID:-1000}
-    volumes:
-      - ${HOST_DOWNLOAD_PATH:-/tmp}:/downloads
-      - ./transmission-settings.json:/config/settings.json:ro
 
   # auto update service (to be extended)
   # https://github.com/containrrr/watchtower
