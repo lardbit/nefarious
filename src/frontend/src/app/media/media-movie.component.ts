@@ -15,7 +15,7 @@ import { map, share } from 'rxjs/operators';
 export class MediaMovieComponent implements OnInit, OnDestroy {
   public result: any;
   public watchMovie: any;
-  public qualityProfileCustom: string;
+  public qualityProfile: number;
   public isLoading = true;
   public isSaving = false;
   public trailerUrls$: Observable<any>;
@@ -39,8 +39,8 @@ export class MediaMovieComponent implements OnInit, OnDestroy {
         this.result = data;
         this.isLoading = false;
         this.watchMovie = this.getWatchMovie();
-        this.qualityProfileCustom = this.watchMovie ?
-          this.watchMovie.quality_profile_custom :
+        this.qualityProfile = this.watchMovie ?
+          this.watchMovie.quality_profile :
           this.apiService.settings.quality_profile_movies;
       },
       (error) => {
@@ -89,7 +89,7 @@ export class MediaMovieComponent implements OnInit, OnDestroy {
 
     if (isWatchingMovie) {
       endpoint = this.apiService.watchMovie(
-        this.result.id, this.result.title, this.mediaPosterURL(this.result), this.result.release_date, this.qualityProfileCustom);
+        this.result.id, this.result.title, this.mediaPosterURL(this.result), this.result.release_date, this.qualityProfile);
     } else if (!isWatchingMovie && watchMovie) {
       endpoint = this.apiService.unWatchMovie(watchMovie.id);
     } else {
@@ -126,7 +126,7 @@ export class MediaMovieComponent implements OnInit, OnDestroy {
     return this.apiService.userIsStaff();
   }
 
-  public qualityProfiles(): string[] {
+  public qualityProfiles(): any[] {
     return this.apiService.qualityProfiles;
   }
 

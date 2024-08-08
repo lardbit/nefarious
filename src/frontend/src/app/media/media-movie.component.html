@@ -43,9 +43,9 @@
                     <form class="form" (submit)="submit()">
                       <div class="mt-4" *ngIf="userIsStaff() && !isWatchingMovie()">
                         <label>Quality Profile</label>
-                        <select class="form-select form-select-sm" [(ngModel)]="qualityProfileCustom" name="quality-profile-custom">
+                        <select class="form-select form-select-sm" [(ngModel)]="qualityProfile" name="quality-profile">
                           <option></option>
-                          <option *ngFor="let profile of qualityProfiles()" [value]="profile">{{ profile }}</option>
+                          <option *ngFor="let profile of qualityProfiles()" [value]="profile.id">{{ profile.name }}</option>
                         </select>
                       </div>
                       <div>

@@ -1,8 +1,10 @@
 import os
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 from django.conf import settings
 from jsonfield import JSONField
 from django.db import models
+
 from nefarious import media_category
 from nefarious import quality
 
@@ -16,6 +18,22 @@ MEDIA_TYPE_TV_SEASON_REQUEST = 'TV_SEASON_REQUEST'
 MEDIA_TYPE_TV_EPISODE = 'TV_EPISODE'
 
 
+class QualityProfile(models.Model):
+    name = models.CharField(max_length=500, unique=True)
+    profile = models.CharField(max_length=500, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+    min_size_gb = models.DecimalField(
+        null=True, blank=True, max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], help_text='minimum size (gb) to download')
+    max_size_gb = models.DecimalField(
+        null=True, blank=True, max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], help_text='maximum size (gb) to download')
+    require_hdr = models.BooleanField(default=False, help_text='media must be in HDR (High Dynamic Range)')
+    require_five_point_one = models.BooleanField(default=False, help_text='media must be in 5.1 surround sound (e.g. Dolby 5.1)')
+
+    def __str__(self):
+        if self.name == self.profile:
+            return self.name
+        return f'{self.name} ({self.profile})'
+
+
 class NefariousSettings(models.Model):
     JACKETT_TOKEN_DEFAULT = 'COPY_YOUR_JACKETT_TOKEN_HERE'
 
@@ -26,6 +44,8 @@ class NefariousSettings(models.Model):
     jackett_host = models.CharField(max_length=500, default='jackett')
     jackett_port = models.IntegerField(default=9117)
     jackett_token = models.CharField(max_length=500, default=JACKETT_TOKEN_DEFAULT)
+
+    # TODO - move to quality profile
     jackett_filter_index = models.CharField(  # https://github.com/Jackett/Jackett#filter-indexers
         max_length=500, null=True, blank=True, help_text='Optional Jackett index filter to use for searches')
 
@@ -49,15 +69,17 @@ class NefariousSettings(models.Model):
     open_subtitles_user_token = models.CharField(max_length=500, blank=True, null=True, help_text='OpenSubtitles user auth token')  # generated in auth flow
     open_subtitles_auto = models.BooleanField(default=False, help_text='Whether to automatically download subtitles')
 
-    quality_profile_tv = models.CharField(max_length=500, default=quality.PROFILE_ANY.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
-    quality_profile_movies = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+    quality_profile_tv = models.ForeignKey(QualityProfile, on_delete=models.CASCADE, null=True, related_name='quality_profile_tv_default')
+    quality_profile_movies = models.ForeignKey(QualityProfile, on_delete=models.CASCADE, null=True, related_name='quality_profile_movies_default')
 
+    # TODO - move to quality profile
     # whether to allow hardcoded subtitles
     allow_hardcoded_subs = models.BooleanField(default=False)
 
     # whether to enable video detection features (e.g. fake/spam)
     enable_video_detection = models.BooleanField(default=False)
 
+    # TODO - move to quality profile
     # expects keyword/boolean pairs like {"x265": false, "265": false}
     keyword_search_filters = JSONField(blank=True, null=True)  # type: dict
 
@@ -88,11 +110,14 @@ class NefariousSettings(models.Model):
             poster_path.lstrip('/'),
         )
 
-    def should_save_subtitles(self):
+    def should_save_subtitles(self) -> bool:
         return all([
             self.open_subtitles_auto,
             self.open_subtitles_user_token,
         ])
+
+    class Meta:
+        verbose_name_plural = "Settings"
 
 
 class WatchMediaBase(models.Model):
@@ -126,7 +151,7 @@ class WatchMovie(WatchMediaBase):
     tmdb_movie_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
     poster_image_url = models.CharField(max_length=1000)
-    quality_profile_custom = models.CharField(max_length=500, null=True, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+    quality_profile = models.ForeignKey(QualityProfile, on_delete=models.CASCADE, null=True)
 
     class Meta:
         ordering = ('name',)
@@ -149,7 +174,8 @@ class WatchTVShow(models.Model):
     release_date = models.DateField(null=True, blank=True)
     auto_watch = models.BooleanField(default=False)  # whether to automatically watch future seasons
     auto_watch_date_updated = models.DateField(null=True, blank=True)  # date auto watch requested/updated
-    quality_profile_custom = models.CharField(max_length=500, null=True, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+    quality_profile = models.ForeignKey(QualityProfile, on_delete=models.CASCADE, null=True)
+
 
     class Meta:
         ordering = ('name',)
@@ -172,7 +198,7 @@ class WatchTVSeasonRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     watch_tv_show = models.ForeignKey(WatchTVShow, on_delete=models.CASCADE)
     season_number = models.IntegerField()
-    quality_profile_custom = models.CharField(max_length=500, null=True, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+    quality_profile = models.ForeignKey(QualityProfile, on_delete=models.CASCADE, null=True)
     collected = models.BooleanField(default=False)
     date_added = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
