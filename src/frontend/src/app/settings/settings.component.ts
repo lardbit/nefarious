@@ -1,11 +1,13 @@
-import { EMPTY } from 'rxjs';
-import { ChangeDetectorRef } from '@angular/core';
-import { ToastrService } from 'ngx-toastr';
-import { ApiService } from '../api.service';
-import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
-import { Component, OnInit, AfterContentChecked } from '@angular/core';
-import { concat, Observable, Subscription } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import {EMPTY} from 'rxjs';
+import {ChangeDetectorRef} from '@angular/core';
+import {ToastrService} from 'ngx-toastr';
+import {ApiService} from '../api.service';
+import {UntypedFormArray, UntypedFormBuilder, UntypedFormControl, Validators} from '@angular/forms';
+import {Component, OnInit, AfterContentChecked} from '@angular/core';
+import {concat, Observable, Subscription} from 'rxjs';
+import {tap} from 'rxjs/operators';
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {QualityProfilesComponent} from "./quality-profiles.component";
 
 @Component({
   selector: 'app-settings',
@@ -24,10 +26,12 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
 
   constructor(
     public apiService: ApiService,
-    private toastr: ToastrService,
-    private fb: UntypedFormBuilder,
-    private changeDectorRef: ChangeDetectorRef
-  ) { }
+    public toastr: ToastrService,
+    public fb: UntypedFormBuilder,
+    public changeDectorRef: ChangeDetectorRef,
+    public modalService: NgbModal,
+  ) {
+  }
 
   ngAfterContentChecked() {
     // handles form "required" dynamically changing after lifecycle check
@@ -215,8 +219,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       'open_subtitles_auto',
       'open_subtitles_username',
       'open_subtitles_password',
-    ].
-    forEach((key) => {
+    ].forEach((key) => {
       params[key] = this.form.value[key];
     });
 
@@ -234,12 +237,12 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       ),
       this.apiService.fetchSettings(),
     ).subscribe(
-        (data: any) => {
-        }, (error) => {
-          console.error(error);
-          this.toastr.error(error_message);
-        }
-      );
+      (data: any) => {
+      }, (error) => {
+        console.error(error);
+        this.toastr.error(error_message);
+      }
+    );
   }
 
   public queueTask(task: string): void {
@@ -288,6 +291,13 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
         this.isSaving = false;
       }
     })
+  }
+
+  public manageQualityProfiles() {
+    this.modalService.open(QualityProfilesComponent, {
+      size: "lg",
+      scrollable: true,
+    });
   }
 
   protected _saveSettings(): Observable<any> {

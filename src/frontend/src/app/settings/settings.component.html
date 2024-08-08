@@ -104,6 +104,10 @@
               <option *ngFor="let profile of qualityProfiles()" [value]="profile.id">{{ profile.name }}</option>
             </select>
           </div>
+          <!-- manage profiles -->
+          <button type="button" class="mt-3 btn btn-sm btn-outline-primary" (click)="manageQualityProfiles()">Manage profiles
+            <span class="oi oi-pencil"></span>
+          </button>
         </div>
       </div>
       <!-- keyword filters -->

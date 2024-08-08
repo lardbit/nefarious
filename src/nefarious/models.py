@@ -44,6 +44,8 @@ class NefariousSettings(models.Model):
     jackett_host = models.CharField(max_length=500, default='jackett')
     jackett_port = models.IntegerField(default=9117)
     jackett_token = models.CharField(max_length=500, default=JACKETT_TOKEN_DEFAULT)
+
+    # TODO - move to quality profile
     jackett_filter_index = models.CharField(  # https://github.com/Jackett/Jackett#filter-indexers
         max_length=500, null=True, blank=True, help_text='Optional Jackett index filter to use for searches')
 
@@ -70,12 +72,14 @@ class NefariousSettings(models.Model):
     quality_profile_tv = models.ForeignKey(QualityProfile, on_delete=models.CASCADE, null=True, related_name='quality_profile_tv_default')
     quality_profile_movies = models.ForeignKey(QualityProfile, on_delete=models.CASCADE, null=True, related_name='quality_profile_movies_default')
 
+    # TODO - move to quality profile
     # whether to allow hardcoded subtitles
     allow_hardcoded_subs = models.BooleanField(default=False)
 
     # whether to enable video detection features (e.g. fake/spam)
     enable_video_detection = models.BooleanField(default=False)
 
+    # TODO - move to quality profile
     # expects keyword/boolean pairs like {"x265": false, "265": false}
     keyword_search_filters = JSONField(blank=True, null=True)  # type: dict
 
