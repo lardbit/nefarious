@@ -3,6 +3,7 @@
   <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss('Cross click')"></button>
 </div>
 <div class="modal-body" [formGroup]="form">
+  <ngx-loading [show]="isLoading" [config]="{fullScreenBackdrop: true}"></ngx-loading>
   <form class="was-validated" [formArrayName]="'profiles'">
     <div class="card my-2" *ngFor="let profile of form.controls.profiles.controls; let i = index" [formGroupName]="i">
       <div class="card-body">
@@ -15,10 +16,10 @@
         </div>
         <!-- quality -->
         <div class="mb-3">
-          <label [for]="i + '_profile'" class="form-label">Quality</label>
-          <select class="form-select" [id]="i + '_profile'" [formControlName]="'profile'" required>
+          <label [for]="i + '_quality'" class="form-label">Quality</label>
+          <select class="form-select" [id]="i + '_quality'" [formControlName]="'quality'" required>
             <option></option>
-            <option *ngFor="let profile of apiService.qualityProfiles" [value]="profile.profile">{{ profile.profile }}</option>
+            <option *ngFor="let quality of apiService.qualities" [value]="quality">{{ quality }}</option>
           </select>
         </div>
         <!-- min size -->
@@ -45,10 +46,10 @@
             Require 5.1 Surround Sound
           </label>
         </div>
+        <div *ngIf="{'valid': form.controls.profiles.controls[i].valid} as validity" class="text-end">
+          <button type="button" class="btn" [ngClass]="{'btn-outline-success': validity.valid, 'btn-outline-danger': !validity.valid}" (click)="save(form.controls.profiles.controls[i])" [disabled]="!validity.valid">Save</button>
+        </div>
       </div>
     </div>
   </form>
-</div>
-<div class="modal-footer">
-  <button type="button" class="btn btn-outline-success" (click)="save()">Save</button>
 </div>

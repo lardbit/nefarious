@@ -1,11 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {ApiService} from "../api.service";
-import {FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
 import {ToastrService} from 'ngx-toastr';
 
 // TODO - add/remove profiles
-// TODO - implement UI (html & angular) validation
 
 @Component({
   selector: 'app-quality-profiles',
@@ -13,8 +12,8 @@ import {ToastrService} from 'ngx-toastr';
   styleUrl: './quality-profiles.component.css'
 })
 export class QualityProfilesComponent implements OnInit {
-
-  public form: FormGroup<{ profiles: FormArray }>;
+  public isLoading = false;
+  public form: FormGroup<{ profiles: FormArray<FormGroup> }>;
 
   constructor(
     public apiService: ApiService,
@@ -29,24 +28,28 @@ export class QualityProfilesComponent implements OnInit {
       profiles: this.fb.array(this.apiService.qualityProfiles.map(p => this.fb.group({
         id: p.id,
         name: this.fb.control(p.name, [Validators.required, Validators.minLength(2)]),
-        profile: this.fb.control(p.profile, [Validators.required]),
+        quality: this.fb.control(p.quality, [Validators.required]),
         min_size_gb: this.fb.control(p.min_size_gb, [Validators.min(0)]),
         max_size_gb: this.fb.control(p.max_size_gb, [Validators.min(0)]),
         require_hdr: p.require_hdr,
         require_five_point_one: p.require_five_point_one,
       }))),
     });
-
-    this.form.valueChanges.subscribe({
-      next: (data) => {
-        console.log(data);
-      }
-    })
   }
 
-  public save() {
-    // TODO - implement save
-    this.toastr.error('SAVE TODO')
-    this.activeModal.close()
+  public save(profileFormGroup: FormGroup) {
+    this.isLoading = true;
+    const data = profileFormGroup.value;
+    this.apiService.updateQualityProfile(data.id, data).subscribe({
+      next: () => {
+        this.toastr.success('Successfully updated quality profile');
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error(error);
+        this.toastr.error('An unknown error occurred updating the quality profile');
+        this.isLoading = false;
+      }
+    })
   }
 }

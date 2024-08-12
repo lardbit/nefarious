@@ -570,3 +570,10 @@ class SendNotificationView(views.APIView):
         assert 'message' in request.data, 'missing notification message'
         return Response({'success': send_message(request.data['message'])})
 
+
+@method_decorator(gzip_page, name='dispatch')
+class QualitiesView(views.APIView):
+
+    def get(self, request):
+        return Response([p.name for p in PROFILES])
+

@@ -34,6 +34,7 @@ urlpatterns = [
     path('import/media/<str:media_type>/', views.ImportMediaLibraryView.as_view()),
     path('genres/<str:media_type>/', views.GenresView.as_view()),
     path('media-categories/', views.MediaCategoriesView.as_view()),
+    path('qualities/', views.QualitiesView.as_view()),
     path('auth/', views.ObtainAuthTokenView.as_view()),  # authenticates user and returns token
     path('git-commit/', views.GitCommitView.as_view()),  # returns this app's git commit
     path('open-subtitles/auth/', views.OpenSubtitlesAuthView.as_view()),  # auths against open subtitles

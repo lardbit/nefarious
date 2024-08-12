@@ -116,7 +116,7 @@ class WatchProcessorBase:
     def is_match(self, title: str, size_kb: int) -> bool:
         parser = self._get_parser(title)
         quality_profile = self._get_quality_profile()
-        profile = Profile.get_from_name(quality_profile.profile)
+        profile = Profile.get_from_name(quality_profile.quality)
         size_gb = size_kb / (1024**2)
         mismatch = None
 
