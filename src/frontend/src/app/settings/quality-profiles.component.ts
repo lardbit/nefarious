@@ -52,4 +52,28 @@ export class QualityProfilesComponent implements OnInit {
       }
     })
   }
+
+  public delete(formArrayIndex: number) {
+    const profileFormGroup = this.form.controls.profiles.controls[formArrayIndex];
+    this.isLoading = true;
+    const data = profileFormGroup.value;
+    this.apiService.deleteQualityProfile(data.id).subscribe({
+      next: () => {
+        // remove form group
+        this.form.controls.profiles.removeAt(formArrayIndex);
+        this.toastr.success('Successfully deleted quality profile');
+        this.isLoading = false;
+      },
+      error: (error) => {
+        // display specific error message if it exists
+        if (error?.error?.message) {
+          this.toastr.error(error.error.message);
+        } else {
+          this.toastr.error('An unknown error occurred deleting the quality profile');
+        }
+        console.error(error);
+        this.isLoading = false;
+      }
+    })
+  }
 }

@@ -216,8 +216,24 @@ class CurrentUserViewSet(viewsets.ModelViewSet):
 
 @method_decorator(gzip_page, name='dispatch')
 class QualityProfileViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAdminUser,)
     queryset = QualityProfile.objects.all()
     serializer_class = QualityProfileSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        # prevent the deletion of the default tv/movies profiles in NefariousSettings
+        nefarious_settings = NefariousSettings.get()
+        if self.get_object() in [nefarious_settings.quality_profile_tv, nefarious_settings.quality_profile_movies]:
+            media_type = ''
+            if self.get_object() == nefarious_settings.quality_profile_tv:
+                media_type = 'tv'
+            elif self.get_object() == nefarious_settings.quality_profile_movies:
+                media_type = 'movies'
+            raise ValidationError({
+                'success': False,
+                'message': f"Cannot delete profile '{self.get_object()}' since it's used as a system-wide default for {media_type}",
+            })
+        return super().destroy(request, *args, **kwargs)
 
 
 class TorrentBlacklistViewSet(viewsets.ModelViewSet):

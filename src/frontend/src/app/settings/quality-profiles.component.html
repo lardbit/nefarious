@@ -46,8 +46,11 @@
             Require 5.1 Surround Sound
           </label>
         </div>
-        <div *ngIf="{'valid': form.controls.profiles.controls[i].valid} as validity" class="text-end">
-          <button type="button" class="btn" [ngClass]="{'btn-outline-success': validity.valid, 'btn-outline-danger': !validity.valid}" (click)="save(form.controls.profiles.controls[i])" [disabled]="!validity.valid">Save</button>
+        <div class="my-2 text-end">
+          <button type="button" class="btn btn-outline-danger me-2" (click)="delete(i)">Delete</button>
+          <ng-container *ngIf="{'ok': form.controls.profiles.controls[i].valid} as validity">
+            <button type="button" class="btn" [ngClass]="{'btn-success': validity.ok, 'btn-danger': !validity.ok}" (click)="save(form.controls.profiles.controls[i])" [disabled]="!validity.ok">Save</button>
+          </ng-container>
         </div>
       </div>
     </div>

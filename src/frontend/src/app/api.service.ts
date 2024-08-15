@@ -362,6 +362,23 @@ export class ApiService {
     );
   }
 
+  public deleteQualityProfile(id: number): Observable<any> {
+    return this.http.delete(`${this.API_URL_QUALITY_PROFILES}${id}/`, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        // remove this quality profile
+        this.qualityProfiles = this.qualityProfiles.filter(profile => profile.id !== id);
+        // unset quality profile from Movie/TVShow/TVSeasonRequest media records
+        [this.watchMovies, this.watchTVShows, this.watchTVSeasonRequests].forEach((watchMediaList) => {
+          watchMediaList.forEach((watchMedia) => {
+            if (watchMedia.quality_profile === id) {
+              watchMedia.quality_profile = null;
+            }
+          })
+        })
+      }),
+    );
+  }
+
   public searchTorrents(query: string, mediaType: string): Observable<any> {
     return this.http.get(`${this.API_URL_SEARCH_TORRENTS}?q=${query}&media_type=${mediaType}`, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
