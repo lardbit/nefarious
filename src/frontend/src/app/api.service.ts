@@ -329,8 +329,8 @@ export class ApiService {
         console.log('token auth', data);
         this.userToken = data.token;
         this.localStorage.set(this.STORAGE_KEY_API_TOKEN, this.userToken).subscribe(
-          (wasSet) => {
-            console.log('local storage set', wasSet);
+          () => {
+            console.log('local storage set');
           },
           (error) => {
             console.error('local storage error', error);
