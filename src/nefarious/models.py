@@ -18,9 +18,12 @@ MEDIA_TYPE_TV_SEASON_REQUEST = 'TV_SEASON_REQUEST'
 MEDIA_TYPE_TV_EPISODE = 'TV_EPISODE'
 
 
+def get_first_admin_user():
+    return User.objects.filter(is_staff=True).order_by('id').first()
+
+
 class QualityProfile(models.Model):
     # TODO - when "stop watching" the quality profile select box goes empty
-    # TODO - after deleting a quality profile, swap out default movie/tv profiles to something else...never let user remove all profiles?
     name = models.CharField(max_length=500, unique=True)
     quality = models.CharField(max_length=500, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     min_size_gb = models.DecimalField(
@@ -71,8 +74,9 @@ class NefariousSettings(models.Model):
     open_subtitles_user_token = models.CharField(max_length=500, blank=True, null=True, help_text='OpenSubtitles user auth token')  # generated in auth flow
     open_subtitles_auto = models.BooleanField(default=False, help_text='Whether to automatically download subtitles')
 
-    quality_profile_tv = models.ForeignKey(QualityProfile, on_delete=models.CASCADE, null=True, related_name='quality_profile_tv_default')
-    quality_profile_movies = models.ForeignKey(QualityProfile, on_delete=models.CASCADE, null=True, related_name='quality_profile_movies_default')
+    # TODO - don't allow NULL
+    quality_profile_tv = models.ForeignKey(QualityProfile, on_delete=models.PROTECT, null=True, related_name='quality_profile_tv_default')
+    quality_profile_movies = models.ForeignKey(QualityProfile, on_delete=models.PROTECT, null=True, related_name='quality_profile_movies_default')
 
     # TODO - move to quality profile
     # whether to allow hardcoded subtitles
@@ -126,7 +130,7 @@ class WatchMediaBase(models.Model):
     """
     Abstract base class for all watchable media classes
     """
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET(get_first_admin_user))
     date_added = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
     collected = models.BooleanField(default=False)
@@ -153,7 +157,7 @@ class WatchMovie(WatchMediaBase):
     tmdb_movie_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
     poster_image_url = models.CharField(max_length=1000)
-    quality_profile = models.ForeignKey(QualityProfile, on_delete=models.SET_NULL, null=True)
+    quality_profile = models.ForeignKey(QualityProfile, on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         ordering = ('name',)
@@ -169,14 +173,14 @@ class WatchTVShow(models.Model):
     """
     Shows are unique in that you don't request to "watch" a show.  Instead, you watch specific seasons and episodes
     """
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET(get_first_admin_user))
     tmdb_show_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
     poster_image_url = models.CharField(max_length=1000)
     release_date = models.DateField(null=True, blank=True)
     auto_watch = models.BooleanField(default=False)  # whether to automatically watch future seasons
     auto_watch_date_updated = models.DateField(null=True, blank=True)  # date auto watch requested/updated
-    quality_profile = models.ForeignKey(QualityProfile, on_delete=models.SET_NULL, null=True)
+    quality_profile = models.ForeignKey(QualityProfile, on_delete=models.SET_NULL, null=True, blank=True)
 
 
     class Meta:
@@ -197,10 +201,10 @@ class WatchTVSeasonRequest(models.Model):
     The task queue will routinely scan for new episodes for a season that may not have had it's full episode list at the time of
     the request to watch the entire season.  Essentially, nefarious will re-request a season's episode list to see if it needs to download any new episodes.
     """
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET(get_first_admin_user))
     watch_tv_show = models.ForeignKey(WatchTVShow, on_delete=models.CASCADE)
     season_number = models.IntegerField()
-    quality_profile = models.ForeignKey(QualityProfile, on_delete=models.SET_NULL, null=True)
+    quality_profile = models.ForeignKey(QualityProfile, on_delete=models.SET_NULL, null=True, blank=True)
     collected = models.BooleanField(default=False)
     date_added = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
