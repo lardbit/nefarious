@@ -1,9 +1,8 @@
 import {EMPTY} from 'rxjs';
-import {ChangeDetectorRef} from '@angular/core';
 import {ToastrService} from 'ngx-toastr';
 import {ApiService} from '../api.service';
-import {UntypedFormArray, UntypedFormBuilder, UntypedFormControl, Validators} from '@angular/forms';
-import {Component, OnInit, AfterContentChecked} from '@angular/core';
+import {FormArray, FormBuilder, FormControl, Validators, FormRecord} from '@angular/forms';
+import {Component, OnInit} from '@angular/core';
 import {concat, Observable, Subscription} from 'rxjs';
 import {tap} from 'rxjs/operators';
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -14,12 +13,12 @@ import {QualityProfilesComponent} from "./quality-profiles.component";
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css']
 })
-export class SettingsComponent implements OnInit, AfterContentChecked {
+export class SettingsComponent implements OnInit {
   public users: any[];
-  public form;
+  public form: FormRecord<any>;
   public isSaving = false;
   public isLoading = false;
-  public isVeryingJackettIndexers = false;
+  public isVerifyingJackettIndexers = false;
   public isLoadingUsers = false;
   public gitCommit = '';
   public authenticateOpenSubtitles$: Subscription;
@@ -27,15 +26,9 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
   constructor(
     public apiService: ApiService,
     public toastr: ToastrService,
-    public fb: UntypedFormBuilder,
-    public changeDectorRef: ChangeDetectorRef,
+    public fb: FormBuilder,
     public modalService: NgbModal,
   ) {
-  }
-
-  ngAfterContentChecked() {
-    // handles form "required" dynamically changing after lifecycle check
-    this.changeDectorRef.detectChanges();
   }
 
   ngOnInit() {
@@ -60,7 +53,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       'exclusions': [settings['keyword_search_filters'] ? Object.keys(settings['keyword_search_filters']) : []],
       'enable_video_detection': [settings['enable_video_detection'], Validators.required],
       'language': [settings['language'], Validators.required],
-      'users': new UntypedFormArray([]),
+      'users': new FormArray([]),
       'apprise_notification_url': [settings['apprise_notification_url']],
       'preferred_media_category': [settings['preferred_media_category'], Validators.required],
       'stuck_download_handling_enabled': [settings['stuck_download_handling_enabled'], Validators.required],
@@ -76,9 +69,9 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
             password: '',
           };
           Object.keys(user).forEach((key) => {
-            controls[key] = new UntypedFormControl(user[key]);
+            controls[key] = new FormControl(user[key]);
           });
-          this.form.get('users').insert(0, this.fb.group(controls));
+          this.form.controls.users.insert(0, this.fb.group(controls));
         });
       }, (error) => {
         this.toastr.error('An unknown error occurred loading users');
@@ -97,7 +90,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
   }
 
   public hasExclusions(): boolean {
-    const exclusions = this.form.get('exclusions').value;
+    const exclusions = this.form.controls.exclusions.value;
     return exclusions && exclusions.length;
   }
 
@@ -126,7 +119,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
   }
 
   public addUser() {
-    this.form.get('users').push(this.fb.group({
+    this.form.controls.users.push(this.fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required],
       can_immediately_watch_movies: [false],
@@ -136,7 +129,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
 
   public saveUser(index: number) {
 
-    const userControl = this.form.get('users').controls[index];
+    const userControl = this.form.controls.users.controls[index];
     if (!userControl.valid) {
       this.toastr.error('Please supply all required fields for this user');
       return;
@@ -157,7 +150,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
       this.apiService.createUser(userControl.value.username, userControl.value.password).subscribe(
         (data) => {
           this.toastr.success(`Added ${userControl.value.username}`);
-          this.form.get('users').at(index).addControl('id', new UntypedFormControl(data.id));
+          this.form.controls.users.at(index).addControl('id', new FormControl(data.id));
         },
         (error) => {
           this.toastr.error(`An unknown error occurred adding user ${userControl.value.username}`);
@@ -168,11 +161,11 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
   }
 
   public removeUser(index: number) {
-    const userControl = this.form.get('users').controls[index];
+    const userControl = this.form.controls.users.controls[index];
     this.apiService.deleteUser(userControl.value.id).subscribe(
       (data) => {
         this.toastr.success(`Successfully deleted ${userControl.value.username}`);
-        this.form.get('users').removeAt(index);
+        this.form.controls.users.removeAt(index);
       },
       (error) => {
         this.toastr.error(`An unknown error occurred deleting user ${userControl.value.username}`);
@@ -182,7 +175,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
   }
 
   public canDeleteUser(index: number) {
-    const userControl = this.form.get('users').controls[index];
+    const userControl = this.form.controls.users.controls[index];
     return userControl.get('id') && this.apiService.user.id !== userControl.get('id').value;
   }
 
@@ -375,7 +368,7 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
   }
 
   protected _verifyJackettIndexers() {
-    this.isVeryingJackettIndexers = true;
+    this.isVerifyingJackettIndexers = true;
     this.apiService.verifyJackettIndexers().subscribe(
       (data: any[]) => {
         const failedIndexers = data.filter((indexer: any) => {
@@ -388,11 +381,11 @@ export class SettingsComponent implements OnInit, AfterContentChecked {
         } else {
           this.toastr.success('All indexers were successful');
         }
-        this.isVeryingJackettIndexers = false;
+        this.isVerifyingJackettIndexers = false;
       },
       (error) => {
         this.toastr.error('An unknown error occurred verifying jackett indexers');
-        this.isVeryingJackettIndexers = false;
+        this.isVerifyingJackettIndexers = false;
       },
     );
   }
