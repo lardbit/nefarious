@@ -1,10 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {ApiService} from "../api.service";
-import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from "@angular/forms";
+import {FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ToastrService} from 'ngx-toastr';
+import {Observable} from "rxjs";
 
-// TODO - add/remove profiles
 
 @Component({
   selector: 'app-quality-profiles',
@@ -25,24 +25,32 @@ export class QualityProfilesComponent implements OnInit {
 
   ngOnInit() {
     this.form = this.fb.group({
-      profiles: this.fb.array(this.apiService.qualityProfiles.map(p => this.fb.group({
-        id: p.id,
-        name: this.fb.control(p.name, [Validators.required, Validators.minLength(2)]),
-        quality: this.fb.control(p.quality, [Validators.required]),
-        min_size_gb: this.fb.control(p.min_size_gb, [Validators.min(0)]),
-        max_size_gb: this.fb.control(p.max_size_gb, [Validators.min(0)]),
-        require_hdr: p.require_hdr,
-        require_five_point_one: p.require_five_point_one,
-      }))),
+      profiles: this.fb.array(this.apiService.qualityProfiles.map(p => this._getNewFormGroup(p))),
     });
+  }
+
+  public add() {
+    this.form.controls.profiles.insert(0, this._getNewFormGroup());
   }
 
   public save(profileFormGroup: FormGroup) {
     this.isLoading = true;
+    let update$: Observable<any>;
+    let updateVerb: string;
     const data = profileFormGroup.value;
-    this.apiService.updateQualityProfile(data.id, data).subscribe({
+    // update
+    if (data.id) {
+      update$ = this.apiService.updateQualityProfile(data.id, data);
+      updateVerb = 'updated';
+    }
+    // create
+    else {
+      update$ = this.apiService.createQualityProfile(data);
+      updateVerb = 'created';
+    }
+    update$.subscribe({
       next: () => {
-        this.toastr.success('Successfully updated quality profile');
+        this.toastr.success(`Successfully ${updateVerb} quality profile`);
         this.isLoading = false;
       },
       error: (error) => {
@@ -74,6 +82,18 @@ export class QualityProfilesComponent implements OnInit {
         console.error(error);
         this.isLoading = false;
       }
+    })
+  }
+
+  protected _getNewFormGroup(data?: any): FormGroup {
+    return this.fb.group({
+      id: data?.id,
+      name: this.fb.control(data?.name, [Validators.required, Validators.minLength(2)]),
+      quality: this.fb.control(data?.quality, [Validators.required]),
+      min_size_gb: this.fb.control(data?.min_size_gb, [Validators.min(0)]),
+      max_size_gb: this.fb.control(data?.max_size_gb, [Validators.min(0)]),
+      require_hdr: data?.require_hdr,
+      require_five_point_one: data?.require_five_point_one,
     })
   }
 }

@@ -30,8 +30,8 @@ class QualityProfile(models.Model):
         null=True, blank=True, max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], help_text='minimum size (gb) to download')
     max_size_gb = models.DecimalField(
         null=True, blank=True, max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], help_text='maximum size (gb) to download')
-    require_hdr = models.BooleanField(default=False, help_text='media must be in HDR (High Dynamic Range)')
-    require_five_point_one = models.BooleanField(default=False, help_text='media must be in 5.1 surround sound (e.g. Dolby 5.1)')
+    require_hdr = models.BooleanField(default=False, null=True, help_text='media must be in HDR (High Dynamic Range)')
+    require_five_point_one = models.BooleanField(default=False, null=True, help_text='media must be in 5.1 surround sound (e.g. Dolby 5.1)')
 
     def __str__(self):
         if self.name == self.quality:
@@ -62,7 +62,7 @@ class NefariousSettings(models.Model):
     transmission_tv_download_dir = models.CharField(max_length=500, default='tv/', help_text='Relative to download path')
     transmission_movie_download_dir = models.CharField(max_length=500, default='movies/', help_text='Relative to download path')
 
-    # tmbd - the movie database
+    # tmdb - the movie database
     tmdb_token = models.CharField(max_length=500, default=settings.TMDB_API_TOKEN)
     tmdb_configuration = JSONField(blank=True, null=True)
     tmdb_languages = JSONField(blank=True, null=True)  # type: list
@@ -81,6 +81,7 @@ class NefariousSettings(models.Model):
     # whether to allow hardcoded subtitles
     allow_hardcoded_subs = models.BooleanField(default=False)
 
+    # TODO - move to quality profile
     # whether to enable video detection features (e.g. fake/spam)
     enable_video_detection = models.BooleanField(default=False)
 

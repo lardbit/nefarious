@@ -379,6 +379,15 @@ export class ApiService {
     );
   }
 
+  public createQualityProfile(data: any): Observable<any> {
+    return this.http.post(this.API_URL_QUALITY_PROFILES, data, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        // append this new quality profile
+        this.qualityProfiles.push(data);
+      }),
+    );
+  }
+
   public searchTorrents(query: string, mediaType: string): Observable<any> {
     return this.http.get(`${this.API_URL_SEARCH_TORRENTS}?q=${query}&media_type=${mediaType}`, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
