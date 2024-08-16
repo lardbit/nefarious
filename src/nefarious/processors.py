@@ -120,8 +120,6 @@ class WatchProcessorBase:
         size_gb = size_kb / (1024**2)
         mismatch = None
 
-        # TODO - test other profile attributes (dolby 5.1, etc)
-
         # title
         if not self._is_match(parser):
             mismatch = 'title'

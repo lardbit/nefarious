@@ -23,7 +23,6 @@ def get_first_admin_user():
 
 
 class QualityProfile(models.Model):
-    # TODO - when "stop watching" the quality profile select box goes empty
     name = models.CharField(max_length=500, unique=True)
     quality = models.CharField(max_length=500, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
     min_size_gb = models.DecimalField(
