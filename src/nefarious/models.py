@@ -74,9 +74,8 @@ class NefariousSettings(models.Model):
     open_subtitles_user_token = models.CharField(max_length=500, blank=True, null=True, help_text='OpenSubtitles user auth token')  # generated in auth flow
     open_subtitles_auto = models.BooleanField(default=False, help_text='Whether to automatically download subtitles')
 
-    # TODO - don't allow NULL
-    quality_profile_tv = models.ForeignKey(QualityProfile, on_delete=models.PROTECT, null=True, related_name='quality_profile_tv_default')
-    quality_profile_movies = models.ForeignKey(QualityProfile, on_delete=models.PROTECT, null=True, related_name='quality_profile_movies_default')
+    quality_profile_tv = models.ForeignKey(QualityProfile, on_delete=models.PROTECT, related_name='quality_profile_tv_default')
+    quality_profile_movies = models.ForeignKey(QualityProfile, on_delete=models.PROTECT, related_name='quality_profile_movies_default')
 
     # TODO - move to quality profile
     # whether to allow hardcoded subtitles
