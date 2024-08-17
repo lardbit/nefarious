@@ -26,9 +26,10 @@ class Command(BaseCommand):
         nefarious_settings, _ = NefariousSettings.objects.get_or_create()
 
         # assign default quality profiles
-        nefarious_settings.quality_profile_tv = QualityProfile.objects.get(profile=PROFILE_ANY)
-        nefarious_settings.quality_profile_movies = QualityProfile.objects.get(profile=PROFILE_HD_1080p)
-        nefarious_settings.save()
+        if not nefarious_settings.quality_profile_tv:
+            nefarious_settings.quality_profile_tv = QualityProfile.objects.get(quality=PROFILE_ANY)
+        if not nefarious_settings.quality_profile_movies:
+            nefarious_settings.quality_profile_movies = QualityProfile.objects.get(quality=PROFILE_HD_1080p)
 
         # populate tmdb configuration if necessary
         if not nefarious_settings.tmdb_configuration or not nefarious_settings.tmdb_languages:
@@ -36,4 +37,5 @@ class Command(BaseCommand):
             configuration = tmdb_client.Configuration()
             nefarious_settings.tmdb_configuration = configuration.info()
             nefarious_settings.tmdb_languages = configuration.languages()
-            nefarious_settings.save()
+
+        nefarious_settings.save()
