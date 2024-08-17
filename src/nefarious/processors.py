@@ -113,11 +113,11 @@ class WatchProcessorBase:
 
         return False
 
-    def is_match(self, title: str, size_kb: int) -> bool:
+    def is_match(self, title: str, size_bytes: int) -> bool:
         parser = self._get_parser(title)
         quality_profile = self._get_quality_profile()
         profile = Profile.get_from_name(quality_profile.quality)
-        size_gb = size_kb / (1024**2)
+        size_gb = size_bytes / (1024**3)
         mismatch = None
 
         # title
@@ -148,7 +148,7 @@ class WatchProcessorBase:
 
         # failed
         if mismatch:
-            logger_background.info('[SEARCH: {}][NOT MATCHED: {}][REASON: {})'.format(self.watch_media, title, mismatch))
+            logger_background.info('[SEARCH: {}][NOT MATCHED: {}][PROFILE: {}][REASON: {}]'.format(self.watch_media, title, quality_profile, mismatch))
             return False
 
         # success
