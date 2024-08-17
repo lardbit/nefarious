@@ -8,6 +8,7 @@ import {tap} from 'rxjs/operators';
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {QualityProfilesComponent} from "./quality-profiles.component";
 
+
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.component.html',
@@ -291,6 +292,10 @@ export class SettingsComponent implements OnInit {
       size: "lg",
       scrollable: true,
     });
+  }
+
+  public trackByProfile(index: number, item: any) {
+    return item.id;
   }
 
   protected _saveSettings(): Observable<any> {

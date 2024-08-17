@@ -356,6 +356,10 @@ export class MediaTVComponent implements OnInit, OnDestroy {
     return this.apiService.qualityProfiles;
   }
 
+  public trackByProfile(index: number, item: any) {
+    return item.id;
+  }
+
   protected _watchShow(autoWatchNewSeasons?: boolean): Observable<any> {
     return this.apiService.watchTVShow(
       this.tmdbShow.id, this.tmdbShow.name, this.mediaPosterURL(this.tmdbShow), this.tmdbShow.first_air_date,

@@ -45,7 +45,7 @@
                         <label>Quality Profile</label>
                         <select class="form-select form-select-sm" [(ngModel)]="qualityProfile" name="quality-profile">
                           <option></option>
-                          <option *ngFor="let profile of qualityProfiles()" [value]="profile.id">{{ profile.name }}</option>
+                          <option *ngFor="let profile of qualityProfiles(); trackBy:trackByProfile" [value]="profile.id">{{ profile.name }}</option>
                         </select>
                       </div>
                       <div>

@@ -144,4 +144,8 @@ export class MediaMovieComponent implements OnInit, OnDestroy {
     // update the nav back to the main details
     this.activeNav = 'details';
   }
+
+  public trackByProfile(index: number, item: any) {
+    return item.id;
+  }
 }
