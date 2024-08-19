@@ -5,7 +5,7 @@
 <div class="modal-body" [formGroup]="form">
   <ngx-loading [show]="isLoading" [config]="{fullScreenBackdrop: true}"></ngx-loading>
   <div class="text-end">
-    <button type="button" class="btn btn-sm btn-outline-success" (click)="add()"><span class="oi oi-plus"></span></button>
+    <button type="button" class="btn btn-sm btn-outline-success" (click)="add()">New <span class="oi oi-plus"></span></button>
   </div>
   <form class="was-validated" [formArrayName]="'profiles'">
     <div class="card my-2" *ngFor="let profile of form.controls.profiles.controls; let i = index" [formGroupName]="i">

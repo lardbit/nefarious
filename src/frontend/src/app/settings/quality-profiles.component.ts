@@ -55,7 +55,18 @@ export class QualityProfilesComponent implements OnInit {
       },
       error: (error) => {
         console.error(error);
-        this.toastr.error('An unknown error occurred updating the quality profile');
+        let msg: string;
+        // display specific error
+        if (error.error) {
+          msg = Object.entries(error.error).map(([key,value]: [k: string, v: string[]]) => {
+            return `${key}: ${value.join(', ')}`;
+          }).join(', ');
+        }
+        // display generic error
+        else {
+          msg = 'An unknown error occurred updating the quality profile'
+        }
+        this.toastr.error(msg);
         this.isLoading = false;
       }
     })
@@ -63,8 +74,17 @@ export class QualityProfilesComponent implements OnInit {
 
   public delete(formArrayIndex: number) {
     const profileFormGroup = this.form.controls.profiles.controls[formArrayIndex];
-    this.isLoading = true;
     const data = profileFormGroup.value;
+
+    // remove unsaved form control
+    if (!data.id) {
+      this.form.controls.profiles.removeAt(formArrayIndex);
+      return;
+    }
+
+    this.isLoading = true;
+
+    // delete existing record
     this.apiService.deleteQualityProfile(data.id).subscribe({
       next: () => {
         // remove form group
