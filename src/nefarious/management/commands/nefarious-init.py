@@ -23,13 +23,13 @@ class Command(BaseCommand):
                 options['username'], options['password'], options['email'])))
 
         # create settings if they don't already exist
-        nefarious_settings, _ = NefariousSettings.objects.get_or_create()
-
-        # assign default quality profiles
-        if not nefarious_settings.quality_profile_tv:
-            nefarious_settings.quality_profile_tv = QualityProfile.objects.get(quality=PROFILE_ANY)
-        if not nefarious_settings.quality_profile_movies:
-            nefarious_settings.quality_profile_movies = QualityProfile.objects.get(quality=PROFILE_HD_1080p)
+        nefarious_settings = NefariousSettings.objects.all().first()
+        if not nefarious_settings:
+            nefarious_settings = NefariousSettings.objects.create(
+                ## define default quality profiles
+                quality_profile_tv=QualityProfile.objects.get(quality=PROFILE_ANY),
+                quality_profile_movies=QualityProfile.objects.get(quality=PROFILE_HD_1080p),
+            )
 
         # populate tmdb configuration if necessary
         if not nefarious_settings.tmdb_configuration or not nefarious_settings.tmdb_languages:
