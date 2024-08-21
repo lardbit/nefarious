@@ -16,6 +16,9 @@ import { MediaFilterPipe } from '../filter.pipe';
 })
 export class WantedComponent implements OnInit, OnDestroy {
   public results: any[] = [];
+  public sortBy: {prop: string, dir: string}[] = [
+    { prop: 'date_added', dir: 'desc', },
+  ];
   public mediaType: string;
   public search = '';
   public ColumnMode = ColumnMode;

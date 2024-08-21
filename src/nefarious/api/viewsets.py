@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.views.decorators.gzip import gzip_page
@@ -18,9 +17,9 @@ from nefarious.api.permissions import IsAuthenticatedDjangoObjectUser
 from nefarious.api.serializers import (
     NefariousSettingsSerializer, WatchTVEpisodeSerializer, WatchTVShowSerializer,
     UserSerializer, WatchMovieSerializer, NefariousPartialSettingsSerializer,
-    WatchTVSeasonSerializer, WatchTVSeasonRequestSerializer, TorrentBlacklistSerializer,
+    WatchTVSeasonSerializer, WatchTVSeasonRequestSerializer, TorrentBlacklistSerializer, QualityProfileSerializer,
 )
-from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason, WatchTVSeasonRequest, TorrentBlacklist, WatchMediaBase
+from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason, WatchTVSeasonRequest, TorrentBlacklist, QualityProfile
 from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task, send_websocket_message_task
 from nefarious.utils import (
     verify_settings_jackett, verify_settings_transmission, verify_settings_tmdb,
@@ -216,6 +215,27 @@ class CurrentUserViewSet(viewsets.ModelViewSet):
 
 
 @method_decorator(gzip_page, name='dispatch')
+class QualityProfileViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAdminUser,)
+    queryset = QualityProfile.objects.all()
+    serializer_class = QualityProfileSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        # prevent the deletion of the default tv/movies profiles in NefariousSettings
+        nefarious_settings = NefariousSettings.get()
+        if self.get_object() in [nefarious_settings.quality_profile_tv, nefarious_settings.quality_profile_movies]:
+            media_type = ''
+            if self.get_object() == nefarious_settings.quality_profile_tv:
+                media_type = 'tv'
+            elif self.get_object() == nefarious_settings.quality_profile_movies:
+                media_type = 'movies'
+            raise ValidationError({
+                'success': False,
+                'message': f"Cannot delete profile '{self.get_object()}' since it's used as a system-wide default for {media_type}",
+            })
+        return super().destroy(request, *args, **kwargs)
+
+
 class TorrentBlacklistViewSet(viewsets.ModelViewSet):
     queryset = TorrentBlacklist.objects.all()
     serializer_class = TorrentBlacklistSerializer

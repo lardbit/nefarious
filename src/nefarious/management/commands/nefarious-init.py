@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
-from nefarious.models import NefariousSettings
+from nefarious.models import NefariousSettings, QualityProfile
 from nefarious.tmdb import get_tmdb_client
+from nefarious.quality import PROFILE_HD_1080p, PROFILE_ANY
 
 
 class Command(BaseCommand):
@@ -22,7 +23,13 @@ class Command(BaseCommand):
                 options['username'], options['password'], options['email'])))
 
         # create settings if they don't already exist
-        nefarious_settings, _ = NefariousSettings.objects.get_or_create()
+        nefarious_settings = NefariousSettings.objects.all().first()
+        if not nefarious_settings:
+            nefarious_settings = NefariousSettings.objects.create(
+                ## define default quality profiles
+                quality_profile_tv=QualityProfile.objects.get(quality=PROFILE_ANY),
+                quality_profile_movies=QualityProfile.objects.get(quality=PROFILE_HD_1080p),
+            )
 
         # populate tmdb configuration if necessary
         if not nefarious_settings.tmdb_configuration or not nefarious_settings.tmdb_languages:
@@ -30,4 +37,5 @@ class Command(BaseCommand):
             configuration = tmdb_client.Configuration()
             nefarious_settings.tmdb_configuration = configuration.info()
             nefarious_settings.tmdb_languages = configuration.languages()
-            nefarious_settings.save()
+
+        nefarious_settings.save()

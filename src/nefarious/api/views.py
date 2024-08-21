@@ -508,13 +508,6 @@ class DiscoverRottenTomatoesMediaView(views.APIView):
 
 
 @method_decorator(gzip_page, name='dispatch')
-class QualityProfilesView(views.APIView):
-
-    def get(self, request):
-        return Response({'profiles': [p.name for p in PROFILES]})
-
-
-@method_decorator(gzip_page, name='dispatch')
 class MediaCategoriesView(views.APIView):
 
     def get(self, request):
@@ -576,4 +569,11 @@ class SendNotificationView(views.APIView):
     def post(self, request):
         assert 'message' in request.data, 'missing notification message'
         return Response({'success': send_message(request.data['message'])})
+
+
+@method_decorator(gzip_page, name='dispatch')
+class QualitiesView(views.APIView):
+
+    def get(self, request):
+        return Response([p.name for p in PROFILES])
 

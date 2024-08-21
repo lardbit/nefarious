@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from nefarious.models import (
     NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie,
     PERM_CAN_WATCH_IMMEDIATELY_TV, PERM_CAN_WATCH_IMMEDIATELY_MOVIE,
-    WatchTVSeason, WatchTVSeasonRequest, TorrentBlacklist,
+    WatchTVSeason, WatchTVSeasonRequest, TorrentBlacklist, QualityProfile,
 )
 
 
@@ -20,6 +20,12 @@ class UserReferenceSerializerMixin(serializers.ModelSerializer):
 
     def get_requested_by(self, watch_media):
         return watch_media.user.username
+
+
+class QualityProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QualityProfile
+        fields = '__all__'
 
 
 class NefariousSettingsSerializer(serializers.ModelSerializer):

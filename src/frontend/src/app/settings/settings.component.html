@@ -37,7 +37,7 @@
           </div>
           <div class="my-2 d-flex justify-content-between">
             <button type="button" class="btn btn-sm btn-outline-primary position-relative" (click)="saveAndVerifyJackettIndexers()">
-              <ngx-loading [show]="isVeryingJackettIndexers"></ngx-loading>
+              <ngx-loading [show]="isVerifyingJackettIndexers"></ngx-loading>
               Save & Verify Indexers
               <span class="oi oi-pulse"></span>
             </button>
@@ -95,15 +95,19 @@
           <div class="my-2">
             <label>TV</label>
             <select type="text" class="form-select" formControlName="quality_profile_tv" required>
-              <option *ngFor="let profile of qualityProfiles()" [value]="profile">{{ profile }}</option>
+              <option *ngFor="let profile of qualityProfiles()" [value]="profile.id">{{ profile.name }}</option>
             </select>
           </div>
           <div class="my-2">
             <label>Movies</label>
             <select type="text" class="form-select" formControlName="quality_profile_movies" required>
-              <option *ngFor="let profile of qualityProfiles()" [value]="profile">{{ profile }}</option>
+              <option *ngFor="let profile of qualityProfiles(); trackBy:trackByProfile" [value]="profile.id">{{ profile.name }}</option>
             </select>
           </div>
+          <!-- manage profiles -->
+          <button type="button" class="mt-3 btn btn-sm btn-outline-primary" (click)="manageQualityProfiles()">Manage profiles
+            <span class="oi oi-pencil"></span>
+          </button>
         </div>
       </div>
       <!-- keyword filters -->
@@ -145,31 +149,31 @@
             <ngx-loading [show]="isLoadingUsers"></ngx-loading>
             <div *ngIf="users">
               <div *ngFor="let control of form.controls.users.controls; let i=index" [formGroupName]="i">
-                <div class="d-flex justify-content-around">
-                  <div class="my-2 me-1">
-                    <input type="text" class="form-control" [id]="i+'username'" formControlName="username" required placeholder="username">
-                  </div>
-                  <div class="my-2 me-1">
-                    <ng-container *ngIf="control.value.id">
-                      <input type="password" class="form-control" [id]="i+'password'" formControlName="password" placeholder="new password">
-                      <small class="form-text text-muted">Leave blank to keep existing password</small>
-                    </ng-container>
-                    <ng-container *ngIf="!control.value.id">
-                      <input type="password" class="form-control" [id]="i+'password'" formControlName="password" placeholder="password" required>
-                    </ng-container>
-                  </div>
-                  <div class="my-2 me-1">
-                    <button type="button" class="btn btn-sm btn-success" (click)="saveUser(i)"><span class="oi oi-check"></span></button>
-                  </div>
-                  <div class="my-2">
-                    <button type="button" class="btn btn-sm btn-danger" [disabled]="!canDeleteUser(i)" (click)="removeUser(i)"><span class="oi oi-minus"></span></button>
-                  </div>
+                <!-- username -->
+                <div class="my-1">
+                  <input type="text" class="form-control" [id]="i+'username'" formControlName="username" required placeholder="username">
+                </div>
+                <!-- password -->
+                <div class="my-1">
+                  <ng-container *ngIf="control.value.id">
+                    <input type="password" class="form-control" [id]="i+'password'" formControlName="password" placeholder="new password">
+                    <small class="form-text text-muted">Leave blank to keep existing password</small>
+                  </ng-container>
+                  <ng-container *ngIf="!control.value.id">
+                    <input type="password" class="form-control" [id]="i+'password'" formControlName="password" placeholder="password" required>
+                  </ng-container>
+                </div>
+                <!-- add/remove -->
+                <div class="d-flex justify-content-end">
+                  <button type="button" class="btn btn-sm btn-outline-success me-2" (click)="saveUser(i)"><span class="oi oi-check"></span></button>
+                  <button type="button" class="btn btn-sm btn-outline-danger" [disabled]="!canDeleteUser(i)" (click)="removeUser(i)"><span class="oi oi-minus"></span></button>
                 </div>
                 <hr>
               </div>
             </div>
+            <!-- new user -->
             <div class="d-flex justify-content-end">
-              <button type="button" class="btn btn-xs btn-sm btn-success" (click)="addUser()"><span class="oi oi-plus"></span></button>
+              <button type="button" class="btn btn-sm btn-sm btn-outline-success" (click)="addUser()"><span class="oi oi-plus"></span></button>
             </div>
           </div>
         </div>

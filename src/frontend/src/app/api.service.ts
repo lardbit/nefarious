@@ -39,7 +39,8 @@ export class ApiService {
   API_URL_GENRES_MOVIE = '/api/genres/movie/';
   API_URL_GENRES_TV = '/api/genres/tv/';
   API_URL_MEDIA_CATEGORIES = '/api/media-categories/';
-  API_URL_QUALITY_PROFILES = '/api/quality-profiles/';
+  API_URL_QUALITIES = '/api/qualities/';
+  API_URL_QUALITY_PROFILES = '/api/quality-profile/';
   API_URL_GIT_COMMIT = '/api/git-commit/';
   API_URL_IMPORT_MEDIA_TV = '/api/import/media/tv/';
   API_URL_IMPORT_MEDIA_MOVIE = '/api/import/media/movie/';
@@ -55,7 +56,8 @@ export class ApiService {
   public userToken: string;
   public users: any; // staff-only list of all users
   public settings: any;
-  public qualityProfiles: string[];
+  public qualities: string[] = [];
+  public qualityProfiles: any[] = [];
   public mediaCategories: string[];
   public watchTVSeasons: any[] = [];
   public watchTVSeasonRequests: any[] = [];
@@ -180,6 +182,7 @@ export class ApiService {
           }
         })
       ),
+      this.fetchQualities(),
       this.fetchQualityProfiles(),
       this.fetchMediaCategories(),
     ]).pipe(
@@ -211,7 +214,7 @@ export class ApiService {
     );
   }
 
-  public fetchSettings() {
+  public fetchSettings(): Observable<any> {
     return this.http.get(this.API_URL_SETTINGS, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
         if (data.length) {
@@ -224,7 +227,7 @@ export class ApiService {
     );
   }
 
-  public fetchMediaCategories() {
+  public fetchMediaCategories(): Observable<string[]> {
     return this.http.get(this.API_URL_MEDIA_CATEGORIES, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
         if (data.mediaCategories) {
@@ -237,11 +240,24 @@ export class ApiService {
     );
   }
 
-  public fetchQualityProfiles() {
+  public fetchQualities(): Observable<string[]> {
+    return this.http.get(this.API_URL_QUALITIES, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        if (data.length) {
+          this.qualities = data;
+        } else {
+          console.error('no qualities');
+        }
+        return this.qualities;
+      }),
+    );
+  }
+
+  public fetchQualityProfiles(): Observable<any[]> {
     return this.http.get(this.API_URL_QUALITY_PROFILES, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
-        if (data.profiles) {
-          this.qualityProfiles = data.profiles;
+        if (data.length) {
+          this.qualityProfiles = data;
         } else {
           console.error('no quality profiles');
         }
@@ -303,7 +319,7 @@ export class ApiService {
     );
   }
 
-  public login(user: string, pass: string) {
+  public login(user: string, pass: string): Observable<any> {
     const params = {
       username: user,
       password: pass,
@@ -313,8 +329,8 @@ export class ApiService {
         console.log('token auth', data);
         this.userToken = data.token;
         this.localStorage.set(this.STORAGE_KEY_API_TOKEN, this.userToken).subscribe(
-          (wasSet) => {
-            console.log('local storage set', wasSet);
+          () => {
+            console.log('local storage set');
           },
           (error) => {
             console.error('local storage error', error);
@@ -334,7 +350,45 @@ export class ApiService {
     );
   }
 
-  public searchTorrents(query: string, mediaType: string) {
+  public updateQualityProfile(id: number, params: any): Observable<any> {
+    return this.http.patch(`${this.API_URL_QUALITY_PROFILES}${id}/`, params, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        this.qualityProfiles.forEach((profile, index) => {
+          if (profile.id === id) {
+            this.qualityProfiles[index] = params;
+          }
+        })
+      }),
+    );
+  }
+
+  public deleteQualityProfile(id: number): Observable<any> {
+    return this.http.delete(`${this.API_URL_QUALITY_PROFILES}${id}/`, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        // remove this quality profile
+        this.qualityProfiles = this.qualityProfiles.filter(profile => profile.id !== id);
+        // unset quality profile from Movie/TVShow/TVSeasonRequest media records
+        [this.watchMovies, this.watchTVShows, this.watchTVSeasonRequests].forEach((watchMediaList) => {
+          watchMediaList.forEach((watchMedia) => {
+            if (watchMedia.quality_profile === id) {
+              watchMedia.quality_profile = null;
+            }
+          })
+        })
+      }),
+    );
+  }
+
+  public createQualityProfile(data: any): Observable<any> {
+    return this.http.post(this.API_URL_QUALITY_PROFILES, data, {headers: this._requestHeaders()}).pipe(
+      map((data: any) => {
+        // append this new quality profile
+        this.qualityProfiles.push(data);
+      }),
+    );
+  }
+
+  public searchTorrents(query: string, mediaType: string): Observable<any> {
     return this.http.get(`${this.API_URL_SEARCH_TORRENTS}?q=${query}&media_type=${mediaType}`, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
         return data;
@@ -342,7 +396,7 @@ export class ApiService {
     );
   }
 
-  public download(torrentResult: any, mediaType: string, tmdbMedia: any, params?: any) {
+  public download(torrentResult: any, mediaType: string, tmdbMedia: any, params?: any): Observable<any> {
     // add extra params
     Object.assign(params || {}, {
       torrent: torrentResult,
@@ -377,7 +431,7 @@ export class ApiService {
     );
   }
 
-  public searchMedia(query: string, mediaType: string, page = 1) {
+  public searchMedia(query: string, mediaType: string, page = 1): Observable<any> {
     let params = {
       q: query,
       media_type: mediaType,
@@ -392,7 +446,7 @@ export class ApiService {
     );
   }
 
-  public searchSimilarMedia(tmdbMediaId: string, mediaType: string) {
+  public searchSimilarMedia(tmdbMediaId: string, mediaType: string): Observable<any> {
     let params = {
       tmdb_media_id: tmdbMediaId,
       media_type: mediaType,
@@ -407,7 +461,7 @@ export class ApiService {
     );
   }
 
-  public searchRecommendedMedia(tmdbMediaId: string, mediaType: string) {
+  public searchRecommendedMedia(tmdbMediaId: string, mediaType: string): Observable<any> {
     let params = {
       tmdb_media_id: tmdbMediaId,
       media_type: mediaType,
@@ -422,7 +476,7 @@ export class ApiService {
     );
   }
 
-  public searchMediaDetail(mediaType: string, id: string) {
+  public searchMediaDetail(mediaType: string, id: string): Observable<any> {
     const options = {headers: this._requestHeaders(), params: this._defaultParams()};
     return this.http.get(`${this.API_URL_SEARCH_MEDIA}${mediaType}/${id}/`, options).pipe(
       map((data: any) => {
@@ -431,7 +485,7 @@ export class ApiService {
     );
   }
 
-  public fetchMediaVideos(mediaType: string, id: string) {
+  public fetchMediaVideos(mediaType: string, id: string): Observable<any> {
     const options = {headers: this._requestHeaders()};
     return this.http.get(`${this.API_URL_SEARCH_MEDIA}${mediaType}/${id}/videos/`, options).pipe(
       map((data: any) => {
@@ -440,7 +494,7 @@ export class ApiService {
     );
   }
 
-  public fetchWatchTVShows(params?: any) {
+  public fetchWatchTVShows(params?: any): Observable<any[]> {
     params = params || {};
     const httpParams = new HttpParams({fromObject: params});
     return this.http.get(this.API_URL_WATCH_TV_SHOW, {params: httpParams, headers: this._requestHeaders()}).pipe(
@@ -451,7 +505,7 @@ export class ApiService {
     );
   }
 
-  public fetchWatchTVSeasons(params?: any) {
+  public fetchWatchTVSeasons(params?: any): Observable<any[]> {
     params = params || {};
     const httpParams = new HttpParams({fromObject: params});
     return this.http.get(this.API_URL_WATCH_TV_SEASON, {params: httpParams, headers: this._requestHeaders()}).pipe(
@@ -467,7 +521,7 @@ export class ApiService {
     );
   }
 
-  public fetchWatchTVSeasonRequests(params?: any) {
+  public fetchWatchTVSeasonRequests(params?: any): Observable<any[]> {
     params = params || {};
     const httpParams = new HttpParams({fromObject: params});
     return this.http.get(this.API_URL_WATCH_TV_SEASON_REQUEST, {params: httpParams, headers: this._requestHeaders()}).pipe(
@@ -483,7 +537,7 @@ export class ApiService {
     );
   }
 
-  public fetchWatchMovies(params?: any) {
+  public fetchWatchMovies(params?: any): Observable<any[]> {
     params = params || {};
     const httpParams = new HttpParams({fromObject: params});
 
@@ -500,7 +554,7 @@ export class ApiService {
     );
   }
 
-  public fetchWatchTVEpisodes(params: any) {
+  public fetchWatchTVEpisodes(params: any): Observable<any[]> {
     const httpParams = new HttpParams({fromObject: params});
     return this.http.get(this.API_URL_WATCH_TV_EPISODE, {headers: this._requestHeaders(), params: httpParams}).pipe(
       map((records: any) => {
@@ -515,7 +569,7 @@ export class ApiService {
     );
   }
 
-  public fetchCurrentTorrents(params: any) {
+  public fetchCurrentTorrents(params: any): Observable<any[]> {
     const httpParams = new HttpParams({fromObject: params});
     return this.http.get(this.API_URL_CURRENT_TORRENTS, {headers: this._requestHeaders(), params: httpParams}).pipe(
       map((data: any) => {
@@ -526,14 +580,14 @@ export class ApiService {
 
   public watchTVShow(
     showId: number, name: string, posterImageUrl: string,
-    releaseDate: string, autoWatchNewSeasons?: boolean, qualityProfile?: string) {
+    releaseDate: string, autoWatchNewSeasons?: boolean, qualityProfile?: number) {
     const params = {
       tmdb_show_id: showId,
       name: name,
       poster_image_url: posterImageUrl,
       release_date: releaseDate || null,
       auto_watch: !!autoWatchNewSeasons,
-      quality_profile_custom: qualityProfile,
+      quality_profile: qualityProfile,
     };
     return this.http.post(this.API_URL_WATCH_TV_SHOW, params, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
@@ -653,12 +707,12 @@ export class ApiService {
     );
   }
 
-  public watchMovie(movieId: number, name: string, posterImageUrl: string, releaseDate: string, qualityProfileCustom?: string) {
+  public watchMovie(movieId: number, name: string, posterImageUrl: string, releaseDate: string, qualityProfile?: number) {
     const params = {
       tmdb_movie_id: movieId,
       name: name,
       poster_image_url: posterImageUrl,
-      quality_profile_custom: qualityProfileCustom,
+      quality_profile: qualityProfile,
       release_date: releaseDate || null,
     };
 
@@ -734,7 +788,7 @@ export class ApiService {
     );
   }
 
-  public verifySettings() {
+  public verifySettings(): Observable<any> {
     return this.http.get(`${this.API_URL_SETTINGS}${this.settings.id}/verify/`, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
         return data;
@@ -801,15 +855,15 @@ export class ApiService {
     return this._discoverMedia(this.SEARCH_MEDIA_TYPE_TV, params);
   }
 
-  public fetchMovieGenres() {
+  public fetchMovieGenres(): Observable<any> {
     return this._fetchGenres(this.SEARCH_MEDIA_TYPE_MOVIE);
   }
 
-  public fetchTVGenres() {
+  public fetchTVGenres(): Observable<any> {
     return this._fetchGenres(this.SEARCH_MEDIA_TYPE_TV);
   }
 
-  public verifyJackettIndexers() {
+  public verifyJackettIndexers(): Observable<any> {
     return this.http.get(`${this.API_URL_SETTINGS}${this.settings.id}/verify-jackett-indexers/`, {headers: this._requestHeaders()});
   }
 
@@ -837,7 +891,7 @@ export class ApiService {
     return this.http.get(url, {params: httpParams, headers: this._requestHeaders()});
   }
 
-  public openSubtitlesAuth() {
+  public openSubtitlesAuth(): Observable<any> {
     const url = this.API_URL_OPEN_SUBTITLES_AUTH;
     return this.http.post(url, null, {headers: this._requestHeaders()});
   }
@@ -961,13 +1015,13 @@ export class ApiService {
     this._updateStorage().subscribe();
   }
 
-  protected _fetchGenres(mediaType: string) {
+  protected _fetchGenres(mediaType: string): Observable<any> {
     const url = mediaType === this.SEARCH_MEDIA_TYPE_MOVIE ? this.API_URL_GENRES_MOVIE : this.API_URL_GENRES_TV;
     const params = this._defaultParams();
     return this.http.get(url, {headers: this._requestHeaders(), params: params});
   }
 
-  protected _discoverMedia(mediaType: string, params: any) {
+  protected _discoverMedia(mediaType: string, params: any): Observable<any> {
     params = Object.assign(params, this._defaultParams());
     const httpParams = new HttpParams({fromObject: params});
     const url = mediaType === this.SEARCH_MEDIA_TYPE_MOVIE ? this.API_URL_DISCOVER_MOVIES : this.API_URL_DISCOVER_TV;

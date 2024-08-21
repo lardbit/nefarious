@@ -6,7 +6,8 @@ from datetime import datetime
 from django.utils import dateparse, timezone
 from transmissionrpc import Torrent
 
-from nefarious.models import WatchMovie, NefariousSettings, TorrentBlacklist, WatchTVEpisode, WatchTVSeason
+from nefarious.models import WatchMovie, NefariousSettings, TorrentBlacklist, WatchTVEpisode, WatchTVSeason, QualityProfile
+from nefarious.parsers.base import ParserBase
 from nefarious.parsers.movie import MovieParser
 from nefarious.parsers.tv import TVParser
 from nefarious.quality import Profile
@@ -41,10 +42,8 @@ class WatchProcessorBase:
         if search.ok:
 
             for result in search.results:
-                if self.is_match(result['Title']):
+                if self.is_match(result['Title'], result['Size']):
                     valid_search_results.append(result)
-                else:
-                    logger_background.info('Not matched: {}'.format(result['Title']))
 
             if valid_search_results:
 
@@ -61,7 +60,7 @@ class WatchProcessorBase:
 
                     logger_background.info('Valid Search Results: {}'.format(len(valid_search_results)))
 
-                    # find the torrent result with the highest weight (i.e seeds)
+                    # find the torrent result with the highest weight (e.g. seeds)
                     best_result = self._get_best_torrent_result(valid_search_results)
 
                     transmission_client = get_transmission_client(self.nefarious_settings)
@@ -99,7 +98,7 @@ class WatchProcessorBase:
                         continue
             else:
                 logger_background.info('No valid search results for {}'.format(self._sanitize_title(str(self.watch_media))))
-                # try again without possessive apostrophes (ie. The Handmaids Tale vs The Handmaid's Tale)
+                # try again without possessive apostrophes (e.g. The Handmaids Tale vs The Handmaid's Tale)
                 if not self._reprocess_without_possessive_apostrophes and self._possessive_apostrophes_regex.search(str(self.watch_media)):
                     self._reprocess_without_possessive_apostrophes = True
                     logger_background.warning('Retrying without possessive apostrophes: "{}"'.format(self._sanitize_title(str(self.watch_media))))
@@ -114,19 +113,46 @@ class WatchProcessorBase:
 
         return False
 
-    def is_match(self, title: str) -> bool:
+    def is_match(self, title: str, size_bytes: int) -> bool:
         parser = self._get_parser(title)
         quality_profile = self._get_quality_profile()
-        profile = Profile.get_from_name(quality_profile)
+        profile = Profile.get_from_name(quality_profile.quality)
+        size_gb = size_bytes / (1024**3)
+        mismatch = None
 
-        return (
-            self._is_match(parser) and
-            parser.is_quality_match(profile) and
-            parser.is_hardcoded_subs_match(self.nefarious_settings.allow_hardcoded_subs) and
-            parser.is_keyword_search_filter_match(
+        # title
+        if not self._is_match(parser):
+            mismatch = 'title'
+        # quality
+        elif not parser.is_quality_match(profile):
+            mismatch = 'quality'
+        # size
+        elif quality_profile.min_size_gb is not None and size_gb < quality_profile.min_size_gb:
+            mismatch = f'size min: {size_gb} < {quality_profile.min_size_gb}'
+        elif quality_profile.max_size_gb is not None and size_gb > quality_profile.max_size_gb:
+            mismatch = f'size max: {size_gb} > {quality_profile.max_size_gb}'
+        # subs
+        elif not parser.is_hardcoded_subs_match(self.nefarious_settings.allow_hardcoded_subs):
+            mismatch = f'hardcoded subs'
+        # hdr
+        elif not parser.is_hdr_match(quality_profile.require_hdr):
+            mismatch = 'hdr'
+        # 5.1 surround sound
+        elif not parser.is_five_point_one_match(quality_profile.require_five_point_one):
+            mismatch = 'five_point_one'
+        # keyword filters
+        elif not parser.is_keyword_search_filter_match(
                 self.nefarious_settings.keyword_search_filters.keys() if self.nefarious_settings.keyword_search_filters else []
-            )
-        )
+        ):
+            mismatch = f'keyword search filters'
+
+        # failed
+        if mismatch:
+            logger_background.info('[SEARCH: {}][NOT MATCHED: {}][PROFILE: {}][REASON: {}]'.format(self.watch_media, title, quality_profile, mismatch))
+            return False
+
+        # success
+        return True
 
     def _set_last_attempt_date(self):
         self.watch_media.last_attempt_date = timezone.utc.localize(datetime.utcnow())
@@ -144,7 +170,7 @@ class WatchProcessorBase:
     def _get_best_torrent_result(self, results: list):
         return get_best_torrent_result(results)
 
-    def _get_quality_profile(self):
+    def _get_quality_profile(self) -> QualityProfile:
         raise NotImplementedError
 
     def _get_watch_media(self, watch_media_id: int):
@@ -156,7 +182,7 @@ class WatchProcessorBase:
     def _get_tmdb_media(self):
         raise NotImplementedError
 
-    def _get_parser(self, title: str):
+    def _get_parser(self, title: str) -> ParserBase:
         raise NotImplementedError
 
     def _get_tmdb_title_key(self):
@@ -179,11 +205,11 @@ class WatchProcessorBase:
 
 class WatchMovieProcessor(WatchProcessorBase):
 
-    def _get_quality_profile(self):
+    def _get_quality_profile(self) -> QualityProfile:
         # try custom quality profile then fallback to global setting
-        return self.watch_media.quality_profile_custom or self.nefarious_settings.quality_profile_movies
+        return self.watch_media.quality_profile or self.nefarious_settings.quality_profile_movies
 
-    def _get_parser(self, title: str):
+    def _get_parser(self, title: str) -> MovieParser:
         return MovieParser(title)
 
     def _is_match(self, parser):
@@ -222,12 +248,12 @@ class WatchMovieProcessor(WatchProcessorBase):
 
 class WatchTVProcessorBase(WatchProcessorBase):
 
-    def _get_quality_profile(self):
+    def _get_quality_profile(self) -> QualityProfile:
         # try custom quality profile then fallback to global setting
         watch_media = self.watch_media  # type: WatchTVEpisode|WatchTVSeason
-        return watch_media.watch_tv_show.quality_profile_custom or self.nefarious_settings.quality_profile_tv
+        return watch_media.watch_tv_show.quality_profile or self.nefarious_settings.quality_profile_tv
 
-    def _get_parser(self, title: str):
+    def _get_parser(self, title: str) -> TVParser:
         return TVParser(title)
 
     def _get_media_type(self) -> str:

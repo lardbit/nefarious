@@ -1,8 +1,10 @@
 import os
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 from django.conf import settings
 from jsonfield import JSONField
 from django.db import models
+
 from nefarious import media_category
 from nefarious import quality
 
@@ -16,6 +18,26 @@ MEDIA_TYPE_TV_SEASON_REQUEST = 'TV_SEASON_REQUEST'
 MEDIA_TYPE_TV_EPISODE = 'TV_EPISODE'
 
 
+def get_first_admin_user():
+    return User.objects.filter(is_staff=True).order_by('id').first()
+
+
+class QualityProfile(models.Model):
+    name = models.CharField(max_length=500, unique=True)
+    quality = models.CharField(max_length=500, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+    min_size_gb = models.DecimalField(
+        null=True, blank=True, max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], help_text='minimum size (gb) to download')
+    max_size_gb = models.DecimalField(
+        null=True, blank=True, max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], help_text='maximum size (gb) to download')
+    require_hdr = models.BooleanField(default=False, null=True, help_text='media must be in HDR (High Dynamic Range)')
+    require_five_point_one = models.BooleanField(default=False, null=True, help_text='media must be in 5.1 surround sound (e.g. Dolby 5.1)')
+
+    def __str__(self):
+        if self.name == self.quality:
+            return self.name
+        return f'{self.name} ({self.quality})'
+
+
 class NefariousSettings(models.Model):
     JACKETT_TOKEN_DEFAULT = 'COPY_YOUR_JACKETT_TOKEN_HERE'
 
@@ -26,6 +48,7 @@ class NefariousSettings(models.Model):
     jackett_host = models.CharField(max_length=500, default='jackett')
     jackett_port = models.IntegerField(default=9117)
     jackett_token = models.CharField(max_length=500, default=JACKETT_TOKEN_DEFAULT)
+
     jackett_filter_index = models.CharField(  # https://github.com/Jackett/Jackett#filter-indexers
         max_length=500, null=True, blank=True, help_text='Optional Jackett index filter to use for searches')
 
@@ -37,7 +60,7 @@ class NefariousSettings(models.Model):
     transmission_tv_download_dir = models.CharField(max_length=500, default='tv/', help_text='Relative to download path')
     transmission_movie_download_dir = models.CharField(max_length=500, default='movies/', help_text='Relative to download path')
 
-    # tmbd - the movie database
+    # tmdb - the movie database
     tmdb_token = models.CharField(max_length=500, default=settings.TMDB_API_TOKEN)
     tmdb_configuration = JSONField(blank=True, null=True)
     tmdb_languages = JSONField(blank=True, null=True)  # type: list
@@ -49,8 +72,8 @@ class NefariousSettings(models.Model):
     open_subtitles_user_token = models.CharField(max_length=500, blank=True, null=True, help_text='OpenSubtitles user auth token')  # generated in auth flow
     open_subtitles_auto = models.BooleanField(default=False, help_text='Whether to automatically download subtitles')
 
-    quality_profile_tv = models.CharField(max_length=500, default=quality.PROFILE_ANY.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
-    quality_profile_movies = models.CharField(max_length=500, default=quality.PROFILE_HD_720P_1080P.name, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+    quality_profile_tv = models.ForeignKey(QualityProfile, on_delete=models.PROTECT, related_name='quality_profile_tv_default')
+    quality_profile_movies = models.ForeignKey(QualityProfile, on_delete=models.PROTECT, related_name='quality_profile_movies_default')
 
     # whether to allow hardcoded subtitles
     allow_hardcoded_subs = models.BooleanField(default=False)
@@ -88,18 +111,21 @@ class NefariousSettings(models.Model):
             poster_path.lstrip('/'),
         )
 
-    def should_save_subtitles(self):
+    def should_save_subtitles(self) -> bool:
         return all([
             self.open_subtitles_auto,
             self.open_subtitles_user_token,
         ])
+
+    class Meta:
+        verbose_name_plural = "Settings"
 
 
 class WatchMediaBase(models.Model):
     """
     Abstract base class for all watchable media classes
     """
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET(get_first_admin_user))
     date_added = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
     collected = models.BooleanField(default=False)
@@ -126,7 +152,7 @@ class WatchMovie(WatchMediaBase):
     tmdb_movie_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
     poster_image_url = models.CharField(max_length=1000)
-    quality_profile_custom = models.CharField(max_length=500, null=True, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+    quality_profile = models.ForeignKey(QualityProfile, on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         ordering = ('name',)
@@ -142,14 +168,15 @@ class WatchTVShow(models.Model):
     """
     Shows are unique in that you don't request to "watch" a show.  Instead, you watch specific seasons and episodes
     """
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET(get_first_admin_user))
     tmdb_show_id = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
     poster_image_url = models.CharField(max_length=1000)
     release_date = models.DateField(null=True, blank=True)
     auto_watch = models.BooleanField(default=False)  # whether to automatically watch future seasons
     auto_watch_date_updated = models.DateField(null=True, blank=True)  # date auto watch requested/updated
-    quality_profile_custom = models.CharField(max_length=500, null=True, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+    quality_profile = models.ForeignKey(QualityProfile, on_delete=models.SET_NULL, null=True, blank=True)
+
 
     class Meta:
         ordering = ('name',)
@@ -169,10 +196,10 @@ class WatchTVSeasonRequest(models.Model):
     The task queue will routinely scan for new episodes for a season that may not have had it's full episode list at the time of
     the request to watch the entire season.  Essentially, nefarious will re-request a season's episode list to see if it needs to download any new episodes.
     """
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET(get_first_admin_user))
     watch_tv_show = models.ForeignKey(WatchTVShow, on_delete=models.CASCADE)
     season_number = models.IntegerField()
-    quality_profile_custom = models.CharField(max_length=500, null=True, blank=True, choices=zip(quality.PROFILE_NAMES, quality.PROFILE_NAMES))
+    quality_profile = models.ForeignKey(QualityProfile, on_delete=models.SET_NULL, null=True, blank=True)
     collected = models.BooleanField(default=False)
     date_added = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)

@@ -18,6 +18,9 @@ export class WatchingComponent implements OnInit, OnDestroy {
   public results: any[] = [];
   public mediaType: string;
   public search: string;
+  public sortBy: {prop: string, dir: string}[] = [
+    { prop: 'collected_date', dir: 'desc', },
+  ];
   public ColumnMode = ColumnMode;
 
   protected _changes: Subscription;

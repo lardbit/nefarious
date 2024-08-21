@@ -1,0 +1,61 @@
+<div class="modal-header">
+  <h4 class="modal-title">Quality Profiles</h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss('Cross click')"></button>
+</div>
+<div class="modal-body" [formGroup]="form">
+  <ngx-loading [show]="isLoading" [config]="{fullScreenBackdrop: true}"></ngx-loading>
+  <div class="text-end">
+    <button type="button" class="btn btn-sm btn-outline-success" (click)="add()">New <span class="oi oi-plus"></span></button>
+  </div>
+  <form class="was-validated" [formArrayName]="'profiles'">
+    <div class="card my-2" *ngFor="let profile of form.controls.profiles.controls; let i = index" [formGroupName]="i">
+      <div class="card-body">
+        <!-- id (hidden) -->
+        <input type="hidden" class="form-control" [id]="i" [formControlName]="'id'">
+        <!-- name -->
+        <div class="mb-3">
+          <label [for]="i + '_name'" class="form-label">Name</label>
+          <input type="text" class="form-control" [id]="i + '_name'" [formControlName]="'name'" [minlength]="2" required>
+        </div>
+        <!-- quality -->
+        <div class="mb-3">
+          <label [for]="i + '_quality'" class="form-label">Quality</label>
+          <select class="form-select" [id]="i + '_quality'" [formControlName]="'quality'" required>
+            <option></option>
+            <option *ngFor="let quality of apiService.qualities" [value]="quality">{{ quality }}</option>
+          </select>
+        </div>
+        <!-- min size -->
+        <div class="mb-3">
+          <label [for]="i + '_min_size_gb'" class="form-label">Minimum Size (GB)</label>
+          <input type="number" class="form-control" [min]="0" [id]="i + '_min_size_gb'" [formControlName]="'min_size_gb'">
+        </div>
+        <!-- max size -->
+        <div class="mb-3">
+          <label [for]="i + '_max_size_gb'" class="form-label">Maximum Size (GB)</label>
+          <input type="number" class="form-control" [min]="0" [id]="i + '_max_size_gb'" [formControlName]="'max_size_gb'">
+        </div>
+        <!-- hdr -->
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" [id]="i + '_require_hdr'" [formControlName]="'require_hdr'">
+          <label class="form-check-label" [for]="i + '_require_hdr'">
+            Require HDR (High Definition Range)
+          </label>
+        </div>
+        <!-- 5.1 sound -->
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" [id]="i + '_require_five_point_one'" [formControlName]="'require_five_point_one'">
+          <label class="form-check-label" [for]="i + '_require_five_point_one'">
+            Require 5.1 Surround Sound
+          </label>
+        </div>
+        <div class="my-2 text-end">
+          <button type="button" class="btn btn-outline-danger me-2" (click)="delete(i)">Delete</button>
+          <ng-container *ngIf="{'ok': form.controls.profiles.controls[i].valid} as validity">
+            <button type="button" class="btn" [ngClass]="{'btn-success': validity.ok, 'btn-danger': !validity.ok}" (click)="save(form.controls.profiles.controls[i])" [disabled]="!validity.ok">Save</button>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
