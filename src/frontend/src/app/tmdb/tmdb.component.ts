@@ -4,7 +4,7 @@ import { UntypedFormBuilder, Validators} from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../api.service';
 import { tap } from 'rxjs/operators';
-import { Observable, zip } from 'rxjs';
+import {forkJoin, Observable, zip} from 'rxjs';
 import * as moment from 'moment';
 import { NgbNav } from '@ng-bootstrap/ng-bootstrap';
 
@@ -25,6 +25,10 @@ export class TmdbComponent implements OnInit {
   public tvGenres: {
     id: number,
     name: string
+  }[];
+  public regions: {
+    iso_3166_1: string,
+    native_name: string
   }[];
   @ViewChild('nav', {static: true}) navEl: NgbNav;
 
@@ -63,14 +67,21 @@ export class TmdbComponent implements OnInit {
         this._search();
       });
 
-    this._fetchGenres().subscribe(
+    // fetch tmdb filterable data
+    forkJoin([
+      this._fetchGenres(),
+      this.apiService.fetchRegions().pipe(
+        tap((data) => this.regions = data.results),
+      ),
+    ])
+    .subscribe(
       {
         error: (error) => {
           console.error(error);
-          this.toastr.error('An error occurred fetching genres');
+          this.toastr.error('An error occurred fetching filter data');
         }
       }
-    );
+    )
   }
 
   public search(paginate: boolean = false) {
@@ -139,6 +150,7 @@ export class TmdbComponent implements OnInit {
       'primary_release_date_gte': ['', Validators.pattern('\d{4}')],
       'primary_release_date_lte': ['', Validators.pattern('\d{4}')],
       'with_genres': ['', Validators.pattern('\d+')],
+      'region': ['', Validators.pattern('\w{2}')], // iso_3166_1 (2 character region code)
       'page': [1, Validators.pattern('\d+')],
     });
   }
@@ -147,7 +159,7 @@ export class TmdbComponent implements OnInit {
     this.tvGenres = [];
     this.movieGenres = [];
 
-    return zip(
+    return forkJoin([
       this.apiService.fetchMovieGenres().pipe(
         tap((data: any) => {
           this.movieGenres = data.genres;
@@ -158,7 +170,7 @@ export class TmdbComponent implements OnInit {
           this.tvGenres = data.genres;
         })
       ),
-    );
+    ]);
   }
 
   protected _formValues() {

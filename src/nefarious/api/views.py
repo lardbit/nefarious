@@ -2,6 +2,7 @@ import os
 import requests
 from celery_once import AlreadyQueued
 from django.conf import settings
+from django.http import QueryDict
 from django.utils.dateparse import parse_date
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -388,7 +389,7 @@ class DiscoverMediaView(views.APIView):
 
         # prepare query
         tmdb = get_tmdb_client(nefarious_settings)
-        args = request.query_params.copy()
+        args = request.query_params.copy()  # type: QueryDict
         args['language'] = nefarious_settings.language
 
         discover = tmdb.Discover()

@@ -38,6 +38,7 @@ export class ApiService {
   API_URL_DISCOVER_RT_MOVIES = '/api/discover/rotten-tomatoes/media/movie/';
   API_URL_GENRES_MOVIE = '/api/genres/movie/';
   API_URL_GENRES_TV = '/api/genres/tv/';
+  API_URL_REGIONS = '/api/regions/';
   API_URL_MEDIA_CATEGORIES = '/api/media-categories/';
   API_URL_QUALITIES = '/api/qualities/';
   API_URL_QUALITY_PROFILES = '/api/quality-profile/';
@@ -857,6 +858,10 @@ export class ApiService {
 
   public fetchMovieGenres(): Observable<any> {
     return this._fetchGenres(this.SEARCH_MEDIA_TYPE_MOVIE);
+  }
+
+  public fetchRegions(): Observable<any> {
+    return this.http.get(this.API_URL_REGIONS, {headers: this._requestHeaders()});
   }
 
   public fetchTVGenres(): Observable<any> {
