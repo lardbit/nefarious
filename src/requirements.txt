@@ -7,8 +7,8 @@ jsonfield2==3.1.0
 redis==3.3.11
 regex==2022.4.24
 requests==2.22.0
-# tmdbsimple - forked version including languages
-git+https://github.com/lardbit/tmdbsimple.git
+# tmdbsimple - forked version including "watch providers" (e.g. regions)
+git+https://github.com/lardbit/tmdbsimple.git@watch-providers
 transmissionrpc==0.11
 uvicorn[standard]==0.18.1
 whitenoise==5.0.1

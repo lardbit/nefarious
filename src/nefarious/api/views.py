@@ -446,6 +446,24 @@ class VideosView(views.APIView):
 
 
 @method_decorator(gzip_page, name='dispatch')
+class RegionsView(views.APIView):
+
+    @method_decorator(cache_page(CACHE_DAY))
+    def get(self, request):
+
+        nefarious_settings = NefariousSettings.get()
+
+        # prepare query
+        tmdb = get_tmdb_client(nefarious_settings)
+        watch_providers = tmdb.WatchProviders()
+
+        # fetch regions
+        results = watch_providers.watch_providers_available_regions()
+
+        return Response(results)
+
+
+@method_decorator(gzip_page, name='dispatch')
 class DiscoverRottenTomatoesMediaView(views.APIView):
     """
     There's three main groups which all share the same filtering rules:

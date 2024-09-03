@@ -33,6 +33,7 @@ urlpatterns = [
     path('discover/rotten-tomatoes/media/<str:media_type>/', views.DiscoverRottenTomatoesMediaView.as_view()),
     path('import/media/<str:media_type>/', views.ImportMediaLibraryView.as_view()),
     path('genres/<str:media_type>/', views.GenresView.as_view()),
+    path('regions/', views.RegionsView.as_view()),
     path('media-categories/', views.MediaCategoriesView.as_view()),
     path('qualities/', views.QualitiesView.as_view()),
     path('auth/', views.ObtainAuthTokenView.as_view()),  # authenticates user and returns token
