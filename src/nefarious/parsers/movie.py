@@ -13,11 +13,11 @@ class MovieParser(ParserBase):
             regex.compile(r"^(?<title>(?![(\[]).+?)((\W|_))(?:(?<!(19|20)\d{2}.)(German|French|TrueFrench))(.+?)(?=((19|20)\d{2}|$))(?<year>(19|20)\d{2}(?!p|i|\d+|\]|\W\d+))?(\W+|_|$)(?!\\)", regex.I),
         ),
         (
-            'Special, Despecialized, etc. Edition Movies, e.g: Mission.Impossible.3.Special.Edition.2011',
+            'Special, Despecialized, etc. Edition Movies, e.g.: Mission.Impossible.3.Special.Edition.2011',
             regex.compile(r"^(?<title>(?![(\[]).+?)?(?:(?:[-_\W](?<![)\[!]))*\(?(?<edition>(((Extended.|Ultimate.)?(Director.?s|Collector.?s|Theatrical|Ultimate|Final(?=(.(Cut|Edition|Version)))|Extended|Rogue|Special|Despecialized|\d{2,3}(th)?.Anniversary)(.(Cut|Edition|Version))?(.(Extended|Uncensored|Remastered|Unrated|Uncut|IMAX|Fan.?Edit))?|((Uncensored|Remastered|Unrated|Uncut|IMAX|Fan.?Edit|Edition|Restored|((2|3|4)in1))))))\)?.{1,3}(?<year>(19|20)\d{2}(?!p|i|\d+|\]|\W\d+)))+(\W+|_|$)(?!\\)", regex.I),
         ),
         (
-            'Normal movie format, e.g: Mission.Impossible.3.2011',
+            'Normal movie format, e.g.: Mission.Impossible.3.2011',
             regex.compile(r"^(?<title>(?![(\[]).+?)?(?:(?:[-_\W](?<![)\[!]))*(?<year>(19|20)\d{2}(?!p|i|(19|20)\d{2}|\]|\W(19|20)\d{2})))+(\W+|_|$)(?!\\)", regex.I),
         ),
         (

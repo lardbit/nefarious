@@ -294,7 +294,18 @@ def wanted_media_task():
 
     for media_type, data in wanted_media_data.items():
         for media in data['query']:
-            # media has been released (or it's missing it's release date so try anyway) so create a task to try and fetch it
+            # skip episodes attempts if last attempt was within x days, and we're past release date by x days
+            if media_type == 'episode':
+                days_since_last_attempt = (today - media.last_attempt_date).days if media.last_attempt_date else None
+                days_since_release = abs(today - media.release_date).days if media.release_date else None
+                is_too_recent_to_check_for_old_episodes = all([
+                    days_since_last_attempt is not None and days_since_last_attempt <= 7,
+                    days_since_release is not None and days_since_release >= 7,
+                ])
+                if is_too_recent_to_check_for_old_episodes:
+                    logger_background.info(f=f"skipping wanted media {media} since it's been released for a while and attempted recently")
+                    continue
+            # media has been released (or it's missing its release date so try anyway) so create a task to try and fetch it
             if not media.release_date or media.release_date <= today:
                 logger_background.info('Wanted {type}: {media}'.format(type=media_type, media=media))
                 # queue task for wanted media
