@@ -12,7 +12,7 @@ git+https://github.com/lardbit/tmdbsimple.git
 transmissionrpc==0.11
 uvicorn[standard]==0.18.1
 whitenoise==5.0.1
-starlette==0.13.1
+starlette==0.40.0
 websocket-client==0.57.0
 django-redis==4.11.0
 celery-once==3.0.1
