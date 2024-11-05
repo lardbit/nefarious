@@ -23,9 +23,17 @@
       </td>
       <td><span *ngIf="result.watchMedia.release_date">{{ result.watchMedia.release_date | date | date: 'shortDate' }}</span></td>
       <td>{{ result.watchMedia.date_added | date | date: 'shortDate' }}</td>
+      <!-- show media status -->
       <td>
-        <span *ngIf="result.watchMedia.last_attempt_date">{{ result.watchMedia.last_attempt_date | amTimeAgo }}</span>
-        <span *ngIf="!result.watchMedia.last_attempt_date" class="text-nowrap">working on it...</span>
+        <!-- media hasn't been released yet -->
+        <ng-container *ngIf="isReleaseInFuture(result.watchMedia)">
+          <span class="bg-warning">Media hasn't been released yet</span>
+        </ng-container>
+        <!-- last attempt date -->
+        <ng-container *ngIf="!isReleaseInFuture(result.watchMedia)">
+          <span *ngIf="result.watchMedia.last_attempt_date">{{ result.watchMedia.last_attempt_date | amTimeAgo }}</span>
+          <span *ngIf="!result.watchMedia.last_attempt_date" class="text-nowrap">working on it...</span>
+        </ng-container>
       </td>
       <td><span *ngIf="result.watchMedia.collected_date">{{ result.watchMedia.collected_date | date | date: 'shortDate' }}</span></td>
       <td>
