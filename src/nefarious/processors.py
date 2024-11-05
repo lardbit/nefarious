@@ -18,7 +18,7 @@ from nefarious.utils import get_best_torrent_result, results_with_valid_urls, lo
 
 
 class WatchProcessorBase:
-    watch_media = None
+    watch_media: WatchMovie | WatchTVEpisode | WatchTVSeason = None
     nefarious_settings: NefariousSettings = None
     _reprocess_without_possessive_apostrophes = False
     _possessive_apostrophes_regex = regex.compile(r"(?!\w)'s\b", regex.I)
@@ -36,6 +36,13 @@ class WatchProcessorBase:
 
     def fetch(self):
         logger_background.info('Processing request to watch {}'.format(self._sanitize_title(str(self.watch_media))))
+
+        # skip attempt if media hasn't been released yet
+        if self.watch_media.release_date and self.watch_media.release_date > datetime.now().date():
+            logger_background.warning('skipping search for "{}" since it has not been released yet ({})'.format(
+                self.watch_media, self.watch_media.release_date))
+            return
+
         valid_search_results = []
         search = self._get_search_results()
 
@@ -299,7 +306,7 @@ class WatchTVEpisodeProcessor(WatchTVProcessorBase):
 
     def _get_search_results(self):
         # query the show name AND the season/episode name separately
-        # i.e search for "Atlanta" and "Atlanta s01e05" individually for best results
+        # i.e. search for "Atlanta" and "Atlanta s01e05" individually for best results
         watch_episode = self.watch_media  # type: WatchTVEpisode
         show_result = self.tmdb_client.TV(watch_episode.watch_tv_show.tmdb_show_id)
         params = {

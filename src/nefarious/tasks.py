@@ -68,9 +68,16 @@ def log_exception(**kwargs):
 @app.task(base=QueueOnce, once={'graceful': True})
 def watch_tv_show_season_task(watch_tv_season_id: int):
     processor = WatchTVSeasonProcessor(watch_media_id=watch_tv_season_id)
-    success = processor.fetch()
-
     watch_tv_season = get_object_or_404(WatchTVSeason, pk=watch_tv_season_id)
+
+    # skip attempt if media hasn't been released yet
+    if watch_tv_season.release_date and watch_tv_season.release_date > datetime.now().date():
+        logger_background.warning('skipping search for tv season "{}" since it has not been released yet ({})'.format(
+            watch_tv_season, watch_tv_season.release_date))
+        return
+
+    # make attempt
+    success = processor.fetch()
 
     # success so update the season request instance as "collected"
     if success:
@@ -294,7 +301,7 @@ def wanted_media_task():
 
     for media_type, data in wanted_media_data.items():
         for media in data['query']:
-            # media has been released (or it's missing it's release date so try anyway) so create a task to try and fetch it
+            # media has been released (or it's missing its release date so try anyway) so create a task to try and fetch it
             if not media.release_date or media.release_date <= today:
                 logger_background.info('Wanted {type}: {media}'.format(type=media_type, media=media))
                 # queue task for wanted media
