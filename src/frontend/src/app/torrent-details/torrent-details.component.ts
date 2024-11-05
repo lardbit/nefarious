@@ -1,8 +1,9 @@
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
-import { ApiService } from '../api.service';
-import { ToastrService } from 'ngx-toastr';
-import { interval, Observable } from 'rxjs';
-import { throttle } from 'rxjs/operators';
+import {Component, OnInit, Input, OnDestroy} from '@angular/core';
+import {ApiService} from '../api.service';
+import {ToastrService} from 'ngx-toastr';
+import {interval, Observable} from 'rxjs';
+import {throttle} from 'rxjs/operators';
+import * as moment from 'moment';
 
 const POLL_TIME = 5000;
 
@@ -27,7 +28,8 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
   constructor(
     private apiService: ApiService,
     private toastr: ToastrService,
-  ) {}
+  ) {
+  }
 
   ngOnDestroy() {
     // stop polling for torrent details
@@ -99,6 +101,12 @@ export class TorrentDetailsComponent implements OnInit, OnDestroy {
 
   public resultTrackBy(index, result) {
     return result.watchMedia.id;
+  }
+
+  public isReleaseInFuture(media: any): boolean {
+    const now = moment().format();
+    const releaseDate = moment(media.release_date || 'x');
+    return releaseDate.isValid() && releaseDate.isAfter(now, 'day');
   }
 
   protected _fetchTorrents(): Observable<any> {
