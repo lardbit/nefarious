@@ -1,5 +1,6 @@
 import os
 import regex
+from typing import Union
 from django.apps import apps
 from django.conf import settings
 from datetime import datetime
@@ -18,7 +19,7 @@ from nefarious.utils import get_best_torrent_result, results_with_valid_urls, lo
 
 
 class WatchProcessorBase:
-    watch_media: WatchMovie | WatchTVEpisode | WatchTVSeason = None
+    watch_media: Union[WatchMovie, WatchTVEpisode, WatchTVSeason] = None
     nefarious_settings: NefariousSettings = None
     _reprocess_without_possessive_apostrophes = False
     _possessive_apostrophes_regex = regex.compile(r"(?!\w)'s\b", regex.I)
