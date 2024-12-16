@@ -54,7 +54,7 @@ Sometimes you want more control about which torrent is chosen for download.
 
 ## Blacklist & Retry a torrent
 
-Sometimes a movie or tv show you download may be too low quality, wrong match, wrong sub-titles, or just completely fake.
+Sometimes a movie or tv show you download may be too low quality, wrong match, wrong subtitles, or just completely fake.
 You can tell nefarious to blacklist & delete that torrent and search again to find the next best option.
 
 - click the **Status** tab on a movie or tv show

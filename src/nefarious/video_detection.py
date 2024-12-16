@@ -35,7 +35,7 @@ class VideoDetect:
 
     @classmethod
     def has_valid_video_in_path(cls, path: str):
-        # TODO - this doesn't handle bundles (rar/zip/tar etc) since it won't find any "media" files
+        # NOTE this doesn't handle bundles (rar/zip/tar etc.) since it won't find any "media" files
 
         files_to_verify = []
 

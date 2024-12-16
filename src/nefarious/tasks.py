@@ -170,13 +170,19 @@ def completed_media_task():
 
                 logger_background.info('Media completed: {}'.format(media))
 
-                # run video detection, if enabled, on the relevant video files for movies, staging_path
-                if nefarious_settings.enable_video_detection and isinstance(media, WatchMovie):
+                # get the sub path (e.g. "movies/", "tv/') so we can move the data from staging
+                sub_path = str(
+                    nefarious_settings.transmission_movie_download_dir if isinstance(media, WatchMovie)
+                    else nefarious_settings.transmission_tv_download_dir
+                ).lstrip('/')
+
+                # run video detection, if enabled, on movies and tv seasons
+                if nefarious_settings.enable_video_detection and isinstance(media, (WatchMovie, WatchTVSeason, WatchTVEpisode)):
                     logger_background.info("[VIDEO_DETECTION] verifying '{}'".format(media))
                     staging_path = os.path.join(
-                        settings.INTERNAL_DOWNLOAD_PATH,
-                        settings.UNPROCESSED_PATH,
-                        nefarious_settings.transmission_movie_download_dir.lstrip('/'),
+                        str(settings.INTERNAL_DOWNLOAD_PATH),
+                        str(settings.UNPROCESSED_PATH),
+                        sub_path,
                         torrent.name,
                     )
                     try:
@@ -184,23 +190,17 @@ def completed_media_task():
                             logger_background.info("[VIDEO_DETECTION] '{}' has valid video files".format(media))
                         else:
                             logger_background.error("[VIDEO_DETECTION] blacklisting '{}' because no valid video was found in {}".format(media, staging_path))
-                            notification.send_message('blacklisting movie {} because no valid videos found ({}: {})'.format(media, torrent.name, media.transmission_torrent_hash))
+                            notification.send_message('blacklisting media {} because no valid videos found ({}: {})'.format(media, torrent.name, media.transmission_torrent_hash))
                             blacklist_media_and_retry(media)
                             continue
                     except Exception as e:
                         logger_background.exception(e)
                         logger_background.error('error during video detection for {} with path {}'.format(media, staging_path))
 
-                # get the sub path (ie. "movies/", "tv/') so we can move the data from staging
-                sub_path = (
-                    nefarious_settings.transmission_movie_download_dir if isinstance(media, WatchMovie)
-                    else nefarious_settings.transmission_tv_download_dir
-                ).lstrip('/')
-
                 # get the path and updated name for the data
                 new_path, new_name = get_media_new_path_and_name(media, torrent.name, len(torrent.files()) == 1)
                 relative_path = os.path.join(
-                    sub_path,  # i.e "movies" or "tv"
+                    sub_path,  # e.g. "movies" or "tv"
                     new_path or '',
                 )
 
