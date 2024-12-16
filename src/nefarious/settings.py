@@ -171,7 +171,7 @@ OPENSUBTITLES_API_KEY = 'LG7LMRIL9zfVmF537mxnQDEfN4V7LLqX'
 
 UNPROCESSED_PATH = '.nefarious-unprocessed-downloads'
 
-# container download path (or will be host in development)
+# container download path (or will be the host in development)
 INTERNAL_DOWNLOAD_PATH = os.environ.get('INTERNAL_DOWNLOAD_PATH', '/tmp')
 
 # this is really just an indication to know if the nefarious container was volume mounted with access to the download path.
