@@ -243,13 +243,20 @@ def completed_media_task():
                 notification.send_message(message='{} was downloaded'.format(media))
 
                 # define the import path
-                import_path = os.path.join(
-                    settings.INTERNAL_DOWNLOAD_PATH,
-                    relative_path,
-                    # for movies: new_path will be None if the torrent is already a directory so fall back to the new name
-                    # for tv: new_path will be the show, so we really want the new_name which will be the season
-                    new_path or new_name if isinstance(media, WatchMovie) else new_name,
-                )
+                if media_type == MEDIA_TYPE_MOVIE:
+                    import_path = os.path.join(
+                        settings.INTERNAL_DOWNLOAD_PATH,
+                        relative_path,
+                        # torrent is a directory: new_path will be None
+                        # torrent is a single file: relative_path is accurate so don't append anything else
+                        new_path or new_name if len(torrent.files()) > 1 else '',
+                    )
+                else:  # tv
+                    import_path = os.path.join(
+                        settings.INTERNAL_DOWNLOAD_PATH,
+                        relative_path,
+                        new_name,
+                    )
 
                 # post-tasks
                 post_tasks = [
