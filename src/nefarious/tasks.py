@@ -197,18 +197,19 @@ def completed_media_task():
                         logger_background.exception(e)
                         logger_background.error('error during video detection for {} with path {}'.format(media, staging_path))
 
+                is_torrent_single_file = len(torrent.files()) == 1
+
                 # get the path and updated name for the data
-                new_path, new_name = get_media_new_path_and_name(media, torrent.name, len(torrent.files()) == 1)
+                new_path, new_name = get_media_new_path_and_name(media, torrent.name, is_torrent_single_file)
                 relative_path = os.path.join(
                     sub_path,  # e.g. "movies" or "tv"
                     new_path or '',
                 )
 
                 # move the data to a new location
-                transmission_session = transmission_client.session_stats()
                 transmission_move_to_path = os.path.join(
-                    transmission_session.download_dir,
-                    relative_path,
+                    transmission_client.session.download_dir, # .e.g. "/downloads"
+                    relative_path,  # e.g. "movies/Batman (2000)/"
                 )
                 logger_background.info('Moving torrent data to "{}"'.format(transmission_move_to_path))
                 torrent.move_data(transmission_move_to_path)
@@ -243,13 +244,20 @@ def completed_media_task():
                 notification.send_message(message='{} was downloaded'.format(media))
 
                 # define the import path
-                import_path = os.path.join(
-                    settings.INTERNAL_DOWNLOAD_PATH,
-                    relative_path,
-                    # for movies: new_path will be None if the torrent is already a directory so fall back to the new name
-                    # for tv: new_path will be the show, so we really want the new_name which will be the season
-                    new_path or new_name if isinstance(media, WatchMovie) else new_name,
-                )
+                if media_type == MEDIA_TYPE_MOVIE:
+                    import_path = os.path.join(
+                        settings.INTERNAL_DOWNLOAD_PATH,
+                        relative_path,
+                        # torrent is a directory: new_path will be None
+                        # torrent is a single file: relative_path is accurate so don't append anything else
+                        new_path or new_name if not is_torrent_single_file else '',
+                    )
+                else:  # tv
+                    import_path = os.path.join(
+                        settings.INTERNAL_DOWNLOAD_PATH,
+                        relative_path,
+                        new_name,
+                    )
 
                 # post-tasks
                 post_tasks = [
