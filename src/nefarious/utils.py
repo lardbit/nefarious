@@ -160,7 +160,7 @@ def get_media_new_path_and_name(watch_media, torrent_name: str, is_single_file: 
         Single Episode File:
             Input: "Rick and Morty - S03E14 [scene-stuff].mkv"
             Output ("Rick and Morty/Season 3/", "Rick and Morty - S03E14.mkv")
-        Full Full Season Folder:
+        Full Season Folder:
             Input: "Rick and Morty - Season 3 [scene-stuff]"
             Output: ("Rick and Morty/", "Rick and Morty - Season 3")
     """
