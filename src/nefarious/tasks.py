@@ -446,7 +446,7 @@ def import_library_task(media_type: str, user_id: int, sub_path: str = None):
     tmdb_client = get_tmdb_client(nefarious_settings=nefarious_settings)
 
     if media_type == 'movie':
-        root_path = os.path.join(settings.INTERNAL_DOWNLOAD_PATH, nefarious_settings.transmission_movie_download_dir)
+        root_path = str(os.path.join(settings.INTERNAL_DOWNLOAD_PATH, nefarious_settings.transmission_movie_download_dir))
         importer = MovieImporter(
             nefarious_settings=nefarious_settings,
             root_path=root_path,
@@ -454,7 +454,7 @@ def import_library_task(media_type: str, user_id: int, sub_path: str = None):
             user=user,
         )
     else:
-        root_path = os.path.join(settings.INTERNAL_DOWNLOAD_PATH, nefarious_settings.transmission_tv_download_dir)
+        root_path = str(os.path.join(settings.INTERNAL_DOWNLOAD_PATH, nefarious_settings.transmission_tv_download_dir))
         importer = TVImporter(
             nefarious_settings=nefarious_settings,
             root_path=root_path,
@@ -464,6 +464,9 @@ def import_library_task(media_type: str, user_id: int, sub_path: str = None):
 
     # prefer supplied sub path and fallback to root path
     path = sub_path or root_path
+    # use parent dir if path is a file
+    if os.path.isfile(path):
+        path = os.path.dirname(path)
 
     logger_background.info('Importing {} library at {}'.format(media_type, path))
 
