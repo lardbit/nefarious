@@ -497,7 +497,7 @@ def populate_release_dates_task():
         try:
             season_result = tmdb_client.TV_Seasons(media.watch_tv_show.tmdb_show_id, media.season_number)
             data = season_result.info()
-            release_date = parse_date(data.get('air_date', ''))
+            release_date = parse_date(data.get('air_date') or '')
             update_media_release_date(media, release_date)
         except Exception as e:
             logger_background.exception(e)
@@ -506,7 +506,7 @@ def populate_release_dates_task():
         try:
             episode_result = tmdb_client.TV_Episodes(media.watch_tv_show.tmdb_show_id, media.season_number, media.episode_number)
             data = episode_result.info()
-            release_date = parse_date(data.get('air_date', ''))
+            release_date = parse_date(data.get('air_date') or '')
             update_media_release_date(media, release_date)
         except Exception as e:
             logger_background.exception(e)
