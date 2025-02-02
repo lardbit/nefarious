@@ -465,14 +465,14 @@ class DiscoverRottenTomatoesMediaView(views.APIView):
         - audience_highest
 
     Examples:
-    https://www.rottentomatoes.com/napi/browse/movies_at_home/genres:action?page=1 ("action" genre, page 1)
-    https://www.rottentomatoes.com/napi/browse/movies_at_home/critics:fresh?page=1 ("fresh", page 1)
-    https://www.rottentomatoes.com/napi/browse/movies_at_home/critics:certified_fresh,fresh?page=1 (fresh OR certified fresh, page 1)
-    https://www.rottentomatoes.com/napi/browse/movies_at_home/sort:popular?page=1 (sort popular)
-    https://www.rottentomatoes.com/napi/browse/movies_at_home/critics:certified_fresh~sort:newest?page=1 (certified fresh, sorted, page 1)
+    https://www.rottentomatoes.com/cnapi/browse/movies_at_home/genres:action?page=1 ("action" genre, page 1)
+    https://www.rottentomatoes.com/cnapi/browse/movies_at_home/critics:fresh?page=1 ("fresh", page 1)
+    https://www.rottentomatoes.com/cnapi/browse/movies_at_home/critics:certified_fresh,fresh?page=1 (fresh OR certified fresh, page 1)
+    https://www.rottentomatoes.com/cnapi/browse/movies_at_home/sort:popular?page=1 (sort popular)
+    https://www.rottentomatoes.com/cnapi/browse/movies_at_home/critics:certified_fresh~sort:newest?page=1 (certified fresh, sorted, page 1)
     """
 
-    API_URL = 'https://www.rottentomatoes.com/napi/browse/{type}/'
+    API_URL = 'https://www.rottentomatoes.com/cnapi/browse/{type}/'
 
     @method_decorator(cache_page(CACHE_DAY))
     def get(self, request, media_type: str):
