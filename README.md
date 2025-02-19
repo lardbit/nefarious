@@ -131,7 +131,7 @@ Once all of your settings are updated, click `Save & Verify Settings` to save an
 
 ##### Transmission Configuration
 
-There is no default transmission user/pass, but feel free to edit the `transmission-settings.json` beforehand following the [official settings](https://github.com/transmission/transmission/wiki/Editing-Configuration-Files) to make any changes you'd like.
+There is no default transmission user/pass, but feel free to edit the `transmission-settings.json` beforehand following the [official settings](https://github.com/transmission/transmission/blob/main/docs/Editing-Configuration-Files.md) to make any changes you'd like.
 
 **NOTE** if you make any changes to `transmission-settings.json` you'll have to recreate the transmission container for the changes to take place:
 
