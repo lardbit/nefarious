@@ -8,18 +8,22 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         # https://github.com/docker/setup-qemu-action
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         # https://github.com/docker/setup-buildx-action
+
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
+
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
+
       - name: Set tag name
         id: tag_name
         shell: bash
@@ -33,32 +37,23 @@ jobs:
           else
             tag="$branch"
           fi
-          echo "##[set-output name=tag;]$(echo ${tag})"
+          echo "TAG_NAME=$tag" >> $GITHUB_ENV
+
       - name: Build front-end image
         run: |
           set -e
-
-          # get tag name
-          tag=${{ steps.tag_name.outputs.tag }}
-          
-          # build front-end app
-          docker build -t lardbit/nefarious:frontend-$tag -f Dockerfile-frontend .
-
-          # push front-end image
-          docker push lardbit/nefarious:frontend-$tag
+          docker build -t lardbit/nefarious:frontend-$TAG_NAME -f Dockerfile-frontend .
+          docker push lardbit/nefarious:frontend-$TAG_NAME
 
       - name: Build and Run tests
         run: |
           set -e
-
-          # get tag name
-          tag=${{ steps.tag_name.outputs.tag }}
           
           # echo images
           docker images
           
           # build back-end app
-          docker build --build-arg tag=$tag -t lardbit/nefarious:$tag .
+          docker build --build-arg tag=$TAG_NAME -t lardbit/nefarious:$TAG_NAME .
 
           # create docker network to link containers
           docker network create tests
@@ -67,14 +62,11 @@ jobs:
           docker run --network tests --name redis --rm -d redis
 
           # run unit tests
-          docker run --network tests -e REDIS_HOST=redis --entrypoint /env/bin/python lardbit/nefarious:$tag manage.py test
+          docker run --network tests -e REDIS_HOST=redis --entrypoint /env/bin/python lardbit/nefarious:$TAG_NAME manage.py test
 
       - name: Build multi-arch images and push to registry
         run: |
           set -e
-
-          # get tag name
-          tag=${{ steps.tag_name.outputs.tag }}
 
           # store git commit in image for version identification
           echo "$GITHUB_SHA" > src/.commit
@@ -84,8 +76,8 @@ jobs:
             --platform linux/amd64,linux/arm64 \
             --output "type=image,push=false" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            --build-arg tag=$tag \
-            --tag lardbit/nefarious:${tag} \
+            --build-arg tag=$TAG_NAME \
+            --tag lardbit/nefarious:${TAG_NAME} \
             --file Dockerfile .
 
           # push image (from cached result)
@@ -93,6 +85,6 @@ jobs:
             --platform linux/amd64,linux/arm64 \
             --output "type=image,push=true" \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
-            --build-arg tag=$tag \
-            --tag lardbit/nefarious:${tag} \
+            --build-arg tag=$TAG_NAME \
+            --tag lardbit/nefarious:$TAG_NAME \
             --file Dockerfile .
