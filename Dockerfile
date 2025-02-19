@@ -1,8 +1,8 @@
 # define pre-built frontend app to extract from
 ARG tag=latest
-FROM lardbit/nefarious:frontend-$tag as frontend
+FROM lardbit/nefarious:frontend-$tag AS frontend
 
-FROM python:3.9.9-bullseye
+FROM python:3.9.21-bookworm
 
 EXPOSE 80
 

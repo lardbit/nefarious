@@ -6,7 +6,7 @@ from nefarious.quality import PROFILE_HD_1080p, PROFILE_ANY
 
 
 class Command(BaseCommand):
-    help = 'Initialize Nefarious'
+    help = 'Initialize nefarious'
 
     def add_arguments(self, parser):
         parser.add_argument('username', type=str)
