@@ -69,3 +69,4 @@ services:
 volumes:
   nefarious-db:
   jackett-config:
+  transmission-db:

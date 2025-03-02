@@ -103,6 +103,7 @@ services:
       - PGID=${HOST_DOWNLOAD_GID:-1000}
     volumes:
       - ${HOST_DOWNLOAD_PATH:-/tmp}:/downloads
+      - transmission-db:/config
       - ./transmission-settings.json:/config/settings.json:ro
 
   # auto update service (to be extended)
@@ -122,3 +123,4 @@ services:
 volumes:
   nefarious-db:
   jackett-config:
+  transmission-db:
