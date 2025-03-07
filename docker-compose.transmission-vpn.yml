@@ -46,6 +46,7 @@ services:
       - 1.1.1.1 # cloudflare dns primary
       - 1.0.0.1 # cloudflare dns secondary
     volumes:
+      - transmission-db:/config
       - ${HOST_DOWNLOAD_PATH:-/tmp}:/data
       - /etc/localtime:/etc/localtime:ro
     sysctls:
@@ -85,4 +86,6 @@ volumes:
   nefarious-db:
     driver: local
   jackett-config:
+    driver: local
+  transmission-db:
     driver: local
