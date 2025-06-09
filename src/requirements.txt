@@ -6,7 +6,7 @@ djangorestframework==3.11.0
 jsonfield2==3.1.0
 redis==3.3.11
 regex==2022.4.24
-requests==2.22.0
+requests==2.32.4
 # tmdbsimple - forked version including languages
 git+https://github.com/lardbit/tmdbsimple.git
 transmissionrpc==0.11
