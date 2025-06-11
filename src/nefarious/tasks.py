@@ -307,7 +307,9 @@ def wanted_media_task():
     today = timezone.now().date()
 
     for media_type, data in wanted_media_data.items():
-        for media in data['query']:
+        # process media with the oldest attempt first
+        for media in data['query'].order_by('last_attempt_date'):
+            logger_background.info(f'{media} -> {media.last_attempt_date}')
             # media has been released (or it's missing its release date so try anyway) so create a task to try and fetch it
             if not media.release_date or media.release_date <= today:
                 logger_background.info('Wanted {type}: {media}'.format(type=media_type, media=media))
