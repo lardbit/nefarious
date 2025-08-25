@@ -240,7 +240,6 @@ EXTENSIONS = {
 
     # DVD
     ".img": DVD,
-    ".iso": DVD,
     ".vob": DVD,
 
     # HD
