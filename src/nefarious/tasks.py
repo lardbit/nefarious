@@ -97,13 +97,13 @@ def watch_tv_show_season_task(watch_tv_season_id: int):
         for episode in season['episodes']:
             # save individual episode watches
             watch_tv_episode, was_created = WatchTVEpisode.objects.get_or_create(
-                tmdb_episode_id=episode['id'],
+                watch_tv_show=watch_tv_season.watch_tv_show,
+                season_number=watch_tv_season.season_number,
+                episode_number=episode['episode_number'],
                 # add non-unique constraint fields for the default values
                 defaults=dict(
+                    tmdb_episode_id=episode['id'],
                     user=watch_tv_season.user,
-                    watch_tv_show=watch_tv_season.watch_tv_show,
-                    season_number=watch_tv_season.season_number,
-                    episode_number=episode['episode_number'],
                     release_date=parse_date(episode.get('air_date') or ''),
                 )
             )
@@ -350,11 +350,11 @@ def wanted_tv_season_task():
 
             try:
                 watch_tv_episode, was_created = WatchTVEpisode.objects.get_or_create(
-                    tmdb_episode_id=episode['id'],
+                    watch_tv_show=tv_season_request.watch_tv_show,
+                    season_number=tv_season_request.season_number,
+                    episode_number=episode['episode_number'],
                     defaults=dict(
-                        watch_tv_show=tv_season_request.watch_tv_show,
-                        season_number=tv_season_request.season_number,
-                        episode_number=episode['episode_number'],
+                        tmdb_episode_id=episode['id'],
                         user=tv_season_request.user,
                         release_date=episode_air_date,
                     ))
