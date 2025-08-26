@@ -235,7 +235,7 @@ class WatchTVSeason(WatchMediaBase):
 
 class WatchTVEpisode(WatchMediaBase):
     watch_tv_show = models.ForeignKey(WatchTVShow, on_delete=models.CASCADE)
-    tmdb_episode_id = models.IntegerField(unique=True)
+    tmdb_episode_id = models.IntegerField()
     season_number = models.IntegerField()
     episode_number = models.IntegerField()
 
