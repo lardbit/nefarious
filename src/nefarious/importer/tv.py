@@ -77,8 +77,8 @@ class TVImporter(ImporterBase):
             watch_tv_show=watch_show,
             season_number=season_number,
             episode_number=episode_number,
+            tmdb_episode_id=episode_data['id'],
             defaults=dict(
-                tmdb_episode_id=episode_data['id'],
                 user=self.user,
                 download_path=file_path,
                 collected=True,
