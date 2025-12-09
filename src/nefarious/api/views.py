@@ -29,6 +29,7 @@ from nefarious.tasks import (
 from nefarious.transmission import get_transmission_client
 from nefarious.tmdb import get_tmdb_client
 from nefarious.utils import trace_torrent_url, swap_jackett_host, is_magnet_url, logger_foreground
+from nefarious.ai.agent import Agent
 
 
 CACHE_MINUTE = 60
@@ -577,3 +578,25 @@ class QualitiesView(views.APIView):
     def get(self, request):
         return Response([p.name for p in PROFILES])
 
+
+@method_decorator(gzip_page, name='dispatch')
+class AIAgentSearchView(views.APIView):
+
+    def get(self, request):
+
+        # validate query exists
+        query = request.query_params.get('query')
+        assert query, 'Missing query'
+        nefarious_settings = NefariousSettings.get()
+
+        # build agent
+        agent = Agent(nefarious_settings)
+
+        # query agent
+        results = agent.query(query)
+
+        # return results
+        return Response({
+            'query': query,
+            'results': results,
+        })

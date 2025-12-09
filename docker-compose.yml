@@ -4,7 +4,6 @@
 # Create an .env file instead.
 # See https://github.com/lardbit/nefarious#part-1
 #####################################################
-version: '2.4'
 
 services:
 

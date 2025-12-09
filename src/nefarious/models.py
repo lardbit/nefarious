@@ -98,6 +98,12 @@ class NefariousSettings(models.Model):
     stuck_download_handling_enabled = models.BooleanField(default=False, help_text='Whether to enable stuck download handling by blacklisting stuck torrents')
     stuck_download_handling_days = models.IntegerField(default=3, help_text='How many days to wait before blacklisting stuck downloads')
 
+    # ai
+    ai_enabled = models.BooleanField(default=False)
+    ai_base_url = models.CharField(max_length=1000, blank=True, help_text='OpenAI compatible Base URL', default='https://api.openai.com/v1')
+    ai_api_key = models.CharField(max_length=1000, blank=True, help_text='OpenAI compatible API Token')
+    ai_model = models.CharField(max_length=100, blank=True, help_text='Model to use for AI queries', default='gpt-4o-mini')
+
     @classmethod
     def get(cls):
         if cls.objects.all().count() > 1:

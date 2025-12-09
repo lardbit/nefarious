@@ -32,7 +32,8 @@
             <label>Filter-Index</label>
             <input type="text" class="form-control" formControlName="jackett_filter_index">
             <small class="form-text text-muted">
-              Optionally define a <a target="_blank" href="https://github.com/Jackett/Jackett#filter-indexers">filter-index</a> for jackett.  Leave blank for default search.
+              Optionally define a <a target="_blank" href="https://github.com/Jackett/Jackett#filter-indexers">filter-index</a> for jackett. Leave blank for
+              default search.
             </small>
           </div>
           <div class="my-2 d-flex justify-content-between">
@@ -82,7 +83,8 @@
         <div class="card-body">
           <div class="my-2">
             <label>Language
-              <span class="text-info oi oi-info" placement="left" ngbTooltip="Titles, descriptions and artwork may be localized if data is available in TMDB"></span>
+              <span class="text-info oi oi-info" placement="left"
+                    ngbTooltip="Titles, descriptions and artwork may be localized if data is available in TMDB"></span>
             </label>
             <ng-select [multiple]="false" [items]="getLanguages()" bindValue="iso_639_1" bindLabel="english_name" formControlName="language"></ng-select>
           </div>
@@ -166,7 +168,8 @@
                 <!-- add/remove -->
                 <div class="d-flex justify-content-end">
                   <button type="button" class="btn btn-sm btn-outline-success me-2" (click)="saveUser(i)"><span class="oi oi-check"></span></button>
-                  <button type="button" class="btn btn-sm btn-outline-danger" [disabled]="!canDeleteUser(i)" (click)="removeUser(i)"><span class="oi oi-minus"></span></button>
+                  <button type="button" class="btn btn-sm btn-outline-danger" [disabled]="!canDeleteUser(i)" (click)="removeUser(i)"><span
+                    class="oi oi-minus"></span></button>
                 </div>
                 <hr>
               </div>
@@ -183,12 +186,14 @@
         <div class="card-header">Notifications</div>
         <div class="card-body">
           <p>Defining a <i>Notification URL</i> allows you to get notified when downloads are complete.</p>
-          <p>nefarious uses <a target="_blank" href="https://github.com/caronc/apprise/tree/v0.9.3">Apprise</a> for notifications which supports <a target="_blank" href="https://github.com/caronc/apprise#productivity-based-notifications">most major notification services.</a></p>
+          <p>nefarious uses <a target="_blank" href="https://github.com/caronc/apprise/tree/v0.9.3">Apprise</a> for notifications which supports <a
+            target="_blank" href="https://github.com/caronc/apprise#productivity-based-notifications">most major notification services.</a></p>
           <div class="my-2">
             <label>Notification URL</label>
             <input type="text" class="form-control" placeholder="slack://TokenA/TokenB/TokenC/" formControlName="apprise_notification_url">
           </div>
-          <button type="button" class="btn btn-xs btn-sm btn-outline-primary" (click)="sendTestNotification()">Send test notification <span class="oi oi-bolt"></span></button>
+          <button type="button" class="btn btn-xs btn-sm btn-outline-primary" (click)="sendTestNotification()">Send test notification <span
+            class="oi oi-bolt"></span></button>
         </div>
       </div>
       <!-- video detection -->
@@ -213,146 +218,164 @@
           </div>
         </div>
       </div>
-      <!-- import library -->
+      <!-- TODO -->
       <div class="card">
-        <div class="card-header">Import Library</div>
-        <div class="card-body">
-          <p>Import your existing library so everything you've previously downloaded will populate in nefarious.</p>
-          <div *ngIf="!hasHostDownloadPath()" class="alert alert-warning">
-            <strong>HOST_DOWNLOAD_PATH</strong> isn't defined!  It's necessary to be able to import your existing libraries.  Follow the <a href="https://github.com/lardbit/nefarious#setup" target="_blank">Setup instructions</a>
-            and/or the <a href="https://github.com/lardbit/nefarious#upgrading" target="_blank">Upgrade instructions</a>.
-          </div>
-          <p *ngIf="hasHostDownloadPath()">Host Download Path: <em class="text-success">{{hostDownloadPath()}}</em></p>
-          <div class="my-2">
-            <button type="button" (click)="importLibrary('movie')" class="btn btn-outline-primary btn-sm" [disabled]="!hasHostDownloadPath()">Import Movies <span class="oi oi-folder"></span></button>
-          </div>
-          <div class="my-2">
-            <button type="button" (click)="importLibrary('tv')" class="btn btn-outline-primary btn-sm" [disabled]="!hasHostDownloadPath()">Import TV Shows <span class="oi oi-folder"></span></button>
-          </div>
-        </div>
-      </div>
-      <!-- open subtitles -->
-      <div class="card">
-        <div class="card-header">OpenSubtitles</div>
+        <div class="card-header">AI</div>
         <div class="card-body">
           <div class="card-title">
-            Do you want subtitles to be automatically downloaded?
+            Do you want to enable <a href="https://github.com/lardbit/nefarious/wiki/AI-Integration" target="_blank">AI integration</a>?
           </div>
-          <div class="card-subtitle">
-            Create an account on <a href="https://www.opensubtitles.com/" target="_blank">opensubtitles.com</a> and include your username and password.
+          <a href="https://venice.ai/chat?ref=Lw2s4X">Venice - Private and Uncensored AI</a>
+        </div>
+      </div>
+    </div>
+    <!-- import library -->
+    <div class="card">
+      <div class="card-header">Import Library</div>
+      <div class="card-body">
+        <p>Import your existing library so everything you've previously downloaded will populate in nefarious.</p>
+        <div *ngIf="!hasHostDownloadPath()" class="alert alert-warning">
+          <strong>HOST_DOWNLOAD_PATH</strong> isn't defined! It's necessary to be able to import your existing libraries. Follow the <a
+          href="https://github.com/lardbit/nefarious#setup" target="_blank">Setup instructions</a>
+          and/or the <a href="https://github.com/lardbit/nefarious#upgrading" target="_blank">Upgrade instructions</a>.
+        </div>
+        <p *ngIf="hasHostDownloadPath()">Host Download Path: <em class="text-success">{{ hostDownloadPath() }}</em></p>
+        <div class="my-2">
+          <button type="button" (click)="importLibrary('movie')" class="btn btn-outline-primary btn-sm" [disabled]="!hasHostDownloadPath()">Import Movies <span
+            class="oi oi-folder"></span></button>
+        </div>
+        <div class="my-2">
+          <button type="button" (click)="importLibrary('tv')" class="btn btn-outline-primary btn-sm" [disabled]="!hasHostDownloadPath()">Import TV Shows <span
+            class="oi oi-folder"></span></button>
+        </div>
+      </div>
+    </div>
+    <!-- open subtitles -->
+    <div class="card">
+      <div class="card-header">OpenSubtitles</div>
+      <div class="card-body">
+        <div class="card-title">
+          Do you want subtitles to be automatically downloaded?
+        </div>
+        <div class="card-subtitle">
+          Create an account on <a href="https://www.opensubtitles.com/" target="_blank">opensubtitles.com</a> and include your username and password.
+        </div>
+        <div class="form-check mt-3">
+          <input class="form-check-input" type="radio" [value]="true" formControlName="open_subtitles_auto" id="os-true">
+          <label class="form-check-label" for="os-true">
+            Enabled
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" [value]="false" formControlName="open_subtitles_auto" id="os-false">
+          <label class="form-check-label" for="os-false">
+            Disabled
+          </label>
+        </div>
+        <div [hidden]="!form.controls['open_subtitles_auto'].value">
+          <div class="my-2">
+            <label>Username</label>
+            <input type="text" class="form-control" formControlName="open_subtitles_username" [required]="form.controls['open_subtitles_auto'].value">
           </div>
-          <div class="form-check mt-3">
-            <input class="form-check-input" type="radio" [value]="true" formControlName="open_subtitles_auto" id="os-true">
-            <label class="form-check-label" for="os-true">
+          <div class="my-2">
+            <label>Password</label>
+            <input type="password" class="form-control" formControlName="open_subtitles_password" [required]="form.controls['open_subtitles_auto'].value">
+          </div>
+          <button type="button" class="btn btn-sm mx-1"
+                  [ngClass]="{'btn-info': apiService.settings.open_subtitles_user_token, 'btn-primary': !apiService.settings.open_subtitles_user_token}"
+                  (click)="authenticateOpenSubtitles()">
+            <ngx-loading [show]="authenticateOpenSubtitles$ && !authenticateOpenSubtitles$.closed"></ngx-loading>
+            <span *ngIf="apiService.settings.open_subtitles_user_token">
+                  Re-authenticate
+                  <span class="oi oi-link-intact"></span>
+                </span>
+            <span *ngIf="!apiService.settings.open_subtitles_user_token">
+                  Authenticate
+                  <span class="oi oi-link-broken"></span>
+                </span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- preferences -->
+    <div class="card">
+      <div class="card-header">Preferred Media Type</div>
+      <div class="card-body">
+        <div class="card-title">
+          Choose which media type you use most and the <em>Search</em> feature will remember your preference.
+        </div>
+        <div class="my-2">
+          <label>Preferred media category</label>
+          <select type="text" class="form-select" formControlName="preferred_media_category" required>
+            <option *ngFor="let mediaCategory of mediaCategories()" [value]="mediaCategory">{{ mediaCategory }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <!-- handle "stuck" media -->
+    <div class="card">
+      <div class="card-header">Handle "Stuck" Downloads</div>
+      <div class="card-body">
+        <div class="card-title">
+          Do you want to automatically blacklist torrents that get stuck and never complete? Enable this setting and define how many days
+          to decide when a torrent is "stuck" and to blacklist and retry.
+        </div>
+        <div class="my-2">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" [value]="true" formControlName="stuck_download_handling_enabled" id="stuck-downloads-true">
+            <label class="form-check-label" for="stuck-downloads-true">
               Enabled
             </label>
           </div>
           <div class="form-check">
-            <input class="form-check-input" type="radio" [value]="false" formControlName="open_subtitles_auto" id="os-false">
-            <label class="form-check-label" for="os-false">
+            <input class="form-check-input" type="radio" [value]="false" formControlName="stuck_download_handling_enabled" id="stuck-downloads-false">
+            <label class="form-check-label" for="stuck-downloads-false">
               Disabled
             </label>
           </div>
-          <div [hidden]="!form.controls['open_subtitles_auto'].value">
-            <div class="my-2">
-              <label>Username</label>
-              <input type="text" class="form-control" formControlName="open_subtitles_username" [required]="form.controls['open_subtitles_auto'].value">
-            </div>
-            <div class="my-2">
-              <label>Password</label>
-              <input type="password" class="form-control" formControlName="open_subtitles_password" [required]="form.controls['open_subtitles_auto'].value">
-            </div>
-            <button type="button" class="btn btn-sm mx-1" [ngClass]="{'btn-info': apiService.settings.open_subtitles_user_token, 'btn-primary': !apiService.settings.open_subtitles_user_token}" (click)="authenticateOpenSubtitles()">
-              <ngx-loading [show]="authenticateOpenSubtitles$ && !authenticateOpenSubtitles$.closed"></ngx-loading>
-              <span *ngIf="apiService.settings.open_subtitles_user_token">
-                  Re-authenticate
-                  <span class="oi oi-link-intact"></span>
-                </span>
-              <span *ngIf="!apiService.settings.open_subtitles_user_token">
-                  Authenticate
-                  <span class="oi oi-link-broken"></span>
-                </span>
-            </button>
+          <div class="my-2" [hidden]="!form.get('stuck_download_handling_enabled').value">
+            <label>How many days to wait before blacklisting?</label>
+            <input type="number" [min]="1" [step]="1" class="form-control" placeholder="localhost" formControlName="stuck_download_handling_days" required>
           </div>
-        </div>
-      </div>
-      <!-- preferences -->
-      <div class="card">
-        <div class="card-header">Preferred Media Type</div>
-        <div class="card-body">
-          <div class="card-title">
-            Choose which media type you use most and the <em>Search</em> feature will remember your preference.
-          </div>
-          <div class="my-2">
-            <label>Preferred media category</label>
-            <select type="text" class="form-select" formControlName="preferred_media_category" required>
-              <option *ngFor="let mediaCategory of mediaCategories()" [value]="mediaCategory">{{ mediaCategory }}</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <!-- handle "stuck" media -->
-      <div class="card">
-        <div class="card-header">Handle "Stuck" Downloads</div>
-        <div class="card-body">
-          <div class="card-title">
-            Do you want to automatically blacklist torrents that get stuck and never complete?  Enable this setting and define how many days
-            to decide when a torrent is "stuck" and to blacklist and retry.
-          </div>
-          <div class="my-2">
-            <div class="form-check">
-              <input class="form-check-input" type="radio" [value]="true" formControlName="stuck_download_handling_enabled" id="stuck-downloads-true">
-              <label class="form-check-label" for="stuck-downloads-true">
-                Enabled
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" [value]="false" formControlName="stuck_download_handling_enabled" id="stuck-downloads-false">
-              <label class="form-check-label" for="stuck-downloads-false">
-                Disabled
-              </label>
-            </div>
-            <div class="my-2" [hidden]="!form.get('stuck_download_handling_enabled').value">
-              <label>How many days to wait before blacklisting?</label>
-              <input type="number" [min]="1" [step]="1" class="form-control" placeholder="localhost" formControlName="stuck_download_handling_days" required>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- logs -->
-      <div class="card">
-        <div class="card-header">Logs</div>
-        <div class="card-body">
-          <p>View all logs generated from nefarious.</p>
-          <a href="/view/logs/foreground" target="_blank" class="btn btn-outline-primary btn-sm ms-1">Foreground <span class="oi oi-file"></span></a>
-          <a href="/view/logs/background" target="_blank" class="btn btn-outline-primary btn-sm ms-1">Background <span class="oi oi-file"></span></a>
-        </div>
-      </div>
-      <!-- tasks -->
-      <div class="card">
-        <ngx-loading [show]="isLoading"></ngx-loading>
-        <div class="card-header">Tasks</div>
-        <div class="card-body">
-          <div class="card-title">Tasks automatically run on a schedule, but you can run them here manually</div>
-          <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('completed_media')">Process Completed Media</button>
-          <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('wanted_media')">Process Wanted Media</button>
-          <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('wanted_tv_seasons')">Process Wanted TV Seasons</button>
-          <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('auto_watch_tv_seasons')">Auto Watch New TV Seasons</button>
-          <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('refresh_tmdb_settings')">Refresh TMDB Settings</button>
-          <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('populate_release_dates')">Populate Release Dates</button>
-          <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('process_stuck_downloads')">Process "Stuck" Downloads</button>
-        </div>
-      </div>
-      <!-- blacklists -->
-      <div class="card">
-        <div class="card-header">Blacklists</div>
-        <div class="card-body">
-          <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="deleteBlacklists()">Delete all blacklists</button>
         </div>
       </div>
     </div>
-  </form>
-  <footer class="d-flex justify-content-end">
-    <a target="_blank" [href]="'https://github.com/lardbit/nefarious/tree/' + gitCommit" *ngIf="gitCommit">git&#64;{{ gitCommit }}</a>
-  </footer>
+    <!-- logs -->
+    <div class="card">
+      <div class="card-header">Logs</div>
+      <div class="card-body">
+        <p>View all logs generated from nefarious.</p>
+        <a href="/view/logs/foreground" target="_blank" class="btn btn-outline-primary btn-sm ms-1">Foreground <span class="oi oi-file"></span></a>
+        <a href="/view/logs/background" target="_blank" class="btn btn-outline-primary btn-sm ms-1">Background <span class="oi oi-file"></span></a>
+      </div>
+    </div>
+    <!-- tasks -->
+    <div class="card">
+      <ngx-loading [show]="isLoading"></ngx-loading>
+      <div class="card-header">Tasks</div>
+      <div class="card-body">
+        <div class="card-title">Tasks automatically run on a schedule, but you can run them here manually</div>
+        <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('completed_media')">Process Completed Media</button>
+        <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('wanted_media')">Process Wanted Media</button>
+        <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('wanted_tv_seasons')">Process Wanted TV Seasons</button>
+        <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('auto_watch_tv_seasons')">Auto Watch New TV Seasons
+        </button>
+        <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('refresh_tmdb_settings')">Refresh TMDB Settings</button>
+        <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('populate_release_dates')">Populate Release Dates</button>
+        <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="queueTask('process_stuck_downloads')">Process "Stuck" Downloads
+        </button>
+      </div>
+    </div>
+    <!-- blacklists -->
+    <div class="card">
+      <div class="card-header">Blacklists</div>
+      <div class="card-body">
+        <button type="button" class="d-block btn btn-sm btn-outline-primary my-1" (click)="deleteBlacklists()">Delete all blacklists</button>
+      </div>
+    </div>
+</div>
+</form>
+<footer class="d-flex justify-content-end">
+  <a target="_blank" [href]="'https://github.com/lardbit/nefarious/tree/' + gitCommit" *ngIf="gitCommit">git&#64;{{ gitCommit }}</a>
+</footer>
 </div>
