@@ -178,6 +178,11 @@ INTERNAL_DOWNLOAD_PATH = os.environ.get('INTERNAL_DOWNLOAD_PATH', '/tmp')
 # nefarious (celery) will actually use the INTERNAL_DOWNLOAD_PATH (container specific path) to scan for imported media
 HOST_DOWNLOAD_PATH = os.environ.get('HOST_DOWNLOAD_PATH', INTERNAL_DOWNLOAD_PATH if DEBUG else None)
 
+# the number of tasks a worker process will reserve at a time.
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+# this ensures the task is acknowledged AFTER it runs, not before.
+CELERY_TASK_ACKS_LATE = True
+
 CONFIG_PATH = os.environ.get('CONFIG_PATH', '/nefarious-db')
 
 # log to shared config path when using default container configuration, otherwise fallback to /tmp
