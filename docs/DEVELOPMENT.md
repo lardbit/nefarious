@@ -83,8 +83,15 @@ You'll see all download logs/activity come out of here.
 
 Jackett, Redis and Transmission are expected to be running somewhere.  
 
-You can download and run them manually, or, for simplicity, I'd just run them via docker using the `docker-compose.yml` file.
+You can download and run them manually, or, for simplicity, just run them via docker using the `docker-compose.yml` file.
 
-Run redis, jackett and transmission from the `docker-compose.yml` file:
+*NOTE* first update redis in the compose file to open its ports publicly during development:
+
+    ports:
+      - "6379:6379"
+    #expose:
+    #  - 6379
+
+Then run redis, jackett and transmission from the `docker-compose.yml` file:
 
     docker-compose up -d redis jackett transmission
