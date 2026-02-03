@@ -3,6 +3,7 @@ import regex
 from typing import Union
 from django.apps import apps
 from django.conf import settings
+from django.core.cache import cache
 from datetime import datetime
 from django.utils import dateparse, timezone
 from transmissionrpc import Torrent
@@ -16,6 +17,9 @@ from nefarious.search import SearchTorrents, SEARCH_MEDIA_TYPE_MOVIE, SEARCH_MED
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
 from nefarious.utils import get_best_torrent_result, results_with_valid_urls, logger_background
+
+
+CACHE_RESULTS = 60 * 60 * 24 * 7
 
 
 class WatchProcessorBase:
@@ -55,8 +59,38 @@ class WatchProcessorBase:
 
             if valid_search_results:
 
-                # trace the "torrent url" (sometimes magnet) in each valid result
-                valid_search_results = self._results_with_valid_urls(valid_search_results)
+                # check if the traced url exists in cache first
+                results_cached = []
+                results_to_trace = []
+                cache_key_template = "search_result: {GUID}"
+
+                # iterate through the search results and populate pre-cached urls
+                for valid_search_result in valid_search_results:
+                    cache_key = cache_key_template.format(GUID=valid_search_result['Guid'])
+                    if cache.has_key(cache_key):
+                        torrent_url = cache.get(cache_key)
+                        logger_background.info(f'Using cached torrent_url: {torrent_url}')
+                        # set the cached torrent url in the search result
+                        valid_search_result['torrent_url'] = torrent_url
+                        results_cached.append(valid_search_result)
+                    else:
+                        results_to_trace.append(valid_search_result)
+
+                # trace the "torrent url" (sometimes magnet) in each result to trace
+                traced_results = self._results_with_valid_urls(results_to_trace)
+
+                logger_background.info("============================")
+                logger_background.info(f"SEARCH_RESULTS_CACHED: {len(results_cached)}")
+                logger_background.info(f"SEARCH_RESULTS_TO_TRACE: {len(results_to_trace)}")
+                logger_background.info("============================")
+
+                # cache traced results so we don't have to trace it again
+                for traced_result in traced_results:
+                    logger_background.info(f'Caching GUID: {traced_result["Guid"]}, URL: {traced_result["torrent_url"]}')
+                    cache.set(cache_key_template.format(GUID=traced_result['Guid']), traced_result['torrent_url'], timeout=CACHE_RESULTS)
+
+                # combine traced results and cached results
+                valid_search_results = traced_results + results_cached
 
                 while valid_search_results:
 
