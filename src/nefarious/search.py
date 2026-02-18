@@ -45,12 +45,11 @@ class SearchTorrents:
 
 
 class SearchTorrentsCombined:
-    results = []
-    ok = True
-    error_content = ''
-
     def __init__(self, search_torrents: List[SearchTorrents]):
+        self.results: list = []
         self.ok = any([search.ok for search in search_torrents])
+        self.error_content = ''
+
         for search in search_torrents:
             if search.ok:
                 self.results += search.results
