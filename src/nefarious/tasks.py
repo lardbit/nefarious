@@ -440,7 +440,7 @@ def auto_watch_new_seasons_task():
             watch_show.save()
 
 
-@app.task(base=QueueOnce)
+@app.task(base=QueueOnce, once={'keys': []})  # queue once regardless of args
 def import_library_task(media_type: str, user_id: int, sub_path: str = None):
     user = get_object_or_404(User, pk=user_id)
     nefarious_settings = NefariousSettings.get()
