@@ -14,15 +14,17 @@ class SearchTorrents:
     error_content = None
     nefarious_settings: NefariousSettings
 
-    def __init__(self, media_type: str, query: str):
+    def __init__(self, media_type: str, query: str, include_category = True):
         assert media_type in [SEARCH_MEDIA_TYPE_TV, SEARCH_MEDIA_TYPE_MOVIE]
         self.nefarious_settings = NefariousSettings.get()
 
         params = {
             'apikey': self.nefarious_settings.jackett_token,
             'Query': query,
-            'Category[]': self._categories(media_type),
         }
+
+        if include_category:
+            params['Category[]'] = self._categories(media_type),
 
         res = requests.get(get_jackett_search_url(self.nefarious_settings), params, timeout=90)
         logger_background.info(f'jackett search: query={query}, url={res.url}')

@@ -16,6 +16,7 @@ export class SearchManualComponent implements OnInit {
   @Input('mediaType') mediaType: string;
   @Output() downloaded = new EventEmitter<any>();
   public searchInput: string;
+  public useCategories: boolean = true;
   public orderByOptions = ['Name', 'Seeders', 'Size'];
   public results: any[] = [];
   public isSearching = false;
@@ -43,7 +44,7 @@ export class SearchManualComponent implements OnInit {
   public search() {
     this.results = [];
     this.isSearching = true;
-    this.apiService.searchTorrents(this.searchInput, this.mediaType).subscribe(
+    this.apiService.searchTorrents(this.searchInput, this.mediaType, this.useCategories ?? false).subscribe(
       (results) => {
         this.results = results;
         this.filterChange();
