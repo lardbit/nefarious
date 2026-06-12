@@ -1,5 +1,4 @@
 import os
-import pytz
 from celery import chain
 from celery.signals import task_failure
 from datetime import datetime, timedelta
@@ -553,7 +552,7 @@ def process_stuck_downloads_task():
             exclude_kwargs = dict(transmission_torrent_hash__isnull=True)
             filter_kwargs = dict(
                 collected=False,
-                last_attempt_date__lt=datetime.utcnow().replace(tzinfo=pytz.UTC) - timedelta(days=nefarious_settings.stuck_download_handling_days),
+                last_attempt_date__lt=timezone.now() - timedelta(days=nefarious_settings.stuck_download_handling_days),
             )
             for media in query.exclude(**exclude_kwargs).filter(**filter_kwargs):
                 msg = 'blacklisting stuck media "{media}" since it has been trying to download for longer than {stuck_download_handling_days} days'.format(

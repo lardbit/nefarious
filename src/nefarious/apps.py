@@ -3,6 +3,7 @@ from django.apps import AppConfig
 
 class AppConfig(AppConfig):
     name = 'nefarious'
+    default_auto_field = 'django.db.models.AutoField'
 
     def ready(self):
         """

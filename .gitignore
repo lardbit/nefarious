@@ -109,3 +109,5 @@ node_modules/
 *.swp
 
 .idea
+# CocoIndex Code (ccc)
+/.cocoindex_code/

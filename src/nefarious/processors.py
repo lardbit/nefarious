@@ -197,7 +197,7 @@ class WatchProcessorBase:
         return True
 
     def _set_last_attempt_date(self):
-        self.watch_media.last_attempt_date = timezone.utc.localize(datetime.utcnow())
+        self.watch_media.last_attempt_date = timezone.now()
         self.watch_media.save()
 
     def _sanitize_title(self, title: str):

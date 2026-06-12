@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-
 import { PageNotFoundComponent } from './page-not-found.component';
 
 describe('PageNotFoundComponent', () => {
@@ -8,9 +7,9 @@ describe('PageNotFoundComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-    declarations: [PageNotFoundComponent],
-    teardown: { destroyAfterEach: false }
-})
+      declarations: [PageNotFoundComponent],
+      teardown: { destroyAfterEach: false }
+    })
     .compileComponents();
   }));
 
@@ -22,5 +21,10 @@ describe('PageNotFoundComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should display "page not found" text', () => {
+    const el = fixture.nativeElement;
+    expect(el.textContent).toContain('Page not found');
   });
 });

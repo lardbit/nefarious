@@ -9,7 +9,7 @@
     "build-prod": "ng build --configuration production --output-path ../staticassets",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "npx playwright test"
   },
   "private": true,
   "dependencies": {
@@ -47,6 +47,7 @@
     "@angular/cli": "^17.0.8",
     "@angular/compiler-cli": "^17.0.8",
     "@angular/language-service": "^17.0.8",
+    "@playwright/test": "^1.60.0",
     "@types/jasmine": "~3.6.0",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "^12.12.67",
@@ -58,6 +59,7 @@
     "karma-coverage-istanbul-reporter": "~3.0.2",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
+    "playwright": "^1.60.0",
     "protractor": "~7.0.0",
     "ts-node": "~5.0.1",
     "tslint": "~6.1.0",

@@ -2,7 +2,6 @@ import os
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from django.conf import settings
-from jsonfield import JSONField
 from django.db import models
 
 from nefarious import media_category
@@ -62,8 +61,8 @@ class NefariousSettings(models.Model):
 
     # tmdb - the movie database
     tmdb_token = models.CharField(max_length=500, default=settings.TMDB_API_TOKEN)
-    tmdb_configuration = JSONField(blank=True, null=True)
-    tmdb_languages = JSONField(blank=True, null=True)  # type: list
+    tmdb_configuration = models.JSONField(blank=True, null=True, default=dict)
+    tmdb_languages = models.JSONField(blank=True, null=True, default=list)  # type: list
 
     # open subtitles
     open_subtitles_api_key = models.CharField(max_length=500, default=settings.OPENSUBTITLES_API_KEY, help_text='OpenSubtitles API Key')  # static value
@@ -82,7 +81,7 @@ class NefariousSettings(models.Model):
     enable_video_detection = models.BooleanField(default=False)
 
     # expects keyword/boolean pairs like {"x265": false, "265": false}
-    keyword_search_filters = JSONField(blank=True, null=True)  # type: dict
+    keyword_search_filters = models.JSONField(blank=True, null=True, default=dict)  # type: dict
 
     # apprise notifications - https://github.com/caronc/apprise/tree/v0.9.3
     apprise_notification_url = models.CharField(max_length=1000, blank=True)

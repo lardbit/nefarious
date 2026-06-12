@@ -1,6 +1,12 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { MediaResultsComponent } from './media-results.component';
+import { ApiService } from '../api.service';
+import { ToastrService } from 'ngx-toastr';
+import { StorageMap } from '@ngx-pwa/local-storage';
+import { MockStorageMap, createMockApiService } from '../test-helpers';
 
 describe('MediaResultsComponent', () => {
   let component: MediaResultsComponent;
@@ -8,15 +14,24 @@ describe('MediaResultsComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-    declarations: [MediaResultsComponent],
-    teardown: { destroyAfterEach: false }
-})
+      imports: [HttpClientTestingModule, RouterTestingModule],
+      declarations: [MediaResultsComponent],
+      providers: [
+        { provide: ApiService, useValue: createMockApiService() },
+        { provide: ToastrService, useValue: jasmine.createSpyObj('ToastrService', ['success', 'error', 'info']) },
+        { provide: StorageMap, useClass: MockStorageMap },
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      teardown: { destroyAfterEach: false }
+    })
     .compileComponents();
   }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(MediaResultsComponent);
     component = fixture.componentInstance;
+    component.results = [];
+    component.mediaType = 'movie';
     fixture.detectChanges();
   });
 
