@@ -2,7 +2,7 @@
 
 ## Architecture
 
-- **Django 3.0 (app server) + Angular 17 (frontend)** monorepo.
+- **Django 4.2+ (app server) + Angular 17 (frontend)** monorepo. (The settings.py docstring still says "Django 3.0" — ignore that, the real version is in `requirements.txt`.)
 - Django entrypoint: `src/manage.py` — all `manage.py` commands run from the repo root, e.g. `python src/manage.py test`.
 - The Django project package is `src/nefarious/`, settings at `src/nefarious/settings.py`.
 - **ASGI** via `uvicorn`, not WSGI. Supports websockets. Port 80 in Docker, 8000 locally.
@@ -56,8 +56,11 @@ cd src && DEBUG=1 celery -A nefarious worker --loglevel=INFO
   npm --prefix src/frontend run test -- --browsers=ChromeHeadless --watch=false
   ```
   All spec files are in `src/frontend/src/app/`. A shared mock helper is at `src/frontend/src/app/test-helpers.ts`.
-- **Frontend e2e tests** (Playwright) — requires the Django server running at `localhost:8000` with the frontend built:
+- **Frontend e2e tests** (Playwright) — needs the built Angular app served at `http://localhost:8000/static/`. Either run Django (`python src/manage.py runserver 8000`) after `collectstatic`, or serve `src/staticassets/` directly with a static server under a `/static/` path:
   ```sh
+  npm --prefix src/frontend run build
+  mkdir -p serve/static && cp -r src/staticassets/* serve/static/
+  python3 -m http.server 8000 --directory serve &
   npm --prefix src/frontend run e2e
   ```
   Specs in `src/frontend/e2e/`. Config at `src/frontend/playwright.config.ts`.
@@ -66,8 +69,10 @@ cd src && DEBUG=1 celery -A nefarious worker --loglevel=INFO
 ## Docker / CI
 
 - Two-stage Docker build: `Dockerfile-frontend` builds the Angular app first, then `Dockerfile` copies its output from the frontend image. The frontend image must be built and tagged before the app image.
-- CI workflow: `.github/workflows/build.yml`. On push, it builds both images, runs Django tests in Docker against a Redis container, then pushes multi-arch (amd64 + arm64) images.
-- Dev compose file: `docker-compose.dev.yml` builds both images locally (not pulling from Docker Hub).
+- CI workflow: `.github/workflows/build.yml`. On push and pull_request, it runs two parallel jobs:
+  - `test-frontend`: Karma unit tests + Playwright e2e tests
+  - `build`: builds both Docker images, runs Django tests in Docker against a Redis container, then pushes multi-arch (amd64 + arm64) images to Docker Hub.
+- Dev compose: `docker-compose.yml` (uses `docker-compose.base.yml` for shared service templates).
 
 ## Other notes
 

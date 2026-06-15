@@ -1,9 +1,45 @@
 name: nefarious ci/cd
 
-on:
-  push:
+on: [push, pull_request]
 
 jobs:
+  test-frontend:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: src/frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Karma/Jasmine unit tests
+        run: npx ng test --browsers=ChromeHeadless --watch=false
+
+      - name: Build Angular app
+        run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
+
+      - name: Set up static file server directory
+        run: |
+          mkdir -p ../serve/static
+          cp -r ../staticassets/* ../serve/static/
+
+      - name: Start static file server
+        run: python3 -m http.server 8000 --directory ../serve &
+
+      - name: Run Playwright e2e tests
+        run: npx playwright test
+
   build:
     runs-on: ubuntu-24.04
     steps:
