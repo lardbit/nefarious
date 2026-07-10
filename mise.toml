@@ -1,0 +1,84 @@
+[tools]
+python = "3.9.21"
+node = "18.13.0"
+uv = "latest"
+docker-compose = "latest"
+
+[env]
+UV_PYTHON = { value = "{{ tools.python.path }}", tools = true }
+_.python.venv = { path = ".venv", create = true, uv_create_args = ["--seed"] }
+
+[tasks.install-python]
+description = "Install backend Python dependencies into the mise-managed virtualenv"
+run = "uv venv --allow-existing --python \"$UV_PYTHON\" --seed .venv && uv pip install --python .venv -r src/requirements.txt"
+
+[tasks.install-frontend]
+description = "Install frontend npm dependencies"
+run = "npm --prefix src/frontend install"
+
+[tasks.install]
+description = "Install backend and frontend dependencies"
+depends = ["install-python", "install-frontend"]
+
+[tasks.migrate]
+description = "Apply Django database migrations"
+run = "cd src && python manage.py migrate"
+
+[tasks.init]
+description = "Create the default admin/admin development user"
+run = "cd src && python manage.py nefarious-init admin admin@localhost admin"
+
+[tasks.test]
+description = "Run the Django test suite"
+run = "cd src && python manage.py test"
+
+[tasks.runserver]
+description = "Run the Django development server without websocket support"
+run = "cd src && DEBUG=1 python manage.py runserver 8000"
+
+[tasks.collectstatic]
+description = "Collect Django static assets"
+run = "cd src && python manage.py collectstatic --noinput"
+
+[tasks.asgi]
+description = "Run the ASGI development server with websocket support"
+run = "cd src && uvicorn nefarious.asgi:application --reload"
+
+[tasks.celery]
+description = "Run the Celery worker with downloads paused in DEBUG mode"
+depends = ["redis"]
+run = "cd src && DEBUG=1 celery -A nefarious worker --loglevel=INFO"
+
+[tasks.frontend-build]
+description = "Build frontend static assets"
+run = "npm --prefix src/frontend run build"
+
+[tasks.frontend-watch]
+description = "Watch and rebuild frontend static assets"
+run = "npm --prefix src/frontend run watch"
+
+[tasks.frontend-test]
+description = "Run frontend tests"
+run = "npm --prefix src/frontend run test"
+
+[tasks.frontend-lint]
+description = "Run frontend lint"
+run = "npm --prefix src/frontend run lint"
+
+[tasks.redis]
+description = "Start Redis via Docker Compose with localhost access for local Django/Celery"
+run = "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d redis"
+
+[tasks.deps]
+description = "Start Redis, Jackett, and Transmission via Docker Compose"
+run = "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d redis jackett transmission"
+
+[tasks.dev-down]
+description = "Stop local development services started by mise tasks"
+run = """
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml down --remove-orphans
+pkill -f "[u]vicorn nefarious.asgi:application --reload" || true
+pkill -f "[c]elery -A nefarious worker --loglevel=INFO" || true
+pkill -f "[p]ython manage.py runserver 8000" || true
+pkill -f "[n]g build --watch --output-path ../staticassets" || true
+"""
