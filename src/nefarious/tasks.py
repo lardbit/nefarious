@@ -267,6 +267,7 @@ def completed_media_task():
                         media.user_id,  # user id
                         import_path,
                     ),
+                    remove_completed_torrent_task.si(media_type, media.id),
                 ]
 
                 # conditionally add subtitles task to post-tasks
@@ -278,6 +279,39 @@ def completed_media_task():
 
                 # queue post-tasks
                 chain(*post_tasks)()
+
+
+@app.task
+def remove_completed_torrent_task(media_type: str, watch_media_id: int):
+    nefarious_settings = NefariousSettings.get()
+    if not nefarious_settings.remove_completed_torrents_from_transmission:
+        return
+
+    if media_type == MEDIA_TYPE_MOVIE:
+        watch_media = get_object_or_404(WatchMovie, pk=watch_media_id)
+    elif media_type == MEDIA_TYPE_TV_SEASON:
+        watch_media = get_object_or_404(WatchTVSeason, pk=watch_media_id)
+    elif media_type == MEDIA_TYPE_TV_EPISODE:
+        watch_media = get_object_or_404(WatchTVEpisode, pk=watch_media_id)
+    else:
+        raise Exception('unknown media_type {} and media_id {} combination'.format(media_type, watch_media_id))
+
+    if not watch_media.transmission_torrent_hash:
+        return
+
+    torrent_hash = watch_media.transmission_torrent_hash
+    try:
+        transmission_client = get_transmission_client(nefarious_settings)
+        transmission_client.remove_torrent([torrent_hash], delete_data=False, timeout=10)
+    except Exception as e:
+        logger_background.warning(str(e))
+        logger_background.warning('could not remove completed torrent from transmission: {}'.format(torrent_hash))
+        return
+
+    watch_media.transmission_torrent_hash = None
+    watch_media.transmission_torrent_name = None
+    watch_media.save()
+    logger_background.info('Removed completed torrent from transmission: {}'.format(torrent_hash))
 
 
 @app.task

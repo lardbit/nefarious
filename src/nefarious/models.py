@@ -59,6 +59,10 @@ class NefariousSettings(models.Model):
     transmission_pass = models.CharField(max_length=500, blank=True, default='')  # credentials aren't required for transmission
     transmission_tv_download_dir = models.CharField(max_length=500, default='tv/', help_text='Relative to download path')
     transmission_movie_download_dir = models.CharField(max_length=500, default='movies/', help_text='Relative to download path')
+    remove_completed_torrents_from_transmission = models.BooleanField(
+        default=False,
+        help_text='Remove torrents from Transmission after successful import without deleting imported files',
+    )
 
     # tmdb - the movie database
     tmdb_token = models.CharField(max_length=500, default=settings.TMDB_API_TOKEN)
