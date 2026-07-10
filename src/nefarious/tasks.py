@@ -287,14 +287,18 @@ def remove_completed_torrent_task(media_type: str, watch_media_id: int):
     if not nefarious_settings.remove_completed_torrents_from_transmission:
         return
 
-    if media_type == MEDIA_TYPE_MOVIE:
-        watch_media = get_object_or_404(WatchMovie, pk=watch_media_id)
-    elif media_type == MEDIA_TYPE_TV_SEASON:
-        watch_media = get_object_or_404(WatchTVSeason, pk=watch_media_id)
-    elif media_type == MEDIA_TYPE_TV_EPISODE:
-        watch_media = get_object_or_404(WatchTVEpisode, pk=watch_media_id)
-    else:
+    media_classes = {
+        MEDIA_TYPE_MOVIE: WatchMovie,
+        MEDIA_TYPE_TV_SEASON: WatchTVSeason,
+        MEDIA_TYPE_TV_EPISODE: WatchTVEpisode,
+    }
+    media_class = media_classes.get(media_type)
+    if media_class is None:
         raise Exception('unknown media_type {} and media_id {} combination'.format(media_type, watch_media_id))
+
+    watch_media = media_class.objects.filter(pk=watch_media_id).first()
+    if not watch_media:
+        raise Exception('missing media for media_type {} and media_id {}'.format(media_type, watch_media_id))
 
     if not watch_media.transmission_torrent_hash:
         return

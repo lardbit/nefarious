@@ -51,3 +51,14 @@ class RemoveCompletedTorrentTaskTest(TestCase):
         self.watch_movie.refresh_from_db()
         self.assertIsNone(self.watch_movie.transmission_torrent_hash)
         self.assertIsNone(self.watch_movie.transmission_torrent_name)
+
+    @patch('nefarious.tasks.get_transmission_client')
+    def test_remove_completed_torrent_raises_exception_for_missing_media(self, get_transmission_client):
+        self.nefarious_settings.remove_completed_torrents_from_transmission = True
+        self.nefarious_settings.save()
+
+        with self.assertRaises(Exception) as context:
+            remove_completed_torrent_task(MEDIA_TYPE_MOVIE, 999)
+
+        self.assertEqual('missing media for media_type MOVIE and media_id 999', str(context.exception))
+        get_transmission_client.assert_not_called()
