@@ -45,6 +45,7 @@ export class SettingsComponent implements OnInit {
       'transmission_pass': [settings['transmission_pass']],
       'transmission_tv_download_dir': [settings['transmission_tv_download_dir'], Validators.required],
       'transmission_movie_download_dir': [settings['transmission_movie_download_dir'], Validators.required],
+      'remove_completed_torrents_from_transmission': [settings['remove_completed_torrents_from_transmission'], Validators.required],
       'open_subtitles_username': [settings['open_subtitles_username']],
       'open_subtitles_password': [settings['open_subtitles_password']],
       'open_subtitles_auto': [settings['open_subtitles_auto']],
