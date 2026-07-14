@@ -74,6 +74,23 @@
             <input type="text" class="form-control" placeholder="Movies/" formControlName="transmission_movie_download_dir" required>
             <small class="form-text text-muted">Relative to download path</small>
           </div>
+          <div class="my-2">
+            <div class="card-title">
+              Remove completed torrents from Transmission after nefarious imports them.
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" [value]="true" formControlName="remove_completed_torrents_from_transmission" id="remove-completed-torrents-true">
+              <label class="form-check-label" for="remove-completed-torrents-true">
+                Enabled
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" [value]="false" formControlName="remove_completed_torrents_from_transmission" id="remove-completed-torrents-false">
+              <label class="form-check-label" for="remove-completed-torrents-false">
+                Disabled
+              </label>
+            </div>
+          </div>
         </div>
       </div>
       <!-- i18n -->
