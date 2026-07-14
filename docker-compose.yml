@@ -4,8 +4,6 @@
 # Create an .env file instead.
 # See https://github.com/lardbit/nefarious#part-1
 #####################################################
-version: '2.4'
-
 services:
 
   # nefarious main application
@@ -39,9 +37,6 @@ services:
     image: redis
     restart: always
     mem_limit: 200m
-    # NOTE: use "ports" when developing so local dev server can access redis
-    #ports:
-    #  - "6379:6379"
     expose:
       - 6379
 

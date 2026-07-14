@@ -1,0 +1,4 @@
+[environment]
+root = ["./src"]
+python = ".venv"
+python-version = "3.9"

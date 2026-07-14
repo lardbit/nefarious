@@ -86,6 +86,8 @@ celerybeat-schedule
 # Environments
 .env
 .venv
+mise.local.toml
+mise.*.local.toml
 env/
 venv/
 ENV/
