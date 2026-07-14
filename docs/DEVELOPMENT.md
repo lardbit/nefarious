@@ -11,14 +11,52 @@ nefarious is built on:
 
 *Note*: Review the [Dockerfile](../Dockerfile) for all the necessary development dependencies.
 
-#### Install development tools
+#### Install and configure mise
 
 The project uses [mise](https://mise.jdx.dev/) to install and select the local development tools. The committed `mise.toml` pins Python and Node to the versions used by the Dockerfiles, and installs `uv` for Python environment/dependency work.
+
+Install mise with one of the supported methods from the [mise installation guide](https://mise.jdx.dev/installing-mise.html):
+
+    # macOS with Homebrew
+    brew install mise
+
+    # Linux/macOS installer script
+    curl https://mise.run | sh
+
+    # Windows with winget
+    winget install jdx.mise
+
+Configure mise in your shell so project tool versions and environment settings are activated when you enter the repository:
+
+    # bash
+    echo 'eval "$(mise activate bash)"' >> ~/.bashrc
+
+    # zsh
+    echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
+
+    # fish
+    echo 'mise activate fish | source' >> ~/.config/fish/config.fish
+
+Restart your shell, then verify mise is active:
+
+    mise doctor
+
+Trust this repository's `mise.toml` and install the managed development tools:
 
     mise trust
     mise install
 
-Run commands through `mise run <task>` or activate mise in your shell before using `python`, `uv`, `npm`, or `docker-compose` directly.
+Docker is an OS-level prerequisite and is not managed by mise for this project. Install Docker Desktop on macOS or Windows, or Docker Engine on Linux, and make sure the Docker Compose plugin is available through Docker's supported platform installers:
+
+- [Install Docker Desktop](https://docs.docker.com/desktop/)
+- [Install Docker Engine](https://docs.docker.com/engine/install/)
+- [Install Docker Compose](https://docs.docker.com/compose/install/)
+
+After installation, verify that the plugin-style Compose command is available:
+
+    docker compose version
+
+Run commands through `mise run <task>` or activate mise in your shell before using `python`, `uv`, or `npm` directly.
 
 #### Install python dependencies
 
@@ -34,7 +72,7 @@ To install both backend and frontend dependencies:
 
 Jackett, Redis and Transmission are expected to be running somewhere.
 
-You can download and run them manually, or, for simplicity, run them via Docker Compose. The mise tasks include `docker-compose.dev.yml`, which publishes Redis on `localhost:6379` for local Django and Celery processes.
+You can download and run them manually, or, for simplicity, run them via Docker Compose. The mise tasks shell out to the OS-provided `docker compose` command and include `docker-compose.dev.yml`, which publishes Redis on `localhost:6379` for local Django and Celery processes.
 
 To start Redis only:
 

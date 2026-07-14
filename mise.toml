@@ -2,7 +2,6 @@
 python = "3.9.21"
 node = "18.13.0"
 uv = "latest"
-docker-compose = "latest"
 
 [env]
 UV_PYTHON = { value = "{{ tools.python.path }}", tools = true }
@@ -67,16 +66,16 @@ run = "npm --prefix src/frontend run lint"
 
 [tasks.redis]
 description = "Start Redis via Docker Compose with localhost access for local Django/Celery"
-run = "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d redis"
+run = "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d redis"
 
 [tasks.deps]
 description = "Start Redis, Jackett, and Transmission via Docker Compose"
-run = "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d redis jackett transmission"
+run = "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d redis jackett transmission"
 
 [tasks.dev-down]
 description = "Stop local development services started by mise tasks"
 run = """
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml down --remove-orphans
+docker compose -f docker-compose.yml -f docker-compose.dev.yml down --remove-orphans
 pkill -f "[u]vicorn nefarious.asgi:application --reload" || true
 pkill -f "[c]elery -A nefarious worker --loglevel=INFO" || true
 pkill -f "[p]ython manage.py runserver 8000" || true
