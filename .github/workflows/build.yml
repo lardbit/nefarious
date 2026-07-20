@@ -3,54 +3,86 @@ name: nefarious ci/cd
 on:
   push:
 
+permissions:
+  contents: read
+  packages: write
+env:
+  PROJECT_MAINTAINER_REPO: lardbit/nefarious
 jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         # https://github.com/docker/setup-qemu-action
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
         # https://github.com/docker/setup-buildx-action
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       - name: Login to DockerHub
-        uses: docker/login-action@v3
+        if: ${{ github.repository == env.PROJECT_MAINTAINER_REPO && !github.event.repository.fork }}
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Set tag name
-        id: tag_name
+      - name: Login to GitHub Container Registry
+        if: ${{ github.repository != env.PROJECT_MAINTAINER_REPO || github.event.repository.fork }}
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set image name
+        id: image_name
         shell: bash
         run: |
-          # get and sanitize the branch name
-          branch=${GITHUB_REF#refs/heads/}
-          branch=${branch//\//-}
-          # derive the docker image tag name from the git branch name
-          if [[ $branch == 'master' ]]; then
-            tag='latest'
+          if [[ "${{ github.repository }}" == "$PROJECT_MAINTAINER_REPO" && "${{ github.event.repository.fork }}" != "true" ]]; then
+            image_name="$PROJECT_MAINTAINER_REPO"
           else
-            tag="$branch"
+            owner="$(printf '%s' "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
+            image_name="ghcr.io/${owner}/nefarious"
           fi
-          echo "TAG_NAME=$tag" >> $GITHUB_ENV
+          echo "image_name=${image_name}" >> "$GITHUB_OUTPUT"
+
+      - name: Docker metadata
+        id: metadata
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ steps.image_name.outputs.image_name }}
+          flavor: |
+            latest=false
+          tags: |
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+            type=raw,value={{branch}},enable=${{ github.ref_type == 'branch' && github.ref != 'refs/heads/master' }}
+            type=raw,value=refs-tags-${{ github.ref_name }},enable=${{ github.ref_type == 'tag' }}
 
       - name: Build front-end image
+        env:
+          IMAGE_NAME: ${{ steps.image_name.outputs.image_name }}
+          TAG_NAME: ${{ steps.metadata.outputs.version }}
         run: |
           set -e
-          docker build -t lardbit/nefarious:frontend-$TAG_NAME -f Dockerfile-frontend .
-          docker push lardbit/nefarious:frontend-$TAG_NAME
+          docker build -t "$IMAGE_NAME:frontend-$TAG_NAME" -f Dockerfile-frontend .
+          docker push "$IMAGE_NAME:frontend-$TAG_NAME"
 
       - name: Build and Run tests
+        env:
+          IMAGE_NAME: ${{ steps.image_name.outputs.image_name }}
+          TAG_NAME: ${{ steps.metadata.outputs.version }}
         run: |
           set -e
-          
+
           # echo images
           docker images
-          
+
           # build back-end app
-          docker build --build-arg tag=$TAG_NAME -t lardbit/nefarious:$TAG_NAME .
+          docker build \
+            --build-arg frontend_image="$IMAGE_NAME" \
+            --build-arg tag="$TAG_NAME" \
+            -t "$IMAGE_NAME:$TAG_NAME" .
 
           # create docker network to link containers
           docker network create tests
@@ -59,9 +91,12 @@ jobs:
           docker run --network tests --name redis --rm -d redis
 
           # run unit tests
-          docker run --network tests -e REDIS_HOST=redis --entrypoint /env/bin/python lardbit/nefarious:$TAG_NAME manage.py test
+          docker run --network tests -e REDIS_HOST=redis --entrypoint /env/bin/python "$IMAGE_NAME:$TAG_NAME" manage.py test
 
       - name: Build multi-arch images and push to registry
+        env:
+          IMAGE_NAME: ${{ steps.image_name.outputs.image_name }}
+          TAG_NAME: ${{ steps.metadata.outputs.version }}
         run: |
           set -e
 
@@ -73,8 +108,9 @@ jobs:
             --platform linux/amd64,linux/arm64 \
             --output "type=image,push=false" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            --build-arg tag=$TAG_NAME \
-            --tag lardbit/nefarious:${TAG_NAME} \
+            --build-arg frontend_image="$IMAGE_NAME" \
+            --build-arg tag="$TAG_NAME" \
+            --tag "$IMAGE_NAME:${TAG_NAME}" \
             --file Dockerfile .
 
           # push image (from cached result)
@@ -82,6 +118,7 @@ jobs:
             --platform linux/amd64,linux/arm64 \
             --output "type=image,push=true" \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
-            --build-arg tag=$TAG_NAME \
-            --tag lardbit/nefarious:$TAG_NAME \
+            --build-arg frontend_image="$IMAGE_NAME" \
+            --build-arg tag="$TAG_NAME" \
+            --tag "$IMAGE_NAME:$TAG_NAME" \
             --file Dockerfile .

@@ -1,6 +1,7 @@
 # define pre-built frontend app to extract from
+ARG frontend_image=lardbit/nefarious
 ARG tag=latest
-FROM --platform=linux/amd64 lardbit/nefarious:frontend-$tag AS frontend
+FROM --platform=linux/amd64 ${frontend_image}:frontend-${tag} AS frontend
 
 FROM python:3.9.21-bookworm
 
