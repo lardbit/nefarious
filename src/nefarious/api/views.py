@@ -185,7 +185,8 @@ class SearchTorrentsView(views.APIView):
     def get(self, request):
         query = request.query_params.get('q')
         media_type = request.query_params.get('media_type', SEARCH_MEDIA_TYPE_MOVIE)
-        search = SearchTorrents(media_type, query)
+        use_category = request.query_params.get('use_categories', True)
+        search = SearchTorrents(media_type, query, use_category)
         if not search.ok:
             return Response({'error': search.error_content}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(search.results)

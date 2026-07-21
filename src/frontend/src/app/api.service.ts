@@ -388,8 +388,8 @@ export class ApiService {
     );
   }
 
-  public searchTorrents(query: string, mediaType: string): Observable<any> {
-    return this.http.get(`${this.API_URL_SEARCH_TORRENTS}?q=${query}&media_type=${mediaType}`, {headers: this._requestHeaders()}).pipe(
+  public searchTorrents(query: string, mediaType: string, useCategories: boolean): Observable<any> {
+    return this.http.get(`${this.API_URL_SEARCH_TORRENTS}?q=${query}&media_type=${mediaType}&use_categories=${useCategories}`, {headers: this._requestHeaders()}).pipe(
       map((data: any) => {
         return data;
       }),
