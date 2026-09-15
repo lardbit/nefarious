@@ -25,6 +25,7 @@ from nefarious.quality import PROFILES
 from nefarious.tasks import (
     import_library_task, completed_media_task, wanted_media_task, auto_watch_new_seasons_task,
     refresh_tmdb_configuration, wanted_tv_season_task, populate_release_dates_task, process_stuck_downloads_task,
+    sync_jackett_indexers_task,
 )
 from nefarious.transmission import get_transmission_client
 from nefarious.tmdb import get_tmdb_client
@@ -560,6 +561,8 @@ class QueueTaskView(views.APIView):
             populate_release_dates_task.delay()
         elif request.data['task'] == 'process_stuck_downloads':
             process_stuck_downloads_task.delay()
+        elif request.data['task'] == 'sync_jackett_indexers':
+            sync_jackett_indexers_task.delay()
 
         return Response({'success': True})
 
@@ -576,4 +579,3 @@ class QualitiesView(views.APIView):
 
     def get(self, request):
         return Response([p.name for p in PROFILES])
-

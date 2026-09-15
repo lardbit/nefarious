@@ -1,12 +1,18 @@
 from django.contrib import admin
 from nefarious.models import (
-    NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, TorrentBlacklist, WatchTVSeason, WatchTVSeasonRequest, QualityProfile,
+    JackettIndexer, NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, TorrentBlacklist, WatchTVSeason, WatchTVSeasonRequest, QualityProfile,
 )
 
 
 @admin.register(NefariousSettings)
 class SettingsAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(JackettIndexer)
+class JackettIndexerAdmin(admin.ModelAdmin):
+    list_display = ('name', 'indexer_id', 'is_flaresolverr', 'is_flaresolverr_manual_override', 'last_synced_at')
+    search_fields = ('name', 'indexer_id')
 
 
 @admin.register(QualityProfile)

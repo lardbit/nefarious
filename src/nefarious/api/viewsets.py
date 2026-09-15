@@ -18,9 +18,10 @@ from nefarious.api.serializers import (
     NefariousSettingsSerializer, WatchTVEpisodeSerializer, WatchTVShowSerializer,
     UserSerializer, WatchMovieSerializer, NefariousPartialSettingsSerializer,
     WatchTVSeasonSerializer, WatchTVSeasonRequestSerializer, TorrentBlacklistSerializer, QualityProfileSerializer,
+    JackettIndexerSerializer,
 )
-from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason, WatchTVSeasonRequest, TorrentBlacklist, QualityProfile
-from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task, send_websocket_message_task
+from nefarious.models import JackettIndexer, NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie, WatchTVSeason, WatchTVSeasonRequest, TorrentBlacklist, QualityProfile
+from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task, send_websocket_message_task, sync_jackett_indexers
 from nefarious.utils import (
     verify_settings_jackett, verify_settings_transmission, verify_settings_tmdb,
     fetch_jackett_indexers, destroy_transmission_result)
@@ -196,6 +197,18 @@ class SettingsViewSet(viewsets.ModelViewSet):
     def configured_indexers(self, request):
         nefarious_settings = NefariousSettings.get()
         return Response(fetch_jackett_indexers(nefarious_settings))
+
+    @action(methods=['post'], detail=True, url_path='sync-jackett-indexers', permission_classes=(IsAdminUser,))
+    def sync_jackett_indexers(self, request, pk):
+        self.queryset.get(id=pk)
+        return Response(sync_jackett_indexers())
+
+
+class JackettIndexerViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAdminUser,)
+    queryset = JackettIndexer.objects.all()
+    serializer_class = JackettIndexerSerializer
+    http_method_names = ('get', 'patch', 'head', 'options')
 
 
 @method_decorator(gzip_page, name='dispatch')

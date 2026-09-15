@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from nefarious.models import (
-    NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie,
+    JackettIndexer, NefariousSettings, WatchTVEpisode, WatchTVShow, WatchMovie,
     PERM_CAN_WATCH_IMMEDIATELY_TV, PERM_CAN_WATCH_IMMEDIATELY_MOVIE,
     WatchTVSeason, WatchTVSeasonRequest, TorrentBlacklist, QualityProfile,
 )
@@ -61,6 +61,22 @@ class NefariousPartialSettingsSerializer(NefariousSettingsSerializer):
         fields = (
             'tmdb_configuration', 'jackett_default_token', 'websocket_url',
             'is_debug', 'preferred_media_category',
+        )
+
+
+class JackettIndexerSerializer(serializers.ModelSerializer):
+    effective_is_flaresolverr = serializers.ReadOnlyField()
+
+    class Meta:
+        model = JackettIndexer
+        fields = (
+            'id', 'indexer_id', 'name', 'is_flaresolverr',
+            'is_flaresolverr_manual_override', 'effective_is_flaresolverr',
+            'last_synced_at',
+        )
+        read_only_fields = (
+            'id', 'indexer_id', 'name', 'is_flaresolverr',
+            'effective_is_flaresolverr', 'last_synced_at',
         )
 
 

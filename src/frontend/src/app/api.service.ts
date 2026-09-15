@@ -22,6 +22,7 @@ export class ApiService {
   API_URL_USERS = '/api/users/';
   API_URL_LOGIN = '/api/auth/';
   API_URL_SETTINGS = '/api/settings/';
+  API_URL_JACKETT_INDEXERS = '/api/jackett-indexers/';
   API_URL_SEARCH_TORRENTS = '/api/search/torrents/';
   API_URL_DOWNLOAD_TORRENTS = '/api/download/torrents/';
   API_URL_SEARCH_MEDIA = '/api/search/media/';
@@ -347,6 +348,26 @@ export class ApiService {
         this.settings = data;
         return this.settings;
       }),
+    );
+  }
+
+  public fetchJackettIndexers(): Observable<any[]> {
+    return this.http.get<any[]>(this.API_URL_JACKETT_INDEXERS, {headers: this._requestHeaders()});
+  }
+
+  public updateJackettIndexer(id: number, params: any): Observable<any> {
+    return this.http.patch(
+      `${this.API_URL_JACKETT_INDEXERS}${id}/`,
+      params,
+      {headers: this._requestHeaders()},
+    );
+  }
+
+  public syncJackettIndexers(): Observable<any> {
+    return this.http.post(
+      `${this.API_URL_SETTINGS}${this.settings.id}/sync-jackett-indexers/`,
+      null,
+      {headers: this._requestHeaders()},
     );
   }
 

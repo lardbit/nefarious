@@ -1,6 +1,6 @@
 import os
 from django.contrib.auth.models import User
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.conf import settings
 from jsonfield import JSONField
 from django.db import models
@@ -51,6 +51,21 @@ class NefariousSettings(models.Model):
 
     jackett_filter_index = models.CharField(  # https://github.com/Jackett/Jackett#filter-indexers
         max_length=500, null=True, blank=True, help_text='Optional Jackett index filter to use for searches')
+    jackett_search_timeout = models.IntegerField(
+        default=90,
+        validators=[MinValueValidator(1), MaxValueValidator(120)],
+        help_text='Maximum seconds to wait for each Jackett request',
+    )
+    jackett_admin_password = models.CharField(
+        max_length=500,
+        blank=True,
+        default='',
+        help_text='Optional Jackett admin password used to sync indexer tags',
+    )
+    jackett_serialize_flaresolverr_indexers = models.BooleanField(
+        default=False,
+        help_text='Search FlareSolverr-tagged and repeatedly slow Jackett indexers serially',
+    )
 
     # transmission
     transmission_host = models.CharField(max_length=500, default='transmission')
@@ -123,6 +138,26 @@ class NefariousSettings(models.Model):
 
     class Meta:
         verbose_name_plural = "Settings"
+
+
+class JackettIndexer(models.Model):
+    indexer_id = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=500)
+    is_flaresolverr = models.BooleanField(null=True, default=None)
+    is_flaresolverr_manual_override = models.BooleanField(null=True, blank=True, default=None)
+    last_synced_at = models.DateTimeField(null=True, blank=True)
+
+    @property
+    def effective_is_flaresolverr(self) -> bool:
+        if self.is_flaresolverr_manual_override is not None:
+            return self.is_flaresolverr_manual_override
+        return bool(self.is_flaresolverr)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ('name', 'indexer_id')
 
 
 class WatchMediaBase(models.Model):

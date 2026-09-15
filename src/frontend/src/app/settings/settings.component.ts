@@ -4,7 +4,7 @@ import {ApiService} from '../api.service';
 import {FormArray, FormBuilder, FormControl, Validators, FormRecord} from '@angular/forms';
 import {Component, OnInit} from '@angular/core';
 import {concat, Observable, Subscription} from 'rxjs';
-import {tap} from 'rxjs/operators';
+import {mergeMap, tap} from 'rxjs/operators';
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {QualityProfilesComponent} from "./quality-profiles.component";
 
@@ -16,10 +16,12 @@ import {QualityProfilesComponent} from "./quality-profiles.component";
 })
 export class SettingsComponent implements OnInit {
   public users: any[];
+  public jackettIndexers: any[] = [];
   public form: FormRecord<any>;
   public isSaving = false;
   public isLoading = false;
   public isVerifyingJackettIndexers = false;
+  public isSyncingJackettIndexers = false;
   public isLoadingUsers = false;
   public gitCommit = '';
   public authenticateOpenSubtitles$: Subscription;
@@ -39,6 +41,12 @@ export class SettingsComponent implements OnInit {
       'jackett_port': [settings['jackett_port'], Validators.required],
       'jackett_token': [settings['jackett_token'], Validators.required],
       'jackett_filter_index': [settings['jackett_filter_index']],
+      'jackett_search_timeout': [
+        settings['jackett_search_timeout'],
+        [Validators.required, Validators.min(1), Validators.max(120)],
+      ],
+      'jackett_admin_password': [settings['jackett_admin_password']],
+      'jackett_serialize_flaresolverr_indexers': [settings['jackett_serialize_flaresolverr_indexers']],
       'transmission_host': [settings['transmission_host'], Validators.required],
       'transmission_port': [settings['transmission_port'], Validators.required],
       'transmission_user': [settings['transmission_user']],
@@ -85,6 +93,8 @@ export class SettingsComponent implements OnInit {
     this.apiService.fetchGitCommit().subscribe((data) => {
       this.gitCommit = data.commit;
     });
+
+    this.loadJackettIndexers();
   }
 
   public submit(): void {
@@ -110,6 +120,57 @@ export class SettingsComponent implements OnInit {
         this._verifyJackettIndexers();
       })
     ).subscribe();
+  }
+
+  public loadJackettIndexers(): void {
+    this.apiService.fetchJackettIndexers().subscribe(
+      (indexers) => {
+        this.jackettIndexers = indexers;
+      },
+      (error) => {
+        console.error(error);
+        this.toastr.error('Could not load Jackett indexers');
+      },
+    );
+  }
+
+  public syncJackettIndexers(): void {
+    this.isSyncingJackettIndexers = true;
+    this._saveSettings().pipe(
+      mergeMap(() => this.apiService.syncJackettIndexers()),
+    ).subscribe(
+      (result) => {
+        if (result.success) {
+          this.toastr.success(`Synced ${result.synced} Jackett indexers`);
+          this.loadJackettIndexers();
+        } else {
+          this.toastr.error(result.error || 'Could not sync Jackett indexers');
+        }
+        this.isSyncingJackettIndexers = false;
+      },
+      (error) => {
+        console.error(error);
+        this.toastr.error('Could not sync Jackett indexers');
+        this.isSyncingJackettIndexers = false;
+      },
+    );
+  }
+
+  public updateJackettIndexerOverride(indexer: any, event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    const manualOverride = value === '' ? null : value === 'true';
+    this.apiService.updateJackettIndexer(indexer.id, {
+      is_flaresolverr_manual_override: manualOverride,
+    }).subscribe(
+      (updatedIndexer) => {
+        Object.assign(indexer, updatedIndexer);
+        this.toastr.success(`Updated ${indexer.name}`);
+      },
+      (error) => {
+        console.error(error);
+        this.toastr.error(`Could not update ${indexer.name}`);
+      },
+    );
   }
 
   public qualityProfiles(): any[] {

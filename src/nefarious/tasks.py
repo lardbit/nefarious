@@ -15,9 +15,10 @@ from nefarious.celery import app
 from nefarious.importer.movie import MovieImporter
 from nefarious.importer.tv import TVImporter
 from nefarious.models import (
-    NefariousSettings, WatchMovie, WatchTVEpisode, WatchTVSeason, WatchTVSeasonRequest, WatchTVShow,
+    JackettIndexer, NefariousSettings, WatchMovie, WatchTVEpisode, WatchTVSeason, WatchTVSeasonRequest, WatchTVShow,
     MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV_SEASON, MEDIA_TYPE_TV_EPISODE,
 )
+from nefarious.jackett import get_jackett_indexers
 from nefarious.opensubtitles import OpenSubtitles
 from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, WatchTVSeasonProcessor
 from nefarious.tmdb import get_tmdb_client
@@ -56,12 +57,42 @@ app.conf.beat_schedule = {
         'task': 'nefarious.tasks.process_stuck_downloads_task',
         'schedule': 60 * 60 * 24 * 1,
     },
+    'Sync Jackett Indexers': {
+        'task': 'nefarious.tasks.sync_jackett_indexers_task',
+        'schedule': 60 * 60 * 24 * 1,
+    },
 }
 
 
 @task_failure.connect
 def log_exception(**kwargs):
     logger_background.error('TASK EXCEPTION', exc_info=kwargs['exception'])
+
+
+def sync_jackett_indexers() -> dict:
+    try:
+        nefarious_settings = NefariousSettings.get()
+        indexers = get_jackett_indexers(nefarious_settings)
+        synced_at = timezone.now()
+        for indexer in indexers:
+            tags = [tag.lower() for tag in indexer.get('tags') or []]
+            JackettIndexer.objects.update_or_create(
+                indexer_id=indexer['id'],
+                defaults={
+                    'name': indexer.get('name') or indexer['id'],
+                    'is_flaresolverr': 'flaresolverr' in tags,
+                    'last_synced_at': synced_at,
+                },
+            )
+        return {'success': True, 'synced': len(indexers)}
+    except Exception as error:
+        logger_background.warning('Could not sync Jackett indexer tags: %s', error)
+        return {'success': False, 'synced': 0, 'error': str(error)}
+
+
+@app.task(base=QueueOnce, once={'graceful': True})
+def sync_jackett_indexers_task():
+    return sync_jackett_indexers()
 
 
 @app.task(base=QueueOnce, once={'graceful': True})
