@@ -11,7 +11,7 @@ from nefarious.jackett import (
     get_filtered_jackett_indexers,
     get_jackett_indexers,
     get_jackett_search_url,
-    get_jackett_session_cookie,
+    get_jackett_session,
 )
 from nefarious.models import JackettIndexer, NefariousSettings, QualityProfile
 from nefarious.search import SEARCH_MEDIA_TYPE_MOVIE, SearchTorrents
@@ -91,6 +91,62 @@ class SearchTorrentsTest(JackettTestCase):
         self.assertIn('slow indexer', search.error_content)
         self.assertEqual(2, requests_get.call_count)
 
+    @patch('nefarious.search.requests.get')
+    def test_non_integer_size_and_seeders_do_not_discard_results(self, requests_get):
+        requests_get.return_value = self.response(b'''<rss xmlns:torznab="http://torznab.com/schemas/2015/feed">
+          <channel>
+            <item>
+              <title>Float Size</title>
+              <guid>float-size</guid>
+              <size>123.45</size>
+              <torznab:attr name="seeders" value="N/A" />
+            </item>
+            <item>
+              <title>Valid Numbers</title>
+              <guid>valid-numbers</guid>
+              <size>456</size>
+              <torznab:attr name="seeders" value="7" />
+            </item>
+          </channel>
+        </rss>''')
+
+        search = SearchTorrents(SEARCH_MEDIA_TYPE_MOVIE, 'Test Movie')
+
+        self.assertTrue(search.ok)
+        self.assertEqual(2, len(search.results))
+        self.assertEqual(123, search.results[0]['Size'])
+        self.assertEqual(0, search.results[0]['Seeders'])
+        self.assertEqual(456, search.results[1]['Size'])
+        self.assertEqual(7, search.results[1]['Seeders'])
+
+    @patch('nefarious.search.requests.get')
+    def test_results_without_guid_or_link_remain_distinct(self, requests_get):
+        requests_get.return_value = self.response(b'''<rss>
+          <channel>
+            <item><title>First Result</title></item>
+            <item><title>Second Result</title></item>
+          </channel>
+        </rss>''')
+
+        search = SearchTorrents(SEARCH_MEDIA_TYPE_MOVIE, 'Test Movie')
+
+        self.assertTrue(search.ok)
+        self.assertEqual(2, len(search.results))
+        self.assertNotEqual(search.results[0]['Guid'], search.results[1]['Guid'])
+
+    @patch('nefarious.search.requests.get')
+    def test_unsafe_xml_is_rejected_and_contained(self, requests_get):
+        requests_get.return_value = self.response(b'''<!DOCTYPE rss [
+          <!ENTITY unsafe "unsafe-value">
+        ]>
+        <rss><channel><item><title>&unsafe;</title></item></channel></rss>''')
+
+        search = SearchTorrents(SEARCH_MEDIA_TYPE_MOVIE, 'Test Movie')
+
+        self.assertFalse(search.ok)
+        self.assertEqual([], search.results)
+        self.assertIn('EntitiesForbidden', search.error_content)
+
     @patch('nefarious.search.SearchTorrents._reset_indexer_failures')
     @patch('nefarious.search.SearchTorrents._record_indexer_failure')
     @patch('nefarious.search.SearchTorrents._get_indexer_failure_count', return_value=0)
@@ -153,6 +209,14 @@ class SearchTorrentsTest(JackettTestCase):
         indexer.is_flaresolverr_manual_override = True
         self.assertTrue(indexer.effective_is_flaresolverr)
 
+    def test_never_synced_indexer_has_unknown_effective_status(self):
+        indexer = JackettIndexer.objects.create(
+            indexer_id='not-synced',
+            name='Not Synced',
+        )
+
+        self.assertIsNone(indexer.effective_is_flaresolverr)
+
     def test_timeout_model_validation(self):
         self.settings.jackett_search_timeout = 121
         with self.assertRaises(ValidationError):
@@ -200,6 +264,21 @@ class JackettIndexerSyncTest(JackettTestCase):
         self.assertTrue(existing.is_flaresolverr)
         self.assertTrue(existing.is_flaresolverr_manual_override)
         warning.assert_called_once()
+
+    @patch('nefarious.tasks.get_jackett_indexers')
+    def test_successful_sync_prunes_stale_indexers(self, get_indexers):
+        JackettIndexer.objects.create(indexer_id='stale', name='Stale')
+        current = JackettIndexer.objects.create(indexer_id='current', name='Old Name')
+        get_indexers.return_value = [
+            {'id': 'current', 'name': 'Current', 'tags': []},
+        ]
+
+        result = sync_jackett_indexers()
+
+        self.assertEqual({'success': True, 'synced': 1}, result)
+        self.assertFalse(JackettIndexer.objects.filter(indexer_id='stale').exists())
+        current.refresh_from_db()
+        self.assertEqual('Current', current.name)
 
 
 class JackettSettingsApiTest(JackettTestCase):
@@ -252,6 +331,15 @@ class JackettSettingsApiTest(JackettTestCase):
         )
         self.assertEqual(400, response.status_code)
 
+    @patch('nefarious.api.viewsets.sync_jackett_indexers')
+    def test_sync_tags_returns_404_for_unknown_settings(self, sync_indexers):
+        response = self.client.post(
+            '/api/settings/{}/sync-jackett-indexers/'.format(self.settings.id + 1),
+        )
+
+        self.assertEqual(404, response.status_code)
+        sync_indexers.assert_not_called()
+
 
 class JackettUrlTest(JackettTestCase):
 
@@ -284,7 +372,7 @@ class JackettUrlTest(JackettTestCase):
         session = session_class.return_value
         session.get.return_value = self.response()
 
-        result = get_jackett_session_cookie(self.settings)
+        result = get_jackett_session(self.settings)
 
         self.assertIs(session, result)
         session.get.assert_called_once_with('http://jackett:9117/UI/Login', timeout=90)

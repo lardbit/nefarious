@@ -46,6 +46,9 @@
           <div class="form-check form-switch my-3">
             <input class="form-check-input" type="checkbox" role="switch" formControlName="jackett_serialize_flaresolverr_indexers" id="serialize-flaresolverr-indexers">
             <label class="form-check-label" for="serialize-flaresolverr-indexers">Serialize FlareSolverr indexers</label>
+            <small class="form-text text-muted d-block">
+              Tag FlareSolverr-backed indexers <code>flaresolverr</code> in Jackett, then run Sync Tags to isolate them.
+            </small>
           </div>
           <div class="my-2 d-flex flex-wrap gap-2">
             <button type="button" class="btn btn-sm btn-outline-primary position-relative" (click)="saveAndVerifyJackettIndexers()">
@@ -53,19 +56,20 @@
               Save & Verify Indexers
               <span class="oi oi-pulse"></span>
             </button>
-            <button type="button" class="btn btn-sm btn-outline-primary position-relative" (click)="syncJackettIndexers()" ngbTooltip="Sync Jackett tags">
+            <button type="button" class="btn btn-sm btn-outline-primary position-relative" (click)="syncJackettIndexers()" ngbTooltip="Read Jackett indexer tags; only the flaresolverr tag is recognized">
               <ngx-loading [show]="isSyncingJackettIndexers"></ngx-loading>
               Sync Tags
               <span class="oi oi-reload"></span>
             </button>
           </div>
+          <small class="form-text text-muted">Sync Tags reads the current indexer tags from Jackett.</small>
           <div class="jackett-indexers mt-3" *ngIf="jackettIndexers.length">
             <div class="jackett-indexer py-2" *ngFor="let indexer of jackettIndexers">
               <div class="min-width-0">
                 <div class="text-truncate" [title]="indexer.name">{{ indexer.name }}</div>
-                <span class="badge" [ngClass]="indexer.effective_is_flaresolverr ? 'bg-warning text-dark' : 'bg-secondary'">
-                  {{ indexer.effective_is_flaresolverr ? 'FlareSolverr' : 'Standard' }}
-                </span>
+                <span *ngIf="indexer.effective_is_flaresolverr === true" class="badge bg-warning text-dark">FlareSolverr</span>
+                <span *ngIf="indexer.effective_is_flaresolverr === false" class="badge bg-secondary">Standard</span>
+                <span *ngIf="indexer.effective_is_flaresolverr == null" class="badge bg-info text-dark">Unknown (not synced)</span>
               </div>
               <select class="form-select form-select-sm jackett-override" aria-label="FlareSolverr override" (change)="updateJackettIndexerOverride(indexer, $event)">
                 <option value="" [selected]="indexer.is_flaresolverr_manual_override === null">Automatic</option>

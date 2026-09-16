@@ -1,7 +1,8 @@
 import requests
 from concurrent.futures import ThreadPoolExecutor
+from defusedxml.common import DefusedXmlException
 from django.core.cache import cache
-import xml.etree.ElementTree as ET
+import defusedxml.ElementTree as ET
 from typing import List
 from nefarious.jackett import get_filtered_jackett_indexers, get_jackett_search_url
 from nefarious.models import JackettIndexer, NefariousSettings
@@ -12,6 +13,7 @@ SEARCH_MEDIA_TYPE_MOVIE = 'movie'
 TORZNAB_NAMESPACE = '{http://torznab.com/schemas/2015/feed}'
 INDEXER_FAILURE_CACHE_TTL = 60 * 60 * 6
 INDEXER_FAILURE_SERIAL_THRESHOLD = 3
+# This opt-in parallel path applies no cross-request backoff or rate limiting.
 MAX_PARALLEL_INDEXERS = 32
 
 
@@ -46,7 +48,7 @@ class SearchTorrents:
                     attempt + 1,
                     error,
                 )
-            except (requests.RequestException, ET.ParseError, ValueError) as error:
+            except (requests.RequestException, ET.ParseError, DefusedXmlException, ValueError) as error:
                 errors.append(str(error))
                 logger_background.warning(
                     'Jackett search failed for indexer %s: %s',
@@ -74,12 +76,12 @@ class SearchTorrents:
         )
         logger_background.info('jackett search: query=%s, url=%s', self.query, response.url)
         response.raise_for_status()
-        return self._parse_results(response.content)
+        return self._parse_results(response.content, indexer_id)
 
     def _search_with_isolated_indexers(self):
         try:
             indexers = get_filtered_jackett_indexers(self.nefarious_settings)
-        except (requests.RequestException, ET.ParseError, ValueError) as error:
+        except (requests.RequestException, ET.ParseError, DefusedXmlException, ValueError) as error:
             logger_background.warning(
                 'Could not enumerate filtered Jackett indexers; falling back to aggregate search: %s',
                 error,
@@ -121,28 +123,43 @@ class SearchTorrents:
         self.error_content = '\n'.join(errors) if errors else None
 
     @staticmethod
-    def _parse_results(content: bytes) -> list:
+    def _safe_int(raw, default: int = 0) -> int:
+        try:
+            return int(raw)
+        except (TypeError, ValueError, OverflowError):
+            try:
+                return int(float(raw))
+            except (TypeError, ValueError, OverflowError):
+                return default
+
+    @staticmethod
+    def _parse_results(content: bytes, fallback_indexer_id: str = None) -> list:
         root = ET.fromstring(content)
         if root.tag == 'error':
             raise ValueError(root.attrib.get('description', 'Jackett search failed'))
 
         results = []
-        for item in root.findall('./channel/item'):
+        for item_position, item in enumerate(root.findall('./channel/item')):
             attributes = {
                 attribute.attrib.get('name'): attribute.attrib.get('value')
                 for attribute in item.findall('{}attr'.format(TORZNAB_NAMESPACE))
             }
+            title = item.findtext('title') or ''
             link = item.findtext('link') or ''
             indexer = item.find('jackettindexer')
+            tracker_id = indexer.attrib.get('id') if indexer is not None else fallback_indexer_id
+            guid = item.findtext('guid') or link
+            if not guid:
+                guid = 'jackett-result:{}:{}:{}'.format(tracker_id or '', title, item_position)
             results.append({
-                'Title': item.findtext('title') or '',
-                'Guid': item.findtext('guid') or link,
+                'Title': title,
+                'Guid': guid,
                 'Link': link,
                 'MagnetUri': attributes.get('magneturl') or (link if link.startswith('magnet:') else None),
-                'Size': int(item.findtext('size') or 0),
-                'Seeders': int(attributes.get('seeders') or 0),
+                'Size': SearchTorrents._safe_int(item.findtext('size')),
+                'Seeders': SearchTorrents._safe_int(attributes.get('seeders')),
                 'Tracker': indexer.text if indexer is not None else '',
-                'TrackerId': indexer.attrib.get('id') if indexer is not None else None,
+                'TrackerId': tracker_id,
             })
         return results
 

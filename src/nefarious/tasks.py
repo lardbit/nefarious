@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from celery_once import QueueOnce
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_date
@@ -74,16 +74,19 @@ def sync_jackett_indexers() -> dict:
         nefarious_settings = NefariousSettings.get()
         indexers = get_jackett_indexers(nefarious_settings)
         synced_at = timezone.now()
-        for indexer in indexers:
-            tags = [tag.lower() for tag in indexer.get('tags') or []]
-            JackettIndexer.objects.update_or_create(
-                indexer_id=indexer['id'],
-                defaults={
-                    'name': indexer.get('name') or indexer['id'],
-                    'is_flaresolverr': 'flaresolverr' in tags,
-                    'last_synced_at': synced_at,
-                },
-            )
+        synced_ids = {indexer['id'] for indexer in indexers}
+        with transaction.atomic():
+            for indexer in indexers:
+                tags = [tag.lower() for tag in indexer.get('tags') or []]
+                JackettIndexer.objects.update_or_create(
+                    indexer_id=indexer['id'],
+                    defaults={
+                        'name': indexer.get('name') or indexer['id'],
+                        'is_flaresolverr': 'flaresolverr' in tags,
+                        'last_synced_at': synced_at,
+                    },
+                )
+            JackettIndexer.objects.exclude(indexer_id__in=synced_ids).delete()
         return {'success': True, 'synced': len(indexers)}
     except Exception as error:
         logger_background.warning('Could not sync Jackett indexer tags: %s', error)

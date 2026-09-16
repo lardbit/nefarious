@@ -200,7 +200,7 @@ class SettingsViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=True, url_path='sync-jackett-indexers', permission_classes=(IsAdminUser,))
     def sync_jackett_indexers(self, request, pk):
-        self.queryset.get(id=pk)
+        self.get_object()
         return Response(sync_jackett_indexers())
 
 

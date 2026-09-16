@@ -122,10 +122,20 @@ export class SettingsComponent implements OnInit {
     ).subscribe();
   }
 
-  public loadJackettIndexers(): void {
+  public loadJackettIndexers(warnIfFlaresolverrTagsMissing = false): void {
     this.apiService.fetchJackettIndexers().subscribe(
       (indexers) => {
         this.jackettIndexers = indexers;
+        const serializationEnabled = this.form.controls.jackett_serialize_flaresolverr_indexers.value;
+        if (
+          warnIfFlaresolverrTagsMissing &&
+          serializationEnabled &&
+          !indexers.some((indexer) => indexer.effective_is_flaresolverr === true)
+        ) {
+          this.toastr.warning(
+            'No Jackett indexers are tagged "flaresolverr"; serialization has no effect until you tag them and sync again.'
+          );
+        }
       },
       (error) => {
         console.error(error);
@@ -142,7 +152,7 @@ export class SettingsComponent implements OnInit {
       (result) => {
         if (result.success) {
           this.toastr.success(`Synced ${result.synced} Jackett indexers`);
-          this.loadJackettIndexers();
+          this.loadJackettIndexers(true);
         } else {
           this.toastr.error(result.error || 'Could not sync Jackett indexers');
         }

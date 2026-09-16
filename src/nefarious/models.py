@@ -1,4 +1,6 @@
 import os
+from typing import Optional
+
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.conf import settings
@@ -148,10 +150,10 @@ class JackettIndexer(models.Model):
     last_synced_at = models.DateTimeField(null=True, blank=True)
 
     @property
-    def effective_is_flaresolverr(self) -> bool:
+    def effective_is_flaresolverr(self) -> Optional[bool]:
         if self.is_flaresolverr_manual_override is not None:
             return self.is_flaresolverr_manual_override
-        return bool(self.is_flaresolverr)
+        return self.is_flaresolverr
 
     def __str__(self):
         return self.name

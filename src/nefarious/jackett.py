@@ -1,5 +1,5 @@
 from typing import Dict, List
-import xml.etree.ElementTree as ET
+import defusedxml.ElementTree as ET
 
 import requests
 
@@ -21,7 +21,7 @@ def get_jackett_search_url(nefarious_settings: NefariousSettings, indexer_id: st
     )
 
 
-def get_jackett_session_cookie(nefarious_settings: NefariousSettings) -> requests.Session:
+def get_jackett_session(nefarious_settings: NefariousSettings) -> requests.Session:
     session = requests.Session()
     timeout = nefarious_settings.jackett_search_timeout
     base_url = get_jackett_base_url(nefarious_settings)
@@ -41,7 +41,7 @@ def get_jackett_session_cookie(nefarious_settings: NefariousSettings) -> request
 
 
 def get_jackett_indexers(nefarious_settings: NefariousSettings) -> List[Dict]:
-    session = get_jackett_session_cookie(nefarious_settings)
+    session = get_jackett_session(nefarious_settings)
     response = session.get(
         '{}/api/v2.0/indexers'.format(get_jackett_base_url(nefarious_settings)),
         params={'configured': 'true'},

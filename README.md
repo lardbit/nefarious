@@ -124,6 +124,20 @@ The default nefarious user/password is `admin`/`admin`.  On first login you will
 Jackett's **host** in the main settings should remain `jackett` and the port should remain `9117`.  Copy your API Token from [Jackett](http://localhost:9117) into the appropriate nefarious section.
 Don't forget to also add some indexers in Jackett to track your preferred content, and be sure to test them to see that they're working.  Some popular examples are *The Pirate Bay*, *1337x*, *RARBG*.
 
+##### Optional FlareSolverr indexer serialization
+
+The **Serialize FlareSolverr indexers** feature is optional and disabled by default. Most users can leave it disabled. It can help when one or more Jackett indexers use FlareSolverr and searches become slow, time out, or compete for the browser and system resources FlareSolverr uses to solve anti-bot challenges.
+
+When enabled, nefarious searches configured Jackett indexers individually instead of relying on one aggregate search. Standard indexers are searched in parallel, while indexers identified as FlareSolverr-backed are searched one at a time. This reduces bursts of concurrent FlareSolverr work and contains an individual indexer's failure so results from healthy indexers are still retained. Indexers that repeatedly fail may also be moved to the serial search path temporarily.
+
+This setting does not install, enable, or configure FlareSolverr. To identify the indexers that should be serialized:
+
+1. Identify each FlareSolverr-backed indexer in Jackett. Open the indexer's settings in the Jackett UI and look for any FlareSolverr-related configuration or requirement. Not every indexer exposes this clearly, so you can also test the indexer or run a search and review the Jackett logs. The logs may show that Jackett automatically sent or retried an indexer request through FlareSolverr after receiving an anti-bot or challenge response. Add the tag `flaresolverr` to each indexer identified this way.
+2. Run **Sync Tags** in the nefarious Jackett settings to import the current tags.
+3. Enable **Serialize FlareSolverr indexers** and save the settings.
+
+Run **Sync Tags** again whenever you add or remove the `flaresolverr` tag in Jackett.
+
 Transmission's host should remain `transmission` and port should remain `9091`.  It's possible to configure it with a username and password, but it defaults to keeping them both blank.
 Entering both username and password in the nefarious settings should only be done if the Transmission settings of `transmission-settings.json` were also configured for your desired user/pass.
 
