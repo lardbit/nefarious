@@ -4,11 +4,10 @@ import logging
 import regex
 import requests
 from typing import List
-import xml.etree.ElementTree as ET
 from urllib.parse import urlparse
 from transmissionrpc import TransmissionError
 
-from nefarious.jackett import get_jackett_search_url
+from nefarious.jackett import get_filtered_jackett_indexers
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVSeason, WatchTVEpisode, WatchMediaBase, TorrentBlacklist
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
@@ -66,19 +65,15 @@ def verify_settings_transmission(nefarious_settings: NefariousSettings):
 
 
 def verify_settings_jackett(nefarious_settings: NefariousSettings):
-    """
-    A special "all" indexer or filter-index is available at /api/v2.0/indexers/all/results/torznab/api. It will query all configured indexers and return the combined results.
-    NOTE: /api/v2.0/indexers/all/results  will return json results vs torznab's xml response
-    """
+    """Verify Jackett access and return the configured indexers selected by the active filter."""
     try:
-        # make an unspecified query to the indexer results endpoint and see if it's successful
-        response = requests.get(
-            get_jackett_search_url(nefarious_settings),
-            params={"apikey": nefarious_settings.jackett_token},
-            timeout=60,
-        )
-        response.raise_for_status()
-        return response.json()
+        indexers = get_filtered_jackett_indexers(nefarious_settings)
+        return {
+            'Indexers': [
+                {'ID': indexer['id'], 'Name': indexer['name'], 'Error': None}
+                for indexer in indexers
+            ],
+        }
     except Exception as e:
         logger_foreground.error(str(e))
         raise Exception('Could not connect to jackett')
@@ -89,19 +84,7 @@ def fetch_jackett_indexers(nefarious_settings: NefariousSettings) -> List[str]:
     To get all Jackett indexers including their capabilities you can use t=indexers on the all indexer.
     To get only configured/unconfigured indexers you can also add configured=true/false as query parameter.
     """
-    response = requests.get('http://{}:{}/api/v2.0/indexers/all/results/torznab/api'.format(
-        nefarious_settings.jackett_host, nefarious_settings.jackett_port),
-        params={
-            'apikey': nefarious_settings.jackett_token,
-            't': 'indexers',
-            'configured': 'true',
-        }, timeout=60)
-    response.raise_for_status()
-    root = ET.fromstring(response.content)
-    indexers = []
-    for child in root:
-        indexers.append(child.attrib['id'])
-    return indexers
+    return [indexer['id'] for indexer in get_filtered_jackett_indexers(nefarious_settings)]
 
 
 def get_best_torrent_result(results: list):
