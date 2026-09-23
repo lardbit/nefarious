@@ -3,7 +3,6 @@ import os
 import logging
 import regex
 import requests
-from typing import List
 from urllib.parse import urlparse
 from transmissionrpc import TransmissionError
 
@@ -65,26 +64,12 @@ def verify_settings_transmission(nefarious_settings: NefariousSettings):
 
 
 def verify_settings_jackett(nefarious_settings: NefariousSettings):
-    """Verify Jackett access and return the configured indexers selected by the active filter."""
+    """Verify Jackett connectivity using the active filter."""
     try:
-        indexers = get_filtered_jackett_indexers(nefarious_settings)
-        return {
-            'Indexers': [
-                {'ID': indexer['id'], 'Name': indexer['name'], 'Error': None}
-                for indexer in indexers
-            ],
-        }
+        get_filtered_jackett_indexers(nefarious_settings)
     except Exception as e:
         logger_foreground.error(str(e))
         raise Exception('Could not connect to jackett')
-
-
-def fetch_jackett_indexers(nefarious_settings: NefariousSettings) -> List[str]:
-    """
-    To get all Jackett indexers including their capabilities you can use t=indexers on the all indexer.
-    To get only configured/unconfigured indexers you can also add configured=true/false as query parameter.
-    """
-    return [indexer['id'] for indexer in get_filtered_jackett_indexers(nefarious_settings)]
 
 
 def get_best_torrent_result(results: list):

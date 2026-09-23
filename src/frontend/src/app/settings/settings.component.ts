@@ -351,22 +351,8 @@ export class SettingsComponent implements OnInit {
   protected _verifySettings(): void {
     this.isSaving = true;
     this.apiService.verifySettings().subscribe(
-      (data) => {
-        let hasErrors = false;
-        // verify individual indexers
-        data.jackett.Indexers.forEach((indexer) => {
-          if (indexer.Error) {
-            hasErrors = true;
-            this.toastr.error(
-              `Indexer "${indexer.Name}" returned an error.  See browser console and/or reconfigure Jackett for this indexer`);
-            console.error(indexer.Error);
-          }
-        });
-        if (hasErrors) {
-          this.toastr.error('Settings are invalid');
-        } else {
-          this.toastr.success('Settings are valid');
-        }
+      () => {
+        this.toastr.success('Settings are valid');
         this.isSaving = false;
       },
       (error) => {
@@ -380,17 +366,8 @@ export class SettingsComponent implements OnInit {
   protected _verifyJackettIndexers() {
     this.isVerifyingJackettIndexers = true;
     this.apiService.verifyJackettIndexers().subscribe(
-      (data: any[]) => {
-        const failedIndexers = data.filter((indexer: any) => {
-          return indexer.Error;
-        });
-        if (failedIndexers.length) {
-          failedIndexers.forEach((failedIndexer: any) => {
-            this.toastr.error(failedIndexer.Error.substring(0, 200), failedIndexer.Name);
-          });
-        } else {
-          this.toastr.success('All indexers were successful');
-        }
+      () => {
+        this.toastr.success('Jackett connection successful');
         this.isVerifyingJackettIndexers = false;
       },
       (error) => {
