@@ -23,7 +23,7 @@ from nefarious.models import NefariousSettings, WatchTVEpisode, WatchTVShow, Wat
 from nefarious.tasks import watch_tv_episode_task, watch_tv_show_season_task, watch_movie_task, send_websocket_message_task
 from nefarious.utils import (
     verify_settings_jackett, verify_settings_transmission, verify_settings_tmdb,
-    fetch_jackett_indexers, destroy_transmission_result)
+    destroy_transmission_result)
 
 
 @method_decorator(gzip_page, name='dispatch')
@@ -169,33 +169,28 @@ class SettingsViewSet(viewsets.ModelViewSet):
     def verify(self, request, pk):
         nefarious_settings = self.queryset.get(id=pk)
         try:
-            jackett_result = verify_settings_jackett(nefarious_settings)
+            verify_settings_jackett(nefarious_settings)
             verify_settings_tmdb(nefarious_settings)
             verify_settings_transmission(nefarious_settings)
         except Exception as e:
             raise ValidationError(str(e))
         return Response({
-            'jackett': jackett_result,
+            'jackett': {},
         })
 
     @action(methods=['get'], detail=True, url_path='verify-jackett-indexers', permission_classes=(IsAdminUser,))
     def verify_jackett_indexers(self, request, pk):
         nefarious_settings = self.queryset.get(id=pk)
         try:
-            results = verify_settings_jackett(nefarious_settings)
+            verify_settings_jackett(nefarious_settings)
         except Exception as e:
             raise ValidationError(str(e))
-        return Response(results.get('Indexers'))
+        return Response({'success': True})
 
     def get_serializer_class(self):
         if self.request.user.is_staff:
             return NefariousSettingsSerializer
         return NefariousPartialSettingsSerializer
-
-    @action(methods=['get'], detail=False, url_path='configured-indexers', permission_classes=(IsAdminUser,))
-    def configured_indexers(self, request):
-        nefarious_settings = NefariousSettings.get()
-        return Response(fetch_jackett_indexers(nefarious_settings))
 
 
 @method_decorator(gzip_page, name='dispatch')

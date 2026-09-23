@@ -35,10 +35,14 @@
               Optionally define a <a target="_blank" href="https://github.com/Jackett/Jackett#filter-indexers">filter-index</a> for jackett.  Leave blank for default search.
             </small>
           </div>
+          <div class="my-2">
+            <label>Search Timeout (seconds)</label>
+            <input type="number" min="1" max="120" step="1" class="form-control" formControlName="jackett_search_timeout" required>
+          </div>
           <div class="my-2 d-flex justify-content-between">
             <button type="button" class="btn btn-sm btn-outline-primary position-relative" (click)="saveAndVerifyJackettIndexers()">
               <ngx-loading [show]="isVerifyingJackettIndexers"></ngx-loading>
-              Save & Verify Indexers
+              Save & Verify Jackett
               <span class="oi oi-pulse"></span>
             </button>
           </div>

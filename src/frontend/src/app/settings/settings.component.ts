@@ -39,6 +39,10 @@ export class SettingsComponent implements OnInit {
       'jackett_port': [settings['jackett_port'], Validators.required],
       'jackett_token': [settings['jackett_token'], Validators.required],
       'jackett_filter_index': [settings['jackett_filter_index']],
+      'jackett_search_timeout': [
+        settings['jackett_search_timeout'],
+        [Validators.required, Validators.min(1), Validators.max(120)],
+      ],
       'transmission_host': [settings['transmission_host'], Validators.required],
       'transmission_port': [settings['transmission_port'], Validators.required],
       'transmission_user': [settings['transmission_user']],
@@ -347,22 +351,8 @@ export class SettingsComponent implements OnInit {
   protected _verifySettings(): void {
     this.isSaving = true;
     this.apiService.verifySettings().subscribe(
-      (data) => {
-        let hasErrors = false;
-        // verify individual indexers
-        data.jackett.Indexers.forEach((indexer) => {
-          if (indexer.Error) {
-            hasErrors = true;
-            this.toastr.error(
-              `Indexer "${indexer.Name}" returned an error.  See browser console and/or reconfigure Jackett for this indexer`);
-            console.error(indexer.Error);
-          }
-        });
-        if (hasErrors) {
-          this.toastr.error('Settings are invalid');
-        } else {
-          this.toastr.success('Settings are valid');
-        }
+      () => {
+        this.toastr.success('Settings are valid');
         this.isSaving = false;
       },
       (error) => {
@@ -376,17 +366,8 @@ export class SettingsComponent implements OnInit {
   protected _verifyJackettIndexers() {
     this.isVerifyingJackettIndexers = true;
     this.apiService.verifyJackettIndexers().subscribe(
-      (data: any[]) => {
-        const failedIndexers = data.filter((indexer: any) => {
-          return indexer.Error;
-        });
-        if (failedIndexers.length) {
-          failedIndexers.forEach((failedIndexer: any) => {
-            this.toastr.error(failedIndexer.Error.substring(0, 200), failedIndexer.Name);
-          });
-        } else {
-          this.toastr.success('All indexers were successful');
-        }
+      () => {
+        this.toastr.success('Jackett connection successful');
         this.isVerifyingJackettIndexers = false;
       },
       (error) => {

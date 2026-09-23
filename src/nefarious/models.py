@@ -1,6 +1,6 @@
 import os
 from django.contrib.auth.models import User
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.conf import settings
 from jsonfield import JSONField
 from django.db import models
@@ -51,6 +51,11 @@ class NefariousSettings(models.Model):
 
     jackett_filter_index = models.CharField(  # https://github.com/Jackett/Jackett#filter-indexers
         max_length=500, null=True, blank=True, help_text='Optional Jackett index filter to use for searches')
+    jackett_search_timeout = models.IntegerField(
+        default=90,
+        validators=[MinValueValidator(1), MaxValueValidator(120)],
+        help_text='Maximum seconds to wait for each Jackett request',
+    )
 
     # transmission
     transmission_host = models.CharField(max_length=500, default='transmission')
