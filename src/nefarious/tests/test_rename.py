@@ -31,5 +31,5 @@ class RenameTorrentsAndPaths(TestCase):
     def test_rename(self):
         for test_media, test_torrent, test_path, test_name, is_single_file in self.tests:
             path, name = get_media_new_path_and_name(test_media, test_torrent, is_single_file)
-            self.assertEquals(test_name, name)
-            self.assertEquals(test_path, path)
+            self.assertEqual(test_name, name)
+            self.assertEqual(test_path, path)

@@ -12,7 +12,7 @@ def populate_last_attempt_date(apps, schema_editor):
     # populate missing last_attempt_date for everything already collected
     for model in [WatchMovie, WatchTVSeason, WatchTVEpisode]:
         for media in model.objects.filter(collected=True, last_attempt_date__isnull=True):
-            media.last_attempt_date = timezone.utc.localize(timezone.datetime.utcnow())
+            media.last_attempt_date = timezone.now()
             media.save()
 
 

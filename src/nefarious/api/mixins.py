@@ -2,9 +2,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from nefarious.models import WatchMediaBase
-from nefarious.tasks import send_websocket_message_task
+from nefarious.tasks import send_media_event_task
 from nefarious.utils import destroy_transmission_result, blacklist_media_and_retry
-from nefarious import websocket
+from nefarious import events
 
 
 class UserReferenceViewSetMixin:
@@ -41,17 +41,17 @@ class DestroyTransmissionResultMixin:
         super().perform_destroy(instance)
 
 
-class WebSocketMediaMessageUpdatedMixin:
+class MediaEventMixin:
 
     def perform_create(self, serializer):
-        # create instance first then send websocket message
+        # create instance first then send media event
         super().perform_create(serializer)
-        # send websocket message media was updated
-        media_type, data = websocket.get_media_type_and_serialized_watch_media(serializer.instance)
-        send_websocket_message_task.delay(websocket.ACTION_UPDATED, media_type, data)
+        # send media event media was updated
+        media_type, data = events.get_media_type_and_serialized_watch_media(serializer.instance)
+        send_media_event_task.delay(events.ACTION_UPDATED, media_type, data)
 
     def perform_destroy(self, instance):
-        # send websocket message first then remove
-        media_type, data = websocket.get_media_type_and_serialized_watch_media(instance)
-        send_websocket_message_task.delay(websocket.ACTION_REMOVED, media_type, data)
+        # send media event first then remove
+        media_type, data = events.get_media_type_and_serialized_watch_media(instance)
+        send_media_event_task.delay(events.ACTION_REMOVED, media_type, data)
         super().perform_destroy(instance)

@@ -109,9 +109,9 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 
 # Static files (CSS, JavaScript, Images)
@@ -122,6 +122,9 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "staticassets"),
 ]
 STATIC_ROOT = "staticfiles"
+
+# serve frontend static assets directly from STATICFILES_DIRS (no collectstatic needed in dev)
+WHITENOISE_USE_FINDERS = True
 
 
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
@@ -136,8 +139,6 @@ CACHES = {
         }
     }
 }
-
-WEBSOCKET_URL = os.environ.get('WEBSOCKET_HOST', 'ws://nefarious:80/ws')
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

@@ -28,9 +28,9 @@ class MovieImporter(ImporterBase):
                 poster_image_url=poster_path,
                 download_path=file_path,
                 collected=True,
-                collected_date=timezone.utc.localize(timezone.datetime.utcnow()),
+                collected_date=timezone.now(),
                 release_date=parse_date(tmdb_result.get('release_date', '')),
-                last_attempt_date=timezone.utc.localize(timezone.datetime.utcnow()),
+                last_attempt_date=timezone.now(),
             ),
         )
         return watch_movie

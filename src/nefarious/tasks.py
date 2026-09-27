@@ -1,9 +1,8 @@
 import os
-import pytz
 from celery import chain
 from celery.signals import task_failure
 from datetime import datetime, timedelta
-from celery_once import QueueOnce
+from celery_singleton import Singleton
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import IntegrityError
@@ -23,7 +22,7 @@ from nefarious.processors import WatchMovieProcessor, WatchTVEpisodeProcessor, W
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
 from nefarious.utils import get_media_new_path_and_name, update_media_release_date, blacklist_media_and_retry
-from nefarious import websocket, notification
+from nefarious import events, notification
 from nefarious.utils import logger_background
 from nefarious.video_detection import VideoDetect
 
@@ -64,7 +63,7 @@ def log_exception(**kwargs):
     logger_background.error('TASK EXCEPTION', exc_info=kwargs['exception'])
 
 
-@app.task(base=QueueOnce, once={'graceful': True})
+@app.task(base=Singleton)
 def watch_tv_show_season_task(watch_tv_season_id: int):
     processor = WatchTVSeasonProcessor(watch_media_id=watch_tv_season_id)
     watch_tv_season = get_object_or_404(WatchTVSeason, pk=watch_tv_season_id)
@@ -114,13 +113,13 @@ def watch_tv_show_season_task(watch_tv_season_id: int):
         watch_tv_season.delete()
 
 
-@app.task(base=QueueOnce, once={'graceful': True})
+@app.task(base=Singleton)
 def watch_tv_episode_task(watch_tv_episode_id: int):
     processor = WatchTVEpisodeProcessor(watch_media_id=watch_tv_episode_id)
     processor.fetch()
 
 
-@app.task(base=QueueOnce, once={'graceful': True})
+@app.task(base=Singleton)
 def watch_movie_task(watch_movie_id: int):
     processor = WatchMovieProcessor(watch_media_id=watch_movie_id)
     processor.fetch()
@@ -143,7 +142,7 @@ def refresh_tmdb_configuration():
     return nefarious_settings.tmdb_configuration
 
 
-@app.task(base=QueueOnce, once={'graceful': True})
+@app.task(base=Singleton)
 def completed_media_task():
     nefarious_settings = NefariousSettings.get()
     transmission_client = get_transmission_client(nefarious_settings)
@@ -197,7 +196,7 @@ def completed_media_task():
                         logger_background.exception(e)
                         logger_background.error('error during video detection for {} with path {}'.format(media, staging_path))
 
-                is_torrent_single_file = len(torrent.files()) == 1
+                is_torrent_single_file = len(torrent.get_files()) == 1
 
                 # get the path and updated name for the data
                 new_path, new_name = get_media_new_path_and_name(media, torrent.name, is_torrent_single_file)
@@ -208,11 +207,11 @@ def completed_media_task():
 
                 # move the data to a new location
                 transmission_move_to_path = os.path.join(
-                    transmission_client.session.download_dir, # .e.g. "/downloads"
+                    transmission_client.get_session().download_dir, # .e.g. "/downloads"
                     relative_path,  # e.g. "movies/Batman (2000)/"
                 )
                 logger_background.info('Moving torrent data to "{}"'.format(transmission_move_to_path))
-                torrent.move_data(transmission_move_to_path)
+                transmission_client.move_torrent_data(torrent.id, transmission_move_to_path)
 
                 # rename the data
                 logger_background.info('Renaming torrent file from "{}" to "{}"'.format(torrent.name, new_name))
@@ -236,9 +235,9 @@ def completed_media_task():
                         season_request.collected = True
                         season_request.save()
 
-                # send websocket message media was updated
-                media_type, data = websocket.get_media_type_and_serialized_watch_media(media)
-                websocket.send_message(websocket.ACTION_UPDATED, media_type, data)
+                # publish media updated event
+                media_type, data = events.get_media_type_and_serialized_watch_media(media)
+                events.publish_media_event(events.ACTION_UPDATED, media_type, data)
 
                 # send user notification
                 notification.send_message(message='{} was downloaded'.format(media))
@@ -375,7 +374,7 @@ def wanted_tv_season_task():
             logger_background.warning('(skipping) tmdb error for season request: {}'.format(tv_season_request))
             continue
 
-        now = datetime.utcnow()
+        now = timezone.now()
         last_air_date = parse_date(season.get('air_date') or '')  # season air date
 
         # otherwise add any new episodes to our watch list
@@ -418,8 +417,8 @@ def wanted_tv_season_task():
 
 
 @app.task
-def send_websocket_message_task(action: str, media_type: str, data: dict):
-    websocket.send_message(action, media_type, data)
+def send_media_event_task(action: str, media_type: str, data: dict):
+    events.publish_media_event(action, media_type, data)
 
 
 @app.task
@@ -464,9 +463,9 @@ def auto_watch_new_seasons_task():
                 if was_season_created:
                     added_season = True
                     logger_background.info('Automatically watching newly aired season {}'.format(watch_tv_season))
-                    # send a websocket message for this new season
-                    media_type, data = websocket.get_media_type_and_serialized_watch_media(watch_tv_season)
-                    send_websocket_message_task.delay(websocket.ACTION_UPDATED, media_type, data)
+                    # send a media event for this new season
+                    media_type, data = events.get_media_type_and_serialized_watch_media(watch_tv_season)
+                    send_media_event_task.delay(events.ACTION_UPDATED, media_type, data)
 
                     # create a task to download the whole season (fallback to individual episodes if it fails)
                     watch_tv_show_season_task.delay(watch_tv_season.id)
@@ -474,11 +473,11 @@ def auto_watch_new_seasons_task():
         # new season added to show
         if added_season:
             # update auto watch date requested
-            watch_show.auto_watch_date_updated = datetime.utcnow().date()
+            watch_show.auto_watch_date_updated = timezone.now().date()
             watch_show.save()
 
 
-@app.task(base=QueueOnce)
+@app.task(base=Singleton, raise_on_duplicate=True)
 def import_library_task(media_type: str, user_id: int, sub_path: str = None):
     user = get_object_or_404(User, pk=user_id)
     nefarious_settings = NefariousSettings.get()
@@ -591,7 +590,7 @@ def process_stuck_downloads_task():
             exclude_kwargs = dict(transmission_torrent_hash__isnull=True)
             filter_kwargs = dict(
                 collected=False,
-                last_attempt_date__lt=datetime.utcnow().replace(tzinfo=pytz.UTC) - timedelta(days=nefarious_settings.stuck_download_handling_days),
+                last_attempt_date__lt=timezone.now() - timedelta(days=nefarious_settings.stuck_download_handling_days),
             )
             for media in query.exclude(**exclude_kwargs).filter(**filter_kwargs):
                 msg = 'blacklisting stuck media "{media}" since it has been trying to download for longer than {stuck_download_handling_days} days'.format(

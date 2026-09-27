@@ -4,8 +4,8 @@ If you're interested in developing, contributing or simply want to run nefarious
 
 nefarious is built on:
 
-- Python 3.9
-- Django 3
+- Python 3.13
+- Django 6
 - Angular 17
 - Bootstrap 5
 
@@ -98,7 +98,6 @@ This creates a default user and pass (admin/admin).
 
     mise run init
 
-
 #### Build front-end resources
 
 First install the frontend dependencies:
@@ -113,27 +112,19 @@ Note: run `mise run frontend-watch` to automatically rebuild while you're develo
    
 #### Run nefarious
 
-##### Basic development server
-
-This method is the default Django development server but *doesn't support websockets*.
+Run the Django development server:
 
     mise run runserver
    
 It'll be now running at [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
-##### Development server with websockets
-
-This method runs the production server (with hot reload) and supports websockets.
-
-Collect all the static assets:
-
-    mise run collectstatic
-    
-Run the server:
+Alternatively, run the ASGI server via uvicorn:
 
     mise run asgi
-    
-It'll be now running at [http://127.0.0.1:8000](http://127.0.0.1:8000)
+
+*Note*: Realtime media updates use Server-Sent Events (SSE) at `/api/events/` and require the ASGI server (`mise run asgi`), not the WSGI development server.
+
+The frontend build (`src/staticassets/`) is served directly by both `runserver` (via Django staticfiles) and `asgi` (via WhiteNoise finders), so no `mise run collectstatic` is needed during development.
    
 #### Run celery (task queue)
 
@@ -144,8 +135,6 @@ Run the celery server:
     mise run celery
     
 You'll see all download logs/activity come out of here.
-
-**NOTE**: Prefix `WEBSOCKET_HOST=ws://localhost:8000/ws` if you're using the websocket version of the server so the celery tasks can send websocket messages.
 
 **NOTE**: By prefixing `DEBUG=1` before the celery command, all torrents will start as **paused** to avoid downloading anything.
 

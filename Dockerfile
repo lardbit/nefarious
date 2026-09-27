@@ -3,7 +3,7 @@ ARG frontend_image=lardbit/nefarious
 ARG tag=latest
 FROM --platform=linux/amd64 ${frontend_image}:frontend-${tag} AS frontend
 
-FROM python:3.9.21-bookworm
+FROM python:3.13-bookworm
 
 EXPOSE 80
 

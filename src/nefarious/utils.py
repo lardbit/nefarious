@@ -4,7 +4,7 @@ import logging
 import regex
 import requests
 from urllib.parse import urlparse
-from transmissionrpc import TransmissionError
+from transmission_rpc import TransmissionError
 
 from nefarious.jackett import get_filtered_jackett_indexers
 from nefarious.models import NefariousSettings, WatchMovie, WatchTVSeason, WatchTVEpisode, WatchMediaBase, TorrentBlacklist

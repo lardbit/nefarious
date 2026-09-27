@@ -1,35 +1,34 @@
 import json
 import logging
+
+import redis
 from django.conf import settings
-from websocket import create_connection
 
 from nefarious.api.serializers import (
     WatchMovieSerializer, WatchTVSeasonSerializer, WatchTVEpisodeSerializer, WatchTVSeasonRequestSerializer, WatchTVShowSerializer)
-from nefarious.models import WatchMovie, WatchTVEpisode, WatchTVSeason, WatchTVSeasonRequest, WatchMediaBase, WatchTVShow, MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV_SHOW, \
+from nefarious.models import WatchMovie, WatchTVEpisode, WatchTVSeason, WatchTVSeasonRequest, WatchTVShow, MEDIA_TYPE_MOVIE, MEDIA_TYPE_TV_SHOW, \
     MEDIA_TYPE_TV_SEASON, MEDIA_TYPE_TV_SEASON_REQUEST, MEDIA_TYPE_TV_EPISODE
+
+logger_background = logging.getLogger('nefarious-background')
 
 ACTION_UPDATED = 'UPDATED'
 ACTION_REMOVED = 'REMOVED'
 
-
-def send_message(action: str, media_type: str, data: dict):
-    logging.info('Sending "{}" websocket message for media type {}'.format(action, media_type))
-    if not settings.DEBUG:
-        try:
-            ws = create_connection(settings.WEBSOCKET_URL, timeout=5)
-            ws.send(json.dumps({
-                'action': action,
-                'type': media_type,
-                'data': data,
-            }))
-        except Exception as e:
-            logging.error('Failed connecting to websocket server: {}'.format(settings.WEBSOCKET_URL))
-            logging.exception(e)
+# single channel broadcast to every connected client; media is a shared watchlist (not per-user)
+EVENTS_CHANNEL = 'nefarious-media-updates'
 
 
-def send_media_message(action: str, media: WatchMediaBase):
-    media_type, data = get_media_type_and_serialized_watch_media(media)
-    send_message(action, media_type, data)
+def publish_media_event(action: str, media_type: str, data: dict):
+    payload = json.dumps({
+        'action': action,
+        'type': media_type,
+        'data': data,
+    })
+    try:
+        client = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
+        client.publish(EVENTS_CHANNEL, payload)
+    except Exception as e:
+        logger_background.error('Error publishing media event: {}'.format(e))
 
 
 def get_media_type_and_serialized_watch_media(media) -> tuple:
