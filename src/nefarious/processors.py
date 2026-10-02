@@ -255,7 +255,9 @@ class WatchMovieProcessor(WatchProcessorBase):
         return MovieParser(title)
 
     def _is_match(self, parser):
-        release_year = dateparse.parse_date(self.tmdb_media['release_date']).strftime('%Y')
+        release_year = None
+        if self.tmdb_media['release_date']:
+            release_year = dateparse.parse_date(self.tmdb_media['release_date']).strftime('%Y')
         return parser.is_match(
             title=self.tmdb_media[self._get_tmdb_title_key()],
             year=release_year,

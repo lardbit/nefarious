@@ -1,4 +1,5 @@
 from nefarious.parsers.movie import MovieParser
+from nefarious.processors import WatchMovieProcessor
 from django.test import TestCase
 
 
@@ -34,3 +35,23 @@ class MovieMatch(TestCase):
         for name, title in self.movie_tests:
             parser = MovieParser(name)
             self.assertTrue(parser.is_match(title), '{} ({})'.format(name, parser.match))
+
+
+class MovieProcessorMatch(TestCase):
+    def test_is_match_without_release_date(self):
+        processor = WatchMovieProcessor.__new__(WatchMovieProcessor)
+        processor.tmdb_media = {'title': 'Digger', 'release_date': ''}
+        parser = MovieParser('Digger.2019.1080p.WEB-DL.x264.mkv')
+        self.assertTrue(processor._is_match(parser))
+
+    def test_is_match_with_none_release_date(self):
+        processor = WatchMovieProcessor.__new__(WatchMovieProcessor)
+        processor.tmdb_media = {'title': 'Digger', 'release_date': None}
+        parser = MovieParser('Digger.2019.1080p.WEB-DL.x264.mkv')
+        self.assertTrue(processor._is_match(parser))
+
+    def test_is_match_with_release_date(self):
+        processor = WatchMovieProcessor.__new__(WatchMovieProcessor)
+        processor.tmdb_media = {'title': 'Digger', 'release_date': '2019-01-01'}
+        parser = MovieParser('Digger.2019.1080p.WEB-DL.x264.mkv')
+        self.assertTrue(processor._is_match(parser))

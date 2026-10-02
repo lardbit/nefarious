@@ -135,7 +135,10 @@ def get_media_new_path_and_name(watch_media, torrent_name: str, is_single_file: 
 
     # movie
     if isinstance(watch_media, WatchMovie):
-        name = '{} ({})'.format(watch_media, watch_media.release_date.year)
+        if watch_media.release_date:
+            name = '{} ({})'.format(watch_media, watch_media.release_date.year)
+        else:
+            name = str(watch_media)
         dir_name = name if is_single_file else None
 
     # tv
