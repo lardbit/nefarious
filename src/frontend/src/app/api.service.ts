@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, mergeMap, tap } from 'rxjs/operators';
 import { forkJoin, Observable, of, Subject, zip } from 'rxjs';
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
 
 @Injectable({
@@ -67,7 +66,7 @@ export class ApiService {
 
   public mediaUpdated$ = new Subject<any>();
 
-  protected _webSocket: WebSocketSubject<any>;
+  protected _eventSource: EventSource;
 
 
   constructor(
@@ -178,7 +177,7 @@ export class ApiService {
         tap(() => {
           // only initialize when in production
           if (!this.settings.is_debug) {
-            this._initWebSocket();
+            this._initEventSource();
           }
         })
       ),
@@ -926,51 +925,28 @@ export class ApiService {
     })
   }
 
-  protected _initWebSocket() {
+  protected _initEventSource() {
+    // EventSource cannot send headers, so the auth token is passed as a query parameter
+    const url = `/api/events?token=${this.userToken}`;
+    console.log('Connecting to event stream: %s', url);
 
-    // we can't rely on the server's websocket url because it may be "nefarious" when run in a docker stack,
-    // so we'll just extract the port and path and use the current window's url
-    const serverWebSocketURL = new URL(this.settings.websocket_url);
-    const windowLocation = window.location;
-    const webSocketProtocol = `${windowLocation.protocol === 'https:' ? 'wss' : 'ws'}://`;
-    const webSocketHost = `${webSocketProtocol}${windowLocation.hostname}:${windowLocation.port}${serverWebSocketURL.pathname}`;
+    this._eventSource = new EventSource(url);
 
-    console.log('Connecting to WebSocket URL: %s', webSocketHost);
+    this._eventSource.onmessage = (event) => {
+      this._handleMediaEvent(event.data);
+    };
 
-    this._webSocket = webSocket(webSocketHost);
-
-    this._webSocket.subscribe(
-      (data) => {
-        this._handleWebSocketMessage(data);
-      },
-      () => {
-        console.error('websocket error. reconnecting...');
-        this._reconnectWebSocket();
-      },
-      () => {
-        console.warn('websocket closed. reconnecting...');
-        this._reconnectWebSocket();
-      }
-    );
+    // EventSource reconnects automatically, so just log errors
+    this._eventSource.onerror = () => {
+      console.warn('event stream error, reconnecting automatically...');
+    };
   }
 
-  protected _reconnectWebSocket() {
-    if (this._webSocket && !this._webSocket.closed) {
-      console.warn('reinitializing websocket');
-      this._webSocket.unsubscribe();
-    } else {
-      console.log('initializing websocket');
-    }
-    setTimeout(() => {
-      this._initWebSocket();
-    }, 500);
-  }
-
-  protected _handleWebSocketMessage(data: string) {
+  protected _handleMediaEvent(data: string) {
     try {
       data = JSON.parse(data);
     } catch (err) {
-      console.error('websocket message not json', err);
+      console.error('media event not json', err);
       return;
     }
 
@@ -987,7 +963,7 @@ export class ApiService {
     } else if (data['type'] === 'TV_EPISODE') {
       mediaList = this.watchTVEpisodes;
     } else {
-      console.error('Unknown websocket message', data);
+      console.error('Unknown media event', data);
       return;
     }
 

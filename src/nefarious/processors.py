@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.cache import cache
 from datetime import datetime
 from django.utils import dateparse, timezone
-from transmissionrpc import Torrent
+from transmission_rpc import Torrent
 
 from nefarious.models import WatchMovie, NefariousSettings, TorrentBlacklist, WatchTVEpisode, WatchTVSeason, QualityProfile
 from nefarious.parsers.base import ParserBase
@@ -106,7 +106,7 @@ class WatchProcessorBase:
                     best_result = self._get_best_torrent_result(valid_search_results)
 
                     transmission_client = get_transmission_client(self.nefarious_settings)
-                    transmission_session = transmission_client.session_stats()
+                    transmission_session = transmission_client.get_session()
 
                     # add to transmission
                     torrent = transmission_client.add_torrent(
@@ -126,7 +126,7 @@ class WatchProcessorBase:
 
                         # start the torrent
                         if not settings.DEBUG:
-                            torrent.start()
+                            transmission_client.start_torrent(torrent.id)
 
                         # set attempt date
                         self._set_last_attempt_date()
@@ -197,7 +197,7 @@ class WatchProcessorBase:
         return True
 
     def _set_last_attempt_date(self):
-        self.watch_media.last_attempt_date = timezone.utc.localize(datetime.utcnow())
+        self.watch_media.last_attempt_date = timezone.now()
         self.watch_media.save()
 
     def _sanitize_title(self, title: str):
@@ -255,7 +255,9 @@ class WatchMovieProcessor(WatchProcessorBase):
         return MovieParser(title)
 
     def _is_match(self, parser):
-        release_year = dateparse.parse_date(self.tmdb_media['release_date']).strftime('%Y')
+        release_year = None
+        if self.tmdb_media['release_date']:
+            release_year = dateparse.parse_date(self.tmdb_media['release_date']).strftime('%Y')
         return parser.is_match(
             title=self.tmdb_media[self._get_tmdb_title_key()],
             year=release_year,

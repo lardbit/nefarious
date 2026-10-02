@@ -1,6 +1,6 @@
 import os
 
-from django.utils.timezone import utc, datetime
+from django.utils import timezone
 from django.utils.dateparse import parse_date
 from requests import HTTPError
 
@@ -82,9 +82,9 @@ class TVImporter(ImporterBase):
                 user=self.user,
                 download_path=file_path,
                 collected=True,
-                collected_date=utc.localize(datetime.utcnow()),
+                collected_date=timezone.now(),
                 release_date=parse_date(episode_data.get('air_date') or ''),
-                last_attempt_date=utc.localize(datetime.utcnow()),
+                last_attempt_date=timezone.now(),
             ),
         )
         return watch_episode

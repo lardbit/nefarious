@@ -1,6 +1,6 @@
 import os
 import requests
-from celery_once import AlreadyQueued
+from celery_singleton import DuplicateTaskError
 from django.conf import settings
 from django.utils.dateparse import parse_date
 from django.utils.decorators import method_decorator
@@ -13,6 +13,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework import views
 from rest_framework import exceptions
+from nefarious import events
 from nefarious.api.serializers import (
     WatchMovieSerializer, WatchTVShowSerializer, WatchTVEpisodeSerializer, WatchTVSeasonRequestSerializer, WatchTVSeasonSerializer,
     TransmissionTorrentSerializer, RottenTomatoesSearchResultsSerializer, )
@@ -25,6 +26,7 @@ from nefarious.quality import PROFILES
 from nefarious.tasks import (
     import_library_task, completed_media_task, wanted_media_task, auto_watch_new_seasons_task,
     refresh_tmdb_configuration, wanted_tv_season_task, populate_release_dates_task, process_stuck_downloads_task,
+    send_media_event_task,
 )
 from nefarious.transmission import get_transmission_client
 from nefarious.tmdb import get_tmdb_client
@@ -227,7 +229,7 @@ class DownloadTorrentsView(views.APIView):
 
         # add torrent
         transmission_client = get_transmission_client(nefarious_settings)
-        transmission_session = transmission_client.session_stats()
+        transmission_session = transmission_client.get_session()
 
         tmdb = get_tmdb_client(nefarious_settings)
 
@@ -249,6 +251,8 @@ class DownloadTorrentsView(views.APIView):
                 nefarious_settings.transmission_movie_download_dir.lstrip('/'),
             )
             result['watch_movie'] = WatchMovieSerializer(watch_media).data
+            media_type, data = events.get_media_type_and_serialized_watch_media(watch_media)
+            send_media_event_task.delay(events.ACTION_UPDATED, media_type, data)
         else:
             tmdb_request = tmdb.TV(tmdb_media['id'])
             tmdb_show = tmdb_request.info()
@@ -263,6 +267,8 @@ class DownloadTorrentsView(views.APIView):
             )
 
             result['watch_tv_show'] = WatchTVShowSerializer(watch_tv_show).data
+            media_type, data = events.get_media_type_and_serialized_watch_media(watch_tv_show)
+            send_media_event_task.delay(events.ACTION_UPDATED, media_type, data)
 
             # single episode
             if 'episode_number' in request.data:
@@ -278,6 +284,8 @@ class DownloadTorrentsView(views.APIView):
                 )
                 watch_media.save()
                 result['watch_tv_episode'] = WatchTVEpisodeSerializer(watch_media).data
+                media_type, data = events.get_media_type_and_serialized_watch_media(watch_media)
+                send_media_event_task.delay(events.ACTION_UPDATED, media_type, data)
             # entire season
             else:
                 season_result = tmdb.TV_Seasons(tmdb_show['id'], request.data['season_number'])
@@ -303,6 +311,10 @@ class DownloadTorrentsView(views.APIView):
 
                 # return the season request vs the watch instance
                 result['watch_tv_season_request'] = WatchTVSeasonRequestSerializer(watch_tv_season_request).data
+                media_type, data = events.get_media_type_and_serialized_watch_media(watch_tv_season_request)
+                send_media_event_task.delay(events.ACTION_UPDATED, media_type, data)
+                media_type, data = events.get_media_type_and_serialized_watch_media(watch_media)
+                send_media_event_task.delay(events.ACTION_UPDATED, media_type, data)
 
             download_dir = os.path.join(
                 transmission_session.download_dir,
@@ -523,7 +535,7 @@ class ImportMediaLibraryView(views.APIView):
         try:
             # create task to import library
             import_library_task.delay(media_type, request.user.id)
-        except AlreadyQueued as e:
+        except DuplicateTaskError as e:
             logger_foreground.exception(e)
             msg = 'Import task for {} already exists'.format(media_type)
             logger_foreground.error(msg)

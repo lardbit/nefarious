@@ -3,8 +3,6 @@
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-import jsonfield.encoder
-import jsonfield.fields
 
 
 class Migration(migrations.Migration):
@@ -29,7 +27,7 @@ class Migration(migrations.Migration):
                 ('transmission_pass', models.CharField(max_length=500)),
                 ('transmission_download_dir', models.CharField(max_length=500)),
                 ('tmdb_token', models.CharField(max_length=500)),
-                ('tmdb_configuration', jsonfield.fields.JSONField(blank=True, dump_kwargs={'cls': jsonfield.encoder.JSONEncoder, 'separators': (',', ':')}, load_kwargs={}, null=True)),
+                ('tmdb_configuration', models.JSONField(blank=True, null=True)),
                 ('tmdb_configuration_date', models.DateTimeField(blank=True, null=True)),
             ],
         ),

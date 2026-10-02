@@ -2,6 +2,7 @@ from django.urls import path, include
 from rest_framework import routers
 from nefarious.api import viewsets
 from nefarious.api import views
+from nefarious.api.events import media_events
 
 router = routers.DefaultRouter()
 router.register(r'settings', viewsets.SettingsViewSet)
@@ -9,8 +10,8 @@ router.register(r'watch-tv-show', viewsets.WatchTVShowViewSet)
 router.register(r'watch-tv-season', viewsets.WatchTVSeasonViewSet)
 router.register(r'watch-tv-season-request', viewsets.WatchTVSeasonRequestViewSet)
 router.register(r'watch-tv-episode', viewsets.WatchTVEpisodeViewSet)
-router.register(r'users', viewsets.UserViewSet)
-router.register(r'user', viewsets.CurrentUserViewSet)
+router.register(r'users', viewsets.UserViewSet, basename='users')
+router.register(r'user', viewsets.CurrentUserViewSet, basename='user')
 router.register(r'watch-movie', viewsets.WatchMovieViewSet)
 router.register(r'quality-profile', viewsets.QualityProfileViewSet)
 router.register(r'torrent-blacklist', viewsets.TorrentBlacklistViewSet)
@@ -22,6 +23,7 @@ urlpatterns = [
 
     # views
     path('search/torrents/', views.SearchTorrentsView.as_view()),
+    path('events/', media_events),  # server-sent events for realtime media updates
     path('download/torrents/', views.DownloadTorrentsView.as_view()),
     path('current/torrents/', views.CurrentTorrentsView.as_view()),
     path('search/media/', views.SearchMediaView.as_view()),

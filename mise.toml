@@ -1,5 +1,5 @@
 [tools]
-python = "3.9.21"
+python = "3.13"
 node = "18.13.0"
 uv = "latest"
 
@@ -32,7 +32,7 @@ description = "Run the Django test suite"
 run = "cd src && python manage.py test"
 
 [tasks.runserver]
-description = "Run the Django development server without websocket support"
+description = "Run the Django WSGI development server (no SSE)"
 run = "cd src && DEBUG=1 python manage.py runserver 8000"
 
 [tasks.collectstatic]
@@ -40,7 +40,7 @@ description = "Collect Django static assets"
 run = "cd src && python manage.py collectstatic --noinput"
 
 [tasks.asgi]
-description = "Run the ASGI development server with websocket support"
+description = "Run the ASGI development server (SSE media updates)"
 run = "cd src && uvicorn nefarious.asgi:application --reload"
 
 [tasks.celery]
