@@ -1,4 +1,8 @@
+from unittest.mock import Mock, patch
+
 from nefarious.parsers.tv import TVParser
+from nefarious.processors import WatchTVSeasonProcessor
+from nefarious.search import SearchTorrentsCombined
 from django.test import TestCase
 
 
@@ -31,3 +35,43 @@ class TVMatch(TestCase):
         for name, title, season in self.tv_season_tests:
             parser = TVParser(name)
             self.assertTrue(parser.is_match(title, season), '{} ({})'.format(name, parser.match))
+
+
+class TVSeasonYearMatch(TestCase):
+    def test_missing_year_in_torrent_still_matches(self):
+        parser = TVParser('Scrubs S01 DVDRip x264')
+        self.assertTrue(parser.is_match('Scrubs', 1, year='2001'))
+
+
+class WatchTVSeasonSearch(TestCase):
+    @patch('nefarious.processors.SearchTorrents')
+    def test_get_search_results_queries_title_and_season(self, mock_search):
+        queries = []
+
+        def fake(media_type, query):
+            queries.append(query)
+            result = Mock()
+            result.ok = True
+            result.results = []
+            result.error_content = ''
+            return result
+
+        mock_search.side_effect = fake
+
+        processor = WatchTVSeasonProcessor.__new__(WatchTVSeasonProcessor)
+        processor.tmdb_media = {'name': 'Scrubs'}
+        processor.watch_media = Mock(season_number=1)
+
+        result = processor._get_search_results()
+
+        self.assertIsInstance(result, SearchTorrentsCombined)
+        self.assertEqual(queries, ['Scrubs', 'Scrubs s01'])
+
+
+class WatchTVSeasonProcessorMatch(TestCase):
+    def test_is_match_without_year(self):
+        processor = WatchTVSeasonProcessor.__new__(WatchTVSeasonProcessor)
+        processor.tmdb_media = {'name': 'Scrubs', 'first_air_date': '2001-10-02'}
+        processor.watch_media = Mock(season_number=1)
+        parser = TVParser('Scrubs S01 (2001) - 2160p HDR Ai Upscale 2.0 MultiSub MKV -Mesc')
+        self.assertTrue(processor._is_match(parser))

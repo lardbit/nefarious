@@ -289,21 +289,30 @@ class TVParser(ParserBase):
             self.match.get('episode'),
         ])
 
-    def _is_match(self, title, season_number, episode_number=None):
+    def _is_match(self, title, season_number, episode_number=None, year=None):
         if episode_number is not None:
-            return self._is_episode_match_test(title, season_number, episode_number)
+            return self._is_episode_match_test(title, season_number, episode_number, year)
         else:
-            return self._is_season_match_test(title, season_number)
+            return self._is_season_match_test(title, season_number, year)
 
-    def _is_season_match_test(self, title, season_number) -> bool:
+    def _is_season_match_test(self, title, season_number, year=None) -> bool:
         return self.is_full_season() and all([
             season_number in self.match['season'],
             self.match['title'] == self.normalize_media_title(title),
+            self._is_year_match(year),
         ])
 
-    def _is_episode_match_test(self, title, season_number, episode_number) -> bool:
+    def _is_episode_match_test(self, title, season_number, episode_number, year=None) -> bool:
         return self.is_single_episode() and all([
             self.match['title'] == self.normalize_media_title(title),
             season_number in self.match.get('season'),
             episode_number in self.match.get('episode'),
+            self._is_year_match(year),
         ])
+
+    def _is_year_match(self, year) -> bool:
+        # only enforce the year when both the media and the torrent title include one,
+        # so torrents without a year are never filtered out
+        if year and self.match.get('year'):
+            return year in self.match['year']
+        return True
