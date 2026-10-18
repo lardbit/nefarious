@@ -89,6 +89,18 @@ def get_best_torrent_result(results: list):
     return best_result
 
 
+def count_live_seeders(transmission_client, torrent_id) -> int:
+    """
+    Count the number of peers that actually have the full torrent (progress >= 1.0).
+
+    The seeders reported by the indexer (via jackett) are frequently stale, so this
+    queries transmission for the live swarm to determine how many real seeders exist.
+    """
+    torrent = transmission_client.get_torrent(torrent_id, arguments=['peers'])
+    peers = torrent.fields.get('peers') or []
+    return sum(1 for peer in peers if isinstance(peer, dict) and peer.get('progress', 0) >= 1.0)
+
+
 def results_with_valid_urls(results: list, nefarious_settings: NefariousSettings):
     populated_results = []
 
