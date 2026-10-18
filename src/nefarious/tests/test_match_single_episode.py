@@ -1,4 +1,5 @@
 from nefarious.parsers.tv import TVParser
+from nefarious.processors import WatchTVEpisodeProcessor
 from django.test import TestCase
 
 
@@ -136,3 +137,40 @@ class TVMatch(TestCase):
         for name, title, season, episode in self.tv_single_episode_tests:
             parser = TVParser(name)
             self.assertTrue(parser.is_match(title, season, episode), '{} ({})'.format(name, parser.match))
+
+
+class TVEpisodeYearMatch(TestCase):
+    def test_year_mismatch(self):
+        parser = TVParser('Scrubs 2026 S01E05 My Angel 480p x264 mSD')
+        self.assertFalse(parser.is_match('Scrubs', 1, 5, year='2001'))
+
+    def test_year_match(self):
+        parser = TVParser('Scrubs 2026 S01E05 My Angel 480p x264 mSD')
+        self.assertTrue(parser.is_match('Scrubs', 1, 5, year='2026'))
+
+    def test_missing_year_in_torrent_still_matches(self):
+        parser = TVParser('Scrubs S01E05 HDTV X264 NGP')
+        self.assertTrue(parser.is_match('Scrubs', 1, 5, year='2001'))
+
+
+class WatchTVEpisodeProcessorMatch(TestCase):
+    def test_is_match_with_year_mismatch(self):
+        processor = WatchTVEpisodeProcessor.__new__(WatchTVEpisodeProcessor)
+        processor.show = {'name': 'Scrubs', 'first_air_date': '2001-10-02'}
+        processor.tmdb_media = {'season_number': 1, 'episode_number': 5}
+        parser = TVParser('Scrubs 2026 S01E05 My Angel 480p x264 mSD')
+        self.assertFalse(processor._is_match(parser))
+
+    def test_is_match_with_year_match(self):
+        processor = WatchTVEpisodeProcessor.__new__(WatchTVEpisodeProcessor)
+        processor.show = {'name': 'Scrubs', 'first_air_date': '2026-02-25'}
+        processor.tmdb_media = {'season_number': 1, 'episode_number': 5}
+        parser = TVParser('Scrubs 2026 S01E05 My Angel 480p x264 mSD')
+        self.assertTrue(processor._is_match(parser))
+
+    def test_is_match_without_year(self):
+        processor = WatchTVEpisodeProcessor.__new__(WatchTVEpisodeProcessor)
+        processor.show = {'name': 'Scrubs', 'first_air_date': '2001-10-02'}
+        processor.tmdb_media = {'season_number': 1, 'episode_number': 5}
+        parser = TVParser('Scrubs S01E05 HDTV X264 NGP')
+        self.assertTrue(processor._is_match(parser))

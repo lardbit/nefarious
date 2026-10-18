@@ -323,10 +323,14 @@ class WatchTVEpisodeProcessor(WatchTVProcessorBase):
 
     def _is_match(self, parser):
         # supply show's name vs episode name for title matching
+        release_year = None
+        if self.show.get('first_air_date'):
+            release_year = dateparse.parse_date(self.show['first_air_date']).strftime('%Y')
         return parser.is_match(
             title=self.show[self._get_tmdb_title_key()],
             season_number=self.tmdb_media['season_number'],
             episode_number=self.tmdb_media['episode_number'],
+            year=release_year,
         )
 
     def _get_tmdb_media(self):
@@ -375,9 +379,13 @@ class WatchTVSeasonProcessor(WatchTVProcessorBase):
         return watch_season
 
     def _is_match(self, parser):
+        release_year = None
+        if self.tmdb_media.get('first_air_date'):
+            release_year = dateparse.parse_date(self.tmdb_media['first_air_date']).strftime('%Y')
         return parser.is_match(
             title=self.tmdb_media[self._get_tmdb_title_key()],
             season_number=self.watch_media.season_number,
+            year=release_year,
         )
 
     def _get_tmdb_media(self):
@@ -390,4 +398,8 @@ class WatchTVSeasonProcessor(WatchTVProcessorBase):
 
     def _get_search_results(self):
         media = self.tmdb_media
-        return SearchTorrents(SEARCH_MEDIA_TYPE_TV, self._sanitize_title(media[self._get_tmdb_title_key()]))
+        media_title = self._sanitize_title(media[self._get_tmdb_title_key()])
+        return SearchTorrentsCombined([
+            SearchTorrents(SEARCH_MEDIA_TYPE_TV, media_title),
+            SearchTorrents(SEARCH_MEDIA_TYPE_TV, '{} s{:02d}'.format(media_title, self.watch_media.season_number)),
+        ])
