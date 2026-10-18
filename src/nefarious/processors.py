@@ -1,4 +1,5 @@
 import os
+import time
 import regex
 from typing import Union
 from django.apps import apps
@@ -16,10 +17,12 @@ from nefarious.quality import Profile
 from nefarious.search import SearchTorrents, SEARCH_MEDIA_TYPE_MOVIE, SEARCH_MEDIA_TYPE_TV, SearchTorrentsCombined
 from nefarious.tmdb import get_tmdb_client
 from nefarious.transmission import get_transmission_client
-from nefarious.utils import get_best_torrent_result, results_with_valid_urls, logger_background
+from nefarious.utils import get_best_torrent_result, results_with_valid_urls, count_live_seeders, logger_background
 
 
 CACHE_RESULTS = 60 * 60 * 24 * 7
+
+VERIFY_TORRENT_SEEDERS_WAIT_SECONDS = 60
 
 
 class WatchProcessorBase:
@@ -121,12 +124,19 @@ class WatchProcessorBase:
                         logger_background.info('Added torrent {} with {} seeders'.format(best_result['Title'], best_result['Seeders']))
                         logger_background.info('Starting torrent id: {} and hash {}'.format(torrent.id, torrent.hashString))
 
-                        # save torrent details on our watch instance
-                        self._save_torrent_details(torrent)
-
                         # start the torrent
                         if not settings.DEBUG:
                             transmission_client.start_torrent(torrent.id)
+
+                            # verify the torrent actually has live seeders before committing to it
+                            if not self._torrent_has_seeders(torrent.id):
+                                logger_background.info('No live seeders for "{}" - trying next result'.format(best_result['Title']))
+                                transmission_client.remove_torrent([torrent.id])
+                                valid_search_results.remove(best_result)
+                                continue
+
+                        # save torrent details on our watch instance
+                        self._save_torrent_details(torrent)
 
                         # set attempt date
                         self._set_last_attempt_date()
@@ -211,6 +221,17 @@ class WatchProcessorBase:
 
     def _get_best_torrent_result(self, results: list):
         return get_best_torrent_result(results)
+
+    def _torrent_has_seeders(self, torrent_id: int) -> bool:
+        # poll transmission for a live seeder, since the indexer-reported seeder count can be stale
+        poll_interval = 5
+        elapsed = 0
+        while elapsed < VERIFY_TORRENT_SEEDERS_WAIT_SECONDS:
+            if count_live_seeders(self.transmission_client, torrent_id) > 0:
+                return True
+            time.sleep(poll_interval)
+            elapsed += poll_interval
+        return False
 
     def _get_quality_profile(self) -> QualityProfile:
         raise NotImplementedError
