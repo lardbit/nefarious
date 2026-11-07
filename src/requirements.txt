@@ -15,5 +15,6 @@ whitenoise==6.12.0
 django-redis==7.0.0
 Unidecode==1.1.2
 psycopg2-binary==2.9.11
+packaging==26.3
 apprise==1.13.1
 cryptography>=43
