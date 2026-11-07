@@ -56,6 +56,16 @@ class VideoDetectionTest(TestCase):
     def test_static_video_longer_than_window_is_still_spam(self):
         # The frozen fraction denominator must be the analysis window, not the full
         # video duration; otherwise a long static video (window < duration) would be
-        # computed as a low fraction and wrongly pass as valid.
-        with mock.patch.object(VideoDetect, 'MAX_ANALYSIS_SECONDS', 2):
+        # computed as a low fraction and wrongly pass as valid. Drive the window via
+        # the configured-setting read (not the class constant) so a short window still
+        # classifies a longer static video as spam.
+        with mock.patch.object(VideoDetect, '_analysis_seconds', return_value=2):
             self.assertFalse(VideoDetect.has_valid_video_in_path(self.static_path))
+
+    def test_early_exit_yields_valid(self):
+        # When ffmpeg is terminated early because enough motion accumulated (early_exit
+        # True), process_similarity must map that to a non-spam result (frozen_fraction
+        # 0.0) rather than leaving the default/div-by-zero path. Patch the detection
+        # result while letting the real ffprobe probe run against a real moving fixture.
+        with mock.patch.object(VideoDetect, '_detect_freezes', return_value=([], True)):
+            self.assertTrue(VideoDetect.has_valid_video_in_path(self.moving_path))

@@ -89,6 +89,7 @@ class NefariousSettings(models.Model):
 
     # whether to enable video detection features (e.g. fake/spam)
     enable_video_detection = models.BooleanField(default=False)
+    video_detection_analysis_seconds = models.IntegerField(default=120, help_text='Maximum seconds of each video to scan when detecting fake/spam video content')
 
     # expects keyword/boolean pairs like {"x265": false, "265": false}
     keyword_search_filters = JSONField(blank=True, null=True)  # type: dict
