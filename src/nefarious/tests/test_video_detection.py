@@ -3,6 +3,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
 from django.test import TestCase
 
@@ -51,3 +52,10 @@ class VideoDetectionTest(TestCase):
 
     def test_garbage_video_is_invalid(self):
         self.assertFalse(VideoDetect.has_valid_video_in_path(self.garbage_path))
+
+    def test_static_video_longer_than_window_is_still_spam(self):
+        # The frozen fraction denominator must be the analysis window, not the full
+        # video duration; otherwise a long static video (window < duration) would be
+        # computed as a low fraction and wrongly pass as valid.
+        with mock.patch.object(VideoDetect, 'MAX_ANALYSIS_SECONDS', 2):
+            self.assertFalse(VideoDetect.has_valid_video_in_path(self.static_path))

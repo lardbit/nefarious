@@ -9,6 +9,7 @@ from nefarious.utils import logger_background
 
 class VideoDetect:
     FROZEN_FRACTION_THRESHOLD = 0.90  # a frozen fraction above this marks the video as spam/too-similar
+    MAX_ANALYSIS_SECONDS = 120  # bound the freeze scan; a fully-static spam video is static from frame 0
 
     video_path: str
     frozen_fraction: float  # from 0-1
@@ -74,7 +75,8 @@ class VideoDetect:
             total_duration = self._probe_video()
             if total_duration < 1.0:
                 raise ValueError(f'video duration too short: {total_duration}')
-            freeze_durations = self._detect_freezes(total_duration)
+            analysis_seconds = min(total_duration, self.MAX_ANALYSIS_SECONDS)
+            freeze_durations = self._detect_freezes(analysis_seconds)
         except Exception as exc:
             logger_background.info(f'[VIDEO_DETECTION] invalid video for {self.video_path}: {exc}')
             self.is_valid = False
@@ -85,7 +87,7 @@ class VideoDetect:
         self.is_valid = True
         self.total_duration = total_duration
         total_freeze_duration = sum(freeze_durations)
-        self.frozen_fraction = total_freeze_duration / total_duration
+        self.frozen_fraction = total_freeze_duration / analysis_seconds
 
         logger_background.info('[VIDEO_DETECTION] "{}" has frozen fraction: {}'.format(self.video_path, self.frozen_fraction))
 
@@ -106,10 +108,11 @@ class VideoDetect:
             raise ValueError('no duration available')
         return float(duration)
 
-    def _detect_freezes(self, total_duration: float) -> list:
+    def _detect_freezes(self, analysis_seconds: float) -> list:
         result = subprocess.run(
-            ['ffmpeg', '-i', self.video_path, '-vf', 'freezedetect=n=0.001:d=2', '-map', '0:v:0', '-f', 'null', '-'],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=120)
+            ['ffmpeg', '-i', self.video_path, '-t', str(analysis_seconds),
+             '-vf', 'freezedetect=n=0.001:d=2', '-map', '0:v:0', '-f', 'null', '-'],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=600)
         if result.returncode != 0:
             raise ValueError('ffmpeg returned non-zero exit code')
         freeze_durations = []
@@ -123,9 +126,9 @@ class VideoDetect:
                     freeze_durations.append(freeze_end - freeze_start)
                     freeze_start = None
         if freeze_start is not None:
-            # freezedetect only reports freeze_start when a freeze lasts to the end of
-            # the stream; it never emits freeze_end/freeze_duration for that final freeze.
-            freeze_durations.append(total_duration - freeze_start)
+            # freezedetect emits only freeze_start (no freeze_end) when a freeze lasts
+            # to the end of the analyzed window/stream; recover it from the window length.
+            freeze_durations.append(analysis_seconds - freeze_start)
         return freeze_durations
 
     def _freeze_value(self, line: str, key: str) -> float:
