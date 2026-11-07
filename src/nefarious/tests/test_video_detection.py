@@ -1,0 +1,53 @@
+import os
+import shutil
+import subprocess
+import tempfile
+import unittest
+
+from django.test import TestCase
+
+from nefarious.video_detection import VideoDetect
+
+
+@unittest.skipUnless(shutil.which('ffmpeg') and shutil.which('ffprobe'), 'ffmpeg/ffprobe required')
+class VideoDetectionTest(TestCase):
+    temp_dir = None
+    static_path = None
+    moving_path = None
+    garbage_path = None
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.temp_dir = tempfile.mkdtemp(prefix='video-detect-test-')
+        cls.static_path = os.path.join(cls.temp_dir, 'static.mp4')
+        cls.moving_path = os.path.join(cls.temp_dir, 'moving.mp4')
+        cls.garbage_path = os.path.join(cls.temp_dir, 'garbage.mp4')
+
+        # fully static single-frame video (solid black) -> detected as frozen/spam
+        subprocess.run(
+            ['ffmpeg', '-y', '-f', 'lavfi', '-i', 'color=c=black:s=320x240:d=5',
+             '-c:v', 'libx264', '-pix_fmt', 'yuv420p', cls.static_path],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        # continuously moving test pattern -> not frozen -> valid
+        subprocess.run(
+            ['ffmpeg', '-y', '-f', 'lavfi', '-i', 'testsrc=duration=5:size=320x240:rate=24',
+             '-c:v', 'libx264', '-pix_fmt', 'yuv420p', cls.moving_path],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        # a non-video file with a video extension -> ffprobe fails -> invalid
+        with open(cls.garbage_path, 'wb') as fh:
+            fh.write(b'not a video' * 1000)
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        shutil.rmtree(cls.temp_dir, ignore_errors=True)
+
+    def test_static_video_is_spam(self):
+        self.assertFalse(VideoDetect.has_valid_video_in_path(self.static_path))
+
+    def test_moving_video_is_valid(self):
+        self.assertTrue(VideoDetect.has_valid_video_in_path(self.moving_path))
+
+    def test_garbage_video_is_invalid(self):
+        self.assertFalse(VideoDetect.has_valid_video_in_path(self.garbage_path))

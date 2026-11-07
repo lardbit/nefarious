@@ -1,7 +1,6 @@
+import json
 import os
-import cv2
-import random
-import numpy as np
+import subprocess
 
 from nefarious.parsers.base import ParserBase
 from nefarious.quality import video_extensions
@@ -9,27 +8,20 @@ from nefarious.utils import logger_background
 
 
 class VideoDetect:
-    MIN_VIDEO_SIMILARITY_STD = .05  # "real" videos should be > .15 (from 0-1)
-    NUM_CAPTURE_FRAMES = 100
+    FROZEN_FRACTION_THRESHOLD = 0.90  # a frozen fraction above this marks the video as spam/too-similar
 
     video_path: str
-    video_capture = None
-    video_similarity_std: float  # from 0-1
-    frame_count: int
-    frame_rate: int
-    frame_interval: int
+    frozen_fraction: float  # from 0-1
+    is_valid: bool
+    total_duration: float
 
     def __init__(self, video_path: str):
-        # video capture
         self.video_path = video_path
-        self.video_capture = cv2.VideoCapture(self.video_path)
+        self.frozen_fraction = 0.0
+        self.is_valid = False
+        self.total_duration = 0.0
 
-        # get video information
-        self.frame_count = int(self.video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
-        self.frame_rate = int(self.video_capture.get(cv2.CAP_PROP_FPS))
-        self.frame_interval = int(self.frame_count * (1 / self.NUM_CAPTURE_FRAMES))  # capture NUM_CAPTURE_FRAMES worth of frames
-
-        logger_background.info(f'VideoDetect: Initializing video capture {video_path}: frame_count = {self.frame_count}, frame_rate = {self.frame_rate}, frame_interval = {self.frame_interval}')
+        logger_background.info(f'VideoDetect: Initializing video detection {video_path}')
 
     @classmethod
     def has_valid_video_in_path(cls, path: str):
@@ -72,32 +64,69 @@ class VideoDetect:
         return False
 
     def is_too_similar(self):
-        logger_background.info(f'[VIDEO_DETECTION] video_similarity_std {self.video_similarity_std=}, {self.MIN_VIDEO_SIMILARITY_STD=}, {self.video_path=}')
-        return self.video_similarity_std <= self.MIN_VIDEO_SIMILARITY_STD
+        logger_background.info(f'[VIDEO_DETECTION] frozen_fraction {self.frozen_fraction=}, {self.FROZEN_FRACTION_THRESHOLD=}, {self.video_path=}')
+        if not self.is_valid:
+            return True
+        return self.frozen_fraction > self.FROZEN_FRACTION_THRESHOLD
 
     def process_similarity(self):
-        results = []
-        histograms = []
+        try:
+            total_duration = self._probe_video()
+            if total_duration < 1.0:
+                raise ValueError(f'video duration too short: {total_duration}')
+            freeze_durations = self._detect_freezes(total_duration)
+        except Exception as exc:
+            logger_background.info(f'[VIDEO_DETECTION] invalid video for {self.video_path}: {exc}')
+            self.is_valid = False
+            self.total_duration = 0.0
+            self.frozen_fraction = 1.0
+            return
 
-        # generate histograms for every captured frame
-        for frame in range(0, self.frame_count, self.frame_interval):
-            # read specific frame
-            self.video_capture.set(cv2.CAP_PROP_POS_FRAMES, frame)
-            success, image = self.video_capture.read()
-            if not success:
-                continue
-            gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            histograms.append(cv2.calcHist([gray_image], [0], None, [256], [0, 256]))
+        self.is_valid = True
+        self.total_duration = total_duration
+        total_freeze_duration = sum(freeze_durations)
+        self.frozen_fraction = total_freeze_duration / total_duration
 
-        # randomize histograms and compare frame by frame
-        random.shuffle(histograms)
-        for i, histogram in enumerate(histograms):
-            if i == len(histograms) - 1:
-                break
-            compared = cv2.compareHist(histograms[i], histograms[i + 1], cv2.HISTCMP_BHATTACHARYYA)
-            results.append(compared)
+        logger_background.info('[VIDEO_DETECTION] "{}" has frozen fraction: {}'.format(self.video_path, self.frozen_fraction))
 
-        # calculate the standard deviation from the results
-        self.video_similarity_std = float(np.std(results))
+    def _probe_video(self) -> float:
+        result = subprocess.run(
+            ['ffprobe', '-v', 'quiet', '-print_format', 'json', '-show_format', '-show_streams', '-select_streams', 'v:0', self.video_path],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
+        if result.returncode != 0:
+            raise ValueError('ffprobe returned non-zero exit code')
+        data = json.loads(result.stdout.decode('utf-8'))
+        streams = data.get('streams') or []
+        if not streams:
+            raise ValueError('no video stream found')
+        duration = (data.get('format') or {}).get('duration')
+        if duration is None:
+            duration = streams[0].get('duration')
+        if duration is None:
+            raise ValueError('no duration available')
+        return float(duration)
 
-        logger_background.info('[VIDEO_DETECTION] "{}" has frame similarity standard deviation: {}'.format(self.video_path, self.video_similarity_std))
+    def _detect_freezes(self, total_duration: float) -> list:
+        result = subprocess.run(
+            ['ffmpeg', '-i', self.video_path, '-vf', 'freezedetect=n=0.001:d=2', '-map', '0:v:0', '-f', 'null', '-'],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=120)
+        if result.returncode != 0:
+            raise ValueError('ffmpeg returned non-zero exit code')
+        freeze_durations = []
+        freeze_start = None
+        for line in result.stderr.decode('utf-8', errors='replace').splitlines():
+            if 'lavfi.freezedetect.freeze_start' in line:
+                freeze_start = self._freeze_value(line, 'freeze_start')
+            elif 'lavfi.freezedetect.freeze_end' in line:
+                freeze_end = self._freeze_value(line, 'freeze_end')
+                if freeze_start is not None:
+                    freeze_durations.append(freeze_end - freeze_start)
+                    freeze_start = None
+        if freeze_start is not None:
+            # freezedetect only reports freeze_start when a freeze lasts to the end of
+            # the stream; it never emits freeze_end/freeze_duration for that final freeze.
+            freeze_durations.append(total_duration - freeze_start)
+        return freeze_durations
+
+    def _freeze_value(self, line: str, key: str) -> float:
+        return float(line.split(f'{key}:', 1)[1].strip().split()[0])
