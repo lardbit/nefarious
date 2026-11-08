@@ -23,7 +23,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # install app dependencies, build app and remove dev dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     authbind \
-    libatlas-base-dev libhdf5-dev libavutil-dev libswresample-dev libavcodec-dev libavformat-dev libswscale-dev \
+    ffmpeg \
     && mkdir -p /nefarious-db \
     && python -m venv /env \
     && /env/bin/pip install -U pip==24 \
