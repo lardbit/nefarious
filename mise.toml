@@ -11,6 +11,10 @@ _.python.venv = { path = ".venv", create = true, uv_create_args = ["--seed"] }
 description = "Install backend Python dependencies into the mise-managed virtualenv"
 run = "uv venv --allow-existing --python \"$UV_PYTHON\" --seed .venv && uv pip install --python .venv -r src/requirements.txt"
 
+[tasks.deps-compile]
+description = "Regenerate the locked, hash-pinned requirements.txt from requirements.in"
+run = "uv pip compile --python-version 3.13 --generate-hashes src/requirements.in -o src/requirements.txt"
+
 [tasks.install-frontend]
 description = "Install frontend npm dependencies"
 run = "npm --prefix src/frontend install"
