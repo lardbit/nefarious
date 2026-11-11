@@ -154,3 +154,5 @@ See [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 ### Development
 
 See [DEVELOPMENT.md](docs/DEVELOPMENT.md).
+
+Python dependencies are managed with [uv](https://docs.astral.sh/uv/): `src/requirements.in` is the source of truth for direct dependencies, and `src/requirements.txt` is the locked, hash-pinned output. Regenerate the lock after changing `requirements.in` by running `mise run deps-compile`.
