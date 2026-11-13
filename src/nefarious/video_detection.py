@@ -1,6 +1,6 @@
 import os
-import cv2
 import random
+import subprocess
 import numpy as np
 
 from nefarious.parsers.base import ParserBase
@@ -11,25 +11,16 @@ from nefarious.utils import logger_background
 class VideoDetect:
     MIN_VIDEO_SIMILARITY_STD = .05  # "real" videos should be > .15 (from 0-1)
     NUM_CAPTURE_FRAMES = 100
+    SAMPLE_WIDTH = 128
+    SAMPLE_HEIGHT = 72
+    ANALYSIS_TIMEOUT_SECONDS = 600
 
     video_path: str
-    video_capture = None
-    video_similarity_std: float  # from 0-1
-    frame_count: int
-    frame_rate: int
-    frame_interval: int
+    video_similarity_std: float | None  # None means analysis was inconclusive
 
     def __init__(self, video_path: str):
-        # video capture
         self.video_path = video_path
-        self.video_capture = cv2.VideoCapture(self.video_path)
-
-        # get video information
-        self.frame_count = int(self.video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
-        self.frame_rate = int(self.video_capture.get(cv2.CAP_PROP_FPS))
-        self.frame_interval = int(self.frame_count * (1 / self.NUM_CAPTURE_FRAMES))  # capture NUM_CAPTURE_FRAMES worth of frames
-
-        logger_background.info(f'VideoDetect: Initializing video capture {video_path}: frame_count = {self.frame_count}, frame_rate = {self.frame_rate}, frame_interval = {self.frame_interval}')
+        self.video_similarity_std = None
 
     @classmethod
     def has_valid_video_in_path(cls, path: str):
@@ -73,31 +64,44 @@ class VideoDetect:
 
     def is_too_similar(self):
         logger_background.info(f'[VIDEO_DETECTION] video_similarity_std {self.video_similarity_std=}, {self.MIN_VIDEO_SIMILARITY_STD=}, {self.video_path=}')
-        return self.video_similarity_std <= self.MIN_VIDEO_SIMILARITY_STD
+        return self.video_similarity_std is not None and self.video_similarity_std <= self.MIN_VIDEO_SIMILARITY_STD
 
     def process_similarity(self):
-        results = []
-        histograms = []
+        # Inconclusive analysis must not blacklist a potentially valid download.
+        self.video_similarity_std = None
+        try:
+            result = subprocess.run([
+                # Discard non-key packets in the demuxer as well as skipping
+                # non-key frames in the decoder, avoiding unnecessary parsing.
+                'ffmpeg', '-nostdin', '-v', 'error', '-xerror',
+                '-discard', 'nokey', '-skip_frame', 'nokey',
+                '-i', self.video_path, '-map', '0:v:0', '-an', '-sn', '-dn',
+                '-vf', f'scale={self.SAMPLE_WIDTH}:{self.SAMPLE_HEIGHT},format=gray',
+                '-fps_mode', 'passthrough', '-f', 'rawvideo', 'pipe:1',
+            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                timeout=self.ANALYSIS_TIMEOUT_SECONDS, check=True)
+            frame_size = self.SAMPLE_WIDTH * self.SAMPLE_HEIGHT
+            if len(result.stdout) % frame_size:
+                raise ValueError('incomplete frame from ffmpeg')
+            frames = np.frombuffer(result.stdout, dtype=np.uint8).reshape(-1, frame_size)
+            if len(frames) < 3:
+                # At least two distances are needed to measure their variance.
+                raise ValueError('too few keyframes to compare')
+            # Cover the whole file rather than concentrating on an intro or scene.
+            indices = np.linspace(0, len(frames) - 1, min(len(frames), self.NUM_CAPTURE_FRAMES), dtype=int)
+            histograms = [np.bincount(frames[i], minlength=256).astype(float) for i in indices]
+        except (OSError, subprocess.SubprocessError, ValueError) as exc:
+            logger_background.warning(f'[VIDEO_DETECTION] unable to analyze {self.video_path}; skipping spam classification: {exc}')
+            return
 
-        # generate histograms for every captured frame
-        for frame in range(0, self.frame_count, self.frame_interval):
-            # read specific frame
-            self.video_capture.set(cv2.CAP_PROP_POS_FRAMES, frame)
-            success, image = self.video_capture.read()
-            if not success:
-                continue
-            gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            histograms.append(cv2.calcHist([gray_image], [0], None, [256], [0, 256]))
-
-        # randomize histograms and compare frame by frame
         random.shuffle(histograms)
-        for i, histogram in enumerate(histograms):
-            if i == len(histograms) - 1:
-                break
-            compared = cv2.compareHist(histograms[i], histograms[i + 1], cv2.HISTCMP_BHATTACHARYYA)
-            results.append(compared)
-
-        # calculate the standard deviation from the results
+        results = [self._histogram_distance(a, b) for a, b in zip(histograms, histograms[1:])]
         self.video_similarity_std = float(np.std(results))
 
         logger_background.info('[VIDEO_DETECTION] "{}" has frame similarity standard deviation: {}'.format(self.video_path, self.video_similarity_std))
+
+    @staticmethod
+    def _histogram_distance(a: np.ndarray, b: np.ndarray) -> float:
+        # OpenCV HISTCMP_BHATTACHARYYA (Hellinger), not -log(coefficient).
+        coefficient = np.sqrt(a * b).sum() / np.sqrt(a.sum() * b.sum())
+        return float(np.sqrt(np.clip(1.0 - coefficient, 0.0, 1.0)))

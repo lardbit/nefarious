@@ -18,4 +18,3 @@ psycopg2-binary==2.9.11
 apprise==1.13.1
 cryptography>=43
 numpy==2.5.3
-opencv-contrib-python-headless==5.0.0.93
