@@ -926,8 +926,12 @@ export class ApiService {
   }
 
   protected _initEventSource() {
+    if (this._eventSource) {
+      this._eventSource.close();
+    }
+
     // EventSource cannot send headers, so the auth token is passed as a query parameter
-    const url = `/api/events?token=${this.userToken}`;
+    const url = `/api/events/?token=${this.userToken}`;
     console.log('Connecting to event stream: %s', url);
 
     this._eventSource = new EventSource(url);
