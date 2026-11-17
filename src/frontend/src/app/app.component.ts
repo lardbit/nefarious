@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from './api.service';
-import { OnPageVisible } from 'angular-page-visibility-v2';
+import { OnPageHidden, OnPageVisible } from 'angular-page-visibility-v2';
 import * as moment from 'moment';
 import {tap} from "rxjs/operators";
 
@@ -20,6 +20,13 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  @OnPageHidden()
+  closeEventSourceWhenHidden (): void {
+    // background tabs do not need realtime updates; this frees the SSE connection
+    // so other tabs are not starved by the browser's per-host connection limit
+    this.apiService.closeEventSource();
   }
 
   @OnPageVisible()

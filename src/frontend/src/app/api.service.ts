@@ -925,6 +925,13 @@ export class ApiService {
     })
   }
 
+  public closeEventSource() {
+    if (this._eventSource) {
+      this._eventSource.close();
+      this._eventSource = undefined;
+    }
+  }
+
   protected _initEventSource() {
     if (this._eventSource) {
       this._eventSource.close();
