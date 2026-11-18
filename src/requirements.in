@@ -1,0 +1,29 @@
+# Direct dependencies. Regenerate src/requirements.txt (locked + hash-pinned) with:
+#   uv pip compile --python-version 3.13 --generate-hashes src/requirements.in -o src/requirements.txt
+celery==5.6.3
+# Pin below 5.7.0: kombu 5.7.0 has a runtime redis>=6.1.0 check that conflicts
+# with redis==5.2.1 and crashes the Celery worker at startup.
+kombu==5.6.2
+celery-singleton==0.3.1
+dj-database-url==0.5.0
+Django==6.1.1
+defusedxml==0.7.1
+django-filter==26.1
+djangorestframework==3.18.1
+redis==5.2.1
+regex==2022.4.24
+requests==2.34.2
+tmdbsimple==2.9.8
+transmission-rpc==7.0.12
+uvicorn[standard]==0.53.0
+whitenoise==6.12.0
+django-redis==7.0.0
+Unidecode==1.1.2
+psycopg2-binary==2.9.11
+# Declared explicitly: kombu's redis transport imports packaging.version without
+# declaring it; no other package provides it transitively.
+packaging==26.3
+apprise==1.13.1
+cryptography==50.0.2
+numpy==2.5.3
+opencv-contrib-python-headless==5.0.0.93
