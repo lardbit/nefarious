@@ -58,6 +58,7 @@ export class SettingsComponent implements OnInit {
       'allow_hardcoded_subs': [settings['allow_hardcoded_subs'], Validators.required],
       'exclusions': [settings['keyword_search_filters'] ? Object.keys(settings['keyword_search_filters']) : []],
       'enable_video_detection': [settings['enable_video_detection'], Validators.required],
+      'video_detection_analysis_seconds': [settings['video_detection_analysis_seconds'], Validators.required],
       'language': [settings['language'], Validators.required],
       'users': new FormArray([]),
       'apprise_notification_url': [settings['apprise_notification_url']],

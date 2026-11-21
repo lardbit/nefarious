@@ -232,6 +232,16 @@
               Disable
             </label>
           </div>
+          <div class="my-2">
+            <label for="video-detection-analysis-seconds">Seconds of each video to analyze</label>
+            <select type="text" class="form-select" formControlName="video_detection_analysis_seconds" id="video-detection-analysis-seconds" required>
+              <option [ngValue]="30">30</option>
+              <option [ngValue]="60">60</option>
+              <option [ngValue]="90">90</option>
+              <option [ngValue]="120">120</option>
+            </select>
+            <small class="form-text text-muted">Bounds how many seconds of each video are scanned to detect fake/spam video content.</small>
+          </div>
         </div>
       </div>
       <!-- import library -->
