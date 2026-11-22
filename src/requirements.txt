@@ -5,7 +5,7 @@ Django==6.1.1
 defusedxml==0.7.1
 django-filter==26.1
 djangorestframework==3.18.1
-redis==5.2.1
+redis==6.1.0
 regex==2022.4.24
 requests==2.34.2
 tmdbsimple==2.9.8
@@ -14,6 +14,7 @@ uvicorn[standard]==0.53.0
 whitenoise==6.12.0
 django-redis==7.0.0
 Unidecode==1.1.2
+packaging>=23.0
 psycopg2-binary==2.9.11
 apprise==1.13.1
 cryptography>=43
