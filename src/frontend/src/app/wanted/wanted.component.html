@@ -40,6 +40,19 @@
           <span *ngIf="value" class="oi oi-check text-success"></span>
         </ng-template>
       </ngx-datatable-column>
+      <ngx-datatable-column name="Status" [width]="150">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <span class="badge" [ngClass]="'bg-' + statusOf(row).css">{{ statusOf(row).label }}</span>
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column name="Actions" [width]="90">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          <button *ngIf="canRetry(row)" class="btn btn-sm btn-outline-primary" [disabled]="retrying[row.id]"
+                  ngbTooltip="Retry download now" (click)="retry(row)">
+            <span class="oi" [ngClass]="{'oi-loop-circular': retrying[row.id], 'oi-action-redo': !retrying[row.id]}"></span>
+          </button>
+        </ng-template>
+      </ngx-datatable-column>
     </ngx-datatable>
 
   </div>
