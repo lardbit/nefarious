@@ -117,18 +117,14 @@ class OpenSubtitles:
         # retrieve the file id (guaranteed to have a single file from previous validation)
         file_id = search_result['attributes']['files'][0]['file_id']
 
-        response = requests.post(
-            self.API_URL_DOWNLOAD,
-            data={
-                'file_id': file_id,
-            },
-            headers={
-                'Api-Key': self.nefarious_settings.open_subtitles_api_key,
-                'Authorization': 'Bearer: {}'.format(self.nefarious_settings.open_subtitles_user_token),
-                'User-Agent': 'nefarious',
-            },
-            timeout=30,
-        )
+        response = self._request_download(file_id)
+        # the user token expires periodically, so refresh it once and retry
+        if response.status_code == 401:
+            logger_background.info('OpenSubtitles token expired; re-authenticating')
+            if self.auth():
+                response = self._request_download(file_id)
+            else:
+                logger_background.warning('unable to re-authenticate with OpenSubtitles: {}'.format(self.error_message))
         # validate
         if not response.ok:
             logger_background.warning('error received from opensubtitles: code={}, message={}'.format(response.status_code, response.content))
@@ -164,6 +160,20 @@ class OpenSubtitles:
         # save subtitle
         with open(subtitle_path, 'wb') as fh:
             fh.write(response.content)
+
+    def _request_download(self, file_id: int):
+        return requests.post(
+            self.API_URL_DOWNLOAD,
+            data={
+                'file_id': file_id,
+            },
+            headers={
+                'Api-Key': self.nefarious_settings.open_subtitles_api_key,
+                'Authorization': 'Bearer {}'.format(self.nefarious_settings.open_subtitles_user_token),
+                'User-Agent': 'nefarious',
+            },
+            timeout=30,
+        )
 
     @staticmethod
     def _single_file_results(results: list):
